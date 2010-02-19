@@ -1,0 +1,16 @@
+WHAT IS IT?
+
+PyroScope is a collection of tools for the BitTorrent protocol and especially the rTorrent client.
+
+This is the core package and basic command line tools subproject.
+
+
+INSTALLATION
+
+See the http://code.google.com/p/pyroscope/wiki/QuickStartGuide.
+
+
+ACKNOWLEDGEMENTS
+
+xmlrpc2scgi module by Glenn Washburn (GPLv2 licensed)
+
