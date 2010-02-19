@@ -50,7 +50,7 @@ project = dict(
         ],
     },
     include_package_data = True,
-    #zip_safe = True,
+    zip_safe = True,
     data_files = [
         ("EGG-INFO", [
             "README", "../LICENSE", "../debian/changelog", 
