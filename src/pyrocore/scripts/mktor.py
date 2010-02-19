@@ -1,6 +1,6 @@
-""" PyroScope - Metafile Creator.
+""" PyroCore - Metafile Creator.
 
-    Copyright (c) 2009 The PyroScope Project <pyroscope.project@gmail.com>
+    Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@ import os
 import sys
 import logging
 
-from pyroscope.scripts.base import ScriptBase
-from pyroscope.util.metafile import Metafile
+from pyrocore.scripts.base import ScriptBase
+from pyrocore.util.metafile import Metafile
 
 LOG = logging.getLogger(__name__)
 

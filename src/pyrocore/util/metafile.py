@@ -1,6 +1,6 @@
-""" PyroScope - Metafile Support.
+""" PyroCore - Metafile Support.
 
-    Copyright (c) 2009 The PyroScope Project <pyroscope.project@gmail.com>
+    Copyright (c) 2009, 2010 The PyroScope Project <pyrocore.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import fnmatch
 import hashlib
 import logging
 
-from pyroscope.util import bencode, fmt
+from pyrocore.util import bencode, fmt
 
 LOG = logging.getLogger(__name__)
 ALLOWED_NAME = re.compile(r"^[^/\\.~][^/\\]*$")
