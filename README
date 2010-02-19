@@ -7,7 +7,11 @@ This is the core package and basic command line tools subproject.
 
 INSTALLATION
 
-See the http://code.google.com/p/pyroscope/wiki/QuickStartGuide.
+On Ubuntu, do this:
+    sudo aptitude install python-setuptools checkinstall
+    sudo checkinstall easy_install pyrocore
+
+See the http://code.google.com/p/pyroscope/wiki/QuickStartGuide for more.
 
 
 ACKNOWLEDGEMENTS

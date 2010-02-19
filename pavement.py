@@ -43,12 +43,12 @@ project = dict(
     version = version,
     package_dir = {"": "src"},
     packages = find_packages("src", exclude = ["tests"]),
-    #entry_points = {
-    #    "console_scripts": [
-    #        "mktor = pyrocore.scripts.mktor:run",
-    #        "lstor = pyrocore.scripts.lstor:run",
-    #    ],
-    #},
+    entry_points = {
+        "console_scripts": [
+            "mktor = pyrocore.scripts.mktor:run",
+            "lstor = pyrocore.scripts.lstor:run",
+        ],
+    },
     include_package_data = True,
     #zip_safe = True,
     data_files = [
@@ -120,9 +120,9 @@ def docs():
 def functest():
     """ Functional test of the command line tools.
     """
-    #sh("bin/mktor -o build/pavement.torrent pavement.py http://example.com/")
-    #sh("bin/mktor -o build/tests.torrent -x '*.pyc' -r 'pyroscope tests' --private tests/ http://example.com/")
-    #sh("bin/lstor build/*.torrent")
+    sh("bin/mktor -o build/pavement.torrent pavement.py http://example.com/")
+    sh("bin/mktor -o build/tests.torrent -x '*.pyc' -r 'pyroscope tests' --private src/tests/ http://example.com/")
+    sh("bin/lstor build/*.torrent")
 
 
 #
