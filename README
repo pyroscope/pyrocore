@@ -7,9 +7,12 @@ This is the core package and basic command line tools subproject.
 
 INSTALLATION
 
-On Ubuntu, do this:
-    sudo aptitude install python-setuptools checkinstall
-    sudo checkinstall easy_install pyrocore
+On Ubuntu, do this (tested on Hardy 8.04 LTS):
+
+    sudo aptitude install python-setuptools
+    sudo easy_install-2.5 --prefix /usr/local --record /dev/stdout pyrocore
+
+After that, the command line utilities "mktor" and "lstor" should be available in your path.
 
 See the http://code.google.com/p/pyroscope/wiki/QuickStartGuide for more.
 
