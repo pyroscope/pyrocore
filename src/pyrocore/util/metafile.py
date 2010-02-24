@@ -29,6 +29,13 @@ from pyrocore.util import bencode, fmt
 
 LOG = logging.getLogger(__name__)
 ALLOWED_NAME = re.compile(r"^[^/\\.~][^/\\]*$")
+PASSKEY_RE = re.compile(r"[0-9a-fA-F]{24,64}")
+
+
+def mask_keys(announce_url):
+    """ Mask any passkeys (hex sequences) in an announce URL.
+    """
+    return PASSKEY_RE.sub(lambda m: "*" * len(m.group()), announce_url)
 
 
 def check_info(info):
@@ -303,7 +310,7 @@ class Metafile(object):
                 fmt.human_size(last_piece_length).strip(),
             ),
             "HASH %s" % (info_hash.hexdigest().upper()),
-            "URL  %s" % announce,
+            "URL  %s" % mask_keys(announce),
             "PRV  %s" % ("YES (DHT/PEX disabled)" if info.get("private") else "NO (DHT/PEX enabled)"),
             "TIME %s" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo["creation date"])),
         ]
