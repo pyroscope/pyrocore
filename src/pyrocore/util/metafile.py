@@ -312,7 +312,9 @@ class Metafile(object):
             "HASH %s" % (info_hash.hexdigest().upper()),
             "URL  %s" % mask_keys(announce),
             "PRV  %s" % ("YES (DHT/PEX disabled)" if info.get("private") else "NO (DHT/PEX enabled)"),
-            "TIME %s" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo["creation date"])),
+            "TIME %s" % ("N/A" if "creation date" not in metainfo else
+                time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo["creation date"]))
+            ),
         ]
         
         for label, key in (("BY  ", "created by"), ("REM ", "comment")):
