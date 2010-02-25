@@ -47,6 +47,7 @@ project = dict(
         "console_scripts": [
             "mktor = pyrocore.scripts.mktor:run",
             "lstor = pyrocore.scripts.lstor:run",
+            "chtor = pyrocore.scripts.chtor:run",
         ],
     },
     include_package_data = True,
