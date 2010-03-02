@@ -63,7 +63,7 @@ class RtorrentControl(ScriptBase):
         """
         # basic options
         self.add_bool_option("-n", "--dry-run",
-            help="don't write changes to disk, just tell what would happen")
+            help="don't commit changes, just tell what would happen")
         self.add_bool_option("-i", "--interactive",
             help="interactive mode (prompt before changing things)")
         self.add_bool_option("--yes",
