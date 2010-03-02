@@ -282,7 +282,7 @@ class Metafile(object):
         return meta
 
 
-    def listing(self):
+    def listing(self, masked=True):
         """ List torrent info & contents.
         """
         # Assemble data
@@ -310,7 +310,7 @@ class Metafile(object):
                 fmt.human_size(last_piece_length).strip(),
             ),
             "HASH %s" % (info_hash.hexdigest().upper()),
-            "URL  %s" % mask_keys(announce),
+            "URL  %s" % (mask_keys if masked else str)(announce),
             "PRV  %s" % ("YES (DHT/PEX disabled)" if info.get("private") else "NO (DHT/PEX enabled)"),
             "TIME %s" % ("N/A" if "creation date" not in metainfo else
                 time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo["creation date"]))

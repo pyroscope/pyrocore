@@ -39,6 +39,8 @@ class MetafileLister(ScriptBase):
     def add_options(self):
         """ Add program options.
         """
+        self.add_bool_option("--reveal",
+            help="show full announce URL including keys")
 
 
     def mainloop(self):
@@ -54,7 +56,7 @@ class MetafileLister(ScriptBase):
                 print
                 print "~" * 79
             try:
-                lines = metafile.listing()
+                lines = metafile.listing(masked=not self.options.reveal)
             except (KeyError, BencodeError), exc:
                 LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
