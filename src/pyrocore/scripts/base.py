@@ -104,9 +104,9 @@ class ScriptBase(object):
         """ Get program options.
         """
         self.add_bool_option("-q", "--quiet",
-            help="Omit informational logging")
+            help="omit informational logging")
         self.add_bool_option("-v", "--verbose",
-            help="Increase informational logging")
+            help="increase informational logging")
 
         # Template method to add options of derived class
         self.add_options()
