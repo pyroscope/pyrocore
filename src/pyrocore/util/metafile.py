@@ -28,14 +28,24 @@ import logging
 from pyrocore.util import bencode, fmt
 
 LOG = logging.getLogger(__name__)
+
+# Allowed characters in a metafile filename or path
 ALLOWED_NAME = re.compile(r"^[^/\\.~][^/\\]*$")
-PASSKEY_RE = re.compile(r"[0-9a-fA-F]{24,64}")
+
+# Character sequences considered secret (roughly, any path part or query parameter
+# that looks like an alphanumeric sequence or url-safe base64 string)
+PASSKEY_RE = re.compile(r"(?<=[/=])[-_0-9a-zA-Z]{5,64}={0,3}(?=[/&]|$)")
+
+# Non-secret exemptions
+PASSKEY_OK = ("announce", "TrackerServlet",)
 
 
 def mask_keys(announce_url):
     """ Mask any passkeys (hex sequences) in an announce URL.
     """
-    return PASSKEY_RE.sub(lambda m: "*" * len(m.group()), announce_url)
+    return PASSKEY_RE.sub(
+        lambda m: m.group() if m.group() in PASSKEY_OK else "*" * len(m.group()),
+        announce_url)
 
 
 def check_info(info):
@@ -265,7 +275,8 @@ class Metafile(object):
 
 
     def create(self, datapath, tracker_url, comment=None, root_name=None, created_by=None, private=False, progress=None):
-        """ Create a metafile.
+        """ Create a metafile with the path given on object creation. 
+            Returns the metafile dict that was written (as an object, not bencoded).
         """
         self.datapath = datapath.rstrip(os.sep)
         LOG.info("Creating %r for %r..." % (self.filename, self.datapath))
@@ -283,7 +294,7 @@ class Metafile(object):
 
 
     def listing(self, masked=True):
-        """ List torrent info & contents.
+        """ List torrent info & contents. Returns a list of formatted lines.
         """
         # Assemble data
         metainfo = bencode.bread(self.filename)
