@@ -16,14 +16,17 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+from __future__ import with_statement
 
 import os
 import re
 import time
+import stat
 import math
 import fnmatch
 import hashlib
 import logging
+from contextlib import closing
 
 from pyrocore.util import bencode, fmt
 
@@ -140,8 +143,25 @@ class Metafile(object):
     def _scan(self):
         """ Generate paths in "self.datapath".
         """
-        # Directory or single file?
-        if os.path.isdir(self.datapath):
+        # FIFO?
+        if self._fifo:
+            if self._fifo > 1:
+                raise RuntimeError("INTERNAL ERROR: FIFO read twice!")
+            self._fifo += 1
+                
+            # Read paths relative to directory contaoning the FIFO
+            with closing(open(self.datapath, "r")) as fifo:
+                while True:
+                    relpath = fifo.readline().rstrip('\n')
+                    if not relpath: # EOF?
+                        break
+                    LOG.debug("Read relative path %r from FIFO..." % (relpath,))
+                    yield os.path.join(os.path.dirname(self.datapath), relpath)
+
+            LOG.debug("FIFO %r closed!" % (self.datapath,))
+                
+        # Directory?
+        elif os.path.isdir(self.datapath):
             # Walk the directory tree
             for dirpath, dirnames, filenames in os.walk(self.datapath):
                 # Don't scan blacklisted directories
@@ -154,6 +174,8 @@ class Metafile(object):
                     if not any(fnmatch.fnmatch(filename, pattern) for pattern in self.ignore):
                         #yield os.path.join(dirpath[len(self.datapath)+1:], filename)
                         yield os.path.join(dirpath, filename)
+
+        # Single file
         else:
             # Yield the filename
             yield self.datapath
@@ -175,7 +197,7 @@ class Metafile(object):
         pieces = []
 
         # Initialize progress state
-        totalsize = self._calc_size()
+        totalsize = -1 if self._fifo else self._calc_size()
         totalhashed = 0
 
         # Start a new piece
@@ -183,13 +205,15 @@ class Metafile(object):
         done = 0
  
         # Hash all files
-        for filename in sorted(self._scan()):
+        for filename in (self._scan() if self._fifo else sorted(self._scan())):
             # Assemble file info
             filesize = os.path.getsize(filename)
+            filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
             file_list.append({
                 "length": filesize, 
-                "path": filename[len(self.datapath)+1:].replace(os.sep, '/').split('/'),
+                "path": filepath.replace(os.sep, '/').split('/'),
             })
+            LOG.debug("Hashing %r, size %d..." % (filename, filesize))
             
             # Open file and hash it
             fileoffset = 0
@@ -228,11 +252,11 @@ class Metafile(object):
             "name": os.path.basename(self.datapath),
         }
 
-        # Handle directory vs. single file        
-        if os.path.isdir(self.datapath):
+        # Handle directory/FIFO vs. single file        
+        if self._fifo or os.path.isdir(self.datapath):
             metainfo["files"] = file_list
         else:
-            metainfo["length"] = totalsize
+            metainfo["length"] = totalhashed
 
         # Return validated info dict
         return check_info(metainfo)
@@ -242,8 +266,13 @@ class Metafile(object):
         """ Create torrent dict.
         """
         # Calculate piece size
-        datasize = self._calc_size()
-        piece_size_exp = int(math.log(datasize) / math.log(2)) - 9
+        if self._fifo:
+            # TODO we need to add a (command line) param, probably for total data size
+            # for now, always 1MB
+            piece_size_exp = 20 
+        else:
+            piece_size_exp = int(math.log(self._calc_size()) / math.log(2)) - 9
+
         piece_size_exp = min(max(15, piece_size_exp), 22)
         piece_size = 2 ** piece_size_exp
 
@@ -279,7 +308,8 @@ class Metafile(object):
             Returns the metafile dict that was written (as an object, not bencoded).
         """
         self.datapath = datapath.rstrip(os.sep)
-        LOG.info("Creating %r for %r..." % (self.filename, self.datapath))
+        self._fifo = int(stat.S_ISFIFO(os.stat(self.datapath).st_mode))
+        LOG.info("Creating %r for %s%r..." % (self.filename, "filenames read from " if self._fifo else "", self.datapath))
 
         meta = self._make_meta(tracker_url, root_name, private, progress)
 
@@ -289,7 +319,9 @@ class Metafile(object):
         if created_by:
             meta["created by"] = created_by
 
+        LOG.debug("Writing %r..." % (self.filename,))
         bencode.bwrite(self.filename, meta)
+
         return meta
 
 
