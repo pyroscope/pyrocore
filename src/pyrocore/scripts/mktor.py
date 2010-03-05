@@ -32,7 +32,7 @@ class MetafileCreator(ScriptBase):
     """
 
     # argument description for the usage information
-    ARGS_HELP = "<dir-or-file> <tracker-url>"
+    ARGS_HELP = "<dir-or-file> <tracker-url>..."
 
 
     def add_options(self):
@@ -57,8 +57,8 @@ class MetafileCreator(ScriptBase):
         if not self.args:
             self.parser.print_help()
             self.parser.exit()
-        elif len(self.args) != 2:
-            self.parser.error("Expected exactly two arguments, got: %s" % (' '.join(self.args),))
+        elif len(self.args) < 2:
+            self.parser.error("Expected a path and at least one announce URL, got: %s" % (' '.join(self.args),))
 
         def progress(totalhashed, totalsize):
             msg = " " * 30
@@ -70,11 +70,13 @@ class MetafileCreator(ScriptBase):
         if self.options.quiet:
             progress = None
 
-        datapath, tracker_url = self.args
-        datapath = datapath.rstrip(os.sep)
+        # Create and configure metafile factory
+        datapath = self.args[0].rstrip(os.sep)
         metafile = Metafile(self.options.output_filename or (datapath + ".torrent"))
         metafile.ignore.extend(self.options.exclude)
-        metafile.create(datapath, tracker_url, progress=progress, 
+
+        # Write the metafile(s)
+        metafile.create(datapath, self.args[1:], progress=progress, 
             root_name=self.options.root_name, private=self.options.private,
             comment=self.options.comment, created_by="PyroScope %s" % self.version,
         )

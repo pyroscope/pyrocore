@@ -26,6 +26,7 @@ import math
 import fnmatch
 import hashlib
 import logging
+import urlparse
 from contextlib import closing
 
 from pyrocore.util import bencode, fmt
@@ -303,24 +304,42 @@ class Metafile(object):
         return check_meta(meta)
 
 
-    def create(self, datapath, tracker_url, comment=None, root_name=None, created_by=None, private=False, progress=None):
+    def create(self, datapath, tracker_urls, comment=None, root_name=None, created_by=None, private=False, progress=None):
         """ Create a metafile with the path given on object creation. 
-            Returns the metafile dict that was written (as an object, not bencoded).
+            Returns the last metafile dict that was written (as an object, not bencoded).
         """
         self.datapath = datapath.rstrip(os.sep)
         self._fifo = int(stat.S_ISFIFO(os.stat(self.datapath).st_mode))
-        LOG.info("Creating %r for %s%r..." % (self.filename, "filenames read from " if self._fifo else "", self.datapath))
+        tracker_urls = list(tracker_urls)
+        multi_mode = len(tracker_urls) > 1
 
-        meta = self._make_meta(tracker_url, root_name, private, progress)
+        # TODO add optimization so the hashing happens only once for multiple URLs!
+        for tracker_url in tracker_urls:
+            # Determine metafile name
+            output_name = self.filename
+            if multi_mode:
+                # Add 2nd level of announce URL domain to metafile name
+                output_name = list(os.path.splitext(output_name))
+                try:
+                    output_name[1:1] = '-' + urlparse.urlparse(tracker_url).netloc.split(':')[0].split('.')[-2]
+                except (IndexError,):
+                    LOG.error("Malformed announce URL %r, skipping!" % (tracker_url,))
+                    continue
+                output_name = ''.join(output_name)
 
-        # Optional fields
-        if comment:
-            meta["comment"] = comment
-        if created_by:
-            meta["created by"] = created_by
+            # Hash the data
+            LOG.info("Creating %r for %s %r..." % (output_name, "filenames read from" if self._fifo else "data in", self.datapath))
+            meta = self._make_meta(tracker_url, root_name, private, progress)
 
-        LOG.debug("Writing %r..." % (self.filename,))
-        bencode.bwrite(self.filename, meta)
+            # Add optional fields
+            if comment:
+                meta["comment"] = comment
+            if created_by:
+                meta["created by"] = created_by
+
+            # Write metafile to disk
+            LOG.debug("Writing %r..." % (output_name,))
+            bencode.bwrite(output_name, meta)
 
         return meta
 
