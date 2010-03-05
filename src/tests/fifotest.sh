@@ -13,7 +13,7 @@ test ! -e fifotest.fifo || rm fifotest.fifo
 mkfifo fifotest.fifo
 
 # Start hashing process
-mktor -r incremental -o fifotest.torrent fifotest.fifo announce -v &
+mktor -r concurrent -o fifotest.torrent fifotest.fifo announce -v &
 
 # Start filename emitting process
 ( for file in $(find tests/ -name "*.py"); do
