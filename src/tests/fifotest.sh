@@ -1,5 +1,5 @@
 #! /bin/bash
-cat $0; echo
+cat $0; echo; echo "~~~ Start of test run ~~~"
 cd $(dirname $(dirname $0))
 
 test ! -f fifotest.torrent || rm fifotest.torrent
