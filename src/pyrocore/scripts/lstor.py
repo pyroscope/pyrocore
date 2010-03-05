@@ -41,6 +41,9 @@ class MetafileLister(ScriptBase):
         """
         self.add_bool_option("--reveal",
             help="show full announce URL including keys")
+        # TODO implement this
+        #self.add_value_option("-c", "--check-data", "PATH",
+        #    help="check the hash against the data in the given path")
 
 
     def mainloop(self):
