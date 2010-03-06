@@ -39,16 +39,18 @@ class MetafileCreator(ScriptBase):
         """ Add program options.
         """
         self.add_bool_option("-p", "--private",
-            help="Disallow DHT and PEX")
+            help="disallow DHT and PEX")
+        self.add_bool_option("--no-date",
+            help="leave out creation date")
         self.add_value_option("-o", "--output-filename", "PATH",
-            help="Optional file name for the metafile")
+            help="optional file name for the metafile")
         self.add_value_option("-r", "--root-name", "NAME",
-            help="Optional root name (default is basename of the data path)")
+            help="optional root name (default is basename of the data path)")
         self.add_value_option("-x", "--exclude", "PATTERN",
             action="append", default=[],
-            help="Exclude files matching a glob pattern from hashing")
+            help="exclude files matching a glob pattern from hashing")
         self.add_value_option("--comment", "TEXT",
-            help="Optional human-readable comment")
+            help="optional human-readable comment")
 
 
     def mainloop(self):
@@ -77,7 +79,7 @@ class MetafileCreator(ScriptBase):
 
         # Write the metafile(s)
         metafile.create(datapath, self.args[1:], progress=progress, 
-            root_name=self.options.root_name, private=self.options.private,
+            root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
             comment=self.options.comment, created_by="PyroScope %s" % self.version,
         )
 

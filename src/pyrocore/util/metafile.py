@@ -295,7 +295,6 @@ class Metafile(object):
         meta = {
             "info": info, 
             "announce": tracker_url.strip(), 
-            "creation date": long(time.time())
         }
 
         #XXX meta["encoding"] = "UTF-8"
@@ -304,7 +303,8 @@ class Metafile(object):
         return check_meta(meta)
 
 
-    def create(self, datapath, tracker_urls, comment=None, root_name=None, created_by=None, private=False, progress=None):
+    def create(self, datapath, tracker_urls, comment=None, root_name=None, 
+                     created_by=None, private=False, no_date=False, progress=None):
         """ Create a metafile with the path given on object creation. 
             Returns the last metafile dict that was written (as an object, not bencoded).
         """
@@ -336,6 +336,8 @@ class Metafile(object):
                 meta["comment"] = comment
             if created_by:
                 meta["created by"] = created_by
+            if not no_date:
+                meta["creation date"] = long(time.time())
 
             # Write metafile to disk
             LOG.debug("Writing %r..." % (output_name,))
