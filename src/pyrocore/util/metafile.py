@@ -315,6 +315,9 @@ class Metafile(object):
 
         # TODO add optimization so the hashing happens only once for multiple URLs!
         for tracker_url in tracker_urls:
+            # TODO Lookup announce URLs from config file
+            # tracker_url = config.announce.get(tracker_url, tracker_url)
+        
             # Determine metafile name
             output_name = self.filename
             if multi_mode:
