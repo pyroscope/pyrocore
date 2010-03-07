@@ -47,6 +47,7 @@ class ConfigLoader(object):
     """
     CONFIG_INI = "config.ini"
     CONFIG_PY = "config.py"
+    RTORRENT_RC_KEYS = ("scgi_local",)
 
 
     def __init__(self, config_dir=None):
@@ -108,6 +109,35 @@ class ConfigLoader(object):
         self._set_from_ini(namespace, ini_file)
 
 
+    def _load_rtorrent_rc(self, namespace, rtorrent_rc):
+        """ Load file given in "rtorrent_rc".
+        """
+        # Allow use of command line tools like mktor without a working rtorrent config
+        if not (rtorrent_rc and os.path.isfile(rtorrent_rc)):
+            return
+
+        # Parse the file
+        with closing(open(rtorrent_rc)) as handle:
+            for line in handle.readlines():
+                # Skip comments and empty lines
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+
+                # Be lenient about errors, after all it's not our own config file
+                try:
+                    key, val = line.split("=", 1)
+                except ValueError:
+                    self.log.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
+                    continue
+                key, val = key.strip(), val.strip()
+
+                # Copy values we're interested in
+                if key in self.RTORRENT_RC_KEYS:
+                    self.log.debug("Copied from rtorrent.rc: %s = %s" % (key, val))
+                    namespace.setdefault(key, _validate(key, val))
+
+
     def _load_ini(self, namespace, config_file):
         """ Load INI style configuration.
         """
@@ -142,7 +172,8 @@ class ConfigLoader(object):
         namespace = {}
         self._set_defaults(namespace)
         self._load_ini(namespace, os.path.join(self.config_dir, self.CONFIG_INI))
-        self._load_py(namespace, namespace.get("config_script", os.path.join(self.config_dir, self.CONFIG_PY)))
+        self._load_rtorrent_rc(namespace, namespace.get("rtorrent_rc"))
+        self._load_py(namespace, namespace["config_script"])
         self._update_config(namespace)
 
         # Ready to go...
