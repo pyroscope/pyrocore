@@ -24,7 +24,7 @@ import logging
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
-from pyrocore.util import load_config
+from pyrocore.util import load_config, metafile
 
 LOG = logging.getLogger(__name__)
 
@@ -46,6 +46,8 @@ class AdminTool(ScriptBaseWithConfig):
             help="create default configuration")
         self.add_bool_option("--dump-config",
             help="pretty-print configuration including all defaults")
+        self.add_bool_option("--reveal",
+            help="show full announce URL including keys")
 
 
     def mainloop(self):
@@ -55,12 +57,21 @@ class AdminTool(ScriptBaseWithConfig):
             # Create configuration
             load_config.ConfigLoader(self.options.config_dir).create()
         elif self.options.dump_config:
-            # Dump configuration
-            pprint.pprint(dict((key, val)
+            # Get public config attributes
+            public = dict((key, val)
                 for key, val in vars(config).items()
                 if not key.startswith('_')
-            ))
+            )
+
+            # Mask announce URLs
+            if not self.options.reveal:
+                for key, val in public["announce"].items():
+                    public["announce"][key] = [metafile.mask_keys(url) for url in val]
+
+            # Dump configuration
+            pprint.pprint(public)
         else:
+            # Print usage
             self.parser.print_help()
             self.parser.exit()
 

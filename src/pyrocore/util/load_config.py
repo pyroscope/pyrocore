@@ -61,8 +61,14 @@ class ConfigLoader(object):
     def _update_config(self, namespace):
         """ Inject the items from the given dict into the configuration.
         """
+        # Update values
         for key, val in namespace.items():
             setattr(config, key, val)
+
+        # Validate announce URLs
+        for key, val in config.announce.items():
+            if isinstance(val, basestring):
+                config.announce[key] = val.split()
 
 
     def _set_from_ini(self, namespace, ini_file):
