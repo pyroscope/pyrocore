@@ -23,20 +23,28 @@
 # All imports go to the ConfigLoader methods to keep the namespace clean!
 
 
-class ConfigLoader(object):
+class _ConfigLoader(object):
     """ Populates this module's dictionary with the user-defined configuration values.
     """
+    CONFIG_INI = "config.ini"
+    CONFIG_PY = "config.py"
+
 
     def __init__(self):
         """ Create loader instance.
         """
+        import logging
+        
         self.config_dir = None
+        self.log = logging.getLogger(self.__class__.__name__)
         self._loaded = False
 
 
     def _set_defaults(self, config, config_dir):
         """ Set default values.
         """
+        import os
+
         # XXX Load defaults from "data/config/config.ini"?!
         config.update(dict(
             config_dir = config_dir,
@@ -66,8 +74,12 @@ class ConfigLoader(object):
         self._set_defaults(config, config_dir)
 
         # TODO Load "config.ini"
+        config_file = os.path.join(config_dir, self.CONFIG_INI)
+        self.log.debug("Loading %r..." % (config_file,))
 
         # TODO Execute "config.py" in this module's namespace
+        config_file = os.path.join(config_dir, self.CONFIG_PY)
+        self.log.debug("Loading %r..." % (config_file,))
         local_ns = dict(
             LOG=logging.getLogger(__name__),
         )

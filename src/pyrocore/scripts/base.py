@@ -27,6 +27,8 @@ import pkg_resources
 from optparse import OptionParser
 from contextlib import closing
 
+from pyrocore import config
+
 LOG = logging.getLogger(__name__)
 
 
@@ -163,4 +165,11 @@ class ScriptBaseWithConfig(ScriptBase):
 
         self.add_value_option("--config-dir", "DIR",
             help="configuration directory [~/.pyroscope]")
+
+
+    def get_options(self):
+        """ Get program options.
+        """
+        super(ScriptBaseWithConfig, self).get_options()
+        config._ConfigLoader().load(self.options.config_dir)
 

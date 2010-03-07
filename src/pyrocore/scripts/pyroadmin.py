@@ -22,6 +22,7 @@ import sys
 import logging
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+from pyrocore import config
 
 LOG = logging.getLogger(__name__)
 
@@ -49,11 +50,16 @@ class AdminTool(ScriptBaseWithConfig):
         """ The main loop.
         """
         if self.options.create_config:
-            from pyrocore.config import ConfigLoader
-            ConfigLoader().create(self.options.config_dir)
+            # Create configuration
+            from pyrocore.config import _ConfigLoader
+            _ConfigLoader().create(self.options.config_dir)
         elif self.options.dump_config:
-            # TODO
-            raise NotImplementedError()
+            # Dump configuration
+            import pprint
+            pprint.pprint(dict((i, getattr(config, i))
+                for i in dir(config)
+                if not i.startswith('_')
+            ))
         else:
             self.parser.print_help()
             self.parser.exit()

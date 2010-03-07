@@ -23,6 +23,7 @@ import logging
 import urlparse
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+from pyrocore import config
 from pyrocore.util import bencode
 
 LOG = logging.getLogger(__name__)
@@ -97,6 +98,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.print_help()
             self.parser.exit()
 
+        # TODO
+        pass
 
         # print summary
         if self.options.summary:
