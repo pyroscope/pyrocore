@@ -205,12 +205,17 @@ class ConfigLoader(object):
 
         # Create default configuration files
         for filename in (self.CONFIG_INI, self.CONFIG_PY):
+            # Load default from package data
+            text = pkg_resources.resource_string("pyrocore", "data/config/" + filename)
+
+            # Check for existing configuration file
             config_file = os.path.join(self.config_dir, filename)
             if os.path.exists(config_file):
                 self.log.warn("Configuration file %r already exists!" % (config_file,))
-            else:
-                text = pkg_resources.resource_string("pyrocore", "data/config/" + filename)
-                with closing(open(config_file, "w")) as handle:
-                    handle.write(text)
-                self.log.info("Configuration file %r written!" % (config_file,))
+                config_file += ".default"
+
+            # Write new configuration file
+            with closing(open(config_file, "w")) as handle:
+                handle.write(text)
+            self.log.info("Configuration file %r written!" % (config_file,))
 
