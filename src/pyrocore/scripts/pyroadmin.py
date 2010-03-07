@@ -60,9 +60,9 @@ class AdminTool(ScriptBaseWithConfig):
             # Get public config attributes
             public = dict((key, val)
                 for key, val in vars(config).items()
-                if not key.startswith('_') and (
-                    self.options.reveal or not callable(val)
-                )
+                if not key.startswith('_') and (self.options.reveal or not (
+                    callable(val) or key in config._PREDEFINED
+                ))
             )
 
             # Mask announce URLs

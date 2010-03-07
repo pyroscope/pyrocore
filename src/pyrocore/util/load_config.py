@@ -159,12 +159,8 @@ class ConfigLoader(object):
         """ Load scripted configuration.
         """
         self.log.debug("Loading %r..." % (config_file,))
-        local_ns = dict(
-            LOG=logging.getLogger(__name__),
-        )
-
-        # TODO Execute "config.py" in namespace
-
+        execfile(config_file, vars(config), namespace)
+        
 
     def load(self):
         """ Actually load the configuation from either the default location or the given directory.

@@ -20,6 +20,10 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import logging
+
+LOG = logging.getLogger(__name__)
+
 
 def lookup_announce_alias(name):
     """ Get canonical alias name and announce URL list for the given alias.
@@ -29,4 +33,11 @@ def lookup_announce_alias(name):
             return alias, urls
 
     raise KeyError("Unknown alias %s" % (name,))
+
+
+# Remember predefined names
+_PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
     
+# Keep namespace clean
+del logging
+
