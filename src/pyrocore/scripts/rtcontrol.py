@@ -22,14 +22,14 @@ import sys
 import logging
 import urlparse
 
-from pyrocore.scripts.base import ScriptBase
+from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.util import bencode
 
 LOG = logging.getLogger(__name__)
 
 
-class RtorrentControl(ScriptBase):
-    ###################################################################################
+class RtorrentControl(ScriptBaseWithConfig):
+    ### Keep things wrapped to fit under this comment... ##############################
     """ 
         Control and inspect rTorrent from the command line.
     
@@ -61,6 +61,8 @@ class RtorrentControl(ScriptBase):
     def add_options(self):
         """ Add program options.
         """
+        super(RtorrentControl, self).add_options()
+
         # basic options
         self.add_bool_option("-n", "--dry-run",
             help="don't commit changes, just tell what would happen")
