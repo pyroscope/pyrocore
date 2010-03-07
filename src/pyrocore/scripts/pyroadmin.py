@@ -19,10 +19,12 @@
 
 import os
 import sys
+import pprint
 import logging
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
+from pyrocore.util import load_config
 
 LOG = logging.getLogger(__name__)
 
@@ -51,14 +53,12 @@ class AdminTool(ScriptBaseWithConfig):
         """
         if self.options.create_config:
             # Create configuration
-            from pyrocore.config import _ConfigLoader
-            _ConfigLoader().create(self.options.config_dir)
+            load_config.ConfigLoader(self.options.config_dir).create()
         elif self.options.dump_config:
             # Dump configuration
-            import pprint
-            pprint.pprint(dict((i, getattr(config, i))
-                for i in dir(config)
-                if not i.startswith('_')
+            pprint.pprint(dict((key, val)
+                for key, val in vars(config).items()
+                if not key.startswith('_')
             ))
         else:
             self.parser.print_help()

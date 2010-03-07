@@ -17,3 +17,13 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+class LoggableError(Exception):
+    """ An exception that is intended to be logged instead of passing it to the
+        runtime environment which will likely produce a full stacktrace.
+    """
+
+
+class UserError(LoggableError):
+    """ Yes, it was your fault!
+    """
+

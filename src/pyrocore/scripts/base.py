@@ -28,6 +28,7 @@ from optparse import OptionParser
 from contextlib import closing
 
 from pyrocore import config
+from pyrocore.util import LoggableError, load_config
 
 LOG = logging.getLogger(__name__)
 
@@ -133,8 +134,15 @@ class ScriptBase(object):
 
         # Do the work
         try:
-            # Template method with the tool's main loop
-            self.mainloop()
+            try:
+                # Template method with the tool's main loop
+                self.mainloop()
+            except LoggableError, exc:
+                try:
+                    msg = str(exc)
+                except UnicodeError:
+                    msg = unicode(exc, "UTF-8")
+                LOG.error(msg)
         finally:
             # Shut down
             running_time = time.time() - self.startup
@@ -171,5 +179,5 @@ class ScriptBaseWithConfig(ScriptBase):
         """ Get program options.
         """
         super(ScriptBaseWithConfig, self).get_options()
-        config._ConfigLoader().load(self.options.config_dir)
+        load_config.ConfigLoader(self.options.config_dir).load()
 
