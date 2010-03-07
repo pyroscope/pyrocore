@@ -110,12 +110,20 @@ class ScriptBase(object):
             help="omit informational logging")
         self.add_bool_option("-v", "--verbose",
             help="increase informational logging")
+        self.add_bool_option("--debug",
+            help="always show stack-traces for errors")
 
         # Template method to add options of derived class
         self.add_options()
 
         self.options, self.args = self.parser.parse_args()
 
+        # Override logging options in debug mode
+        if self.options.debug:
+            self.options.verbose = True
+            self.options.quiet = False
+
+        # Set logging levels
         if self.options.verbose and self.options.quiet:
             self.parser.error("Don't know how to be quietly verbose!")
         elif self.options.quiet:
@@ -129,15 +137,18 @@ class ScriptBase(object):
     def run(self):
         """ The main program skeleton.
         """
-        # Preparation steps
-        self.get_options()
-
-        # Do the work
         try:
             try:
+                # Preparation steps
+                self.get_options()
+
                 # Template method with the tool's main loop
                 self.mainloop()
             except error.LoggableError, exc:
+                if self.options.debug:
+                    raise
+
+                # Log errors caused by invalid user input
                 try:
                     msg = str(exc)
                 except UnicodeError:

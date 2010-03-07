@@ -29,7 +29,7 @@ import ConfigParser
 import pkg_resources
 from contextlib import closing
 
-from pyrocore import config
+from pyrocore import config, error
 
 
 def _validate(key, val):
@@ -57,17 +57,23 @@ class ConfigLoader(object):
         self._loaded = False
 
 
+    def _validate_namespace(self, namespace):
+        """ Validate the given namespace. This method is idempotent!
+        """
+        # Validate announce URLs
+        for key, val in namespace["announce"].items():
+            if isinstance(val, basestring):
+                namespace["announce"][key] = val.split()
+
+
     def _update_config(self, namespace):
         """ Inject the items from the given dict into the configuration.
         """
+        self._validate_namespace(namespace)
+
         # Update values
         for key, val in namespace.items():
             setattr(config, key, val)
-
-        # Validate announce URLs
-        for key, val in config.announce.items():
-            if isinstance(val, basestring):
-                config.announce[key] = val.split()
 
 
     def _set_from_ini(self, namespace, ini_file):
@@ -149,18 +155,21 @@ class ConfigLoader(object):
         self.log.debug("Loading %r..." % (config_file,))
         ini_file = ConfigParser.SafeConfigParser()
         ini_file.optionxform = str # case-sensitive option names
-        if not ini_file.read(config_file):
-            self.log.warning("Configuration file %r not found!" % (config_file,))
-        else:
+        if ini_file.read(config_file):
             self._set_from_ini(namespace, ini_file)
+        else:
+            self.log.warning("Configuration file %r not found!" % (config_file,))
 
 
     def _load_py(self, namespace, config_file):
         """ Load scripted configuration.
         """
-        self.log.debug("Loading %r..." % (config_file,))
-        execfile(config_file, vars(config), namespace)
-        
+        if config_file and os.path.isfile(config_file):
+            self.log.debug("Loading %r..." % (config_file,))
+            execfile(config_file, vars(config), namespace)
+        else:
+            self.log.warning("Configuration file %r not found!" % (config_file,))
+            
 
     def load(self):
         """ Actually load the configuation from either the default location or the given directory.
@@ -169,13 +178,17 @@ class ConfigLoader(object):
         if self._loaded:
             raise RuntimeError("INTERNAL ERROR: Attempt to load configuration twice!")
 
-        # Load configuration
-        namespace = {}
-        self._set_defaults(namespace)
-        self._load_ini(namespace, os.path.join(self.config_dir, self.CONFIG_INI))
-        self._load_rtorrent_rc(namespace, namespace.get("rtorrent_rc"))
-        self._load_py(namespace, namespace["config_script"])
-        self._update_config(namespace)
+        try:
+            # Load configuration
+            namespace = {}
+            self._set_defaults(namespace)
+            self._load_ini(namespace, os.path.join(self.config_dir, self.CONFIG_INI))
+            self._load_rtorrent_rc(namespace, namespace.get("rtorrent_rc"))
+            self._validate_namespace(namespace)
+            self._load_py(namespace, namespace["config_script"])
+            self._update_config(namespace)
+        except ConfigParser.ParsingError, exc:
+            raise error.UserError(exc)
 
         # Ready to go...
         self._loaded = True
