@@ -150,3 +150,17 @@ class ScriptBase(object):
         """
         raise NotImplementedError()
 
+
+
+class ScriptBaseWithConfig(ScriptBase):
+    """ CLI tool with configuration support.
+    """
+
+    def add_options(self):
+        """ Add configuration options.
+        """
+        super(ScriptBaseWithConfig, self).add_options()
+
+        self.add_value_option("--config-dir", "DIR",
+            help="configuration directory [~/.pyroscope]")
+
