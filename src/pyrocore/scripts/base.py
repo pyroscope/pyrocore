@@ -27,8 +27,8 @@ import pkg_resources
 from optparse import OptionParser
 from contextlib import closing
 
-from pyrocore import config
-from pyrocore.util import LoggableError, load_config
+from pyrocore import config, error
+from pyrocore.util import load_config
 
 LOG = logging.getLogger(__name__)
 
@@ -137,7 +137,7 @@ class ScriptBase(object):
             try:
                 # Template method with the tool's main loop
                 self.mainloop()
-            except LoggableError, exc:
+            except error.LoggableError, exc:
                 try:
                     msg = str(exc)
                 except UnicodeError:

@@ -29,6 +29,7 @@ import logging
 import urlparse
 from contextlib import closing
 
+from pyrocore import config, error
 from pyrocore.util import bencode, fmt
 
 LOG = logging.getLogger(__name__)
@@ -315,8 +316,15 @@ class Metafile(object):
 
         # TODO add optimization so the hashing happens only once for multiple URLs!
         for tracker_url in tracker_urls:
-            # TODO Lookup announce URLs from config file
-            # tracker_url = config.announce.get(tracker_url, tracker_url)
+            # Lookup announce URLs from config file
+            try:
+                if urlparse.urlparse(tracker_url).scheme:
+                    tracker_alias = urlparse.urlparse(tracker_url).netloc.split(':')[0].split('.')[-2]
+                else:
+                    tracker_alias, tracker_url = config.lookup_announce_alias(tracker_url)
+                    tracker_url = tracker_url[0]
+            except (KeyError, IndexError):
+                raise error.UserError("Bad tracker URL %r, or unknown alias!" % (tracker_url,))
         
             # Determine metafile name
             output_name = self.filename
@@ -324,7 +332,7 @@ class Metafile(object):
                 # Add 2nd level of announce URL domain to metafile name
                 output_name = list(os.path.splitext(output_name))
                 try:
-                    output_name[1:1] = '-' + urlparse.urlparse(tracker_url).netloc.split(':')[0].split('.')[-2]
+                    output_name[1:1] = '-' + tracker_alias
                 except (IndexError,):
                     LOG.error("Malformed announce URL %r, skipping!" % (tracker_url,))
                     continue

@@ -30,7 +30,6 @@ import pkg_resources
 from contextlib import closing
 
 from pyrocore import config
-from pyrocore.util import UserError
 
 
 def _validate(key, val):

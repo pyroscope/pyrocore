@@ -21,3 +21,12 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+def lookup_announce_alias(name):
+    """ Get canonical alias name and announce URL list for the given alias.
+    """
+    for alias, urls in announce.items():
+        if alias.lower() == name.lower():
+            return alias, urls
+
+    raise KeyError("Unknown alias %s" % (name,))
+    

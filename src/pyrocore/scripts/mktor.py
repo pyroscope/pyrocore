@@ -21,23 +21,25 @@ import os
 import sys
 import logging
 
-from pyrocore.scripts.base import ScriptBase
+from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.util.metafile import Metafile
 
 LOG = logging.getLogger(__name__)
 
 
-class MetafileCreator(ScriptBase):
+class MetafileCreator(ScriptBaseWithConfig):
     """ Create a bittorrent metafile.
     """
 
     # argument description for the usage information
-    ARGS_HELP = "<dir-or-file> <tracker-url>..."
+    ARGS_HELP = "<dir-or-file> <tracker-url-or-alias>..."
 
 
     def add_options(self):
         """ Add program options.
         """
+        super(MetafileCreator, self).add_options()
+
         self.add_bool_option("-p", "--private",
             help="disallow DHT and PEX")
         self.add_bool_option("--no-date",

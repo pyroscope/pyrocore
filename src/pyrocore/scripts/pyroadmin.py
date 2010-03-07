@@ -47,7 +47,7 @@ class AdminTool(ScriptBaseWithConfig):
         self.add_bool_option("--dump-config",
             help="pretty-print configuration including all defaults")
         self.add_bool_option("--reveal",
-            help="show full announce URL including keys")
+            help="show config internals and full announce URL including keys")
 
 
     def mainloop(self):
@@ -60,7 +60,9 @@ class AdminTool(ScriptBaseWithConfig):
             # Get public config attributes
             public = dict((key, val)
                 for key, val in vars(config).items()
-                if not key.startswith('_')
+                if not key.startswith('_') and (
+                    self.options.reveal or not callable(val)
+                )
             )
 
             # Mask announce URLs

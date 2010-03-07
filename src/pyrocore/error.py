@@ -1,4 +1,4 @@
-""" PyroCore - Utility Modules.
+""" PyroCore - Exception Classes.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
 
@@ -16,4 +16,14 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+
+class LoggableError(Exception):
+    """ An exception that is intended to be logged instead of passing it to the
+        runtime environment which will likely produce a full stacktrace.
+    """
+
+
+class UserError(LoggableError):
+    """ Yes, it was your fault!
+    """
 
