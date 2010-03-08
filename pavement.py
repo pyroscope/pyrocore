@@ -152,7 +152,7 @@ def dist_clean():
 @task
 @needs(["dist_clean", "minilib", "generate_setup", "sdist"])
 def release():
-    """ Upload a release to PyPI.
+    """ Check release before upload to PyPI.
     """
     sh("paver bdist_egg")
 
@@ -174,8 +174,7 @@ def release():
 
     print
     print "Created", " ".join([str(i) for i in path("dist").listdir()])
-    print "Use 'paver upload' to upload to PyPI"
-    #sh("paver upload --show-response")
+    print "Use 'paver sdist bdist_egg upload' to upload to PyPI"
 
 
 #
