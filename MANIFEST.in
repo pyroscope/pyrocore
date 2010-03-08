@@ -1,0 +1,14 @@
+# Hints for building the source distribution
+# See http://docs.python.org/distutils/sourcedist.html
+
+include bootstrap.sh
+include setup.py
+include pavement.py
+include paver-minilib.zip
+include LICENSE
+
+recursive-include debian/ changelog
+
+#recursive-include examples *.txt *.py
+#prune directory/pattern
+
