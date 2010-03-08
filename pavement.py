@@ -34,7 +34,11 @@ from setuptools import find_packages
 # Project Metadata
 #
 
-name, version = open("../debian/changelog").readline().split(" (", 1)
+changelog = path("debian/changelog")
+if not changelog.exists():
+    changelog = path("../debian/changelog")
+
+name, version = open(changelog).readline().split(" (", 1)
 version, _ = version.split(")", 1)
 
 project = dict(
@@ -56,7 +60,7 @@ project = dict(
     zip_safe = True,
     data_files = [
         ("EGG-INFO", [
-            "README", "../LICENSE", "../debian/changelog", 
+            "README", "LICENSE", "debian/changelog", 
         ]),
     ],
 
@@ -105,6 +109,12 @@ project = dict(
 def bootstrap():
     """ Initialize project.
     """
+    # Link files shared by subprojects
+    debian = path("debian")
+    debian.exists() or debian.makedirs()
+    
+    for shared in ("debian/changelog", "LICENSE"):
+        path(shared).exists() or (path("..") / shared).link(shared)
 
 
 @task
@@ -126,6 +136,46 @@ def functest():
     sh("bin/mktor -o build/pavement.torrent pavement.py http://example.com/")
     sh("bin/mktor -o build/tests.torrent -x '*.pyc' -r 'pyroscope tests' --private src/tests/ http://example.com/")
     sh("bin/lstor build/*.torrent")
+
+
+#
+# Release Management
+#
+@task
+@needs("clean")
+def dist_clean():
+    """ Clean up including dist directory.
+    """
+    path("dist").rmtree()
+
+
+@task
+@needs(["dist_clean", "minilib", "generate_setup", "sdist"])
+def release():
+    """ Upload a release to PyPI.
+    """
+    sh("paver bdist_egg")
+
+    # Check that source distribution can be built and is complete
+    print
+    print "~" * 78
+    print "TESTING SOURCE BUILD"
+    sh(
+        "{ cd dist/ && unzip -q %s-%s.zip && cd %s-%s/"
+        "  && /usr/bin/python setup.py sdist >/dev/null"
+        "  && if { unzip -ql ../%s-%s.zip; unzip -ql dist/%s-%s.zip; }"
+        "        | cut -b26- | sort | uniq -c| egrep -v '^ +2 +' ; then"
+        "       echo '^^^ Difference in file lists! ^^^'; false;"
+        "    else true; fi; } 2>&1"
+        % tuple([project["name"], version] * 4)
+    )
+    path("dist/%s-%s" % (project["name"], version)).rmtree()
+    print "~" * 78
+
+    print
+    print "Created", " ".join([str(i) for i in path("dist").listdir()])
+    print "Use 'paver upload' to upload to PyPI"
+    #sh("paver upload --show-response")
 
 
 #
