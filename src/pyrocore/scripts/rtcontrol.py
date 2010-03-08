@@ -99,7 +99,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.exit()
 
         # TODO
-        pass
+        print repr(config.engine)
+        config.engine.open()
+        print repr(config.engine)
 
         # print summary
         if self.options.summary:
