@@ -32,10 +32,34 @@ from pyrocore.engine import base
 LOG = logging.getLogger(__name__)
 
 
+class RtorrentProxy(base.TorrentProxy):
+    """ A single download item.
+    """
+
+    def __init__(self, engine, fields):
+        """ Initialize download item.
+        """
+        super(RtorrentProxy, self).__init__()
+        self._engine = engine
+        self._fields = dict(fields)
+
+
 class RtorrentEngine(base.TorrentEngine):
     """ The rTorrent backend proxy.
     """
     RTORRENT_RC_KEYS = ("scgi_local",)
+    CONSTANT_FIELDS = set((
+        "hash", "name", "is_private", "tracker_size", 
+    ))
+    PRE_FETCH_FIELDS = CONSTANT_FIELDS | set((
+        "is_open", "complete",
+        "ratio", "up_rate", "up_total", "down_rate", "down_total",
+        "base_path", "tied_to_file", 
+    ))
+    FIELD_MAPPING = dict((v, k) for k, v in dict(
+        is_complete = "complete",
+    ).items())
+
 
     def __init__(self):
         """ Initialize proxy.
@@ -44,6 +68,67 @@ class RtorrentEngine(base.TorrentEngine):
         self._rpc = None
         self._session_dir = None
         self._download_dir = None
+        self._items = None
+
+
+    def _load_rtorrent_rc(self, namespace, rtorrent_rc=None):
+        """ Load file given in "rtorrent_rc".
+        """
+        # Only load when needed (also prevents multiple loading)
+        if not all(getattr(namespace, key, False) for key in self.RTORRENT_RC_KEYS):
+            # Get and check config file name
+            if not rtorrent_rc:
+                rtorrent_rc = getattr(config, "rtorrent_rc", None)
+            if not rtorrent_rc:
+                raise error.UserError("No 'rtorrent_rc' path defined in configuration!")
+            if not os.path.isfile(rtorrent_rc):
+                raise error.UserError("Config file %r doesn't exist!" % (rtorrent_rc,))
+
+            # Parse the file
+            self.log.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
+            with closing(open(rtorrent_rc)) as handle:
+                for line in handle.readlines():
+                    # Skip comments and empty lines
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+
+                    # Be lenient about errors, after all it's not our own config file
+                    try:
+                        key, val = line.split("=", 1)
+                    except ValueError:
+                        self.log.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
+                        continue
+                    key, val = key.strip(), val.strip()
+
+                    # Copy values we're interested in
+                    if key in self.RTORRENT_RC_KEYS:
+                        print key, val
+                    if key in self.RTORRENT_RC_KEYS and not getattr(namespace, key, None):
+                        self.log.debug("Copied from rtorrent.rc: %s = %s" % (key, val))
+                        setattr(namespace, key, val)
+
+        # Validate fields
+        for key in self.RTORRENT_RC_KEYS:
+            setattr(namespace, key, load_config.validate(key, getattr(namespace, key)))
+        if config.scgi_local.startswith("/"):
+            config.scgi_local = "scgi://" + config.scgi_local
+
+
+    def __repr__(self):
+        """ Return a representation of internal state.
+        """
+        if self._rpc:
+            # Connected state
+            return "%s connected to %s [%s] via %r" % (
+                self.__class__.__name__, self.engine_id, self.engine_software, config.scgi_local,
+            )
+        else:
+            # Unconnected state
+            self._load_rtorrent_rc(config)
+            return "%s connectable via %r" % (
+                self.__class__.__name__, config.scgi_local,
+            )
 
 
     def open(self):
@@ -78,66 +163,23 @@ class RtorrentEngine(base.TorrentEngine):
         return self._rpc
 
 
-    def _load_rtorrent_rc(self, namespace, rtorrent_rc=None):
-        """ Load file given in "rtorrent_rc".
-        """
-        # Only load when needed (also prevents multiple loading)
-        if not all(hasattr(namespace, key) for key in self.RTORRENT_RC_KEYS):
-            # Get and check config file name
-            if not rtorrent_rc:
-                rtorrent_rc = getattr(config, "rtorrent_rc", None)
-            if not rtorrent_rc:
-                raise error.UserError("No 'rtorrent_rc' path defined in configuration!")
-            if not os.path.isfile(rtorrent_rc):
-                raise error.UserError("Config file %r doesn't exist!" % (rtorrent_rc,))
-
-            # Parse the file
-            self.log.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
-            with closing(open(rtorrent_rc)) as handle:
-                for line in handle.readlines():
-                    # Skip comments and empty lines
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-
-                    # Be lenient about errors, after all it's not our own config file
-                    try:
-                        key, val = line.split("=", 1)
-                    except ValueError:
-                        self.log.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
-                        continue
-                    key, val = key.strip(), val.strip()
-
-                    # Copy values we're interested in
-                    if key in self.RTORRENT_RC_KEYS and not hasattr(namespace, key):
-                        self.log.debug("Copied from rtorrent.rc: %s = %s" % (key, val))
-                        setattr(namespace, key, val)
-
-        # Validate fields
-        for key in self.RTORRENT_RC_KEYS:
-            setattr(namespace, key, load_config.validate(key, getattr(namespace, key)))
-        if config.scgi_local.startswith("/"):
-            config.scgi_local = "scgi://" + config.scgi_local
-
-
-    def __repr__(self):
-        """ Return a representation of internal state.
-        """
-        if self._rpc:
-            # Connected state
-            return "%s connected to %s [%s] via %r" % (
-                self.__class__.__name__, self.engine_id, self.engine_software, config.scgi_local,
-            )
-        else:
-            # Unconnected state
-            self._load_rtorrent_rc(config)
-            return "%s connectable via %r" % (
-                self.__class__.__name__, config.scgi_local,
-            )
-
-
     def items(self):
         """ Get list of download items.
         """
-        raise NotImplementedError()
+        if self._items is None:
+            items = []
+            viewname = "main"
+            args = [viewname] + ["d.%s%s=" % (
+                    "" if field.startswith("is_") else "get_", field
+                ) for field in self.PRE_FETCH_FIELDS
+            ]
+            for item in self.open().d.multicall(*tuple(args)):
+                items.append(RtorrentProxy(self, zip(
+                    [self.FIELD_MAPPING.get(i, i) for i in self.PRE_FETCH_FIELDS], item
+                )))
+                yield items[-1]
+            self._items = items
+        else:
+            for item in self._items:
+                yield item
 

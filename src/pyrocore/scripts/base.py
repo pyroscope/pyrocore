@@ -39,6 +39,8 @@ class ScriptBase(object):
     # argument description for the usage information
     ARGS_HELP = "<log-base>..."
 
+    # additonal stuff appended after the command handler's docstring
+    ADDITIONAL_HELP = []
 
     @classmethod
     def setup(cls):
@@ -72,7 +74,8 @@ class ScriptBase(object):
         self.parser = OptionParser(
             "%prog [options] " + self.ARGS_HELP + "\n\n"
             "%prog " + self.version + ", Copyright (c) 2009, 2010 Pyroscope Project\n\n"
-            + textwrap.dedent(self.__doc__.rstrip()).lstrip('\n'),
+            + textwrap.dedent(self.__doc__.rstrip()).lstrip('\n')
+            + '\n'.join(self.ADDITIONAL_HELP),
             version="%prog " + self.version)
 
 

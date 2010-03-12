@@ -25,6 +25,67 @@ import logging
 LOG = logging.getLogger(__name__)
 
 
+def unicode_fallback(text):
+    """ Return a decoded unicode string.
+    """ 
+    if not text or isinstance(text, unicode):
+        return text
+
+    try:
+        # Try UTF-8 first
+        return text.decode("UTF-8")
+    except UnicodeError:
+        try:
+            # Then Windows Latin-1
+            return text.decode("CP1252")
+        except UnicodeError:
+            # Give up, return byte string in the hope things work out
+            return text
+
+
+class FieldDefinition(object):
+    """ Download item field
+    """
+    FIELDS = []
+
+    def __init__(self, valtype, name, doc):
+        self.valtype = valtype
+        self.name = name
+        self.__doc__ = doc
+        FieldDefinition.FIELDS.append(self)
+
+    
+    def __get__(self, obj, cls=None):
+        if obj is None:
+            return self
+        return self.valtype(obj._fields[self.name])
+
+
+    def __delete__(self, obj):
+        raise RuntimeError("Can't delete field %r" % (self.name,))
+
+
+class ImmutableField(FieldDefinition):
+    """ Read-only download item field
+    """
+
+    def __set__(self, obj, val):
+        raise RuntimeError("Immutable field %r" % (self.name,))
+
+
+class DynamicField(FieldDefinition):
+    """ Read-only download item field with dynamic value
+    """
+
+
+class MutableField(FieldDefinition):
+    """ Read-only download item field
+    """
+
+    def __set__(self, obj, val):
+        raise NotImplementedError()
+
+
 class TorrentProxy(object):
     """ A single download item.
     """
@@ -32,6 +93,27 @@ class TorrentProxy(object):
     def __init__(self):
         """ Initialize object.
         """
+        self._fields = {}
+
+
+    def __repr__(self):
+        """ Return a representation of internal state.
+        """
+        return "<%s(%s)" % (self.__class__.__name__, ", ".join(
+            "%s=%r" % (i, getattr(self, i, self._fields[i]))
+            for i in sorted(self._fields)
+        ))
+
+
+    # Field definitions
+    hash = ImmutableField(str, "hash", "info hash")
+    name = ImmutableField(unicode_fallback, "name", "name (file or root directory)")
+    is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?")
+    is_open = DynamicField(bool, "is_open", "download open?")
+    is_complete = DynamicField(bool, "is_complete", "download complete?")
+
+    # name, hash, type, tracker, announce, ratio, xfer, down, up, size, age,
+    # path, realpath, tie.
 
 
 class TorrentEngine(object):

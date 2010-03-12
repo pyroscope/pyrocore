@@ -19,8 +19,9 @@
 
 import logging
 
-from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
+from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+from pyrocore.engine import base as engine_base
 
 LOG = logging.getLogger(__name__)
 
@@ -54,11 +55,22 @@ class RtorrentControl(ScriptBaseWithConfig):
     # argument description for the usage information
     ARGS_HELP = "<filter>..."
 
+    # additonal stuff appended after the command handler's docstring
+    ADDITIONAL_HELP = ["", "", "Fields are:",] + [
+        "  %-21s %s" % (i.name, i.__doc__)
+        for i in engine_base.FieldDefinition.FIELDS
+    ]
+
 
     def add_options(self):
         """ Add program options.
         """
         super(RtorrentControl, self).add_options()
+
+        from pyrocore.engine import base as engine_base
+        print
+        print [(i.name, i.__doc__) for i in engine_base.FieldDefinition.FIELDS]
+
 
         # basic options
         self.add_bool_option("-n", "--dry-run",
@@ -94,10 +106,24 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.print_help()
             self.parser.exit()
 
-        # TODO
-        print repr(config.engine)
-        config.engine.open()
-        print repr(config.engine)
+        # List filtered torrents
+        items = list(config.engine.items())
+        for item in items:
+            print item.name
+
+        print
+        print repr(items[0])
+        
+#        print repr(config.engine)
+#        config.engine.open()
+#        print repr(config.engine)
+
+#        import pprint
+#        from pyrocore.engine.base import TorrentProxy
+#        items = list(config.engine.items())
+#        pprint.pprint(items[:10])
+#        print items[0].hash, TorrentProxy.hash.__doc__
+#        print items[0].name, TorrentProxy.name.__doc__
 
         # print summary
         if self.options.summary:
