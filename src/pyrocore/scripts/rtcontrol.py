@@ -31,13 +31,11 @@ class RtorrentControl(ScriptBaseWithConfig):
     """ 
         Control and inspect rTorrent from the command line.
     
-        Filter expressions take the form "<field>=<value>", with the following field 
-        names: name, hash, type, tracker, announce, ratio, xfer, down, up, size, age,
-        path, realpath, tie.
-
-        All expressions must be met (AND). If a field name is ommitted, "name" is 
-        assumed. For numeric fields, a leading "+" means greater than, a leading "-" 
-        means less than. For string fields, the value is a glob pattern (*, ?, [a-z]).
+        Filter expressions take the form "<field>=<value>", and all expressions must
+        be met (AND). If a field name is omitted, "name" is assumed.
+        
+        For numeric fields, a leading "+" means greater than, a leading "-" means 
+        less than. For string fields, the value is a glob pattern (*, ?, [a-z]).
         Multiple values separated by a comma indicate several possible choices (OR).
         "!" in front of a filter value negates it.
         
@@ -48,7 +46,7 @@ class RtorrentControl(ScriptBaseWithConfig):
           Slow torrents             down=+0 down=-5k
           Older than 2 weeks        age=+2w
           Big stuff                 size=+4g
-          Music                     type=flac,mp3
+          Music                     kind=flac,mp3
           1:1 seeds not on a NAS    ratio=+1 realpath=!/mnt/*
     """
 
@@ -106,6 +104,10 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.print_help()
             self.parser.exit()
 
+#        print repr(config.engine)
+#        config.engine.open()
+#        print repr(config.engine)
+
         # List filtered torrents
         items = list(config.engine.items())
         for item in items:
@@ -114,17 +116,6 @@ class RtorrentControl(ScriptBaseWithConfig):
         print
         print repr(items[0])
         
-#        print repr(config.engine)
-#        config.engine.open()
-#        print repr(config.engine)
-
-#        import pprint
-#        from pyrocore.engine.base import TorrentProxy
-#        items = list(config.engine.items())
-#        pprint.pprint(items[:10])
-#        print items[0].hash, TorrentProxy.hash.__doc__
-#        print items[0].name, TorrentProxy.name.__doc__
-
         # print summary
         if self.options.summary:
             # TODO

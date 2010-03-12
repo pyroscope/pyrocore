@@ -44,6 +44,18 @@ class RtorrentProxy(base.TorrentProxy):
         self._fields = dict(fields)
 
 
+    def start(self):
+        """ (Re-)start downloading or seeding.
+        """
+        raise NotImplementedError()
+
+
+    def stop(self):
+        """ Stop and close download.
+        """
+        raise NotImplementedError()
+
+
 class RtorrentEngine(base.TorrentEngine):
     """ The rTorrent backend proxy.
     """
@@ -58,6 +70,10 @@ class RtorrentEngine(base.TorrentEngine):
     ))
     FIELD_MAPPING = dict((v, k) for k, v in dict(
         is_complete = "complete",
+        down = "down_rate",
+        up = "up_rate",
+        path = "base_path", 
+        metafile = "tied_to_file", 
     ).items())
 
 

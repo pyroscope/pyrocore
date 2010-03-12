@@ -20,11 +20,14 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import os
 import logging
 
 LOG = logging.getLogger(__name__)
 
-
+#
+# Conversion Helpers
+#
 def unicode_fallback(text):
     """ Return a decoded unicode string.
     """ 
@@ -43,22 +46,32 @@ def unicode_fallback(text):
             return text
 
 
+def ratio_float(intval):
+    """ Convert scaled integer ratio to a normalized float.
+    """
+    return intval / 1000.0
+
+
+#
+# Field Descriptors
+#
 class FieldDefinition(object):
-    """ Download item field
+    """ Download item field.
     """
     FIELDS = []
 
-    def __init__(self, valtype, name, doc):
+    def __init__(self, valtype, name, doc, accessor=None):
         self.valtype = valtype
         self.name = name
         self.__doc__ = doc
+        self._accessor = accessor
         FieldDefinition.FIELDS.append(self)
 
     
     def __get__(self, obj, cls=None):
         if obj is None:
             return self
-        return self.valtype(obj._fields[self.name])
+        return self.valtype(self._accessor(obj) if self._accessor else obj._fields[self.name])
 
 
     def __delete__(self, obj):
@@ -66,7 +79,7 @@ class FieldDefinition(object):
 
 
 class ImmutableField(FieldDefinition):
-    """ Read-only download item field
+    """ Read-only download item field.
     """
 
     def __set__(self, obj, val):
@@ -74,7 +87,7 @@ class ImmutableField(FieldDefinition):
 
 
 class DynamicField(FieldDefinition):
-    """ Read-only download item field with dynamic value
+    """ Read-only download item field with dynamic value.
     """
 
 
@@ -86,6 +99,9 @@ class MutableField(FieldDefinition):
         raise NotImplementedError()
 
 
+#
+# Generic Engine Interface (abstract base classes)
+#
 class TorrentProxy(object):
     """ A single download item.
     """
@@ -99,10 +115,23 @@ class TorrentProxy(object):
     def __repr__(self):
         """ Return a representation of internal state.
         """
-        return "<%s(%s)" % (self.__class__.__name__, ", ".join(
-            "%s=%r" % (i, getattr(self, i, self._fields[i]))
-            for i in sorted(self._fields)
-        ))
+        attrs = set(k.name for k in FieldDefinition.FIELDS)
+        return "<%s(%s)>" % (self.__class__.__name__, ", ".join(sorted(
+            ["%s=%r" % (i, getattr(self, i)) for i in attrs] +
+            ["%s=%r" % (i, self._fields[i]) for i in (set(self._fields) - attrs)]
+        )))
+
+
+    def start(self):
+        """ (Re-)start downloading or seeding.
+        """
+        raise NotImplementedError()
+
+
+    def stop(self):
+        """ Stop and close download.
+        """
+        raise NotImplementedError()
 
 
     # Field definitions
@@ -111,9 +140,20 @@ class TorrentProxy(object):
     is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?")
     is_open = DynamicField(bool, "is_open", "download open?")
     is_complete = DynamicField(bool, "is_complete", "download complete?")
+    ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)")
+    xfer = DynamicField(int, "xfer", "transfer rate",
+                        lambda o: o._fields["up"] + o._fields["down"])
+    down = DynamicField(int, "down", "download rate")
+    up = DynamicField(int, "up", "upload rate")
+    path = DynamicField(unicode_fallback, "path", "path to download data",
+                        lambda o: os.path.expanduser(o._fields["path"]))
+    realpath = DynamicField(unicode_fallback, "realpath", "real path to download data",
+                            lambda o: os.path.realpath(o._fields["path"]))
+    metafile = DynamicField(unicode_fallback, "metafile", "path to torrent file",
+                            lambda o: os.path.expanduser(o._fields["metafile"]))
+    # = DynamicField(, "", "")
 
-    # name, hash, type, tracker, announce, ratio, xfer, down, up, size, age,
-    # path, realpath, tie.
+    # kind, tracker, announce, size, age,
 
 
 class TorrentEngine(object):
