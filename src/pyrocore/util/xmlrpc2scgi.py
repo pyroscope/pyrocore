@@ -80,7 +80,7 @@ class SCGIRequest(object):
         self.resp_headers=[]
     
     def __send(self, scgireq):
-        scheme, netloc, path, query, frag = urlparse.urlsplit(self.url)
+        _, netloc, path, _, _ = urlparse.urlsplit(self.url)
         host, port = urllib.splitport(netloc)
         #~ print '>>>', (netloc, host, port)
         
@@ -172,7 +172,7 @@ class RTorrentXMLRPCClient(object):
     
     def __call__(self, *args):
         #~ print "%s%r"%(self.methodname, args)
-        scheme, netloc, path, query, frag = urlparse.urlsplit(self.url)
+        scheme, _, _, _, _ = urlparse.urlsplit(self.url)
         xmlreq = xmlrpclib.dumps(args, self.methodname)
         if scheme == 'scgi':
             xmlresp = SCGIRequest(self.url).send(xmlreq)

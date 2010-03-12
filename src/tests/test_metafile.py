@@ -20,7 +20,7 @@
 import random
 import unittest
 
-from pyrocore.util.metafile import *
+from pyrocore.util.metafile import * #@UnusedWildImport
 
 
 class MaskTest(unittest.TestCase):

@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 
 
 try:
-    from itertools import product
+    from itertools import product #@UnusedImport
 except ImportError:
     def product(*args, **kwds):
         """ product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy

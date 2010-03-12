@@ -19,7 +19,6 @@
 from __future__ import with_statement
 
 import os
-import sys
 import time
 import logging
 import textwrap
@@ -27,7 +26,7 @@ import pkg_resources
 from optparse import OptionParser
 from contextlib import closing
 
-from pyrocore import config, error
+from pyrocore import error
 from pyrocore.util import load_config
 
 LOG = logging.getLogger(__name__)

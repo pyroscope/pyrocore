@@ -22,6 +22,8 @@
 """
 import logging
 
+from pyrocore.util.types import Bunch
+
 LOG = logging.getLogger(__name__)
 
 
@@ -37,6 +39,11 @@ def lookup_announce_alias(name):
 
 # Remember predefined names
 _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
+
+# Set some defaults to shut up pylint
+scgi_local = ""
+engine = Bunch(open=lambda: None)
+announce = {}
     
 # Keep namespace clean
 del logging

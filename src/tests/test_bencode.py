@@ -21,7 +21,7 @@
 
 import unittest
 
-from pyrocore.util.bencode import *
+from pyrocore.util.bencode import * #@UnusedWildImport
 
 
 class DecoderTest(unittest.TestCase):

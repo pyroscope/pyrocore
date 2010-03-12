@@ -17,14 +17,10 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import os
-import sys
 import logging
-import urlparse
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
-from pyrocore.util import bencode
 
 LOG = logging.getLogger(__name__)
 

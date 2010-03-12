@@ -121,7 +121,7 @@ class ConfigLoader(object):
         namespace["config_dir"] = self.config_dir
 
         # Load defaults
-        defaults = pkg_resources.resource_string("pyrocore", "data/config/config.ini")
+        defaults = pkg_resources.resource_string("pyrocore", "data/config/config.ini") #@UndefinedVariable
         ini_file = ConfigParser.SafeConfigParser()
         ini_file.optionxform = str # case-sensitive option names
         ini_file.readfp(StringIO.StringIO(defaults), "<defaults>")
@@ -184,7 +184,7 @@ class ConfigLoader(object):
         # Create default configuration files
         for filename in (self.CONFIG_INI, self.CONFIG_PY):
             # Load default from package data
-            text = pkg_resources.resource_string("pyrocore", "data/config/" + filename)
+            text = pkg_resources.resource_string("pyrocore", "data/config/" + filename) #@UndefinedVariable
 
             # Check for existing configuration file
             config_file = os.path.join(self.config_dir, filename)
