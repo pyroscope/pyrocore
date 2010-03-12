@@ -65,11 +65,6 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         super(RtorrentControl, self).add_options()
 
-        from pyrocore.engine import base as engine_base
-        print
-        print [(i.name, i.__doc__) for i in engine_base.FieldDefinition.FIELDS]
-
-
         # basic options
         self.add_bool_option("-n", "--dry-run",
             help="don't commit changes, just tell what would happen")

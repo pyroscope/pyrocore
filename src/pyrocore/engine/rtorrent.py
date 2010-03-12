@@ -198,4 +198,3 @@ class RtorrentEngine(base.TorrentEngine):
         else:
             for item in self._items:
                 yield item
-
