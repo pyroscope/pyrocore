@@ -69,3 +69,31 @@ def human_duration(time1, time2=None, precision=0):
         if val
     ) + direction
 
+
+def to_unicode(text):
+    """ Return a decoded unicode string.
+    """ 
+    if not text or isinstance(text, unicode):
+        return text
+
+    try:
+        # Try UTF-8 first
+        return text.decode("UTF-8")
+    except UnicodeError:
+        try:
+            # Then Windows Latin-1
+            return text.decode("CP1252")
+        except UnicodeError:
+            # Give up, return byte string in the hope things work out
+            return text
+
+
+def to_console(text):
+    """ Return a byte string intended for console output.
+    """ 
+    if isinstance(text, str):
+        # For now, leave byte strings as-is (ignoring possible display problems)
+        return text
+
+    # Convert other stuff into an UTF-8 string
+    return unicode(text).encode("utf8")

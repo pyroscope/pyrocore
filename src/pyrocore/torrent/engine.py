@@ -28,24 +28,6 @@ from pyrocore.torrent import matching
 #
 # Conversion Helpers
 #
-def unicode_fallback(text):
-    """ Return a decoded unicode string.
-    """ 
-    if not text or isinstance(text, unicode):
-        return text
-
-    try:
-        # Try UTF-8 first
-        return text.decode("UTF-8")
-    except UnicodeError:
-        try:
-            # Then Windows Latin-1
-            return text.decode("CP1252")
-        except UnicodeError:
-            # Give up, return byte string in the hope things work out
-            return text
-
-
 def ratio_float(intval):
     """ Convert scaled integer ratio to a normalized float.
     """
@@ -162,7 +144,7 @@ class TorrentProxy(object):
 
     # Field definitions
     hash = ImmutableField(str, "hash", "info hash")
-    name = ImmutableField(unicode_fallback, "name", "name (file or root directory)", matcher=matching.GlobFilter)
+    name = ImmutableField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
     is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter)
     is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter)
     is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter)
@@ -172,12 +154,12 @@ class TorrentProxy(object):
                         accessor=lambda o: o._fields["up"] + o._fields["down"])
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
-    path = DynamicField(unicode_fallback, "path", "path to download data", matcher=matching.GlobFilter,
-                        accessor=lambda o: os.path.expanduser(unicode_fallback(o._fields["path"])))
-    realpath = DynamicField(unicode_fallback, "realpath", "real path to download data", matcher=matching.GlobFilter,
+    path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.GlobFilter,
+                        accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])))
+    realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.GlobFilter,
                             accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")))
-    metafile = DynamicField(unicode_fallback, "metafile", "path to torrent file", matcher=matching.GlobFilter,
-                            accessor=lambda o: os.path.expanduser(unicode_fallback(o._fields["metafile"])))
+    metafile = DynamicField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.GlobFilter,
+                            accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
     tracker = DynamicField(str, "tracker", "first in the list announce URLs", matcher=matching.GlobFilter,
                            accessor=lambda o: o.announce_urls()[0])
     tracker_alias = DynamicField(config.map_announce2alias, "tracker_alias", "tracker alias or domain",

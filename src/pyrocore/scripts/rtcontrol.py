@@ -20,6 +20,7 @@ import re
 import operator
 
 from pyrocore import config
+from pyrocore.util import fmt
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.torrent import engine 
 
@@ -163,7 +164,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.output_format and self.options.output_format != "-":
             for item in matches:
                 # Print matching item
-                print self.options.output_format % engine.OutputMapping(item)
+                print fmt.to_console(self.options.output_format % engine.OutputMapping(item))
 
         self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
         ##print; print repr(items[0])
