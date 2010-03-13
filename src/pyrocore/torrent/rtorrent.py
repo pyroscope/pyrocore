@@ -41,6 +41,12 @@ class RtorrentProxy(engine.TorrentProxy):
         self._fields = dict(fields)
 
 
+    def announce_urls(self):
+        """ Get a list of all annpunce URLs.
+        """
+        return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
+
+
     def start(self):
         """ (Re-)start downloading or seeding.
         """
@@ -58,7 +64,7 @@ class RtorrentEngine(engine.TorrentEngine):
     """
     RTORRENT_RC_KEYS = ("scgi_local",)
     CONSTANT_FIELDS = set((
-        "hash", "name", "is_private", "tracker_size", 
+        "hash", "name", "is_private", "tracker_size", "size_bytes", 
     ))
     PRE_FETCH_FIELDS = CONSTANT_FIELDS | set((
         "is_open", "complete",
@@ -71,6 +77,7 @@ class RtorrentEngine(engine.TorrentEngine):
         up = "up_rate",
         path = "base_path", 
         metafile = "tied_to_file", 
+        size = "size_bytes",
     ).items())
 
 

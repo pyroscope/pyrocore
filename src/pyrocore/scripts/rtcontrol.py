@@ -16,6 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import re
 
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
@@ -88,6 +89,46 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="remove from client and also delete all data (implies -i)")
 
 
+    def validate_output_format(self):
+        """ Prepare output format for later use.
+        """
+        output_format = self.options.output_format
+
+        # Use default format if none is given
+        if output_format is None:
+            output_format = config.output_format
+
+        # Expand plain field list to usable form
+        if re.match(r"[,._0-9a-zA-Z]+", output_format):
+            output_format = "%%(%s)s" % ")s\t%(".join([
+                i.strip() for i in output_format.split(',')
+            ])
+
+        # Replace some escape sequences
+        output_format = (output_format
+            .replace(r"\\", "\\")
+            .replace(r"\n", "\n")
+            .replace(r"\t", "\t")
+            .replace(r"\$", "\0") # the next 3 allow using $() instead of %()
+            .replace("$(", "%(")
+            .replace("\0", "$")
+            .replace(r"\ ", " ") # to prevent stripping in config file
+            #.replace(r"\", "\")
+        )                            
+
+        self.options.output_format = unicode(output_format)
+
+
+    def parse_filter_conditions(self):
+        """ Parse filter conditions.
+        """
+        matcher = matching.CompoundFilterAll()
+        for arg in self.args:
+            matcher.append(engine.create_filter(arg))
+
+        return matcher
+
+
     def mainloop(self):
         """ The main loop.
         """
@@ -99,24 +140,9 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        config.engine.open()
 #        print repr(config.engine)
 
-        # Prepare output format
-        if self.options.output_format is None:
-            self.options.output_format = config.output_format
-        self.options.output_format = (self.options.output_format
-            .replace(r"\\", "\\")
-            .replace(r"\n", "\n")
-            .replace(r"\t", "\t")
-            .replace(r"\$", "\0") # the next 3 allow using $() instead of %()
-            .replace("$(", "%(")
-            .replace("\0", "$")
-            .replace(r"\ ", " ") # to prevent stripping in config file
-            #.replace(r"\", "\")
-        )                            
-
-        # Parse filter conditions
-        matcher = matching.CompoundFilterAll()
-        for arg in self.args:
-            matcher.append(engine.create_filter(arg))
+        # Preparation steps
+        self.validate_output_format()
+        matcher = self.parse_filter_conditions()
 
         # Find matching torrents
         items = list(config.engine.items())

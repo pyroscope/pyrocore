@@ -33,6 +33,26 @@ def lookup_announce_alias(name):
     raise KeyError("Unknown alias %s" % (name,))
 
 
+def map_announce2alias(url):
+    """ Get tracker alias for announce URL, and if none is defined, the 2nd level domain.
+    """
+    import urlparse
+
+    parts = urlparse.urlparse(url)
+    server = urlparse.urlunparse((parts.scheme, parts.netloc, "/", None, None, None))
+
+    # Try to find an alias and return its label
+    for alias, urls in announce.items():
+        if any(i.startswith(server) for i in urls):
+            return alias
+
+    # Return 2nd level domain name if no alias found
+    try:
+        return '.'.join(parts.netloc.split(':')[0].split('.')[-2:])
+    except IndexError:
+        return parts.netloc
+
+
 # Remember predefined names
 _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
