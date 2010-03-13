@@ -225,6 +225,27 @@ class OutputMapping(algo.AttributeMapping):
         return formatter(val) if formatter else val
 
 
+def validate_field_list(fields):
+    """ Make sure the fields in the given list exist.
+    
+        @param fields: List of fields (comma-/space-separated if a string).
+        @type fields: list or str
+        @return: validated field names.
+        @rtype: list  
+    """
+    try:
+        fields = [i.strip() for i in fields.replace(',', ' ').split()]
+    except AttributeError:
+        # Not a string
+        pass
+
+    for name in fields:
+        if name not in FieldDefinition.FIELDS:
+            raise error.UserError("Unknown field name %r" % (name,))
+
+    return fields
+
+
 def create_filter(condition):
     """ Create a filter object from a textual condition.
     """

@@ -19,6 +19,7 @@
 from __future__ import with_statement
 
 import os
+import sys
 import time
 import textwrap
 import pkg_resources
@@ -160,6 +161,7 @@ class ScriptBase(object):
                 except UnicodeError:
                     msg = unicode(exc, "UTF-8")
                 self.LOG.error(msg)
+                sys.exit(1)
         finally:
             # Shut down
             running_time = time.time() - self.startup

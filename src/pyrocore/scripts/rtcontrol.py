@@ -17,10 +17,11 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import re
+import operator
 
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.torrent import engine, matching 
+from pyrocore.torrent import engine 
 
 
 class RtorrentControl(ScriptBaseWithConfig):
@@ -63,30 +64,34 @@ class RtorrentControl(ScriptBaseWithConfig):
         super(RtorrentControl, self).add_options()
 
         # basic options
-        self.add_bool_option("-n", "--dry-run",
-            help="don't commit changes, just tell what would happen")
-        self.add_bool_option("-i", "--interactive",
-            help="interactive mode (prompt before changing things)")
-        self.add_bool_option("--yes",
-            help="positively answer all prompts (e.g. --delete --yes)")
+#        self.add_bool_option("-n", "--dry-run",
+#            help="don't commit changes, just tell what would happen")
+#        self.add_bool_option("-i", "--interactive",
+#            help="interactive mode (prompt before changing things)")
+#        self.add_bool_option("--yes",
+#            help="positively answer all prompts (e.g. --delete --yes)")
       
         # output control
-        self.add_bool_option("-s", "--summary",
-            help="print statistics")
-        self.add_bool_option("-f", "--full",
-            help="print full torrent details")
+        #self.add_bool_option("-f", "--full",
+        #    help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
-            help="specifiy display format (use '-o-' to disable item display)")
+            help="specify display format (use '-o-' to disable item display)")
+        self.add_value_option("-s", "--sort-fields", "FIELD[,...]",
+            help="fields used for sorting")
+        self.add_bool_option("-r", "--reverse-sort",
+            help="reverse the sort order")
+#        self.add_bool_option("-S", "--summary",
+#            help="print statistics")
 
         # torrent state change
-        self.add_bool_option("-S", "--start",
-            help="start torrent")
-        self.add_bool_option("-C", "--close",
-            help="stop torrent")
-        self.add_bool_option("--delete",
-            help="remove from client and archive metafile (implies -i)")
-        self.add_bool_option("--purge", "--delete-data",
-            help="remove from client and also delete all data (implies -i)")
+#        self.add_bool_option("-S", "--start",
+#            help="start torrent")
+#        self.add_bool_option("-C", "--close",
+#            help="stop torrent")
+#        self.add_bool_option("--delete",
+#            help="remove from client and archive metafile (implies -i)")
+#        self.add_bool_option("--purge", "--delete-data",
+#            help="remove from client and also delete all data (implies -i)")
 
 
     def validate_output_format(self):
@@ -100,9 +105,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Expand plain field list to usable form
         if re.match(r"[,._0-9a-zA-Z]+", output_format):
-            output_format = "%%(%s)s" % ")s\t%(".join([
-                i.strip() for i in output_format.split(',')
-            ])
+            output_format = "%%(%s)s" % ")s\t%(".join(engine.validate_field_list(output_format))
 
         # Replace some escape sequences
         output_format = (output_format
@@ -119,6 +122,22 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.options.output_format = unicode(output_format)
 
 
+    def validate_sort_fields(self):
+        """ Take care of sorting.
+        """
+        sort_fields = self.options.sort_fields
+
+        # Use default order if none is given
+        if sort_fields is None:
+            sort_fields = config.sort_fields
+
+        # Split and validate field list
+        sort_fields = engine.validate_field_list(sort_fields)
+
+        self.options.sort_fields = sort_fields
+        return operator.attrgetter(*tuple(self.options.sort_fields))
+
+
     def mainloop(self):
         """ The main loop.
         """
@@ -132,26 +151,27 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Preparation steps
         self.validate_output_format()
+        sort_key = self.validate_sort_fields()
         matcher = engine.parse_filter_conditions(self.args)
 
         # Find matching torrents
         items = list(config.engine.items())
-        match_count = 0
-        for item in items:
-            if matcher.match(item):
-                match_count += 1
+        matches = [item for item in items if matcher.match(item)]
+        matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
-                if self.options.output_format and self.options.output_format != "-":
-                    # Print matching item
-                    print self.options.output_format % engine.OutputMapping(item)
+        # Display matches
+        if self.options.output_format and self.options.output_format != "-":
+            for item in matches:
+                # Print matching item
+                print self.options.output_format % engine.OutputMapping(item)
 
-        self.LOG.info("Filtered %d out of %d torrents." % (match_count, len(items),))
+        self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
         ##print; print repr(items[0])
         
         # print summary
-        if self.options.summary:
-            # TODO
-            pass
+#        if self.options.summary:
+#            # TODO
+#            pass
 
 
 def run(): #pragma: no cover
