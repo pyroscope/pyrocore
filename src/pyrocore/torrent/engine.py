@@ -255,3 +255,22 @@ def create_filter(condition):
 
     # Return filters
     return matching.CompoundFilterAny(filters) if len(filters) > 1 else filters[0]  
+
+
+def parse_filter_conditions(conditions):
+    """ Parse filter conditions.
+    
+        @param conditions: multiple conditions.
+        @type conditions: list or str 
+    """
+    try:
+        conditions = conditions.split()
+    except AttributeError:
+        # Not a string
+        pass
+
+    matcher = matching.CompoundFilterAll()
+    for condition in conditions:
+        matcher.append(create_filter(condition))
+
+    return matcher

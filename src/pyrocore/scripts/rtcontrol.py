@@ -119,16 +119,6 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.options.output_format = unicode(output_format)
 
 
-    def parse_filter_conditions(self):
-        """ Parse filter conditions.
-        """
-        matcher = matching.CompoundFilterAll()
-        for arg in self.args:
-            matcher.append(engine.create_filter(arg))
-
-        return matcher
-
-
     def mainloop(self):
         """ The main loop.
         """
@@ -142,7 +132,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Preparation steps
         self.validate_output_format()
-        matcher = self.parse_filter_conditions()
+        matcher = engine.parse_filter_conditions(self.args)
 
         # Find matching torrents
         items = list(config.engine.items())
