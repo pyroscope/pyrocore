@@ -18,7 +18,6 @@
 """
 
 from pyrocore import config
-from pyrocore.util import algo
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.torrent import engine, matching 
 
@@ -76,7 +75,6 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("-f", "--full",
             help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
-            default=r"  %(name)s\n    R:%(ratio)6.2f  U:%(up)9d  D:%(down)9d",
             help="specifiy display format (use '-o-' to disable item display)")
 
         # torrent state change
@@ -101,11 +99,17 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        config.engine.open()
 #        print repr(config.engine)
 
-        # Do some escaping on output format
+        # Prepare output format
+        if self.options.output_format is None:
+            self.options.output_format = config.output_format
         self.options.output_format = (self.options.output_format
             .replace(r"\\", "\\")
             .replace(r"\n", "\n")
             .replace(r"\t", "\t")
+            .replace(r"\$", "\0") # the next 3 allow using $() instead of %()
+            .replace("$(", "%(")
+            .replace("\0", "$")
+            .replace(r"\ ", " ") # to prevent stripping in config file
             #.replace(r"\", "\")
         )                            
 
@@ -123,7 +127,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
                 if self.options.output_format and self.options.output_format != "-":
                     # Print matching item
-                    print self.options.output_format % algo.AttributeMapping(item)
+                    print self.options.output_format % engine.OutputMapping(item)
 
         self.LOG.info("Filtered %d out of %d torrents." % (match_count, len(items),))
         ##print; print repr(items[0])

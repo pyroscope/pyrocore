@@ -20,7 +20,8 @@
 """
 import os
 
-from pyrocore.util import pymagic
+from pyrocore import error 
+from pyrocore.util import pymagic, fmt, algo
 from pyrocore.torrent import matching 
 
 
@@ -181,6 +182,36 @@ class TorrentEngine(object):
         """ Get list of download items.
         """
         raise NotImplementedError()
+
+
+class OutputMapping(algo.AttributeMapping):
+    """ Map item fields for displaying them.
+    """
+
+    def fmt_sz(self, intval):
+        """ Format a byte sized value.
+        """
+        return fmt.human_size(intval)
+
+    
+    def __getitem__(self, key):
+        """ Return object attribute named C{key}. Attional formatting is provided
+            by adding ".sz" (byte size formmating) to the normal field name.
+        """
+        formatter = None
+        if '.' in key:
+            key, fmtname = key.rsplit('.', 1)
+            try:
+                formatter = getattr(self, "fmt_"+fmtname)
+            except AttributeError:
+                raise error.UserError("Unknown formatting spec %r for %r" % (fmtname, key))
+
+        try:
+            val = getattr(self.obj, key)
+        except AttributeError, exc:
+            raise KeyError(exc) 
+
+        return formatter(val) if formatter else val
 
 
 def create_filter(condition):

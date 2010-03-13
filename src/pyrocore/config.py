@@ -36,7 +36,8 @@ def lookup_announce_alias(name):
 # Remember predefined names
 _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
-# Set some defaults to shut up pylint
+# Set some defaults to shut up pydev / pylint
 scgi_local = ""
 engine = Bunch(open=lambda: None)
+output_format = ""
 announce = {}
