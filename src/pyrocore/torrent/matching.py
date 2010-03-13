@@ -80,6 +80,7 @@ class FieldFilter(Filter):
         """ Store field name and filter value for later evaluations. 
         """
         self._name = name
+        self._condition = value
         self._value = value
         self.validate()
 
@@ -96,6 +97,7 @@ class GlobFilter(FieldFilter):
     def validate(self):
         """ Validate filter condition (template method).
         """
+        super(GlobFilter, self).validate()
         self._value = self._value.lower()
 
 
@@ -103,3 +105,103 @@ class GlobFilter(FieldFilter):
         """ Return True if filter matches item.
         """
         return fnmatch.fnmatchcase(getattr(item, self._name).lower(), self._value) 
+
+
+class BoolFilter(FieldFilter):
+    """ Filter boolean values.
+    """
+    TRUE = ["true", "t", "yes", "y", "1", "+",]
+    FALSE = ["false", "f", "no", "n", "0", "-",]
+
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        super(BoolFilter, self).validate()
+        
+        lower_val = self._value.lower()
+        if lower_val in self.TRUE:
+            self._value = True
+        elif lower_val in self.FALSE:
+            self._value = False
+        else:
+            raise FilterError("Bad boolean value %r in %r (expected one of '%s', or '%s')" % (
+                self._value, self._condition, "' '".join(self.TRUE), "' '".join(self.FALSE)
+            ))  
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        return bool(getattr(item, self._name)) is self._value  
+
+
+class NumericFilterBase(FieldFilter):
+    """ Base class for numerical value filters.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        super(NumericFilterBase, self).validate()
+
+        if self._value.startswith('+'):
+            self._cmp = lambda a,b: a > b
+            self._value = self._value[1:]
+        elif self._value.startswith('-'):
+            self._cmp = lambda a,b: a < b
+            self._value = self._value[1:]
+        else:
+            self._cmp = lambda a,b: a == b
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+#        if getattr(item, self._name):
+#            print "%r %r %r %r %r %r" % (self._cmp(float(getattr(item, self._name)), self._value), 
+#                  self._name, self._condition, item.name, getattr(item, self._name), self._value)
+        return self._cmp(float(getattr(item, self._name)), self._value) 
+
+
+class FloatFilter(NumericFilterBase):
+    """ Filter float values.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        super(FloatFilter, self).validate()
+
+        try:
+            self._value = float(self._value)
+        except (ValueError, TypeError), exc:
+            raise FilterError("Bad numerical value %r in %r (%s)" % (self._value, self._condition, exc))  
+
+
+class ByteSizeFilter(NumericFilterBase):
+    """ Filter size and bandwidth values.
+    """
+    UNITS = dict(b=1, k=1024, m=1024**2, g=1024**3)
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        super(ByteSizeFilter, self).validate()
+
+        # Get scale
+        lower_val = self._value.lower()
+        if any(lower_val.endswith(i) for i in self.UNITS):
+            scale = self.UNITS[lower_val[-1]]
+            self._value = self._value[:-1]
+        else:
+            scale = 1
+
+        # Get float value
+        try:
+            self._value = float(self._value)
+        except (ValueError, TypeError), exc:
+            raise FilterError("Bad numerical value %r in %r (%s)" % (self._value, self._condition, exc))  
+
+        # Scale to bytes
+        self._value = self._value * scale

@@ -77,7 +77,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
             default=r"  %(name)s\n    R:%(ratio)6.2f  U:%(up)9d  D:%(down)9d",
-            help="specifiy display format")
+            help="specifiy display format (use '-o-' to disable item display)")
 
         # torrent state change
         self.add_bool_option("-S", "--start",
@@ -121,10 +121,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             if matcher.match(item):
                 match_count += 1
 
-                # Print matching item
-                print self.options.output_format % algo.AttributeMapping(item)
+                if self.options.output_format and self.options.output_format != "-":
+                    # Print matching item
+                    print self.options.output_format % algo.AttributeMapping(item)
 
-        self.LOG.info("Filtered %d out of %d torrents..." % (match_count, len(items),))
+        self.LOG.info("Filtered %d out of %d torrents." % (match_count, len(items),))
         ##print; print repr(items[0])
         
         # print summary

@@ -139,22 +139,21 @@ class TorrentProxy(object):
 
     # Field definitions
     hash = ImmutableField(str, "hash", "info hash")
-    name = ImmutableField(unicode_fallback, "name", "name (file or root directory)", 
-                          matcher=matching.GlobFilter)
-    is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?")
-    is_open = DynamicField(bool, "is_open", "download open?")
-    is_complete = DynamicField(bool, "is_complete", "download complete?")
-    ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)")
-    xfer = DynamicField(int, "xfer", "transfer rate",
-                        lambda o: o._fields["up"] + o._fields["down"])
-    down = DynamicField(int, "down", "download rate")
-    up = DynamicField(int, "up", "upload rate")
-    path = DynamicField(unicode_fallback, "path", "path to download data",
-                        lambda o: os.path.expanduser(o._fields["path"]))
-    realpath = DynamicField(unicode_fallback, "realpath", "real path to download data",
-                            lambda o: os.path.realpath(o._fields["path"]))
-    metafile = DynamicField(unicode_fallback, "metafile", "path to torrent file",
-                            lambda o: os.path.expanduser(o._fields["metafile"]))
+    name = ImmutableField(unicode_fallback, "name", "name (file or root directory)", matcher=matching.GlobFilter)
+    is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter)
+    is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter)
+    is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter)
+    ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
+    xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
+                        accessor=lambda o: o._fields["up"] + o._fields["down"])
+    down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
+    up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
+    path = DynamicField(unicode_fallback, "path", "path to download data", matcher=matching.GlobFilter,
+                        accessor=lambda o: os.path.expanduser(unicode_fallback(o._fields["path"])))
+    realpath = DynamicField(unicode_fallback, "realpath", "real path to download data", matcher=matching.GlobFilter,
+                            accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")))
+    metafile = DynamicField(unicode_fallback, "metafile", "path to torrent file", matcher=matching.GlobFilter,
+                            accessor=lambda o: os.path.expanduser(unicode_fallback(o._fields["metafile"])))
     # = DynamicField(, "", "")
 
     # kind, tracker, announce, size, age,
