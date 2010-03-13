@@ -22,6 +22,7 @@ import logging
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.engine import base as engine_base
+from pyrocore.engine.filter import Filter, CompoundFilter
 
 LOG = logging.getLogger(__name__)
 
@@ -102,6 +103,11 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        print repr(config.engine)
 #        config.engine.open()
 #        print repr(config.engine)
+
+        # Parse filter conditions
+        matcher = CompoundFilter()
+        for arg in self.args:
+            matcher.append(Filter.create(arg))
 
         # List filtered torrents
         items = list(config.engine.items())

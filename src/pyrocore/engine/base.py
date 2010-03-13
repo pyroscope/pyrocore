@@ -2,8 +2,6 @@
 # pylint: disable-msg=I0011
 """ PyroCore - Torrent Engine Interface.
 
-    For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration
-
     Copyright (c) 2009, 2010 The PyroScope Project <pyrocore.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
@@ -23,7 +21,10 @@
 import os
 import logging
 
+from pyrocore.engine import filter 
+
 LOG = logging.getLogger(__name__)
+
 
 #
 # Conversion Helpers
@@ -178,4 +179,16 @@ class TorrentEngine(object):
         """ Get list of download items.
         """
         raise NotImplementedError()
+
+
+def create_filter(cls, condition):
+    """ Create a filter object from a textual condition.
+    """
+    try:
+        name, values = condition.split('=', 1)
+    except ValueError:
+        name, values = "name", condition
+    return None 
+    # raise matching.FilterSyntaxError(" in %r" % (condition,))
+
 
