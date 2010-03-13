@@ -37,14 +37,14 @@ class RtorrentControl(ScriptBaseWithConfig):
         "!" in front of a filter value negates it.
         
         Examples:
-          All 1:1 seeds             ratio=+1
-          All active torrents       xfer=+0
-          All seeding torrents      up=+0
-          Slow torrents             down=+0 down=-5k
-          Older than 2 weeks        age=+2w
-          Big stuff                 size=+4g
-          Music                     kind=flac,mp3
-          1:1 seeds not on a NAS    ratio=+1 realpath=!/mnt/*
+          All 1:1 seeds         ratio=+1
+          All active torrents   xfer=+0
+          All seeding torrents  up=+0
+          Slow torrents         down=+0 down=-5k
+          Older than 2 weeks    age=+2w
+          Big stuff             size=+4g
+          Music                 kind=flac,mp3
+          1:1 seeds not on NAS  ratio=+1 realpath=!/mnt/*
     """
 
     # argument description for the usage information
