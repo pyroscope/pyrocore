@@ -23,6 +23,11 @@ class LoggableError(Exception):
     """
 
 
+class EngineError(LoggableError):
+    """ Connection or other backend error.
+    """
+
+
 class UserError(LoggableError):
     """ Yes, it was your fault!
     """

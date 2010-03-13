@@ -22,6 +22,7 @@ from __future__ import with_statement
 
 import os
 import socket
+import xmlrpclib
 from contextlib import closing
 
 from pyrocore import config, error
@@ -41,10 +42,30 @@ class RtorrentProxy(engine.TorrentProxy):
         self._fields = dict(fields)
 
 
+    def fetch(self, name):
+        """ Get a field on demand.
+        """
+        try:
+            return self._fields[name]
+        except KeyError:
+            getter_name = "get_" + RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
+            getter = getattr(self._engine._rpc.d, getter_name)
+
+            try:
+                self._fields[name] = getter(self._fields["hash"])
+            except xmlrpclib.Fault, exc:
+                raise error.EngineError("While accessing field %r: %s" % (name, exc))
+
+            return self._fields[name]
+
+
     def announce_urls(self):
         """ Get a list of all announce URLs.
         """
-        return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
+        try:
+            return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
 
     def start(self):
@@ -62,23 +83,33 @@ class RtorrentProxy(engine.TorrentProxy):
 class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
+    # keys we read from rTorrent's configuration
     RTORRENT_RC_KEYS = ("scgi_local",)
+
+    # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
         "hash", "name", "is_private", "tracker_size", "size_bytes", 
     ))
+
+    # rTorrent names of fields that never change
     PRE_FETCH_FIELDS = CONSTANT_FIELDS | set((
         "is_open", "complete",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",
         "base_path", "tied_to_file", 
     ))
-    FIELD_MAPPING = dict((v, k) for k, v in dict(
+
+    # mapping of our names to rTorrent names (only those that differ)
+    PYRO2RT_MAPPING = dict(
         is_complete = "complete",
         down = "down_rate",
         up = "up_rate",
         path = "base_path", 
         metafile = "tied_to_file", 
         size = "size_bytes",
-    ).items())
+    )
+
+    # inverse mapping of rTorrent names to ours
+    RT2PYRO_MAPPING = dict((v, k) for k, v in PYRO2RT_MAPPING.items()) 
 
 
     def __init__(self):
@@ -185,18 +216,27 @@ class RtorrentEngine(engine.TorrentEngine):
         """ Get list of download items.
         """
         if self._items is None:
-            items = []
+            # Prepare multi-call arguments
             viewname = "main"
             args = [viewname] + ["d.%s%s=" % (
                     "" if field.startswith("is_") else "get_", field
                 ) for field in self.PRE_FETCH_FIELDS
             ]
-            for item in self.open().d.multicall(*tuple(args)):
-                items.append(RtorrentProxy(self, zip(
-                    [self.FIELD_MAPPING.get(i, i) for i in self.PRE_FETCH_FIELDS], item
-                )))
-                yield items[-1]
+
+            # Fetch items
+            items = []
+            try:
+                for item in self.open().d.multicall(*tuple(args)):
+                    items.append(RtorrentProxy(self, zip(
+                        [self.RT2PYRO_MAPPING.get(i, i) for i in self.PRE_FETCH_FIELDS], item
+                    )))
+                    yield items[-1]
+            except xmlrpclib.Fault, exc:
+                raise error.EngineError("While getting download items from %r: %s" % (self, exc))
+
+            # Just fetch once
             self._items = items
         else:
+            # Yield prefetched results
             for item in self._items:
                 yield item

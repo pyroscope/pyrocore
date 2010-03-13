@@ -26,6 +26,9 @@ log = logging.getLogger(__name__)
 def human_size(size):
     """ Return a human-readable representation of a byte size.
     """
+    if size < 0:
+        return "-??? bytes"
+
     if size < 1024:
         return "%4d bytes" % size
     for unit in ("KiB", "MiB", "GiB"):

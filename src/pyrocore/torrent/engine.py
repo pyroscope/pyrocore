@@ -95,6 +95,16 @@ class DynamicField(FieldDefinition):
     """
 
 
+class OnDemandField(DynamicField):
+    """ Field that is fetched on first access only.
+    """
+
+    def __get__(self, obj, cls=None):
+        if obj and self.name not in obj._fields:
+            obj.fetch(self.name)
+        return super(OnDemandField, self).__get__(obj, cls)
+
+
 class MutableField(FieldDefinition):
     """ Read-only download item field
     """
@@ -124,6 +134,12 @@ class TorrentProxy(object):
             ["%s=%r" % (i, getattr(self, i)) for i in attrs] +
             ["%s=%r" % (i, self._fields[i]) for i in (set(self._fields) - attrs)]
         )))
+
+
+    def fetch(self, name):
+        """ Get a field on demand.
+        """
+        raise NotImplementedError()
 
 
     def announce_urls(self):
@@ -166,6 +182,7 @@ class TorrentProxy(object):
                            accessor=lambda o: o.announce_urls()[0])
     tracker_alias = DynamicField(config.map_announce2alias, "tracker_alias", "tracker alias or domain",
                                  matcher=matching.GlobFilter, accessor=lambda o: o.tracker)
+    message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
     # = DynamicField(, "", "")
 
     # kind, tracker, announce, size, age,
