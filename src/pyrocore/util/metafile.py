@@ -25,14 +25,11 @@ import stat
 import math
 import fnmatch
 import hashlib
-import logging
 import urlparse
 from contextlib import closing
 
 from pyrocore import config, error
-from pyrocore.util import bencode, fmt
-
-LOG = logging.getLogger(__name__)
+from pyrocore.util import bencode, fmt, pymagic
 
 # Allowed characters in a metafile filename or path
 ALLOWED_NAME = re.compile(r"^[^/\\.~][^/\\]*$")
@@ -140,6 +137,7 @@ class Metafile(object):
         self.progress = None
         self.datapath = None
         self.ignore = self.IGNORE_GLOB[:]
+        self.LOG = pymagic.get_class_logger(self)
 
 
     def _scan(self):
@@ -157,10 +155,10 @@ class Metafile(object):
                     relpath = fifo.readline().rstrip('\n')
                     if not relpath: # EOF?
                         break
-                    LOG.debug("Read relative path %r from FIFO..." % (relpath,))
+                    self.LOG.debug("Read relative path %r from FIFO..." % (relpath,))
                     yield os.path.join(os.path.dirname(self.datapath), relpath)
 
-            LOG.debug("FIFO %r closed!" % (self.datapath,))
+            self.LOG.debug("FIFO %r closed!" % (self.datapath,))
                 
         # Directory?
         elif os.path.isdir(self.datapath):
@@ -215,7 +213,7 @@ class Metafile(object):
                 "length": filesize, 
                 "path": filepath.replace(os.sep, '/').split('/'),
             })
-            LOG.debug("Hashing %r, size %d..." % (filename, filesize))
+            self.LOG.debug("Hashing %r, size %d..." % (filename, filesize))
             
             # Open file and hash it
             fileoffset = 0
@@ -334,12 +332,12 @@ class Metafile(object):
                 try:
                     output_name[1:1] = '-' + tracker_alias
                 except (IndexError,):
-                    LOG.error("Malformed announce URL %r, skipping!" % (tracker_url,))
+                    self.LOG.error("Malformed announce URL %r, skipping!" % (tracker_url,))
                     continue
                 output_name = ''.join(output_name)
 
             # Hash the data
-            LOG.info("Creating %r for %s %r..." % (output_name, "filenames read from" if self._fifo else "data in", self.datapath))
+            self.LOG.info("Creating %r for %s %r..." % (output_name, "filenames read from" if self._fifo else "data in", self.datapath))
             meta = self._make_meta(tracker_url, root_name, private, progress)
 
             # Add optional fields
@@ -351,7 +349,7 @@ class Metafile(object):
                 meta["creation date"] = long(time.time())
 
             # Write metafile to disk
-            LOG.debug("Writing %r..." % (output_name,))
+            self.LOG.debug("Writing %r..." % (output_name,))
             bencode.bwrite(output_name, meta)
 
         return meta

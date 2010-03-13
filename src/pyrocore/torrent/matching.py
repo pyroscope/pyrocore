@@ -18,16 +18,13 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-import logging
+import fnmatch
 
 from pyrocore import error
-from pyrocore.engine import base
-
-LOG = logging.getLogger(__name__)
 
 
-class FilterSyntaxError(error.UserError):
-    """ Syntax error in filter.
+class FilterError(error.UserError):
+    """ (Syntax) error in filter.
     """
 
 
@@ -41,7 +38,7 @@ class Filter(object):
         raise NotImplementedError()
 
 
-class CompoundFilter(Filter, list):
+class CompoundFilterAll(Filter, list):
     """ List of filters that must all match.
     """
 
@@ -49,3 +46,60 @@ class CompoundFilter(Filter, list):
         """ Return True if filter matches item.
         """
         return all(i.match(item) for i in self)
+
+
+class CompoundFilterAny(Filter, list):
+    """ List of filters where at least one must match.
+    """
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        return any(i.match(item) for i in self)
+
+
+class NegateFilter(object):
+    """ Negate result of another filter.
+    """
+
+    def __init__(self, inner):
+        self._inner = inner
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        return not self._inner.match(item)
+
+
+class FieldFilter(Filter):
+    """ Base class for all field filters.
+    """
+
+    def __init__(self, name, value):
+        """ Store field name and filter value for later evaluations. 
+        """
+        self._name = name
+        self._value = value
+        self.validate()
+
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+
+
+class GlobFilter(FieldFilter):
+    """ Case-insensitive glob pattern filter.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        self._value = self._value.lower()
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        return fnmatch.fnmatchcase(getattr(item, self._name).lower(), self._value) 

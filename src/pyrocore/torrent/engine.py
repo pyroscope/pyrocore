@@ -19,11 +19,9 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import os
-import logging
 
-from pyrocore.engine import filter 
-
-LOG = logging.getLogger(__name__)
+from pyrocore.util import pymagic
+from pyrocore.torrent import matching 
 
 
 #
@@ -59,14 +57,18 @@ def ratio_float(intval):
 class FieldDefinition(object):
     """ Download item field.
     """
-    FIELDS = []
+    FIELDS = {}
 
-    def __init__(self, valtype, name, doc, accessor=None):
+    def __init__(self, valtype, name, doc, accessor=None, matcher=None):
         self.valtype = valtype
         self.name = name
         self.__doc__ = doc
         self._accessor = accessor
-        FieldDefinition.FIELDS.append(self)
+        self._matcher = matcher
+
+        if name in FieldDefinition.FIELDS:
+            raise RuntimeError("INTERNAL ERROR: Duplicate field definition")
+        FieldDefinition.FIELDS[name] = self
 
     
     def __get__(self, obj, cls=None):
@@ -116,7 +118,7 @@ class TorrentProxy(object):
     def __repr__(self):
         """ Return a representation of internal state.
         """
-        attrs = set(k.name for k in FieldDefinition.FIELDS)
+        attrs = set(FieldDefinition.FIELDS)
         return "<%s(%s)>" % (self.__class__.__name__, ", ".join(sorted(
             ["%s=%r" % (i, getattr(self, i)) for i in attrs] +
             ["%s=%r" % (i, self._fields[i]) for i in (set(self._fields) - attrs)]
@@ -137,7 +139,8 @@ class TorrentProxy(object):
 
     # Field definitions
     hash = ImmutableField(str, "hash", "info hash")
-    name = ImmutableField(unicode_fallback, "name", "name (file or root directory)")
+    name = ImmutableField(unicode_fallback, "name", "name (file or root directory)", 
+                          matcher=matching.GlobFilter)
     is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?")
     is_open = DynamicField(bool, "is_open", "download open?")
     is_complete = DynamicField(bool, "is_complete", "download complete?")
@@ -164,7 +167,7 @@ class TorrentEngine(object):
     def __init__(self):
         """ Initialize torrent backend engine.
         """
-        self.log = logging.getLogger(self.__class__.__name__)
+        self.LOG = pymagic.get_class_logger(self)
         self.engine_id = "N/A"          # ID of the instance we're connecting to
         self.engine_software = "N/A"    # Name and version of software
 
@@ -181,14 +184,33 @@ class TorrentEngine(object):
         raise NotImplementedError()
 
 
-def create_filter(cls, condition):
+def create_filter(condition):
     """ Create a filter object from a textual condition.
     """
+    # Split name from value(s)
     try:
         name, values = condition.split('=', 1)
     except ValueError:
         name, values = "name", condition
-    return None 
-    # raise matching.FilterSyntaxError(" in %r" % (condition,))
 
+    # Try to find field definition
+    try:
+        field = FieldDefinition.FIELDS[name]
+    except KeyError:
+        raise matching.FilterError("Unknown field %r in %r" % (name, condition))  
 
+    if field._matcher is None: 
+        raise matching.FilterError("Field %r cannot be used as a filter" % (name,))  
+
+    # Make filters from values
+    filters = []
+    for value in values.split(','):
+        wrapper = None
+        if value.startswith('!'):
+            wrapper = matching.NegateFilter
+            value = value[1:]
+        field_matcher = field._matcher(name, value)
+        filters.append(wrapper(field_matcher) if wrapper else field_matcher)
+
+    # Return filters
+    return matching.CompoundFilterAny(filters) if len(filters) > 1 else filters[0]  

@@ -19,12 +19,9 @@
 
 import os
 import sys
-import logging
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.util.metafile import Metafile
-
-LOG = logging.getLogger(__name__)
 
 
 class MetafileCreator(ScriptBaseWithConfig):

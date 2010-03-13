@@ -22,17 +22,14 @@ from __future__ import with_statement
 
 import os
 import socket
-import logging
 from contextlib import closing
 
 from pyrocore import config, error
 from pyrocore.util import xmlrpc2scgi, load_config
-from pyrocore.engine import base
-
-LOG = logging.getLogger(__name__)
+from pyrocore.torrent import engine
 
 
-class RtorrentProxy(base.TorrentProxy):
+class RtorrentProxy(engine.TorrentProxy):
     """ A single download item.
     """
 
@@ -56,7 +53,7 @@ class RtorrentProxy(base.TorrentProxy):
         raise NotImplementedError()
 
 
-class RtorrentEngine(base.TorrentEngine):
+class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
     RTORRENT_RC_KEYS = ("scgi_local",)
@@ -101,7 +98,7 @@ class RtorrentEngine(base.TorrentEngine):
                 raise error.UserError("Config file %r doesn't exist!" % (rtorrent_rc,))
 
             # Parse the file
-            self.log.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
+            self.LOG.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
             with closing(open(rtorrent_rc)) as handle:
                 for line in handle.readlines():
                     # Skip comments and empty lines
@@ -113,15 +110,13 @@ class RtorrentEngine(base.TorrentEngine):
                     try:
                         key, val = line.split("=", 1)
                     except ValueError:
-                        self.log.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
+                        self.LOG.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
                         continue
                     key, val = key.strip(), val.strip()
 
                     # Copy values we're interested in
-                    if key in self.RTORRENT_RC_KEYS:
-                        print key, val
                     if key in self.RTORRENT_RC_KEYS and not getattr(namespace, key, None):
-                        self.log.debug("Copied from rtorrent.rc: %s = %s" % (key, val))
+                        self.LOG.debug("Copied from rtorrent.rc: %s = %s" % (key, val))
                         setattr(namespace, key, val)
 
         # Validate fields
@@ -170,7 +165,7 @@ class RtorrentEngine(base.TorrentEngine):
         self.engine_software = "rTorrent %s/%s" % (
             self._rpc.system.client_version(), self._rpc.system.library_version(),
         )
-        self.log.debug(repr(self))
+        self.LOG.debug(repr(self))
 
         self._session_dir = self._rpc.get_session()
         self._download_dir = os.path.expanduser(self._rpc.get_directory())

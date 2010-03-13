@@ -36,3 +36,19 @@ except ImportError:
         for prod in result:
             yield tuple(prod)
 
+
+class AttributeMapping(object):
+
+    def __init__(self, obj):
+        """ Remember object we want to map.
+        """
+        self.obj = obj
+
+
+    def __getitem__(self, key):
+        """ Return object attribute named C{key}.
+        """
+        try:
+            return getattr(self.obj, key)
+        except AttributeError, exc:
+            raise KeyError(exc) 

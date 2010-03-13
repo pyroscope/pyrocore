@@ -18,13 +18,10 @@
 """
 
 import pprint
-import logging
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
 from pyrocore.util import load_config, metafile
-
-LOG = logging.getLogger(__name__)
 
 
 class AdminTool(ScriptBaseWithConfig):

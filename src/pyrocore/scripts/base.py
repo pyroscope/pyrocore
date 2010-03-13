@@ -20,21 +20,21 @@ from __future__ import with_statement
 
 import os
 import time
-import logging
 import textwrap
 import pkg_resources
+import logging.config
 from optparse import OptionParser
 from contextlib import closing
 
 from pyrocore import error
-from pyrocore.util import load_config
-
-LOG = logging.getLogger(__name__)
+from pyrocore.util import pymagic, load_config
 
 
 class ScriptBase(object):
     """ Base class for command line interfaces.
     """
+    # logging configuration
+    LOGGING_CFG = os.path.expanduser("~/.pyroscope/logging.scripts.ini")
 
     # argument description for the usage information
     ARGS_HELP = "<log-base>..."
@@ -46,13 +46,17 @@ class ScriptBase(object):
     def setup(cls):
         """ Set up the runtime environment.
         """
-        logging.basicConfig(level=logging.INFO)
+        if os.path.exists(cls.LOGGING_CFG):
+            logging.config.fileConfig(cls.LOGGING_CFG)
+        else:
+            logging.basicConfig(level=logging.INFO)
 
 
     def __init__(self):
         """ Initialize CLI.
         """
         self.startup = time.time()
+        self.LOG = pymagic.get_class_logger(self)
 
         # Get version number
         provider = pkg_resources.get_provider(__name__)
@@ -133,7 +137,7 @@ class ScriptBase(object):
         elif self.options.verbose:
             logging.getLogger().setLevel(logging.DEBUG)
 
-        LOG.debug("Options: %r" % self.options)
+        self.LOG.debug("Options: %r" % self.options)
 
 
     def run(self):
@@ -155,11 +159,11 @@ class ScriptBase(object):
                     msg = str(exc)
                 except UnicodeError:
                     msg = unicode(exc, "UTF-8")
-                LOG.error(msg)
+                self.LOG.error(msg)
         finally:
             # Shut down
             running_time = time.time() - self.startup
-            LOG.info("Total time: %.3f seconds." % running_time)
+            self.LOG.info("Total time: %.3f seconds." % running_time)
             logging.shutdown()
 
 
@@ -193,4 +197,3 @@ class ScriptBaseWithConfig(ScriptBase):
         """
         super(ScriptBaseWithConfig, self).get_options()
         load_config.ConfigLoader(self.options.config_dir).load()
-

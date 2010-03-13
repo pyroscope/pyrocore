@@ -20,11 +20,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-import logging
-
 from pyrocore.util.types import Bunch
-
-LOG = logging.getLogger(__name__)
 
 
 def lookup_announce_alias(name):
@@ -44,7 +40,3 @@ _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 scgi_local = ""
 engine = Bunch(open=lambda: None)
 announce = {}
-    
-# Keep namespace clean
-del logging
-

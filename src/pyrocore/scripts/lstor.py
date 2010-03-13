@@ -17,13 +17,9 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import logging
-
 from pyrocore.scripts.base import ScriptBase
 from pyrocore.util.bencode import BencodeError
 from pyrocore.util.metafile import Metafile
-
-LOG = logging.getLogger(__name__)
 
 
 class MetafileLister(ScriptBase):
@@ -59,7 +55,7 @@ class MetafileLister(ScriptBase):
             try:
                 lines = metafile.listing(masked=not self.options.reveal)
             except (KeyError, BencodeError), exc:
-                LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
+                self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
                 print '\n'.join(lines)
 

@@ -20,8 +20,6 @@
 """
 import logging
 
-LOG = logging.getLogger(__name__)
-
 
 def import_name(module_spec, name=None):
     """ Import identifier C{name} from module C{module_spec}.
@@ -39,3 +37,8 @@ def import_name(module_spec, name=None):
     module = __import__(module_spec, globals(), {}, [name])
     return getattr(module, name)
 
+
+def get_class_logger(obj):
+    """ Get a logger specific for the given object's class.
+    """
+    return logging.getLogger(obj.__class__.__module__ + '.' + obj.__class__.__name__)

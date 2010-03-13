@@ -23,7 +23,6 @@
 from __future__ import with_statement
 
 import os
-import logging
 import StringIO
 import ConfigParser
 import pkg_resources
@@ -53,7 +52,7 @@ class ConfigLoader(object):
         """ Create loader instance.
         """
         self.config_dir = config_dir or os.path.join(os.path.expanduser("~"), ".pyroscope")
-        self.log = logging.getLogger(self.__class__.__name__)
+        self.LOG = pymagic.get_class_logger(self)
         self._loaded = False
 
 
@@ -131,23 +130,23 @@ class ConfigLoader(object):
     def _load_ini(self, namespace, config_file):
         """ Load INI style configuration.
         """
-        self.log.debug("Loading %r..." % (config_file,))
+        self.LOG.debug("Loading %r..." % (config_file,))
         ini_file = ConfigParser.SafeConfigParser()
         ini_file.optionxform = str # case-sensitive option names
         if ini_file.read(config_file):
             self._set_from_ini(namespace, ini_file)
         else:
-            self.log.warning("Configuration file %r not found!" % (config_file,))
+            self.LOG.warning("Configuration file %r not found!" % (config_file,))
 
 
     def _load_py(self, namespace, config_file):
         """ Load scripted configuration.
         """
         if config_file and os.path.isfile(config_file):
-            self.log.debug("Loading %r..." % (config_file,))
+            self.LOG.debug("Loading %r..." % (config_file,))
             execfile(config_file, vars(config), namespace)
         else:
-            self.log.warning("Configuration file %r not found!" % (config_file,))
+            self.LOG.warning("Configuration file %r not found!" % (config_file,))
             
 
     def load(self):
@@ -177,23 +176,26 @@ class ConfigLoader(object):
         """
         # Check and create configuration directory
         if os.path.exists(self.config_dir):
-            self.log.warn("Configuration directory %r already exists!" % (self.config_dir,))
+            self.LOG.warn("Configuration directory %r already exists!" % (self.config_dir,))
         else:
             os.mkdir(self.config_dir)
 
         # Create default configuration files
-        for filename in (self.CONFIG_INI, self.CONFIG_PY):
+        for filename in pkg_resources.resource_listdir("pyrocore", "data/config"): #@UndefinedVariable
+            # Skip hidden files
+            if filename.startswith('.'):
+                continue
+            
             # Load default from package data
             text = pkg_resources.resource_string("pyrocore", "data/config/" + filename) #@UndefinedVariable
 
             # Check for existing configuration file
             config_file = os.path.join(self.config_dir, filename)
             if os.path.exists(config_file):
-                self.log.warn("Configuration file %r already exists!" % (config_file,))
+                self.LOG.warn("Configuration file %r already exists!" % (config_file,))
                 config_file += ".default"
 
             # Write new configuration file
             with closing(open(config_file, "w")) as handle:
                 handle.write(text)
-            self.log.info("Configuration file %r written!" % (config_file,))
-
+            self.LOG.info("Configuration file %r written!" % (config_file,))

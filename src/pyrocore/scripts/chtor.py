@@ -18,13 +18,10 @@
 """
 
 import os
-import logging
 import urlparse
 
 from pyrocore.scripts.base import ScriptBase
 from pyrocore.util import bencode
-
-LOG = logging.getLogger(__name__)
 
 
 class MetafileChanger(ScriptBase):
@@ -61,7 +58,7 @@ class MetafileChanger(ScriptBase):
             filter_url_prefix = urlparse.urlunsplit((
                 filter_url_prefix.scheme, filter_url_prefix.netloc, '/', '', ''
             ))
-            LOG.info("Filtering for metafiles with announce URL prefix %r..." % filter_url_prefix)
+            self.LOG.info("Filtering for metafiles with announce URL prefix %r..." % filter_url_prefix)
 
         # go through given files
         bad = 0
@@ -72,7 +69,7 @@ class MetafileChanger(ScriptBase):
                 metainfo = bencode.bread(filename)
                 old_metainfo = bencode.bencode(metainfo)
             except (KeyError, bencode.BencodeError), exc:
-                LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
+                self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
                 bad += 1
             else:
                 # skip any metafile that don't meet the pre-conditions
@@ -87,7 +84,7 @@ class MetafileChanger(ScriptBase):
                 # Write new metafile, if changed
                 new_metainfo = bencode.bencode(metainfo)
                 if new_metainfo != old_metainfo:
-                    LOG.info("Changing %r..." % filename)
+                    self.LOG.info("Changing %r..." % filename)
                     changed += 1
 
                     if not self.options.dry_run:
@@ -96,7 +93,7 @@ class MetafileChanger(ScriptBase):
                             os.path.dirname(filename),
                             '.' + os.path.basename(filename),
                         )
-                        LOG.debug("Wriitng %r..." % tempname)
+                        self.LOG.debug("Wriitng %r..." % tempname)
                         bencode.bwrite(tempname, metainfo)
 
                         # Replace existing file
@@ -107,11 +104,11 @@ class MetafileChanger(ScriptBase):
 
         # print summary
         if changed:
-            LOG.info("%s %d metafile(s)." % (
+            self.LOG.info("%s %d metafile(s)." % (
                 "Would've changed" if self.options.dry_run else "Changed", changed
             ))
         if bad:
-            LOG.warn("Skipped %d bad metafile(s)!" % (bad))
+            self.LOG.warn("Skipped %d bad metafile(s)!" % (bad))
 
 
 def run(): #pragma: no cover

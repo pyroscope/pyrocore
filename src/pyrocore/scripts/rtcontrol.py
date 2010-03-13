@@ -17,14 +17,10 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import logging
-
 from pyrocore import config
+from pyrocore.util import algo
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.engine import base as engine_base
-from pyrocore.engine.filter import Filter, CompoundFilter
-
-LOG = logging.getLogger(__name__)
+from pyrocore.torrent import engine, matching 
 
 
 class RtorrentControl(ScriptBaseWithConfig):
@@ -56,8 +52,8 @@ class RtorrentControl(ScriptBaseWithConfig):
 
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = ["", "", "Fields are:",] + [
-        "  %-21s %s" % (i.name, i.__doc__)
-        for i in engine_base.FieldDefinition.FIELDS
+        "  %-21s %s" % (name, field.__doc__)
+        for name, field in sorted(engine.FieldDefinition.FIELDS.items())
     ]
 
 
@@ -79,7 +75,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="print statistics")
         self.add_bool_option("-f", "--full",
             help="print full torrent details")
-        self.add_value_option("-o", "--output-format", "FIELD[,...]",
+        self.add_value_option("-o", "--output-format", "FORMAT",
+            default=r"  %(name)s\n    R:%(ratio)6.2f  U:%(up)9d  D:%(down)9d",
             help="specifiy display format")
 
         # torrent state change
@@ -104,18 +101,31 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        config.engine.open()
 #        print repr(config.engine)
 
+        # Do some escaping on output format
+        self.options.output_format = (self.options.output_format
+            .replace(r"\\", "\\")
+            .replace(r"\n", "\n")
+            .replace(r"\t", "\t")
+            #.replace(r"\", "\")
+        )                            
+
         # Parse filter conditions
-        matcher = CompoundFilter()
+        matcher = matching.CompoundFilterAll()
         for arg in self.args:
-            matcher.append(Filter.create(arg))
+            matcher.append(engine.create_filter(arg))
 
-        # List filtered torrents
+        # Find matching torrents
         items = list(config.engine.items())
+        match_count = 0
         for item in items:
-            print item.name
+            if matcher.match(item):
+                match_count += 1
 
-        print
-        print repr(items[0])
+                # Print matching item
+                print self.options.output_format % algo.AttributeMapping(item)
+
+        self.LOG.info("Filtered %d out of %d torrents..." % (match_count, len(items),))
+        ##print; print repr(items[0])
         
         # print summary
         if self.options.summary:
