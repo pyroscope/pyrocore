@@ -127,7 +127,7 @@ class TorrentProxy(object):
 
 
     def announce_urls(self):
-        """ Get a list of all annpunce URLs.
+        """ Get a list of all announce URLs.
         """
         raise NotImplementedError()
 
@@ -162,7 +162,7 @@ class TorrentProxy(object):
                             accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")))
     metafile = DynamicField(unicode_fallback, "metafile", "path to torrent file", matcher=matching.GlobFilter,
                             accessor=lambda o: os.path.expanduser(unicode_fallback(o._fields["metafile"])))
-    tracker = DynamicField(str, "tracker", "first in the list annpunce URLs", matcher=matching.GlobFilter,
+    tracker = DynamicField(str, "tracker", "first in the list announce URLs", matcher=matching.GlobFilter,
                            accessor=lambda o: o.announce_urls()[0])
     tracker_alias = DynamicField(config.map_announce2alias, "tracker_alias", "tracker alias or domain",
                                  matcher=matching.GlobFilter, accessor=lambda o: o.tracker)

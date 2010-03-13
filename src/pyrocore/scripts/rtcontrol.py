@@ -32,8 +32,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         Filter expressions take the form "<field>=<value>", and all expressions must
         be met (AND). If a field name is omitted, "name" is assumed.
         
-        For numeric fields, a leading "+" means greater than, a leading "-" means 
-        less than. For string fields, the value is a glob pattern (*, ?, [a-z]).
+        For numeric fields, a leading "+" means greater than, a leading "-" means less 
+        than. For string fields, the value is a glob pattern (*, ?, [a-z], [!a-z]).
         Multiple values separated by a comma indicate several possible choices (OR).
         "!" in front of a filter value negates it.
         

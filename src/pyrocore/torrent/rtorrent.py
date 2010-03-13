@@ -42,7 +42,7 @@ class RtorrentProxy(engine.TorrentProxy):
 
 
     def announce_urls(self):
-        """ Get a list of all annpunce URLs.
+        """ Get a list of all announce URLs.
         """
         return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
 
