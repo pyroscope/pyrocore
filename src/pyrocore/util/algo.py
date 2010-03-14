@@ -39,16 +39,18 @@ except ImportError:
 
 class AttributeMapping(object):
 
-    def __init__(self, obj):
+    def __init__(self, obj, defaults=None):
         """ Remember object we want to map.
         """
         self.obj = obj
+        self.defaults = defaults or {}
 
 
     def __getitem__(self, key):
         """ Return object attribute named C{key}.
         """
+        ##print "GETITEM", key, self.defaults
         try:
             return getattr(self.obj, key)
-        except AttributeError, exc:
-            raise KeyError(exc) 
+        except AttributeError:
+            return self.defaults[key]

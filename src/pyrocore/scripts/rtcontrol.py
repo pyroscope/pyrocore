@@ -65,8 +65,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         super(RtorrentControl, self).add_options()
 
         # basic options
-#        self.add_bool_option("-n", "--dry-run",
-#            help="don't commit changes, just tell what would happen")
+        self.add_bool_option("-n", "--dry-run",
+            help="don't commit changes, just tell what would happen")
 #        self.add_bool_option("-i", "--interactive",
 #            help="interactive mode (prompt before changing things)")
 #        self.add_bool_option("--yes",
@@ -85,24 +85,24 @@ class RtorrentControl(ScriptBaseWithConfig):
 #            help="print statistics")
 
         # torrent state change
-#        self.add_bool_option("-S", "--start",
-#            help="start torrent")
-#        self.add_bool_option("-C", "--close",
-#            help="stop torrent")
+        self.add_bool_option("-S", "--start",
+            help="start torrent")
+        self.add_bool_option("-C", "--close", "--stop",
+            help="stop torrent")
 #        self.add_bool_option("--delete",
 #            help="remove from client and archive metafile (implies -i)")
 #        self.add_bool_option("--purge", "--delete-data",
 #            help="remove from client and also delete all data (implies -i)")
 
 
-    def validate_output_format(self):
+    def validate_output_format(self, default_format):
         """ Prepare output format for later use.
         """
         output_format = self.options.output_format
 
         # Use default format if none is given
         if output_format is None:
-            output_format = config.output_format
+            output_format = default_format
 
         # Expand plain field list to usable form
         if re.match(r"[,._0-9a-zA-Z]+", output_format):
@@ -142,16 +142,22 @@ class RtorrentControl(ScriptBaseWithConfig):
     def mainloop(self):
         """ The main loop.
         """
+        # Print usage if no conditions are provided
         if not self.args:
             self.parser.print_help()
             self.parser.exit()
+
+        # Check options
+        action_mode = sum([self.options.start, self.options.close])
+        if action_mode > 1:
+            self.parser.error("Options --start and --close are mutually exclusive")
 
 #        print repr(config.engine)
 #        config.engine.open()
 #        print repr(config.engine)
 
         # Preparation steps
-        self.validate_output_format()
+        self.validate_output_format(config.action_format if action_mode else config.output_format)
         sort_key = self.validate_sort_fields()
         matcher = engine.parse_filter_conditions(self.args)
 
@@ -160,13 +166,29 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches = [item for item in items if matcher.match(item)]
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
-        # Display matches
-        if self.options.output_format and self.options.output_format != "-":
-            for item in matches:
-                # Print matching item
-                print fmt.to_console(self.options.output_format % engine.OutputMapping(item))
+        if action_mode:
+            if self.options.start:
+                action_name = "START"
+                action = "start" 
+            elif self.options.close:
+                action_name = "CLOSE"
+                action = "stop" 
+            self.LOG.info("About to %s %d out of %d torrents." % (action_name, len(matches), len(items),))
 
-        self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
+            for item in matches:
+                if self.options.output_format != "-":
+                    print fmt.to_console(self.options.output_format % engine.OutputMapping(item, {"action": action_name})) 
+                if not self.options.dry_run:
+                    getattr(item, action)()
+        else:
+            # Display matches
+            if self.options.output_format and self.options.output_format != "-":
+                for item in matches:
+                    # Print matching item
+                    print fmt.to_console(self.options.output_format % engine.OutputMapping(item))
+
+            self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
+
         ##print; print repr(items[0])
         
         # print summary

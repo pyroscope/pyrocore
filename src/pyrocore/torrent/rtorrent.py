@@ -71,13 +71,21 @@ class RtorrentProxy(engine.TorrentProxy):
     def start(self):
         """ (Re-)start downloading or seeding.
         """
-        raise NotImplementedError()
+        try:
+            self._engine._rpc.d.open(self._fields["hash"])
+            self._engine._rpc.d.start(self._fields["hash"])
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While starting torrent #%s: %s" % (self._fields["hash"], exc))
 
 
     def stop(self):
         """ Stop and close download.
         """
-        raise NotImplementedError()
+        try:
+            self._engine._rpc.d.stop(self._fields["hash"])
+            self._engine._rpc.d.close(self._fields["hash"])
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
 
 
 class RtorrentEngine(engine.TorrentEngine):

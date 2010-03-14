@@ -42,12 +42,13 @@ class FieldDefinition(object):
     """
     FIELDS = {}
 
-    def __init__(self, valtype, name, doc, accessor=None, matcher=None):
+    def __init__(self, valtype, name, doc, accessor=None, matcher=None, formatter=None):
         self.valtype = valtype
         self.name = name
         self.__doc__ = doc
         self._accessor = accessor
         self._matcher = matcher
+        self._formatter = formatter
 
         if name in FieldDefinition.FIELDS:
             raise RuntimeError("INTERNAL ERROR: Duplicate field definition")
@@ -145,9 +146,12 @@ class TorrentProxy(object):
     # Field definitions
     hash = ImmutableField(str, "hash", "info hash")
     name = ImmutableField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
-    is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter)
-    is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter)
-    is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter)
+    is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter, 
+                                formatter=lambda val: "PRV" if val else "PUB")
+    is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter,
+                           formatter=lambda val: "OPN" if val else "CLS")
+    is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter,
+                               formatter=lambda val: "DONE" if val else "PART")
     size = DynamicField(int, "size", "data size", matcher=matching.ByteSizeFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
@@ -208,6 +212,7 @@ class OutputMapping(algo.AttributeMapping):
         """ Return object attribute named C{key}. Attional formatting is provided
             by adding ".sz" (byte size formmating) to the normal field name.
         """
+        # Check for a formatter specification
         formatter = None
         if '.' in key:
             key, fmtname = key.rsplit('.', 1)
@@ -216,11 +221,18 @@ class OutputMapping(algo.AttributeMapping):
             except AttributeError:
                 raise error.UserError("Unknown formatting spec %r for %r" % (fmtname, key))
 
+        # Check for a field formatter
         try:
-            val = getattr(self.obj, key)
-        except AttributeError, exc:
-            raise KeyError(exc) 
+            field = FieldDefinition.FIELDS[key]
+        except KeyError:
+            if key not in self.defaults: 
+                raise error.UserError("Unknown field %r" % (key,))  
+        else:
+            if field._formatter:
+                formatter = (lambda val, f=formatter: field._formatter(f(val))) if formatter else field._formatter 
 
+        # Return formatted value
+        val = super(OutputMapping, self).__getitem__(key)
         return formatter(val) if formatter else val
 
 
