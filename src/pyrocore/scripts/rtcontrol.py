@@ -167,6 +167,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
         if action_mode:
+            # Prepare action
             if self.options.start:
                 action_name = "START"
                 action = "start" 
@@ -175,8 +176,9 @@ class RtorrentControl(ScriptBaseWithConfig):
                 action = "stop" 
             self.LOG.info("About to %s %d out of %d torrents." % (action_name, len(matches), len(items),))
 
+            # Perform chosen action on matches
             for item in matches:
-                if self.options.output_format != "-":
+                if self.options.output_format and self.options.output_format != "-":
                     print fmt.to_console(self.options.output_format % engine.OutputMapping(item, {"action": action_name})) 
                 if not self.options.dry_run:
                     getattr(item, action)()

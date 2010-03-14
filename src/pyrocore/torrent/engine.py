@@ -19,6 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import os
+import operator
 
 from pyrocore import config, error 
 from pyrocore.util import pymagic, fmt, algo
@@ -166,8 +167,8 @@ class TorrentProxy(object):
                             accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
     tracker = DynamicField(str, "tracker", "first in the list announce URLs", matcher=matching.GlobFilter,
                            accessor=lambda o: o.announce_urls()[0])
-    tracker_alias = DynamicField(config.map_announce2alias, "tracker_alias", "tracker alias or domain",
-                                 matcher=matching.GlobFilter, accessor=lambda o: o.tracker)
+    alias = DynamicField(config.map_announce2alias, "alias", "tracker alias or domain",
+                                 matcher=matching.GlobFilter, accessor=operator.attrgetter("tracker"))
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
     # = DynamicField(, "", "")
 
