@@ -93,6 +93,8 @@ class RtorrentControl(ScriptBaseWithConfig):
 #            help="remove from client and archive metafile (implies -i)")
 #        self.add_bool_option("--purge", "--delete-data",
 #            help="remove from client and also delete all data (implies -i)")
+#        self.add_value_option("--move-data", "DIR",
+#            help="move data to given target directory (implies -i, can be combined with --delete)")
 
 
     def validate_output_format(self, default_format):
