@@ -17,6 +17,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import re
+import sys
 import operator
 
 from pyrocore import config
@@ -73,6 +74,8 @@ class RtorrentControl(ScriptBaseWithConfig):
 #            help="positively answer all prompts (e.g. --delete --yes)")
       
         # output control
+        self.add_bool_option("-0", "--nul", "--print0",
+            help="use a NUL character instead of a linebreak after items")
         #self.add_bool_option("-f", "--full",
         #    help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
@@ -95,6 +98,17 @@ class RtorrentControl(ScriptBaseWithConfig):
 #            help="remove from client and also delete all data (implies -i)")
 #        self.add_value_option("--move-data", "DIR",
 #            help="move data to given target directory (implies -i, can be combined with --delete)")
+
+
+    def emit(self, item, defaults=None):
+        """ Print an item to stdout.
+        """
+        item_text = fmt.to_console(self.options.output_format % engine.OutputMapping(item, defaults)) 
+        if self.options.nul:
+            sys.stdout.write(item_text + '\0')
+            sys.stdout.flush()
+        else: 
+            print item_text 
 
 
     def validate_output_format(self, default_format):
@@ -181,7 +195,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Perform chosen action on matches
             for item in matches:
                 if self.options.output_format and self.options.output_format != "-":
-                    print fmt.to_console(self.options.output_format % engine.OutputMapping(item, {"action": action_name})) 
+                    self.emit(item, {"action": action_name}) 
                 if not self.options.dry_run:
                     getattr(item, action)()
         else:
@@ -189,7 +203,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             if self.options.output_format and self.options.output_format != "-":
                 for item in matches:
                     # Print matching item
-                    print fmt.to_console(self.options.output_format % engine.OutputMapping(item))
+                    self.emit(item)
 
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
 
