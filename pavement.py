@@ -54,6 +54,7 @@ project = dict(
             "chtor = pyrocore.scripts.chtor:run",
             "pyroadmin = pyrocore.scripts.pyroadmin:run",
             "rtcontrol = pyrocore.scripts.rtcontrol:run",
+            "rtmv = pyrocore.scripts.rtmv:run",
         ],
     },
     include_package_data = True,
