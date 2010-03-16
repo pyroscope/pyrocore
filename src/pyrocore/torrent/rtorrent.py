@@ -162,7 +162,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
                     # Copy values we're interested in
                     if key in self.RTORRENT_RC_KEYS and not getattr(namespace, key, None):
-                        self.LOG.debug("Copied from rtorrent.rc: %s = %s" % (key, val))
+                        self.LOG.debug("rtorrent.rc: %s = %s" % (key, val))
                         setattr(namespace, key, val)
 
         # Validate fields
@@ -234,7 +234,9 @@ class RtorrentEngine(engine.TorrentEngine):
             # Fetch items
             items = []
             try:
-                for item in self.open().d.multicall(*tuple(args)):
+                raw_items = self.open().d.multicall(*tuple(args))
+                self.LOG.debug("Got %d items from %r" % (len(raw_items), self.engine_id))
+                for item in raw_items:
                     items.append(RtorrentProxy(self, zip(
                         [self.RT2PYRO_MAPPING.get(i, i) for i in self.PRE_FETCH_FIELDS], item
                     )))
