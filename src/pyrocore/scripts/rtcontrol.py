@@ -37,7 +37,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         For numeric fields, a leading "+" means greater than, a leading "-" means less 
         than. For string fields, the value is a glob pattern (*, ?, [a-z], [!a-z]).
         Multiple values separated by a comma indicate several possible choices (OR).
-        "!" in front of a filter value negates it.
+        "!" in front of a filter value negates it (NOT).
         
         Examples:
           All 1:1 seeds         ratio=+1
@@ -68,6 +68,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # basic options
         self.add_bool_option("-n", "--dry-run",
             help="don't commit changes, just tell what would happen")
+# TODO: implement -i, --yes
 #        self.add_bool_option("-i", "--interactive",
 #            help="interactive mode (prompt before changing things)")
 #        self.add_bool_option("--yes",
@@ -84,6 +85,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="fields used for sorting")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
+# TODO: implement -S
 #        self.add_bool_option("-S", "--summary",
 #            help="print statistics")
 
@@ -92,10 +94,18 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="start torrent")
         self.add_bool_option("-C", "--close", "--stop",
             help="stop torrent")
+# TODO: --pause, --resume?
+# TODO: use a custom field, and add a field for it ("tags")
+#       & make the name of the custom field a config option 
+#        self.add_bool_option("-T", "--tag", "[-]TAG",
+#            help="set or remove a tag like 'manual'")
+# TODO: implement --delete
 #        self.add_bool_option("--delete",
 #            help="remove from client and archive metafile (implies -i)")
+# TODO: implement --purge
 #        self.add_bool_option("--purge", "--delete-data",
 #            help="remove from client and also delete all data (implies -i)")
+# TODO: implement --move-data
 #        self.add_value_option("--move-data", "DIR",
 #            help="move data to given target directory (implies -i, can be combined with --delete)")
 
