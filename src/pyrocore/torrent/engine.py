@@ -165,7 +165,7 @@ class TorrentProxy(object):
                             accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")))
     metafile = DynamicField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.GlobFilter,
                             accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
-    tracker = DynamicField(str, "tracker", "first in the list announce URLs", matcher=matching.GlobFilter,
+    tracker = DynamicField(str, "tracker", "first in the list of announce URLs", matcher=matching.GlobFilter,
                            accessor=lambda o: o.announce_urls()[0])
     alias = DynamicField(config.map_announce2alias, "alias", "tracker alias or domain",
                                  matcher=matching.GlobFilter, accessor=operator.attrgetter("tracker"))
