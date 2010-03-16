@@ -136,7 +136,8 @@ class ConfigLoader(object):
         if ini_file.read(config_file):
             self._set_from_ini(namespace, ini_file)
         else:
-            self.LOG.warning("Configuration file %r not found!" % (config_file,))
+            self.LOG.warning("Configuration file %r not found,"
+                             " use the command 'pyroadmin --create-config' to create it!" % (config_file,))
 
 
     def _load_py(self, namespace, config_file):
