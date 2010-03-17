@@ -153,6 +153,9 @@ class TorrentProxy(object):
                            formatter=lambda val: "OPN" if val else "CLS")
     is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter,
                                formatter=lambda val: "DONE" if val else "PART")
+    is_ghost = DynamicField(bool, "is_ghost", "has no data file or directory?", matcher=matching.BoolFilter,
+                            accessor=lambda o: not os.path.exists(fmt.to_unicode(o._fields["path"])),
+                            formatter=lambda val: "GHST" if val else "DATA")
     size = DynamicField(int, "size", "data size", matcher=matching.ByteSizeFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
