@@ -29,6 +29,8 @@ from pyrocore import config, error
 from pyrocore.util import xmlrpc2scgi, load_config
 from pyrocore.torrent import engine
 
+# TODO: add stats counters to xmlrpc2scgi module (data transferred and calls made)
+
 
 class RtorrentProxy(engine.TorrentProxy):
     """ A single download item.
@@ -171,6 +173,7 @@ class RtorrentEngine(engine.TorrentEngine):
         # Validate fields
         for key in self.RTORRENT_RC_KEYS:
             setattr(namespace, key, load_config.validate(key, getattr(namespace, key)))
+        # TODO: also support scgi://<scgi_port> connects
         if config.scgi_local.startswith("/"):
             config.scgi_local = "scgi://" + config.scgi_local
 
