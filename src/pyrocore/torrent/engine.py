@@ -35,6 +35,12 @@ def ratio_float(intval):
     return intval / 1000.0
 
 
+def percent(floatval):
+    """ Convert float ratio to a percent value.
+    """
+    return floatval * 100.0
+
+
 #
 # Field Descriptors
 #
@@ -157,6 +163,7 @@ class TorrentProxy(object):
                             accessor=lambda o: not os.path.exists(fmt.to_unicode(o._fields["path"])),
                             formatter=lambda val: "GHST" if val else "DATA")
     size = DynamicField(int, "size", "data size", matcher=matching.ByteSizeFilter)
+    done = OnDemandField(percent, "done", "completion in percent", matcher=matching.FloatFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
                         accessor=lambda o: o._fields["up"] + o._fields["down"])

@@ -45,6 +45,9 @@ class AttributeMapping(object):
         self.obj = obj
         self.defaults = defaults or {}
 
+        # add percent sign so we can easily reference it in .ini files
+        self.defaults.setdefault("pc", '%')
+
 
     def __getitem__(self, key):
         """ Return object attribute named C{key}.
