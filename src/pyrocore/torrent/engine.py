@@ -182,7 +182,27 @@ class TorrentProxy(object):
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
     # = DynamicField(, "", "")
 
-    # kind, tracker, announce, size, age,
+    # TODO: metafile data cache (sqlite, shelve or maybe .ini)
+    # cache data indexed by hash
+    # store ctime per cache entry
+    # scan metafiles of new hashes not yet in cache
+    # on cache read, for unknown hashes setdefault() a purge date, then remove entries after a while
+    # clear purge date for known hashes (unloaded and then reloaded torrents)
+    # store a version marker and other global metadata in cache under key = None, so it can be upgraded
+    # add option to pyroadmin to inspect the cache, mainly for debugging
+    
+    # TODO: kind
+    # kind = set(all [media?] extensions in the metafile path list; cached by hash)
+    # add field type TagField (list of tags) and appropriate matcher 
+    
+    # TODO: tags
+    # list of user-defined tags in a rtorrent custom field
+    # e.g. "tags=!manual" to exclude torrents from ratio mgmt etc.
+
+    # TODO: created (metafile creation date, i.e. the bencoded field; same as downloaded if missing; cached by hash)
+    # TODO: downloaded (metafile ctime; cached by hash, so the file can be touched)
+    # TODO: completed (newest timestamp of the files in the metafile list; cached by hash)
+    # add .dt, .isodt and .age formatters (age = " 1y 6m", " 2w 6d", "12h30m", etc.)
 
 
 class TorrentEngine(object):
