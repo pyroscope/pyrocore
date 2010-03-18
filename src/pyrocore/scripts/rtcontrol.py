@@ -173,8 +173,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         # Print usage if no conditions are provided
         if not self.args:
-            self.parser.print_help()
-            self.parser.exit()
+            self.parser.error("No filter conditions given!")
 
         # Check options
         action_mode = sum([
