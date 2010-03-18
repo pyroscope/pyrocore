@@ -150,6 +150,12 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def hash_check(self):
+        """ Hash check a download.
+        """
+        raise NotImplementedError()
+
+
     # Field definitions
     hash = ImmutableField(str, "hash", "info hash")
     name = ImmutableField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)

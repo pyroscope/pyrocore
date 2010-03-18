@@ -93,6 +93,15 @@ class RtorrentProxy(engine.TorrentProxy):
             raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
 
 
+    def hash_check(self):
+        """ Hash check a download.
+        """
+        try:
+            self._engine._rpc.d.check_hash(self._fields["hash"])
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
+
+
 class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
@@ -241,7 +250,9 @@ class RtorrentEngine(engine.TorrentEngine):
             # Fetch items
             items = []
             try:
+                ##self.LOG.debug("multicall %r" % (args,))
                 raw_items = self.open().d.multicall(*tuple(args))
+                ##import pprint; self.LOG.debug(pprint.pformat(raw_items))
                 self.LOG.debug("Got %d items from %r" % (len(raw_items), self.engine_id))
                 for item in raw_items:
                     items.append(RtorrentProxy(self, zip(

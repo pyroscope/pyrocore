@@ -94,6 +94,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="start torrent")
         self.add_bool_option("-C", "--close", "--stop",
             help="stop torrent")
+        self.add_bool_option("-H", "--hash-check",
+            help="hash-check torrent")
 # TODO: --pause, --resume?
 # TODO: --throttle?
 # TODO: use a custom field, and add a field for it ("tags")
@@ -175,7 +177,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.exit()
 
         # Check options
-        action_mode = sum([self.options.start, self.options.close])
+        action_mode = sum([
+            self.options.start, 
+            self.options.close,
+            self.options.hash_check,
+        ])
         if action_mode > 1:
             self.parser.error("Options --start and --close are mutually exclusive")
 
@@ -201,6 +207,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             elif self.options.close:
                 action_name = "CLOSE"
                 action = "stop" 
+            elif self.options.hash_check:
+                action_name = "HASH"
+                action = "hash_check" 
             self.LOG.info("About to %s %d out of %d torrents." % (action_name, len(matches), len(items),))
 
             # Perform chosen action on matches
