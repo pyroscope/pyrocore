@@ -95,7 +95,10 @@ class SCGIRequest(object):
         else:
             # if no host then assume unix domain socket
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.connect(path)
+            try:
+                sock.connect(path)
+            except socket.error, exc:
+                raise socket.error("Can't connect to %r (%s)" % (path, exc))
         
         sock.send(scgireq)
         recvdata = resp = sock.recv(1024)
@@ -176,6 +179,7 @@ class RTorrentXMLRPCClient(object):
         xmlreq = xmlrpclib.dumps(args, self.methodname)
         if scheme == 'scgi':
             xmlresp = SCGIRequest(self.url).send(xmlreq)
+            xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
             return xmlrpclib.loads(xmlresp)[0][0]
             #~ return do_scgi_xmlrpc_request_py(self.url, self.methodname, args)
         elif scheme == 'http':
@@ -222,9 +226,8 @@ def main(argv):
     
     host, methodname = argv[:2]
     
-    respxml = do_scgi_xmlrpc_request(host, methodname,
-                                    convert_params_to_native(argv[2:]))
-    #~ respxml = RTorrentXMLRPCClient(host, methodname)(convert_params_to_native(argv[2:]))
+    respxml = do_scgi_xmlrpc_request(host, methodname, convert_params_to_native(argv[2:]))
+    ##respxml = RTorrentXMLRPCClient(host, methodname)(convert_params_to_native(argv[2:]))
     
     if not output_python:
         print respxml
