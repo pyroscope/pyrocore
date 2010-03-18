@@ -16,10 +16,11 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import pprint
+import hashlib
 
 from pyrocore.scripts.base import ScriptBase
-from pyrocore.util.bencode import BencodeError
-from pyrocore.util.metafile import Metafile
+from pyrocore.util import bencode, metafile
 
 
 class MetafileLister(ScriptBase):
@@ -35,10 +36,11 @@ class MetafileLister(ScriptBase):
         """
         self.add_bool_option("--reveal",
             help="show full announce URL including keys")
-        # TODO implement this
+        self.add_bool_option("--raw",
+            help="print the metafile's raw content in all detail")
+        # TODO: implement this
         #self.add_value_option("-c", "--check-data", "PATH",
         #    help="check the hash against the data in the given path")
-
 
     def mainloop(self):
         """ The main loop.
@@ -48,16 +50,30 @@ class MetafileLister(ScriptBase):
             self.parser.exit()
 
         for idx, filename in enumerate(self.args):
-            metafile = Metafile(filename)
+            torrent = metafile.Metafile(filename)
             if idx:
                 print
                 print "~" * 79
             try:
-                lines = metafile.listing(masked=not self.options.reveal)
-            except (KeyError, BencodeError), exc:
+                if self.options.raw:
+                    # Read and check metafile
+                    data = bencode.bread(filename)
+                    metafile.check_meta(data)
+
+                    if not self.options.reveal:
+                        # Shorten useless binary piece hashes
+                        data["info"]["pieces"] = "<%d piece hashes>" % (
+                            len(data["info"]["pieces"]) / len(hashlib.sha1().digest())
+                        )
+
+                    pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
+                    listing = pprinter.pformat(data)
+                else:
+                    listing = '\n'.join(torrent.listing(masked=not self.options.reveal))
+            except (ValueError, KeyError, bencode.BencodeError), exc:
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
-                print '\n'.join(lines)
+                print listing
 
 
 def run(): #pragma: no cover

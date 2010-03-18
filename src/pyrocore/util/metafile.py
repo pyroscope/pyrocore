@@ -23,6 +23,7 @@ import re
 import time
 import stat
 import math
+import pprint
 import fnmatch
 import hashlib
 import urlparse
@@ -48,6 +49,18 @@ def mask_keys(announce_url):
     return PASSKEY_RE.sub(
         lambda m: m.group() if m.group() in PASSKEY_OK else "*" * len(m.group()),
         announce_url)
+
+
+class MaskingPrettyPrinter(pprint.PrettyPrinter):
+    """ A PrettyPrinter that masks strings in the object tree.
+    """
+
+    def format(self, obj, context, maxlevels, level):
+        """ Mask obj if it looks like an URL, then pass it to the super class.
+        """
+        if isinstance(obj, basestring) and "://" in obj:
+            obj = mask_keys(obj)
+        return pprint.PrettyPrinter.format(self, obj, context, maxlevels, level)
 
 
 def check_info(info):

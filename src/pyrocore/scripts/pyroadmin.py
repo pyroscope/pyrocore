@@ -60,13 +60,9 @@ class AdminTool(ScriptBaseWithConfig):
                 ))
             )
 
-            # Mask announce URLs
-            if not self.options.reveal:
-                for key, val in public["announce"].items():
-                    public["announce"][key] = [metafile.mask_keys(url) for url in val]
-
             # Dump configuration
-            pprint.pprint(public)
+            pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
+            pprinter.pprint(public)
         else:
             # Print usage
             self.parser.print_help()
