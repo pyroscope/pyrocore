@@ -95,6 +95,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("-C", "--close", "--stop",
             help="stop torrent")
 # TODO: --pause, --resume?
+# TODO: --throttle?
 # TODO: use a custom field, and add a field for it ("tags")
 #       & make the name of the custom field a config option 
 #        self.add_bool_option("-T", "--tag", "[-]TAG",
