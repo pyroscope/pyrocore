@@ -180,6 +180,7 @@ class TorrentProxy(object):
     alias = DynamicField(config.map_announce2alias, "alias", "tracker alias or domain",
                                  matcher=matching.GlobFilter, accessor=operator.attrgetter("tracker"))
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
+    prio = OnDemandField(int, "prio", "priority (1=low, 2=normal, 3=high)", matcher=matching.FloatFilter)
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)

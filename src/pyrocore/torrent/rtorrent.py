@@ -119,6 +119,7 @@ class RtorrentEngine(engine.TorrentEngine):
         path = "base_path", 
         metafile = "tied_to_file", 
         size = "size_bytes",
+        prio = "priority",
     )
 
     # inverse mapping of rTorrent names to ours
