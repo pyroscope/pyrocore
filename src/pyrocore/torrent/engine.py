@@ -157,7 +157,7 @@ class TorrentProxy(object):
 
 
     # Field definitions
-    hash = ImmutableField(str, "hash", "info hash")
+    hash = ImmutableField(str, "hash", "info hash", matcher=matching.GlobFilter)
     name = ImmutableField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
     is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter, 
                                 formatter=lambda val: "PRV" if val else "PUB")
