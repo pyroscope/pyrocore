@@ -223,6 +223,8 @@ class RtorrentEngine(engine.TorrentEngine):
         except Exception, exc:
             raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_local, exc))
 
+        # TODO: get system.time_usec and check for <i8> in raw response to ensure a working xmlrpc-c
+
         # Get other manifest values
         self.engine_software = "rTorrent %s/%s" % (
             self._rpc.system.client_version(), self._rpc.system.library_version(),
