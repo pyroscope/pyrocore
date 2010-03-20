@@ -42,6 +42,23 @@ PASSKEY_RE = re.compile(r"(?<=[/=])[-_0-9a-zA-Z]{5,64}={0,3}(?=[/&]|$)")
 # Non-secret exemptions
 PASSKEY_OK = ("announce", "TrackerServlet",)
 
+# List of all standard keys in a metafile
+METAFILE_STD_KEYS = [i.split('.') for i in (
+    "announce",
+    "comment",
+    "created by",
+    "creation date",
+    "info",
+    "info.length",
+    "info.name",
+    "info.piece length",
+    "info.pieces",
+    "info.private",
+    "info.files",
+    "info.files.length",
+    "info.files.path",
+)]
+
 
 def mask_keys(announce_url):
     """ Mask any passkeys (hex sequences) in an announce URL.
@@ -128,6 +145,29 @@ def check_meta(meta):
     if not isinstance(meta.get("announce"), basestring):
         raise ValueError("bad announce URL - not a string")
     check_info(meta.get("info"))
+
+    return meta
+
+
+def clean_meta(meta, including_info=False, log=None):
+    """ Clean meta dict.
+    """
+    for key in meta.keys():
+        if [key] not in METAFILE_STD_KEYS:
+            if log: log.info("Removing key %r..." % (key,))
+            del meta[key]
+
+    if including_info:
+        for key in meta["info"].keys():
+            if ["info", key] not in METAFILE_STD_KEYS:
+                if log: log.info("Removing key %r..." % ("info." + key,))
+                del meta["info"][key]
+
+        for idx, entry in enumerate(meta["info"].get("files", [])):
+            for key in entry.keys():
+                if ["info", "files", key] not in METAFILE_STD_KEYS:
+                    if log: log.info("Removing key %r from file #%d..." % (key, idx+1))
+                    del entry[key]
 
     return meta
 

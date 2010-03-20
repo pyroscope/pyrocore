@@ -18,10 +18,11 @@
 """
 
 import os
+import hashlib
 import urlparse
 
 from pyrocore.scripts.base import ScriptBase
-from pyrocore.util import bencode
+from pyrocore.util import bencode, metafile
 
 
 class MetafileChanger(ScriptBase):
@@ -31,16 +32,36 @@ class MetafileChanger(ScriptBase):
     # argument description for the usage information
     ARGS_HELP = "<metafile>..."
 
+    # Keys of rTorrent session data
+    RT_RESUMT_KEYS = ('libtorrent_resume', 'log_callback', 'err_callback', 'rtorrent')
+              
 
     def add_options(self):
         """ Add program options.
         """
         self.add_bool_option("-n", "--dry-run",
             help="don't write changes to disk, just tell what would happen")
+        self.add_bool_option("--no-skip",
+            help="do not skip broken metafiles that fail the integrity check")
+        self.add_bool_option("-F", "--force",
+            help="change all metafiles given on the command line, regardless of current announce URL")
+        self.add_bool_option("-p", "--make-private",
+            help="make torrent private (DHT/PEX disabled)")
+        self.add_bool_option("-P", "--make-public",
+            help="make torrent public (DHT/PEX enabled)")
+        self.add_bool_option("-C", "--clean",
+            help="remove all non-standard data from metafile outside the info dict")
+        self.add_bool_option("-A", "--clean-all",
+            help="remove all non-standard data from metafile including the info dict")
+        self.add_bool_option("-R", "--clean-rtorrent",
+            help="remove all rTorrent session data from metafile")
+        # TODO: chtor --tracker
         ##self.add_value_option("-T", "--tracker", "DOMAIN",
         ##    help="filter given torrents for a tracker domain")
         self.add_value_option("-a", "--reannounce", "URL",
             help="set a new announce URL")
+        self.add_bool_option("--no-cross-seed",
+            help="do not add a non-standard field to the info dict ensuring unique info hashes")
 
 
     def mainloop(self):
@@ -50,9 +71,9 @@ class MetafileChanger(ScriptBase):
             self.parser.print_help()
             self.parser.exit()
 
-        # set filter criteria for metafiles
+        # Set filter criteria for metafiles
         filter_url_prefix = None
-        if self.options.reannounce:
+        if self.options.reannounce and not self.options.force:
             # <scheme>://<netloc>/<path>?<query>
             filter_url_prefix = urlparse.urlsplit(self.options.reannounce, allow_fragments=False)
             filter_url_prefix = urlparse.urlunsplit((
@@ -72,14 +93,45 @@ class MetafileChanger(ScriptBase):
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
                 bad += 1
             else:
-                # skip any metafile that don't meet the pre-conditions
+                # Check metafile integrity
+                try:
+                    metafile.check_meta(metainfo)
+                except ValueError, exc:
+                    self.LOG.warn("Metafile %r failed integrity check: %s" % (filename, exc,))
+                    if not self.options.no_skip:
+                        continue
+                
+                # Skip any metafile that don't meet the pre-conditions
                 if filter_url_prefix and not metainfo['announce'].startswith(filter_url_prefix):
+                    self.LOG.warn("Skipping metafile %r no tracked by %r!" % (filename, filter_url_prefix,))
                     continue
 
-                # change announce URL?
+                # Change private flag?
+                if self.options.make_private and not metainfo["info"].get("private", 0):
+                    self.LOG.info("Setting private flag...")
+                    metainfo["info"]["private"] = 1
+                if self.options.make_public and metainfo["info"].get("private", 0):
+                    self.LOG.info("Clearing private flag...")
+                    del metainfo["info"]["private"]
+
+                # Remove non-standard keys?
+                if self.options.clean or self.options.clean_all:
+                    metafile.clean_meta(metainfo, including_info=self.options.clean_all, log=self.LOG)
+
+                # Clean rTorrent data?
+                if self.options.clean_rtorrent:
+                    for key in self.RT_RESUMT_KEYS:
+                        if key in metainfo:
+                            self.LOG.info("Removing key %r..." % (key,))
+                            del metainfo[key]
+
+                # Change announce URL?
                 if self.options.reannounce:
-                    # XXX missing multi-tracker support
-                    metainfo['announce'] = self.options.reannounce
+                    metainfo['announce'] = self.options.reannounce 
+
+                    if not self.options.no_cross_seed:
+                        # Enforce unique hash per tracker
+                        metainfo["info"]["x_cross_seed"] = hashlib.md5(self.options.reannounce).hexdigest()
 
                 # Write new metafile, if changed
                 new_metainfo = bencode.bencode(metainfo)
@@ -93,7 +145,7 @@ class MetafileChanger(ScriptBase):
                             os.path.dirname(filename),
                             '.' + os.path.basename(filename),
                         )
-                        self.LOG.debug("Wriitng %r..." % tempname)
+                        self.LOG.debug("Writing %r..." % tempname)
                         bencode.bwrite(tempname, metainfo)
 
                         # Replace existing file
@@ -102,7 +154,7 @@ class MetafileChanger(ScriptBase):
                             os.remove(filename)
                         os.rename(tempname, filename)
 
-        # print summary
+        # Print summary
         if changed:
             self.LOG.info("%s %d metafile(s)." % (
                 "Would've changed" if self.options.dry_run else "Changed", changed
