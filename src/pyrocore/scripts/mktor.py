@@ -50,6 +50,9 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="exclude files matching a glob pattern from hashing")
         self.add_value_option("--comment", "TEXT",
             help="optional human-readable comment")
+# TODO: mktor --fast-resume
+#        self.add_bool_option("-R", "--fast-resume",
+#            help="create a second metafile containing rTorrent fast-resume data")
 
 
     def mainloop(self):
