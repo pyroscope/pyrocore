@@ -96,7 +96,7 @@ class OnDemandField(DynamicField):
 
 
 class MutableField(FieldDefinition):
-    """ Read-only download item field
+    """ Writable download item field
     """
 
     def __set__(self, obj, val):
@@ -236,6 +236,9 @@ class TorrentEngine(object):
         raise NotImplementedError()
 
 
+#
+# Displaying and filtering items
+#
 class OutputMapping(algo.AttributeMapping):
     """ Map item fields for displaying them.
     """
