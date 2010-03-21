@@ -162,6 +162,13 @@ class ScriptBase(object):
                     msg = unicode(exc, "UTF-8")
                 self.LOG.error(msg)
                 sys.exit(1)
+            except KeyboardInterrupt, exc:
+                if self.options.debug:
+                    raise
+
+                sys.stderr.write("\n\nAborted by CTRL-C!\n")
+                sys.stderr.flush()
+                sys.exit(2)
         finally:
             # Shut down
             running_time = time.time() - self.startup
