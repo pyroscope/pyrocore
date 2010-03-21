@@ -32,10 +32,17 @@ def import_name(module_spec, name=None):
         @return: Requested object.
         @rtype: object
     """
+    # Load module
     if name is None:
         module_spec, name = module_spec.split(':', 1)
     module = __import__(module_spec, globals(), {}, [name])
-    return getattr(module, name)
+    
+    # Resolve the requested name 
+    result = module
+    for attr in name.split('.'):
+        result = getattr(result, attr)
+
+    return result
 
 
 def get_class_logger(obj):
