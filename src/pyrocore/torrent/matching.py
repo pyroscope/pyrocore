@@ -19,6 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import fnmatch
+import operator
 
 from pyrocore import error
 
@@ -146,13 +147,13 @@ class NumericFilterBase(FieldFilter):
         super(NumericFilterBase, self).validate()
 
         if self._value.startswith('+'):
-            self._cmp = lambda a,b: a > b
+            self._cmp = operator.gt
             self._value = self._value[1:]
         elif self._value.startswith('-'):
-            self._cmp = lambda a,b: a < b
+            self._cmp = operator.lt
             self._value = self._value[1:]
         else:
-            self._cmp = lambda a,b: a == b
+            self._cmp = operator.eq
 
 
     def match(self, item):
