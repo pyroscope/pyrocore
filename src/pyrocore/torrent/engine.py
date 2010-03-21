@@ -277,7 +277,7 @@ class OutputMapping(algo.AttributeMapping):
         return formatter(val) if formatter else val
 
 
-def validate_field_list(fields):
+def validate_field_list(fields, allow_fmt_specs=False):
     """ Make sure the fields in the given list exist.
     
         @param fields: List of fields (comma-/space-separated if a string).
@@ -285,6 +285,8 @@ def validate_field_list(fields):
         @return: validated field names.
         @rtype: list  
     """
+    formats = [i[4:] for i in dir(OutputMapping) if i.startswith("fmt_")]
+    
     try:
         fields = [i.strip() for i in fields.replace(',', ' ').split()]
     except AttributeError:
@@ -292,6 +294,11 @@ def validate_field_list(fields):
         pass
 
     for name in fields:
+        if allow_fmt_specs and '.' in name:
+            name, fmt = name.rsplit('.', 1)
+            if fmt not in formats: 
+                raise error.UserError("Unknown format specification in '%s.%s'" % (name, fmt))
+            
         if name not in FieldDefinition.FIELDS:
             raise error.UserError("Unknown field name %r" % (name,))
 
