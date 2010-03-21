@@ -54,10 +54,7 @@ class RtorrentControl(ScriptBaseWithConfig):
     ARGS_HELP = "<filter>..."
 
     # additonal stuff appended after the command handler's docstring
-    ADDITIONAL_HELP = ["", "", "Fields are:",] + [
-        "  %-21s %s" % (name, field.__doc__)
-        for name, field in sorted(engine.FieldDefinition.FIELDS.items())
-    ]
+    ADDITIONAL_HELP = ["", "", "Use --help-fields to list all fields and their description."]
 
 
     def add_options(self):
@@ -66,6 +63,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         super(RtorrentControl, self).add_options()
 
         # basic options
+        self.add_bool_option("--help-fields",
+            help="show available fields and their description")
         self.add_bool_option("-n", "--dry-run",
             help="don't commit changes, just tell what would happen")
 # TODO: implement -i, --yes
@@ -171,6 +170,16 @@ class RtorrentControl(ScriptBaseWithConfig):
     def mainloop(self):
         """ The main loop.
         """
+        # Print field definitions?
+        if self.options.help_fields:
+            self.parser.print_help()
+            print
+            print "Fields are:"
+            print "\n".join(["  %-21s %s" % (name, field.__doc__)
+                for name, field in sorted(engine.FieldDefinition.FIELDS.items())
+            ])
+            sys.exit(1)
+
         # Print usage if no conditions are provided
         if not self.args:
             self.parser.error("No filter conditions given!")

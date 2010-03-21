@@ -51,17 +51,21 @@ class RtorrentProxy(engine.TorrentProxy):
             return self._fields[name]
         except KeyError:
             if name == "done":
-                self._fields[name] = float(self.fetch("completed_chunks")) / self.fetch("size_chunks") 
+                val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks") 
             else:
                 getter_name = "get_" + RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
                 getter = getattr(self._engine._rpc.d, getter_name)
     
                 try:
-                    self._fields[name] = getter(self._fields["hash"])
+                    val = getter(self._fields["hash"])
                 except xmlrpclib.Fault, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
-    
-            return self._fields[name]
+
+            # TODO: Currently, NOT caching makes no sense; in a demon, it does!
+            #if isinstance(FieldDefinition.FIELDS.get(name), engine.ConstantField):
+            self._fields[name] = val
+
+            return val
 
 
     def announce_urls(self):

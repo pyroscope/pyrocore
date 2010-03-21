@@ -52,7 +52,6 @@ def map_announce2alias(url):
     except IndexError:
         return parts.netloc
 
-
 # Remember predefined names
 _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
@@ -63,3 +62,5 @@ output_format = ""
 action_format = ""
 sort_fields = ""
 announce = {}
+config_validator_callbacks = []
+custom_field_factories = []

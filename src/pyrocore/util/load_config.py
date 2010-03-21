@@ -79,6 +79,11 @@ class ConfigLoader(object):
             if isinstance(namespace[factory], basestring):
                 namespace[factory] = pymagic.import_name(namespace[factory])()
 
+        # Resolve factory and callback handler lists
+        for key in namespace:
+            if any(key.endswith(i) for i in ("_factories", "_callbacks")) and isinstance(namespace[key], basestring):
+                namespace[key] = [pymagic.import_name(i.strip()) for i in namespace[key].replace(',', ' ').split()]
+
         # Update config values again
         self._update_config(namespace)
 
@@ -165,6 +170,9 @@ class ConfigLoader(object):
             self._validate_namespace(namespace)
             self._load_py(namespace, namespace["config_script"])
             self._validate_namespace(namespace)
+            
+            for callback in namespace["config_validator_callbacks"]:
+                callback()
         except ConfigParser.ParsingError, exc:
             raise error.UserError(exc)
 

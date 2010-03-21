@@ -61,6 +61,12 @@ class FieldDefinition(object):
             raise RuntimeError("INTERNAL ERROR: Duplicate field definition")
         FieldDefinition.FIELDS[name] = self
 
+
+    def __repr__(self):
+        """ Return a representation of internal state.
+        """
+        return "<%s(%r, %r, %r)>" % (self.__class__.__name__, self.valtype, self.name, self.__doc__)
+
     
     def __get__(self, obj, cls=None):
         if obj is None:
@@ -80,9 +86,16 @@ class ImmutableField(FieldDefinition):
         raise RuntimeError("Immutable field %r" % (self.name,))
 
 
-class DynamicField(FieldDefinition):
+class ConstantField(ImmutableField):
+    """ Read-only download item field with constant value.
+    """
+    # This can be cached
+
+
+class DynamicField(ImmutableField):
     """ Read-only download item field with dynamic value.
     """
+    # This cannot be cached
 
 
 class OnDemandField(DynamicField):
@@ -109,6 +122,15 @@ class MutableField(FieldDefinition):
 class TorrentProxy(object):
     """ A single download item.
     """
+    
+    @classmethod
+    def add_custom_fields(cls, *args, **kw):
+        """ Add any custom fields defined in the configuration.
+        """
+        for factory in config.custom_field_factories:
+            for field in factory():
+                setattr(cls, field.name, field)
+
 
     def __init__(self):
         """ Initialize object.
@@ -157,9 +179,9 @@ class TorrentProxy(object):
 
 
     # Field definitions
-    hash = ImmutableField(str, "hash", "info hash", matcher=matching.GlobFilter)
-    name = ImmutableField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
-    is_private = ImmutableField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter, 
+    hash = ConstantField(str, "hash", "info hash", matcher=matching.GlobFilter)
+    name = ConstantField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
+    is_private = ConstantField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter, 
                                 formatter=lambda val: "PRV" if val else "PUB")
     is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter,
                            formatter=lambda val: "OPN" if val else "CLS")
@@ -168,7 +190,7 @@ class TorrentProxy(object):
     is_ghost = DynamicField(bool, "is_ghost", "has no data file or directory?", matcher=matching.BoolFilter,
                             accessor=lambda o: not os.path.exists(fmt.to_unicode(o._fields["path"])),
                             formatter=lambda val: "GHST" if val else "DATA")
-    size = DynamicField(int, "size", "data size", matcher=matching.ByteSizeFilter)
+    size = ConstantField(int, "size", "data size", matcher=matching.ByteSizeFilter)
     done = OnDemandField(percent, "done", "completion in percent", matcher=matching.FloatFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
@@ -179,11 +201,11 @@ class TorrentProxy(object):
                         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])))
     realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.GlobFilter,
                             accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")))
-    metafile = DynamicField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.GlobFilter,
+    metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.GlobFilter,
                             accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
-    tracker = DynamicField(str, "tracker", "first in the list of announce URLs", matcher=matching.GlobFilter,
+    tracker = ConstantField(str, "tracker", "first in the list of announce URLs", matcher=matching.GlobFilter,
                            accessor=lambda o: o.announce_urls()[0])
-    alias = DynamicField(config.map_announce2alias, "alias", "tracker alias or domain",
+    alias = ConstantField(config.map_announce2alias, "alias", "tracker alias or domain",
                                  matcher=matching.GlobFilter, accessor=operator.attrgetter("tracker"))
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
     prio = OnDemandField(int, "prio", "priority (1=low, 2=normal, 3=high)", matcher=matching.FloatFilter)
