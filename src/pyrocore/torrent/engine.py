@@ -243,6 +243,20 @@ class OutputMapping(algo.AttributeMapping):
     """ Map item fields for displaying them.
     """
 
+    def __init__(self, obj, defaults=None):
+        """ Store object we want to map, and any default values.
+
+            @param obj: the wrapped object
+            @type obj: object 
+            @param defaults: default values
+            @type defaults: dict
+        """
+        super(OutputMapping, self).__init__(obj, defaults)
+
+        # add percent sign so we can easily reference it in .ini files
+        self.defaults.setdefault("pc", '%')
+
+
     def fmt_sz(self, intval):
         """ Format a byte sized value.
         """

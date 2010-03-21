@@ -38,15 +38,19 @@ except ImportError:
 
 
 class AttributeMapping(object):
+    """ Wrap an object's dict so that it can be accessed by the mapping protocol.
+    """
 
     def __init__(self, obj, defaults=None):
-        """ Remember object we want to map.
+        """ Store object we want to map, and any default values.
+
+            @param obj: the wrapped object
+            @type obj: object 
+            @param defaults: default values
+            @type defaults: dict
         """
         self.obj = obj
         self.defaults = defaults or {}
-
-        # add percent sign so we can easily reference it in .ini files
-        self.defaults.setdefault("pc", '%')
 
 
     def __getitem__(self, key):
@@ -56,4 +60,7 @@ class AttributeMapping(object):
         try:
             return getattr(self.obj, key)
         except AttributeError:
-            return self.defaults[key]
+            try:
+                return self.defaults[key]
+            except KeyError, exc:
+                raise AttributeError(exc) 
