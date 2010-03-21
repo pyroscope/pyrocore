@@ -59,8 +59,8 @@ class AttributeMapping(object):
         ##print "GETITEM", key, self.defaults
         try:
             return getattr(self.obj, key)
-        except AttributeError:
+        except AttributeError, exc:
             try:
                 return self.defaults[key]
-            except KeyError, exc:
-                raise AttributeError(exc) 
+            except KeyError:
+                raise exc 
