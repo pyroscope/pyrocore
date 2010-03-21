@@ -33,9 +33,17 @@ def import_name(module_spec, name=None):
         @rtype: object
     """
     # Load module
+    module_name = module_spec
     if name is None:
-        module_spec, name = module_spec.split(':', 1)
-    module = __import__(module_spec, globals(), {}, [name])
+        try:
+            module_name, name = module_spec.split(':', 1)
+        except ValueError:
+            raise ValueError("Missing object specifier in %r (syntax: 'package.module:object.attr')" % (module_spec,))
+
+    try:
+        module = __import__(module_name, globals(), {}, [name])
+    except ImportError, exc:
+        raise ImportError("Bad module name in %r (%s)" % (module_spec, exc))
     
     # Resolve the requested name 
     result = module
