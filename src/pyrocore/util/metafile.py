@@ -48,6 +48,7 @@ METAFILE_STD_KEYS = [i.split('.') for i in (
     "comment",
     "created by",
     "creation date",
+    "encoding",
     "info",
     "info.length",
     "info.name",
