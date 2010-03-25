@@ -133,7 +133,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             output_format = default_format
 
         # Expand plain field list to usable form
-        if re.match(r"[,._0-9a-zA-Z]+", output_format):
+        if re.match(r"^[,._0-9a-zA-Z]+$", output_format):
             output_format = "%%(%s)s" % ")s\t%(".join(engine.validate_field_list(output_format, allow_fmt_specs=True))
 
         # Replace some escape sequences
