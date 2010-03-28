@@ -38,10 +38,15 @@ def map_announce2alias(url):
     """
     import urlparse
 
+    # Try to find an exact alias URL match and return its label
+    for alias, urls in announce.items():
+        if any(i == url for i in urls):
+            return alias
+
+    # Try to find an alias URL prefix and return its label
     parts = urlparse.urlparse(url)
     server = urlparse.urlunparse((parts.scheme, parts.netloc, "/", None, None, None))
 
-    # Try to find an alias and return its label
     for alias, urls in announce.items():
         if any(i.startswith(server) for i in urls):
             return alias
