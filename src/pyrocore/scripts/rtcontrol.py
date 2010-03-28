@@ -110,6 +110,9 @@ class RtorrentControl(ScriptBaseWithConfig):
 # TODO: implement --move-data
 #        self.add_value_option("--move-data", "DIR",
 #            help="move data to given target directory (implies -i, can be combined with --delete)")
+# TODO: implement --clean-partial
+#        self.add_bool_option("--clean-partial",
+#            help="remove partially downloaded 'off'ed files (stopped downloads only)")
 
 
     def emit(self, item, defaults=None):

@@ -106,6 +106,9 @@ class RtorrentProxy(engine.TorrentProxy):
             raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
 
 
+    # TODO: purge is probably: get base_path, stop, close, delete_tied, erase, rm -rf base_path
+
+
 class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
