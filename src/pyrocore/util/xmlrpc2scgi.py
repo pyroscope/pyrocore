@@ -32,7 +32,7 @@
 #
 # Contact:  Glenn Washburn <crass@berlios.de>
 
-import sys, cStringIO as StringIO
+import os, sys, cStringIO as StringIO
 import xmlrpclib, urllib, urlparse, socket
 
 # this allows us to parse scgi urls just like http ones
@@ -180,8 +180,22 @@ class RTorrentXMLRPCClient(object):
         if scheme == 'scgi':
             xmlresp = SCGIRequest(self.url).send(xmlreq)
             xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
-            return xmlrpclib.loads(xmlresp)[0][0]
-            #~ return do_scgi_xmlrpc_request_py(self.url, self.methodname, args)
+            
+            try:
+                return xmlrpclib.loads(xmlresp)[0][0]
+                #~ return do_scgi_xmlrpc_request_py(self.url, self.methodname, args)
+            except (KeyboardInterrupt, SystemExit):
+                raise
+            except:
+                filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
+                handle = open(filename, "w")
+                try:
+                    handle.write(xmlresp)
+                    print >>sys.stderr, "INFO: Bad data packet written to %r" % filename
+                finally:
+                    handle.close()
+                raise                
+            
         elif scheme == 'http':
             raise Exception('Unsupported protocol')
         elif scheme == '':
