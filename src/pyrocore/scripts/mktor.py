@@ -50,9 +50,13 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="exclude files matching a glob pattern from hashing")
         self.add_value_option("--comment", "TEXT",
             help="optional human-readable comment")
+# TODO: Set "encoding" correctly
 # TODO: mktor --fast-resume
 #        self.add_bool_option("-R", "--fast-resume",
 #            help="create a second metafile containing rTorrent fast-resume data")
+# TODO: Support multi-tracker extension ("announce-list" field)
+# TODO: DHT "nodes" field?! [[str IP, int port], ...]
+# TODO: Web-seeding http://www.getright.com/seedtorrent.html
 
 
     def mainloop(self):

@@ -188,6 +188,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.error("No filter conditions given!")
 
         # Check options
+        # TODO: put action definitions in a dict and loop here
         action_mode = sum([
             self.options.start, 
             self.options.close,
@@ -212,6 +213,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         if action_mode:
             # Prepare action
+            # TODO: put action definitions in a dict and loop here
             if self.options.start:
                 action_name = "START"
                 action = "start" 
