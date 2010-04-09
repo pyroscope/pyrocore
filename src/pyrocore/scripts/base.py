@@ -206,3 +206,66 @@ class ScriptBaseWithConfig(ScriptBase):
         """
         super(ScriptBaseWithConfig, self).get_options()
         load_config.ConfigLoader(self.options.config_dir).load()
+
+
+class PromptDecorator(object):
+    """ Decorator for interactive commands.
+    """
+
+    # Return code for Q)uit choice
+    QUIT_RC = 3
+
+
+    def __init__(self, script_obj):
+        """ Initialize with containing tool object.
+        """
+        self.script = script_obj
+
+
+    def add_options(self):
+        """ Add program options, must be called in script's addOptions().
+        """
+        # These options need to be conflict-free to the containing
+        # script, i.e. avoid short options if possible.
+        self.script.add_bool_option("-i", "--interactive",
+            help="interactive mode (prompt before changing things)")
+        self.script.add_bool_option("--yes",
+            help="positively answer all prompts (e.g. --delete --yes)")
+
+
+    def ask_bool(self, question, default=True):
+        """ Ask the user for Y)es / N)o / Q)uit.
+
+            If "Q" ist entered, this method will exit with RC=3.
+            Else, the user's choice is returned.
+
+            Note that the options --non-interactive and --defaults
+            also influence the outcome.
+        """
+        if self.script.options.yes:
+            return True
+        elif self.script.options.dry_run or not self.script.options.interactive:
+            return default
+        else:
+            # Let the user decide
+            choice = '*'
+            while choice not in "YNAQ":
+                choice = raw_input("%s? [%s)es, %s)o, a)ll yes, q)uit]: " % (
+                    question, "yY"[int(default)], "Nn"[int(default)],
+                ))
+                choice = choice[:1].upper() or "NY"[int(default)]
+
+            if choice == 'Q':
+                self.quit()
+            if choice == 'A':
+                self.script.options.yes = True
+                choice = 'Y'
+
+            return choice == 'Y'
+
+
+    def quit(self):
+        """ Exit the program due to user's choices.
+        """
+        self.script.LOG.warn("Abort due to user choice!")
+        sys.exit(self.QUIT_RC)

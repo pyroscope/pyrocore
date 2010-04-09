@@ -22,7 +22,8 @@ import operator
 
 from pyrocore import config
 from pyrocore.util import fmt
-from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+from pyrocore.util.types import Bunch
+from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine 
 
 
@@ -56,6 +57,36 @@ class RtorrentControl(ScriptBaseWithConfig):
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = ["", "", "Use --help-fields to list all fields and their description."]
 
+    # action options that perform some change on selected items
+    ACTION_MODES = ( 
+        Bunch(name="start", options=("-S", "--start"), help="start torrent"), 
+        Bunch(name="close", options=("-C", "--close", "--stop"), help="stop torrent", method="stop"), 
+        Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
+    )
+# TODO: --pause, --resume?
+# TODO: --throttle?
+# TODO: use a custom field, and add a field for it ("tags")
+#       & make the name of the custom field a config option 
+#        self.add_bool_option("-T", "--tag", "[-]TAG",
+#            help="set or remove a tag like 'manual'")
+# TODO: implement --delete
+#        self.add_bool_option("--delete",
+#            help="remove from client and archive metafile (implies -i)")
+# TODO: implement --purge
+#        self.add_bool_option("--purge", "--delete-data",
+#            help="remove from client and also delete all data (implies -i)")
+# TODO: implement --clean-partial
+#        self.add_bool_option("--clean-partial",
+#            help="remove partially downloaded 'off'ed files (also stops downloads)")
+
+
+    def __init__(self):
+        """ Initialize rtcontrol.
+        """
+        super(RtorrentControl, self).__init__()
+
+        self.prompt = PromptDecorator(self)
+
 
     def add_options(self):
         """ Add program options.
@@ -67,11 +98,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="show available fields and their description")
         self.add_bool_option("-n", "--dry-run",
             help="don't commit changes, just tell what would happen")
-# TODO: implement -i, --yes
-#        self.add_bool_option("-i", "--interactive",
-#            help="interactive mode (prompt before changing things)")
-#        self.add_bool_option("--yes",
-#            help="positively answer all prompts (e.g. --delete --yes)")
+        self.prompt.add_options()
       
         # output control
         self.add_bool_option("-0", "--nul", "--print0",
@@ -89,30 +116,14 @@ class RtorrentControl(ScriptBaseWithConfig):
 #            help="print statistics")
 
         # torrent state change
-        self.add_bool_option("-S", "--start",
-            help="start torrent")
-        self.add_bool_option("-C", "--close", "--stop",
-            help="stop torrent")
-        self.add_bool_option("-H", "--hash-check",
-            help="hash-check torrent")
-# TODO: --pause, --resume?
-# TODO: --throttle?
-# TODO: use a custom field, and add a field for it ("tags")
-#       & make the name of the custom field a config option 
-#        self.add_bool_option("-T", "--tag", "[-]TAG",
-#            help="set or remove a tag like 'manual'")
-# TODO: implement --delete
-#        self.add_bool_option("--delete",
-#            help="remove from client and archive metafile (implies -i)")
-# TODO: implement --purge
-#        self.add_bool_option("--purge", "--delete-data",
-#            help="remove from client and also delete all data (implies -i)")
+        for action in self.ACTION_MODES:
+            action.setdefault("label", action.name.upper())
+            action.setdefault("method", action.name)
+            action.setdefault("interactive", False)
+            self.add_bool_option(*action.options, **{"help": action.help + (" (implies -i)" if action.interactive else "")})
 # TODO: implement --move-data
 #        self.add_value_option("--move-data", "DIR",
 #            help="move data to given target directory (implies -i, can be combined with --delete)")
-# TODO: implement --clean-partial
-#        self.add_bool_option("--clean-partial",
-#            help="remove partially downloaded 'off'ed files (stopped downloads only)")
 
 
     def emit(self, item, defaults=None):
@@ -187,22 +198,24 @@ class RtorrentControl(ScriptBaseWithConfig):
         if not self.args:
             self.parser.error("No filter conditions given!")
 
-        # Check options
-        # TODO: put action definitions in a dict and loop here
-        action_mode = sum([
-            self.options.start, 
-            self.options.close,
-            self.options.hash_check,
-        ])
-        if action_mode > 1:
-            self.parser.error("Options --start and --close are mutually exclusive")
+        # Check action options
+        action = None
+        for action_mode in self.ACTION_MODES:
+            if getattr(self.options, action_mode.name):
+                if action:
+                    self.parser.error("Options --%s and --%s are mutually exclusive" % (
+                        action.name.replace('_', '-'), action_mode.name.replace('_', '-'),
+                    ))
+                action = action_mode
+        if action.interactive:
+            self.options.interactive = True
 
 #        print repr(config.engine)
 #        config.engine.open()
 #        print repr(config.engine)
 
         # Preparation steps
-        self.validate_output_format(config.action_format if action_mode else config.output_format)
+        self.validate_output_format(config.action_format if action else config.output_format)
         sort_key = self.validate_sort_fields()
         matcher = engine.parse_filter_conditions(self.args)
 
@@ -211,26 +224,19 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches = [item for item in items if matcher.match(item)]
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
-        if action_mode:
-            # Prepare action
-            # TODO: put action definitions in a dict and loop here
-            if self.options.start:
-                action_name = "START"
-                action = "start" 
-            elif self.options.close:
-                action_name = "CLOSE"
-                action = "stop" 
-            elif self.options.hash_check:
-                action_name = "HASH"
-                action = "hash_check" 
-            self.LOG.info("About to %s %d out of %d torrents." % (action_name, len(matches), len(items),))
+        if action:
+            self.LOG.info("%s %s %d out of %d torrents." % (
+                "Would" if self.options.dry_run else "About to", action.label, len(matches), len(items),
+            ))
 
             # Perform chosen action on matches
             for item in matches:
+                if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
+                    continue
                 if self.options.output_format and self.options.output_format != "-":
-                    self.emit(item, {"action": action_name}) 
+                    self.emit(item, {"action": action.label}) 
                 if not self.options.dry_run:
-                    getattr(item, action)()
+                    getattr(item, action.method)()
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
