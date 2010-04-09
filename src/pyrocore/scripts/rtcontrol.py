@@ -207,7 +207,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                         action.name.replace('_', '-'), action_mode.name.replace('_', '-'),
                     ))
                 action = action_mode
-        if action.interactive:
+        if action and action.interactive:
             self.options.interactive = True
 
 #        print repr(config.engine)
