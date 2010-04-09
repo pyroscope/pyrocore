@@ -120,7 +120,7 @@ class RtorrentEngine(engine.TorrentEngine):
         "hash", "name", "is_private", "tracker_size", "size_bytes", 
     ))
 
-    # rTorrent names of fields that never change
+    # rTorrent names of fields that get fetched in multi-call
     PRE_FETCH_FIELDS = CONSTANT_FIELDS | set((
         "is_open", "complete",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",

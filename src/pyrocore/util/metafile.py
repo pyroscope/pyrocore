@@ -203,7 +203,7 @@ class Metafile(object):
                 raise RuntimeError("INTERNAL ERROR: FIFO read twice!")
             self._fifo += 1
                 
-            # Read paths relative to directory contaoning the FIFO
+            # Read paths relative to directory containing the FIFO
             with closing(open(self.datapath, "r")) as fifo:
                 while True:
                     relpath = fifo.readline().rstrip('\n')
