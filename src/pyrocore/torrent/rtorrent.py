@@ -2,7 +2,7 @@
 # pylint: disable-msg=I0011
 """ PyroCore - rTorrent Proxy.
 
-    Copyright (c) 2009, 2010 The PyroScope Project <pyrocore.project@gmail.com>
+    Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ class RtorrentProxy(engine.TorrentProxy):
         try:
             self._engine._rpc.d.check_hash(self._fields["hash"])
         except xmlrpclib.Fault, exc:
-            raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
+            raise error.EngineError("While hash-checking torrent #%s: %s" % (self._fields["hash"], exc))
 
 
     # TODO: purge is probably: get base_path, stop, close, delete_tied, erase, rm -rf base_path

@@ -2,7 +2,7 @@
 # pylint: disable-msg=I0011
 """ PyroCore - Torrent Item Filters.
 
-    Copyright (c) 2009, 2010 The PyroScope Project <pyrocore.project@gmail.com>
+    Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

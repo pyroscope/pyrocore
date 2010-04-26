@@ -4,7 +4,7 @@
 
     For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration
 
-    Copyright (c) 2009, 2010 The PyroScope Project <pyrocore.project@gmail.com>
+    Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -181,7 +181,7 @@ class ConfigLoader(object):
 
 
     def create(self):
-        """ Create default configuration files either the default location or the given directory.
+        """ Create default configuration files at either the default location or the given directory.
         """
         # Check and create configuration directory
         if os.path.exists(self.config_dir):
