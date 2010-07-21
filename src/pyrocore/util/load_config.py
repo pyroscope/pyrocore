@@ -35,7 +35,7 @@ from pyrocore.util import pymagic
 def validate(key, val):
     """ Validate a configuration value.
     """
-    if val.startswith("~/"):
+    if val and val.startswith("~/"):
         return os.path.expanduser(val)
 
     return val

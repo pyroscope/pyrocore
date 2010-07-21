@@ -113,7 +113,7 @@ class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
     # keys we read from rTorrent's configuration
-    RTORRENT_RC_KEYS = ("scgi_local",)
+    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", )
 
     # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
@@ -189,10 +189,14 @@ class RtorrentEngine(engine.TorrentEngine):
 
         # Validate fields
         for key in self.RTORRENT_RC_KEYS:
-            setattr(namespace, key, load_config.validate(key, getattr(namespace, key)))
-        # TODO: also support scgi://<scgi_port> connects
-        if config.scgi_local.startswith("/"):
+            setattr(namespace, key, load_config.validate(key, getattr(namespace, key, None)))
+        if config.scgi_local and config.scgi_local.startswith("/"):
             config.scgi_local = "scgi://" + config.scgi_local
+        if config.scgi_port and not config.scgi_port.startswith("scgi://"):
+            config.scgi_port = "scgi://" + config.scgi_port
+
+        # Prefer UNIX domain sockets over TCP sockets
+        config.scgi_url = config.scgi_local or config.scgi_port
 
 
     def __repr__(self):
@@ -201,13 +205,13 @@ class RtorrentEngine(engine.TorrentEngine):
         if self._rpc:
             # Connected state
             return "%s connected to %s [%s] via %r" % (
-                self.__class__.__name__, self.engine_id, self.engine_software, config.scgi_local,
+                self.__class__.__name__, self.engine_id, self.engine_software, config.scgi_url,
             )
         else:
             # Unconnected state
             self._load_rtorrent_rc(config)
             return "%s connectable via %r" % (
-                self.__class__.__name__, config.scgi_local,
+                self.__class__.__name__, config.scgi_url,
             )
 
 
@@ -222,13 +226,13 @@ class RtorrentEngine(engine.TorrentEngine):
         self._load_rtorrent_rc(config)
 
         # Connect and get instance ID (also ensures we're connectable)
-        self._rpc = xmlrpc2scgi.RTorrentXMLRPCClient(config.scgi_local)
+        self._rpc = xmlrpc2scgi.RTorrentXMLRPCClient(config.scgi_url)
         try:
             self.engine_id = self._rpc.get_name()
         except socket.error, exc:
-            raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_local, exc))
+            raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
         except Exception, exc:
-            raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_local, exc))
+            raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
 
         # TODO: get system.time_usec and check for <i8> in raw response to ensure a working xmlrpc-c
 
