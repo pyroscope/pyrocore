@@ -198,9 +198,9 @@ class TorrentProxy(object):
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
     path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.GlobFilter,
-                        accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])))
+                        accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])) if o._fields["path"] else "")
     realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.GlobFilter,
-                            accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")))
+                            accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")) if o._fields["path"] else "")
     metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.GlobFilter,
                             accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
     tracker = ConstantField(str, "tracker", "first in the list of announce URLs", matcher=matching.GlobFilter,
