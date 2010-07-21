@@ -64,7 +64,7 @@ class MetafileChanger(ScriptBaseWithConfig):
         self.add_value_option("--reannounce-all", "URL",
             help="set a new announce URL on ALL given metafiles")
         self.add_bool_option("--no-cross-seed",
-            help="when changing the announce URL, do not add a non-standard field to the info dict ensuring unique info hashes")
+            help="when using --reannounce-all, do not add a non-standard field to the info dict ensuring unique info hashes")
         self.add_value_option("--comment", "TEXT",
             help="set a new comment (an empty value deletes it)")
         self.add_bool_option("--bump-date",
@@ -94,6 +94,9 @@ class MetafileChanger(ScriptBaseWithConfig):
 
         if self.options.reannounce_all:
             self.options.reannounce = self.options.reannounce_all
+        else:
+            # When changing the announce URL w/o changing the domain, don't change the info hash!
+            self.options.no_cross_seed = True
 
         # Resolve tracker alias, if URL doesn't look like an URL
         if self.options.reannounce and not urlparse.urlparse(self.options.reannounce).scheme:
