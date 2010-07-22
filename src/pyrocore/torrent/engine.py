@@ -197,6 +197,7 @@ class TorrentProxy(object):
                         accessor=lambda o: o._fields["up"] + o._fields["down"])
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
+    directory = OnDemandField(fmt.to_unicode, "directory", "directory containing download data", matcher=matching.GlobFilter)
     path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.GlobFilter,
                         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])) if o._fields["path"] else "")
     realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.GlobFilter,
