@@ -3,9 +3,8 @@
 # generic bootstrap
 if test ! -f ../bin/activate; then
     ( cd .. && . ./bootstrap.sh )
-else
-    . ../bin/activate
 fi
+. ../bin/activate
 
 # project
 paver develop -U || return 1
