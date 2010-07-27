@@ -172,6 +172,12 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def ignore(self, flag):
+        """ Set ignore status.
+        """
+        raise NotImplementedError()
+
+
     def hash_check(self):
         """ Hash check a download.
         """
@@ -187,6 +193,8 @@ class TorrentProxy(object):
                            formatter=lambda val: "OPN" if val else "CLS")
     is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter,
                                formatter=lambda val: "DONE" if val else "PART")
+    is_ignored = OnDemandField(bool, "is_ignored", "ignore commands?", matcher=matching.BoolFilter,
+                              formatter=lambda val: "IGN!" if int(val) else "HEED")
     is_ghost = DynamicField(bool, "is_ghost", "has no data file or directory?", matcher=matching.BoolFilter,
                             accessor=lambda o: not os.path.exists(fmt.to_unicode(o._fields["path"])),
                             formatter=lambda val: "GHST" if val else "DATA")

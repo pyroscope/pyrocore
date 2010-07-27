@@ -57,6 +57,9 @@ class RtorrentControl(ScriptBaseWithConfig):
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = ["", "", "Use --help-fields to list all fields and their description."]
 
+    # choices for --ignore
+    IGNORE_OPTIONS = ('0', '1')
+
     # action options that perform some change on selected items
     ACTION_MODES = ( 
         Bunch(name="start", options=("-S", "--start"), help="start torrent"), 
@@ -120,7 +123,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             action.setdefault("label", action.name.upper())
             action.setdefault("method", action.name)
             action.setdefault("interactive", False)
+            action.setdefault("args", ())
             self.add_bool_option(*action.options, **{"help": action.help + (" (implies -i)" if action.interactive else "")})
+        self.add_value_option("--ignore", "|".join(self.IGNORE_OPTIONS),
+            type="choice", choices=self.IGNORE_OPTIONS,
+            help="set 'ignore commands' status on torrent")
 # TODO: implement --move-data
 #        self.add_value_option("--move-data", "DIR",
 #            help="move data to given target directory (implies -i, can be combined with --delete)")
@@ -198,8 +205,13 @@ class RtorrentControl(ScriptBaseWithConfig):
         if not self.args:
             self.parser.error("No filter conditions given!")
 
-        # Check action options
+        # Check special action options
         action = None
+        if self.options.ignore:
+            action = Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED", 
+                help="commands on torrent", interactive=False, args=(self.options.ignore,))
+
+        # Check standard action options
         for action_mode in self.ACTION_MODES:
             if getattr(self.options, action_mode.name):
                 if action:
@@ -236,7 +248,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                 if self.options.output_format and self.options.output_format != "-":
                     self.emit(item, {"action": action.label}) 
                 if not self.options.dry_run:
-                    getattr(item, action.method)()
+                    getattr(item, action.method)(*action.args)
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":

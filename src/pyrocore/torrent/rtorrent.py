@@ -97,6 +97,15 @@ class RtorrentProxy(engine.TorrentProxy):
             raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
 
 
+    def ignore(self, flag):
+        """ Set ignore status.
+        """
+        try:
+            self._engine._rpc.d.set_ignore_commands(self._fields["hash"], int(flag))
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While setting ignore status on torrent #%s: %s" % (self._fields["hash"], exc))
+
+
     def hash_check(self):
         """ Hash check a download.
         """
@@ -130,6 +139,7 @@ class RtorrentEngine(engine.TorrentEngine):
     # mapping of our names to rTorrent names (only those that differ)
     PYRO2RT_MAPPING = dict(
         is_complete = "complete",
+        is_ignored = "ignore_commands",
         down = "down_rate",
         up = "up_rate",
         path = "base_path", 
