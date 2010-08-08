@@ -67,9 +67,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
         Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
     )
+# TODO: --throttle name; also throttle field
 # TODO: --custom 1=value; also add customN fields
 # TODO: --pause, --resume?
-# TODO: --throttle?
 # TODO: use a custom field, and add a field for it ("tags")
 #       & make the name of the custom field a config option 
 #        self.add_bool_option("-T", "--tag", "[-]TAG",
