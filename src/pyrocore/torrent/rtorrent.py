@@ -115,7 +115,21 @@ class RtorrentProxy(engine.TorrentProxy):
             raise error.EngineError("While hash-checking torrent #%s: %s" % (self._fields["hash"], exc))
 
 
-    # TODO: purge is probably: get base_path, stop, close, delete_tied, erase, rm -rf base_path
+    def delete(self):
+        """ Remove torrent from client.
+        """
+        self.stop()
+        infohash = self._fields["hash"]
+        try:
+            self._engine._rpc.d.delete_tied(infohash)
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While removing metafile for #%s: %s" % (infohash, exc))
+        try:
+            self._engine._rpc.d.erase(infohash)
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While erasing torrent #%s: %s" % (infohash, exc))
+
+    # TODO: purge is probably: get base_path, self.delete(), rm -rf base_path
 
 
 class RtorrentEngine(engine.TorrentEngine):

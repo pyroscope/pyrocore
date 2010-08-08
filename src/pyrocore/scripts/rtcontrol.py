@@ -65,6 +65,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="start", options=("-S", "--start"), help="start torrent"), 
         Bunch(name="close", options=("-C", "--close", "--stop"), help="stop torrent", method="stop"), 
         Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
+        Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
     )
 # TODO: --pause, --resume?
 # TODO: --throttle?
@@ -72,9 +73,6 @@ class RtorrentControl(ScriptBaseWithConfig):
 #       & make the name of the custom field a config option 
 #        self.add_bool_option("-T", "--tag", "[-]TAG",
 #            help="set or remove a tag like 'manual'")
-# TODO: implement --delete
-#        self.add_bool_option("--delete",
-#            help="remove from client and archive metafile (implies -i)")
 # TODO: implement --purge
 #        self.add_bool_option("--purge", "--delete-data",
 #            help="remove from client and also delete all data (implies -i)")

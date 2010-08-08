@@ -184,6 +184,12 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def delete(self):
+        """ Remove torrent from client.
+        """
+        raise NotImplementedError()
+
+
     # Field definitions
     hash = ConstantField(str, "hash", "info hash", matcher=matching.GlobFilter)
     name = ConstantField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
