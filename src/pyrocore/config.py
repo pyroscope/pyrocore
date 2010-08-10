@@ -62,6 +62,7 @@ _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
 # Set some defaults to shut up pydev / pylint
 scgi_local = ""
+throttle_names = set(("NONE", "NULL"))
 engine = Bunch(open=lambda: None)
 output_format = ""
 action_format = ""

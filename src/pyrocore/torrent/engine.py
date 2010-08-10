@@ -178,6 +178,13 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def set_throttle(self, name):
+        """ Assign to throttle group.
+        """
+        # TODO: A better way would be to have a MutableField class, i.e. item.throttle = "name"
+        raise NotImplementedError()
+
+
     def hash_check(self):
         """ Hash check a download.
         """
@@ -197,6 +204,8 @@ class TorrentProxy(object):
                                 formatter=lambda val: "PRV" if val else "PUB")
     is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter,
                            formatter=lambda val: "OPN" if val else "CLS")
+    is_active = DynamicField(bool, "is_active", "download active?", matcher=matching.BoolFilter,
+                           formatter=lambda val: "ACT" if val else "STP")
     is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter,
                                formatter=lambda val: "DONE" if val else "PART")
     is_ignored = OnDemandField(bool, "is_ignored", "ignore commands?", matcher=matching.BoolFilter,
@@ -224,6 +233,8 @@ class TorrentProxy(object):
                                  matcher=matching.GlobFilter, accessor=operator.attrgetter("tracker"))
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
     prio = OnDemandField(int, "prio", "priority (0=off, 1=low, 2=normal, 3=high)", matcher=matching.FloatFilter)
+    throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.GlobFilter,
+        accessor=lambda o: o._fields["throttle"] or "NONE")
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)

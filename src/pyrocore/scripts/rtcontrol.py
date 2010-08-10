@@ -66,8 +66,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="close", options=("-C", "--close", "--stop"), help="stop torrent", method="stop"), 
         Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
         Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
+        Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
+            help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
     )
-# TODO: --throttle name; also throttle field
 # TODO: --custom 1=value; also add customN fields
 # TODO: --pause, --resume?
 # TODO: use a custom field, and add a field for it ("tags")
@@ -117,13 +118,17 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        self.add_bool_option("-S", "--summary",
 #            help="print statistics")
 
-        # torrent state change
+        # torrent state change (actions)
         for action in self.ACTION_MODES:
             action.setdefault("label", action.name.upper())
             action.setdefault("method", action.name)
             action.setdefault("interactive", False)
+            action.setdefault("argshelp", "")
             action.setdefault("args", ())
-            self.add_bool_option(*action.options, **{"help": action.help + (" (implies -i)" if action.interactive else "")})
+            if action.argshelp:
+                self.add_value_option(*action.options + (action.argshelp,), **{"help": action.help + (" (implies -i)" if action.interactive else "")})
+            else:
+                self.add_bool_option(*action.options, **{"help": action.help + (" (implies -i)" if action.interactive else "")})
         self.add_value_option("--ignore", "|".join(self.IGNORE_OPTIONS),
             type="choice", choices=self.IGNORE_OPTIONS,
             help="set 'ignore commands' status on torrent")
@@ -218,6 +223,8 @@ class RtorrentControl(ScriptBaseWithConfig):
                         action.name.replace('_', '-'), action_mode.name.replace('_', '-'),
                     ))
                 action = action_mode
+                if action.argshelp:
+                    action.args = (getattr(self.options, action.name),)
         if action and action.interactive:
             self.options.interactive = True
 

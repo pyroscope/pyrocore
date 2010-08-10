@@ -106,6 +106,34 @@ class RtorrentProxy(engine.TorrentProxy):
             raise error.EngineError("While setting ignore status on torrent #%s: %s" % (self._fields["hash"], exc))
 
 
+    def set_throttle(self, name):
+        """ Assign to throttle group.
+        """
+        if name.lower() == "null":
+            name = "NULL"
+        if name.lower() == "none":
+            name = ""
+
+        if (name or "NONE") not in config.throttle_names:
+            raise error.UserError("Unknown throttle name %r" % (name or "NONE",))
+
+        if (name or "NONE") == self.throttle:
+            self._engine.LOG.debug("Keeping throttle %r on torrent #%s" % (self.throttle, self._fields["hash"]))
+            return
+
+        active = self.is_active
+        if active:
+            self._engine.LOG.debug("Torrent #%s stopped for throttling" % (self._fields["hash"],))
+            self.stop()
+        try:
+            self._engine._rpc.d.set_throttle_name(self._fields["hash"], name)
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While setting throttle %r on torrent #%s: %s" % (name, self._fields["hash"], exc))
+        if active:
+            self._engine.LOG.debug("Torrent #%s restarted after throttling" % (self._fields["hash"],))
+            self.start()
+
+
     def hash_check(self):
         """ Hash check a download.
         """
@@ -135,8 +163,11 @@ class RtorrentProxy(engine.TorrentProxy):
 class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
+    # throttling config keys
+    RTORRENT_RC_THROTTLE_KEYS = ("throttle_up", "throttle_down", "throttle_ip", )
+
     # keys we read from rTorrent's configuration
-    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", )
+    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", ) + RTORRENT_RC_THROTTLE_KEYS
 
     # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
@@ -145,7 +176,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
     # rTorrent names of fields that get fetched in multi-call
     PRE_FETCH_FIELDS = CONSTANT_FIELDS | set((
-        "is_open", "complete",
+        "is_open", "is_active", "complete",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",
         "base_path", "tied_to_file", 
     ))
@@ -160,6 +191,7 @@ class RtorrentEngine(engine.TorrentEngine):
         metafile = "tied_to_file", 
         size = "size_bytes",
         prio = "priority",
+        throttle = "throttle_name",
     )
 
     # inverse mapping of rTorrent names to ours
@@ -207,7 +239,11 @@ class RtorrentEngine(engine.TorrentEngine):
                     key, val = key.strip(), val.strip()
 
                     # Copy values we're interested in
-                    if key in self.RTORRENT_RC_KEYS and not getattr(namespace, key, None):
+                    if key in self.RTORRENT_RC_THROTTLE_KEYS:
+                        val = val.split(',')[0].strip()
+                        self.LOG.debug("rtorrent.rc: added throttle %r" % (val,))
+                        namespace.throttle_names.add(val)
+                    elif key in self.RTORRENT_RC_KEYS and not getattr(namespace, key, None):
                         self.LOG.debug("rtorrent.rc: %s = %s" % (key, val))
                         setattr(namespace, key, val)
 
