@@ -19,6 +19,8 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import os
+import time
+import datetime
 import operator
 
 from pyrocore import config, error 
@@ -39,6 +41,12 @@ def percent(floatval):
     """ Convert float ratio to a percent value.
     """
     return floatval * 100.0
+
+
+def _to_iso(dt):
+    """ Convert UNIX timestamp to ISO date string.
+    """
+    return datetime.datetime(*time.localtime(dt)[:7]).isoformat(' ')[:19]
 
 
 #
@@ -235,6 +243,10 @@ class TorrentProxy(object):
     prio = OnDemandField(int, "prio", "priority (0=off, 1=low, 2=normal, 3=high)", matcher=matching.FloatFilter)
     throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.GlobFilter,
         accessor=lambda o: o._fields["throttle"] or "NONE")
+    loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilter,
+        accessor=lambda o: long(o.fetch("custom.tm_loaded") or "0", 10), formatter=_to_iso)
+    completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
+        accessor=lambda o: long(o.fetch("custom.tm_completed") or "0", 10), formatter=_to_iso)
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)

@@ -180,6 +180,22 @@ class FloatFilter(NumericFilterBase):
             raise FilterError("Bad numerical value %r in %r (%s)" % (self._value, self._condition, exc))  
 
 
+class TimeFilter(NumericFilterBase):
+    """ Filter UNIX timestamp values.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        super(TimeFilter, self).validate()
+
+        # TODO: We need to support things like "1day" etc. here
+        try:
+            self._value = float(self._value)
+        except (ValueError, TypeError), exc:
+            raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))  
+
+
 class ByteSizeFilter(NumericFilterBase):
     """ Filter size and bandwidth values.
     """

@@ -51,7 +51,12 @@ class RtorrentProxy(engine.TorrentProxy):
             return self._fields[name]
         except KeyError:
             if name == "done":
-                val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks") 
+                val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
+            elif name.startswith("custom."):
+                try:
+                    val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('.', 1)[1])
+                except xmlrpclib.Fault, exc:
+                    raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
                 getter_name = "get_" + RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
                 getter = getattr(self._engine._rpc.d, getter_name)
