@@ -69,6 +69,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
     )
+# TODO: --flush: call d.save_session after making changes
 # TODO: --custom 1=value; also add customN fields
 # TODO: --pause, --resume?
 # TODO: use a custom field, and add a field for it ("tags")
