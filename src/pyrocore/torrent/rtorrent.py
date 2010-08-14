@@ -44,6 +44,17 @@ class RtorrentProxy(engine.TorrentProxy):
         self._fields = dict(fields)
 
 
+    def _make_it_so(self, command, calls, *args):
+        """ Perform some error-checked XMLRPC calls.
+        """
+        args = (self._fields["hash"],) + args
+        try:
+            for call in calls:
+                getattr(self._engine._rpc.d, call)(*args)
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
+
+
     def fetch(self, name):
         """ Get a field on demand.
         """
@@ -85,30 +96,19 @@ class RtorrentProxy(engine.TorrentProxy):
     def start(self):
         """ (Re-)start downloading or seeding.
         """
-        try:
-            self._engine._rpc.d.open(self._fields["hash"])
-            self._engine._rpc.d.start(self._fields["hash"])
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While starting torrent #%s: %s" % (self._fields["hash"], exc))
+        self._make_it_so("starting", ["open", "start"])
 
 
     def stop(self):
         """ Stop and close download.
         """
-        try:
-            self._engine._rpc.d.stop(self._fields["hash"])
-            self._engine._rpc.d.close(self._fields["hash"])
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While stopping torrent #%s: %s" % (self._fields["hash"], exc))
+        self._make_it_so("stopping", ["stop", "close"])
 
 
     def ignore(self, flag):
         """ Set ignore status.
         """
-        try:
-            self._engine._rpc.d.set_ignore_commands(self._fields["hash"], int(flag))
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While setting ignore status on torrent #%s: %s" % (self._fields["hash"], exc))
+        self._make_it_so("setting ignore status for", ["set_ignore_commands"], int(flag))
 
 
     def set_throttle(self, name):
@@ -130,10 +130,7 @@ class RtorrentProxy(engine.TorrentProxy):
         if active:
             self._engine.LOG.debug("Torrent #%s stopped for throttling" % (self._fields["hash"],))
             self.stop()
-        try:
-            self._engine._rpc.d.set_throttle_name(self._fields["hash"], name)
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While setting throttle %r on torrent #%s: %s" % (name, self._fields["hash"], exc))
+        self._make_it_so("setting throttle %r on" % (name,), ["set_throttle_name"], name)
         if active:
             self._engine.LOG.debug("Torrent #%s restarted after throttling" % (self._fields["hash"],))
             self.start()
@@ -142,10 +139,7 @@ class RtorrentProxy(engine.TorrentProxy):
     def hash_check(self):
         """ Hash check a download.
         """
-        try:
-            self._engine._rpc.d.check_hash(self._fields["hash"])
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While hash-checking torrent #%s: %s" % (self._fields["hash"], exc))
+        self._make_it_so("hash-checking", ["check_hash"])
 
 
     def delete(self):
@@ -153,14 +147,8 @@ class RtorrentProxy(engine.TorrentProxy):
         """
         self.stop()
         infohash = self._fields["hash"]
-        try:
-            self._engine._rpc.d.delete_tied(infohash)
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While removing metafile for #%s: %s" % (infohash, exc))
-        try:
-            self._engine._rpc.d.erase(infohash)
-        except xmlrpclib.Fault, exc:
-            raise error.EngineError("While erasing torrent #%s: %s" % (infohash, exc))
+        self._make_it_so("removing metafile of", ["delete_tied"])
+        self._make_it_so("erasing", ["erase"])
 
     # TODO: purge is probably: get base_path, self.delete(), rm -rf base_path
 
