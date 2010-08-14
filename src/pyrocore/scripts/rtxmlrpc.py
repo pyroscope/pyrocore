@@ -81,7 +81,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:
             # Pretty-print collections, but not scalar types
-            if hasattr(result, "__setitem__"):
+            if hasattr(result, "__iter__"):
                 result = pformat(result)
             print result
 
