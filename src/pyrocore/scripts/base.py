@@ -37,11 +37,15 @@ class ScriptBase(object):
     # logging configuration
     LOGGING_CFG = os.path.expanduser("~/.pyroscope/logging.scripts.ini")
 
+    # log level for user-visible standard logging
+    STD_LOG_LEVEL = logging.INFO
+
     # argument description for the usage information
     ARGS_HELP = "<log-base>..."
 
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = []
+    
 
     @classmethod
     def setup(cls):
@@ -172,7 +176,7 @@ class ScriptBase(object):
         finally:
             # Shut down
             running_time = time.time() - self.startup
-            self.LOG.info("Total time: %.3f seconds." % running_time)
+            self.LOG.log(self.STD_LOG_LEVEL, "Total time: %.3f seconds." % running_time)
             logging.shutdown()
 
 

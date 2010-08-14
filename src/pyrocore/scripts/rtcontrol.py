@@ -68,6 +68,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
         Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
+        # TODO:
+        # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
+        #     help="call a raw XMLRPC command", interactive=True), 
     )
 # TODO: --custom 1=value; also add customN fields
 # TODO: --pause, --resume?
