@@ -77,9 +77,13 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         proxy = config.engine.open()
         try:
             result = getattr(proxy, method)(*tuple(args))
-            print pformat(result)
         except xmlrpclib.Fault, exc:
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
+        else:
+            # Pretty-print collections, but not scalar types
+            if hasattr(result, "__setitem__"):
+                result = pformat(result)
+            print result
 
 
 def run(): #pragma: no cover
