@@ -35,7 +35,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     STD_LOG_LEVEL = logging.DEBUG
 
     # argument description for the usage information
-    ARGS_HELP = "<command> <args>..."
+    ARGS_HELP = "<method> <args>..."
 
 
     def add_options(self):
@@ -52,16 +52,16 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         """
         # Print usage if not enough args
         if len(self.args) < 1:
-            self.parser.error("No command given!")
+            self.parser.error("No method given!")
 
         # Preparation
-        command = self.args[0]
+        method = self.args[0]
 
         raw_args = self.args[1:]
-        if '=' in command:
+        if '=' in method:
             if raw_args:
                 self.parser.error("Please don't mix rTorrent and shell argument styles!")
-            command, raw_args = command.split('=', 1)
+            method, raw_args = method.split('=', 1)
             raw_args = raw_args.split(',')
         
         args = []
@@ -76,10 +76,10 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         # Make the call
         proxy = config.engine.open()
         try:
-            result = getattr(proxy, command)(*tuple(args))
+            result = getattr(proxy, method)(*tuple(args))
             print pformat(result)
         except xmlrpclib.Fault, exc:
-            self.LOG.error("While calling %s(%s): %s" % (command, ", ".join(repr(i) for i in args), exc))
+            self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
 
 
 def run(): #pragma: no cover
