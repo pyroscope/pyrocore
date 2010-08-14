@@ -50,6 +50,8 @@ class RtorrentProxy(engine.TorrentProxy):
         args = (self._fields["hash"],) + args
         try:
             for call in calls:
+                self._engine.LOG.debug("%s%s torrent #%s (%s)" % (
+                    command[0].upper(), command[1:], self._fields["hash"], call))
                 getattr(self._engine._rpc.d, call)(*args)
         except xmlrpclib.Fault, exc:
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
@@ -146,9 +148,14 @@ class RtorrentProxy(engine.TorrentProxy):
         """ Remove torrent from client.
         """
         self.stop()
-        infohash = self._fields["hash"]
         self._make_it_so("removing metafile of", ["delete_tied"])
         self._make_it_so("erasing", ["erase"])
+
+
+    def flush(self):
+        """ Write volatile data to disk.
+        """
+        self._make_it_so("saving session data of", ["save_session"])
 
     # TODO: purge is probably: get base_path, self.delete(), rm -rf base_path
 

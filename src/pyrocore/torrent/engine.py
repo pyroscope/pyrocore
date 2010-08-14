@@ -205,6 +205,11 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def flush(self):
+        """ Write volatile data to disk.
+        """
+        # This can be empty in derived classes
+
     # Field definitions
     hash = ConstantField(str, "hash", "info hash", matcher=matching.GlobFilter)
     name = ConstantField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)

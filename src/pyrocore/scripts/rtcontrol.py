@@ -69,7 +69,6 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
     )
-# TODO: --flush: call d.save_session after making changes
 # TODO: --custom 1=value; also add customN fields
 # TODO: --pause, --resume?
 # TODO: use a custom field, and add a field for it ("tags")
@@ -136,6 +135,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 # TODO: implement --move-data
 #        self.add_value_option("--move-data", "DIR",
 #            help="move data to given target directory (implies -i, can be combined with --delete)")
+        self.add_bool_option("-F", "--flush", help="flush changes immediately (save session data)")
 
 
     def emit(self, item, defaults=None):
@@ -226,6 +226,10 @@ class RtorrentControl(ScriptBaseWithConfig):
                 action = action_mode
                 if action.argshelp:
                     action.args = (getattr(self.options, action.name),)
+        if not action and self.options.flush:
+            action = Bunch(name="flush", method="flush", label="FLUSH", 
+                help="flush session data", interactive=False, args=())
+            self.options.flush = False # No need to flush twice
         if action and action.interactive:
             self.options.interactive = True
 
@@ -256,6 +260,8 @@ class RtorrentControl(ScriptBaseWithConfig):
                     self.emit(item, {"action": action.label}) 
                 if not self.options.dry_run:
                     getattr(item, action.method)(*action.args)
+                    if self.options.flush:
+                        item.flush()
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
