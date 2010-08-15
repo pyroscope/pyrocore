@@ -46,7 +46,7 @@ def percent(floatval):
 def _to_iso(dt):
     """ Convert UNIX timestamp to ISO date string.
     """
-    return datetime.datetime(*time.localtime(dt)[:7]).isoformat(' ')[:19]
+    return datetime.datetime.fromtimestamp(dt).isoformat(' ')[:19]
 
 
 #
