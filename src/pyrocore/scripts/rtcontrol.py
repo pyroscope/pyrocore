@@ -72,18 +72,17 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
         #     help="call a raw XMLRPC command", interactive=True), 
     )
-# TODO: --custom 1=value; also add customN fields
-# TODO: --pause, --resume?
-# TODO: use a custom field, and add a field for it ("tags")
-#       & make the name of the custom field a config option 
-#        self.add_bool_option("-T", "--tag", "[-]TAG",
-#            help="set or remove a tag like 'manual'")
-# TODO: implement --purge
-#        self.add_bool_option("--purge", "--delete-data",
+# TODO: implement --exterminate
+#        self.add_bool_option("--exterminate", "--delete-all",
 #            help="remove from client and also delete all data (implies -i)")
+# TODO: --tags +TAG,-TAG in a "tags" field (custom.tags); using a TaggedAsFilter
+#       self.add_bool_option("-T", "--tag", "[-]TAG",
+#            help="set or remove a tag like 'manual'")
+# TODO: --custom NAME=value; also add custom.NAME fields (internally those are already working)
 # TODO: implement --clean-partial
 #        self.add_bool_option("--clean-partial",
 #            help="remove partially downloaded 'off'ed files (also stops downloads)")
+# TODO: --pause, --resume?
 
 
     def __init__(self):
