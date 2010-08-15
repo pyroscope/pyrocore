@@ -80,10 +80,11 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         except xmlrpclib.Fault, exc:
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:
-            # Pretty-print collections, but not scalar types
-            if hasattr(result, "__iter__"):
-                result = pformat(result)
-            print result
+            if not self.options.quiet:
+                # Pretty-print collections, but not scalar types
+                if hasattr(result, "__iter__"):
+                    result = pformat(result)
+                print result
 
 
 def run(): #pragma: no cover
