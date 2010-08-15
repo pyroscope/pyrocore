@@ -45,11 +45,11 @@ class RtorrentControl(ScriptBaseWithConfig):
           All active torrents   xfer=+0
           All seeding torrents  up=+0
           Slow torrents         down=+0 down=-5k
-          Older than 2 weeks    age=+2w
+          Older than 2 weeks    completed=+2w
           Big stuff             size=+4g
-          Music                 kind=flac,mp3
-          1:1 seeds not on NAS  ratio=+1 realpath=!/mnt/*
+          1:1 seeds not on NAS  ratio=+1 'realpath=!/mnt/*'
     """
+    ##      Music                 kind=flac,mp3
 
     # argument description for the usage information
     ARGS_HELP = "<filter>..."
