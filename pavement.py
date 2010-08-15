@@ -83,7 +83,7 @@ project = dict(
     license = [line.strip() for line in __doc__.splitlines()
         if line.strip().startswith("Copyright")][0],
     url = "http://code.google.com/p/pyroscope/",
-    keywords = "bittorent rtorrent cli python",
+    keywords = "bittorrent rtorrent cli python",
     classifiers = [
         # see http://pypi.python.org/pypi?:action=list_classifiers
         #"Development Status :: 3 - Alpha",
