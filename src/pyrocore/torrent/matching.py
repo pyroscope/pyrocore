@@ -18,10 +18,20 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import re
+import time
 import fnmatch
 import operator
 
 from pyrocore import error
+
+
+def _time_ym_delta(dt, delta, months):
+    """ Helper to add a year or month delta to a timestamp.
+    """
+    dt = list(time.localtime(dt))
+    dt[int(months)] += delta
+    return time.mktime(dt)
 
 
 class FilterError(error.UserError):
@@ -184,17 +194,74 @@ class TimeFilter(NumericFilterBase):
     """ Filter UNIX timestamp values.
     """
 
+    TIMEDELTA_UNITS = dict(
+        y = lambda t, d: _time_ym_delta(t, -d, False),
+        m = lambda t, d: _time_ym_delta(t, -d, True),
+        w = lambda t, d: t - d * 7 * 86400,
+        d = lambda t, d: t - d * 86400,
+        h = lambda t, d: t - d * 3600,
+        i = lambda t, d: t - d * 60,
+        s = lambda t, d: t - d, 
+    )
+    TIMEDELTA_RE = re.compile("^%s$" % ''.join(
+        r"(?:(?P<%s>\d+)[%s%s])?" % (i, i, i.upper()) for i in "ymwdhis"
+    ))
+
+
     def validate(self):
         """ Validate filter condition (template method).
         """
         super(TimeFilter, self).validate()
+        timestamp = time.time()
 
-        # TODO: We need to support things like "1day" etc. here
-        try:
-            self._value = float(self._value)
-        except (ValueError, TypeError), exc:
-            raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))  
+        if self._value.isdigit():
+            # Literal UNIX timestamp
+            try:
+                timestamp = float(self._value)
+            except (ValueError, TypeError), exc:
+                raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))  
+        else:
+            # Something human readable
+            delta = self.TIMEDELTA_RE.match(self._value)
+            ##print self.TIMEDELTA_RE.pattern
+            if delta:
+                # Time delta
+                for unit, val in delta.groupdict().items():
+                    if val:
+                        timestamp = self.TIMEDELTA_UNITS[unit](timestamp, int(val, 10))  
 
+                # Invert logic for time deltas (+ = older; - = within the delta range)
+                if self._cmp == operator.lt:
+                    self._cmp = operator.gt
+                elif self._cmp == operator.gt:
+                    self._cmp = operator.lt
+            else:
+                # Assume it's an absolute date
+                if '/' in self._value:
+                    # U.S.
+                    fmt = "%m/%d/%Y"
+                elif '.' in self._value:
+                    # European
+                    fmt = "%d.%m.%Y"
+                else:
+                    # Fall back to ISO
+                    fmt = "%Y-%m-%d"
+
+                self._value = self._value.replace(' ', 'T')
+                if 'T' in self._value:
+                    # Time also given
+                    fmt += "T%H:%M:%S"[:3+3*self._value.count(':')]
+
+                try:
+                    timestamp = time.mktime(time.strptime(self._value, fmt))
+                except (ValueError), exc:
+                    raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))
+
+        self._value = timestamp
+        ##print time.time() - self._value
+        ##print time.localtime(time.time())
+        ##print time.localtime(self._value)
+            
 
 class ByteSizeFilter(NumericFilterBase):
     """ Filter size and bandwidth values.
