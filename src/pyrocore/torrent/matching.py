@@ -247,13 +247,13 @@ class TimeFilter(NumericFilterBase):
                     # Fall back to ISO
                     fmt = "%Y-%m-%d"
 
-                self._value = self._value.replace(' ', 'T')
-                if 'T' in self._value:
+                val = self._value.upper().replace(' ', 'T')
+                if 'T' in val:
                     # Time also given
-                    fmt += "T%H:%M:%S"[:3+3*self._value.count(':')]
+                    fmt += "T%H:%M:%S"[:3+3*val.count(':')]
 
                 try:
-                    timestamp = time.mktime(time.strptime(self._value, fmt))
+                    timestamp = time.mktime(time.strptime(val, fmt))
                 except (ValueError), exc:
                     raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))
 
