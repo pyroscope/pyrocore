@@ -87,8 +87,8 @@ project = dict(
     classifiers = [
         # see http://pypi.python.org/pypi?:action=list_classifiers
         #"Development Status :: 3 - Alpha",
-        "Development Status :: 4 - Beta",
-        #"Development Status :: 5 - Production/Stable",
+        #"Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: End Users/Desktop",
         "Intended Audience :: Developers",
