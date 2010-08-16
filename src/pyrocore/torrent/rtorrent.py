@@ -113,6 +113,28 @@ class RtorrentProxy(engine.TorrentProxy):
         self._make_it_so("setting ignore status for", ["set_ignore_commands"], int(flag))
 
 
+    def tag(self, tags):
+        """ Add or remove tags.
+        """
+        # Get tag list and add/remove given tags
+        tags = tags.lower()
+        tagset = set(self.fetch("custom.tags").lower().split())
+        previous = tagset.copy()
+        for tag in tags.split():
+            if tag.startswith('-'):
+                tagset.discard(tag[1:])
+            elif tag.startswith('+'):
+                tagset.add(tag[1:])
+            else:
+                tagset.add(tag)
+
+        # Write back new tagset, if changed
+        tagset.discard('')
+        if tagset != previous:
+            tagset = ' '.join(sorted(tagset))
+            self._make_it_so("setting tags %r on" % (tagset,), ["set_custom"], "tags", tagset)
+
+
     def set_throttle(self, name):
         """ Assign to throttle group.
         """

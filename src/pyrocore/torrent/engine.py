@@ -186,6 +186,12 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def tag(self, tags):
+        """ Add or remove tags.
+        """
+        raise NotImplementedError()
+
+
     def set_throttle(self, name):
         """ Assign to throttle group.
         """
