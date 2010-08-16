@@ -133,12 +133,12 @@ class TaggedAsFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        tags = getattr(item, self._name)
+        tags = getattr(item, self._name).lower().split()
         if self._value:
             # Is given tag in list?
-            return self._value in tags.lower().split()
+            return self._value in tags
         else:
-            # No tag given, is tag list empty?
+            # Empty search tag given, is tag list empty?
             return not tags
 
 
