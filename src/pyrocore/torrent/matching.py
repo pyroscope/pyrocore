@@ -133,7 +133,7 @@ class TaggedAsFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        tags = getattr(item, self._name).lower().split()
+        tags = getattr(item, self._name)
         if self._value:
             # Is given tag in list?
             return self._value in tags

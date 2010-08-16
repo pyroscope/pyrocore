@@ -118,8 +118,8 @@ class RtorrentProxy(engine.TorrentProxy):
         """
         # Get tag list and add/remove given tags
         tags = tags.lower()
-        tagset = set(self.fetch("custom.tags").lower().split())
-        previous = tagset.copy()
+        previous = self.tagged
+        tagset = previous.copy()
         for tag in tags.split():
             if tag.startswith('-'):
                 tagset.discard(tag[1:])
@@ -133,6 +133,7 @@ class RtorrentProxy(engine.TorrentProxy):
         if tagset != previous:
             tagset = ' '.join(sorted(tagset))
             self._make_it_so("setting tags %r on" % (tagset,), ["set_custom"], "tags", tagset)
+            self._fields["custom.tags"] = tagset
 
 
     def set_throttle(self, name):

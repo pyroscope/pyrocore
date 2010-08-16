@@ -258,8 +258,8 @@ class TorrentProxy(object):
         accessor=lambda o: long(o.fetch("custom.tm_loaded") or "0", 10), formatter=_to_iso)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom.tm_completed") or "0", 10), formatter=_to_iso)
-    tagged = DynamicField(str, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
-        accessor=lambda o: o.fetch("custom.tags"))
+    tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
+        accessor=lambda o: set(o.fetch("custom.tags").lower().split()), formatter=lambda v: ' '.join(sorted(v)))
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
