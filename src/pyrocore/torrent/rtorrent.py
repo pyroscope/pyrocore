@@ -289,12 +289,16 @@ class RtorrentEngine(engine.TorrentEngine):
         self._rpc = xmlrpc2scgi.RTorrentXMLRPCClient(config.scgi_url)
         try:
             self.engine_id = self._rpc.get_name()
+            time_usec = self._rpc.system.time_usec()
         except socket.error, exc:
             raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
         except Exception, exc:
             raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
 
-        # TODO: get system.time_usec and check for <i8> in raw response to ensure a working xmlrpc-c
+        # Make sure xmlrpc-c works as expected
+        if type(time_usec) is not long:
+            self.LOG.warn("Your xmlrpc-c is broken (64 bit integer support missing,"
+                " %r returned instead)" % (type(time_usec),))
 
         # Get other manifest values
         self.engine_software = "rTorrent %s/%s" % (
