@@ -252,6 +252,8 @@ class TorrentProxy(object):
         accessor=lambda o: long(o.fetch("custom.tm_loaded") or "0", 10), formatter=_to_iso)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom.tm_completed") or "0", 10), formatter=_to_iso)
+    tagged = DynamicField(str, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
+        accessor=lambda o: o.fetch("custom.tags"))
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
@@ -267,10 +269,6 @@ class TorrentProxy(object):
     # kind = set(all [media?] extensions in the metafile path list; cached by hash)
     # add field type TagField (list of tags) and appropriate matcher 
     
-    # TODO: tags
-    # list of user-defined tags in a rtorrent custom field
-    # e.g. "tags=!manual" to exclude torrents from ratio mgmt etc.
-
     # TODO: created (metafile creation date, i.e. the bencoded field; same as downloaded if missing; cached by hash)
     # TODO: downloaded (metafile ctime; cached by hash, so the file can be touched)
     # TODO: completed (newest timestamp of the files in the metafile list; cached by hash)

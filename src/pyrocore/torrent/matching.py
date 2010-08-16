@@ -118,6 +118,30 @@ class GlobFilter(FieldFilter):
         return fnmatch.fnmatchcase(getattr(item, self._name).lower(), self._value) 
 
 
+class TaggedAsFilter(FieldFilter):
+    """ Case-insensitive tags filter. Tag fields are white-space separated lists
+        of tags.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        super(TaggedAsFilter, self).validate()
+        self._value = self._value.lower()
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        tags = getattr(item, self._name)
+        if self._value:
+            # Is given tag in list?
+            return self._value in tags.lower().split()
+        else:
+            # No tag given, is tag list empty?
+            return not tags
+
+
 class BoolFilter(FieldFilter):
     """ Filter boolean values.
     """
