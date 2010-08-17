@@ -65,9 +65,9 @@ class RtorrentProxy(engine.TorrentProxy):
         except KeyError:
             if name == "done":
                 val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
-            elif name.startswith("custom."):
+            elif name.startswith("custom_"):
                 try:
-                    val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('.', 1)[1])
+                    val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('_', 1)[1])
                 except xmlrpclib.Fault, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
@@ -133,7 +133,7 @@ class RtorrentProxy(engine.TorrentProxy):
         if tagset != previous:
             tagset = ' '.join(sorted(tagset))
             self._make_it_so("setting tags %r on" % (tagset,), ["set_custom"], "tags", tagset)
-            self._fields["custom.tags"] = tagset
+            self._fields["custom_tags"] = tagset
 
 
     def set_throttle(self, name):

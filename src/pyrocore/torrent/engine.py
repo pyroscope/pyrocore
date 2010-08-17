@@ -61,7 +61,7 @@ class FieldDefinition(object):
         self.valtype = valtype
         self.name = name
         self.__doc__ = doc
-        self._engine_name = engine_name or name
+        self._engine_name = engine_name
         self._accessor = accessor
         self._matcher = matcher
         self._formatter = formatter
@@ -258,11 +258,11 @@ class TorrentProxy(object):
     throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.GlobFilter,
         accessor=lambda o: o._fields["throttle"] or "NONE")
     loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom.tm_loaded") or "0", 10), formatter=_to_iso)
+        accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=_to_iso)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom.tm_completed") or "0", 10), formatter=_to_iso)
+        accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=_to_iso)
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
-        accessor=lambda o: set(o.fetch("custom.tags").lower().split()), formatter=lambda v: ' '.join(sorted(v)))
+        accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=lambda v: ' '.join(sorted(v)))
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
@@ -404,7 +404,14 @@ def create_filter(condition):
     try:
         field = FieldDefinition.FIELDS[name]
     except KeyError:
-        raise matching.FilterError("Unknown field %r in %r" % (name, condition))  
+        # Is it a custom attribute?
+        if name.startswith("custom_"):
+            # Add the field on-the-fly
+            field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
+                matcher=matching.GlobFilter)
+            setattr(TorrentProxy, name, field)
+        else:
+            raise matching.FilterError("Unknown field %r in %r" % (name, condition))  
 
     if field._matcher is None: 
         raise matching.FilterError("Field %r cannot be used as a filter" % (name,))  
