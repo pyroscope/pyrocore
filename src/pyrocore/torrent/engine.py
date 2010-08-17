@@ -57,11 +57,11 @@ class FieldDefinition(object):
     """
     FIELDS = {}
 
-    def __init__(self, valtype, name, doc, accessor=None, matcher=None, formatter=None, field_name=None):
+    def __init__(self, valtype, name, doc, accessor=None, matcher=None, formatter=None, engine_name=None):
         self.valtype = valtype
         self.name = name
         self.__doc__ = doc
-        self._field_name = field_name or name
+        self._engine_name = engine_name or name
         self._accessor = accessor
         self._matcher = matcher
         self._formatter = formatter
@@ -113,7 +113,7 @@ class OnDemandField(DynamicField):
 
     def __get__(self, obj, cls=None):
         if obj and self.name not in obj._fields:
-            obj.fetch(self.name, self._field_name)
+            obj.fetch(self.name, self._engine_name)
         return super(OnDemandField, self).__get__(obj, cls)
 
 
@@ -157,11 +157,10 @@ class TorrentProxy(object):
         )))
 
 
-    def fetch(self, name, field_name=None):
+    def fetch(self, name, engine_name=None):
         """ Get a field on demand.
         
-            "field_name" is the name in rtorrent, which makes it possible to define
-            custom fields with a different name.
+            "engine_name" is the internal name of the client engine.
         """
         raise NotImplementedError()
 
