@@ -133,6 +133,23 @@ class TorrentProxy(object):
     """
     
     @classmethod
+    def add_custom_attribute(cls, name):
+        """ Register a custom engine attribute.
+        
+            Return the field or None if "name" isn't a custom attribute.
+        """
+        if name.startswith("custom_"):
+            try:
+                return FieldDefinition.FIELDS[name]
+            except KeyError:
+                field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
+                    matcher=matching.GlobFilter)
+                setattr(cls, name, field)
+
+                return field
+
+
+    @classmethod
     def add_custom_fields(cls, *args, **kw):
         """ Add any custom fields defined in the configuration.
         """
@@ -385,7 +402,7 @@ def validate_field_list(fields, allow_fmt_specs=False):
             if fmt not in formats: 
                 raise error.UserError("Unknown format specification in '%s.%s'" % (name, fmt))
             
-        if name not in FieldDefinition.FIELDS:
+        if name not in FieldDefinition.FIELDS and not TorrentProxy.add_custom_attribute(name):
             raise error.UserError("Unknown field name %r" % (name,))
 
     return fields
@@ -405,12 +422,7 @@ def create_filter(condition):
         field = FieldDefinition.FIELDS[name]
     except KeyError:
         # Is it a custom attribute?
-        if name.startswith("custom_"):
-            # Add the field on-the-fly
-            field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
-                matcher=matching.GlobFilter)
-            setattr(TorrentProxy, name, field)
-        else:
+        if not TorrentProxy.add_custom_attribute(name):
             raise matching.FilterError("Unknown field %r in %r" % (name, condition))  
 
     if field._matcher is None: 

@@ -77,7 +77,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 # TODO: implement --exterminate
 #        self.add_bool_option("--exterminate", "--delete-all",
 #            help="remove from client and also delete all data (implies -i)")
-# TODO: --custom NAME=value; also add custom.NAME fields (internally those are already working)
+# TODO: --custom NAME=value
 # TODO: implement --clean-partial
 #        self.add_bool_option("--clean-partial",
 #            help="remove partially downloaded 'off'ed files (also stops downloads)")
