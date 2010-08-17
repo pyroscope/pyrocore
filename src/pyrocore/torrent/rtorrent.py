@@ -57,7 +57,7 @@ class RtorrentProxy(engine.TorrentProxy):
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
 
-    def fetch(self, name):
+    def fetch(self, name, field_name=None):
         """ Get a field on demand.
         """
         try:
@@ -71,7 +71,7 @@ class RtorrentProxy(engine.TorrentProxy):
                 except xmlrpclib.Fault, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
-                getter_name = "get_" + RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
+                getter_name = "get_" + (field_name if field_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name))
                 getter = getattr(self._engine._rpc.d, getter_name)
     
                 try:
