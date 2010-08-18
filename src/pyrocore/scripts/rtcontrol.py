@@ -141,17 +141,17 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("-F", "--flush", help="flush changes immediately (save session data)")
 
 
-    def emit(self, item, defaults=None, headers=False):
+    def emit(self, item, defaults=None):
         """ Print an item to stdout.
         """
         output_format = self.options.output_format
-        if headers:
+        if item is None:
             # For headers, ensure we only have string formats
             output_format = re.sub(
                 r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]+?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', output_format) 
 
-        item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults, headers)) 
+        item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults)) 
         if self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
@@ -284,9 +284,11 @@ class RtorrentControl(ScriptBaseWithConfig):
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
-                if self.options.column_headers:
-                    self.emit(None, headers=True)
-                for item in matches:
+                for idx, item in enumerate(matches):
+                    # Emit a header line every 'output_header_frequency' items
+                    if self.options.column_headers and idx % config.output_header_frequency == 0:
+                        self.emit(None)
+
                     # Print matching item
                     self.emit(item)
 

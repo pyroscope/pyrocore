@@ -340,7 +340,7 @@ class OutputMapping(algo.AttributeMapping):
     """ Map item fields for displaying them.
     """
 
-    def __init__(self, obj, defaults=None, headers=False):
+    def __init__(self, obj, defaults=None):
         """ Store object we want to map, and any default values.
 
             @param obj: the wrapped object
@@ -349,9 +349,9 @@ class OutputMapping(algo.AttributeMapping):
             @type defaults: dict
         """
         super(OutputMapping, self).__init__(obj, defaults)
-        self.headers = headers
 
         # add percent sign so we can easily reference it in .ini files
+        # (a better way is to use "%%%%" though, so regard this as deprecated)
         self.defaults.setdefault("pc", '%')
 
 
@@ -368,8 +368,11 @@ class OutputMapping(algo.AttributeMapping):
 
     
     def __getitem__(self, key):
-        """ Return object attribute named C{key}. Attional formatting is provided
-            by adding ".sz" (byte size formmating) to the normal field name.
+        """ Return object attribute named C{key}. Additional formatting is provided
+            by adding modifiers like ".sz" (byte size formatting) to the normal field name.
+
+            If the wrapped object is None, the upper-case C{key} (without any modifiers)
+            is returned instead, to allow the formatting of a header line.
         """
         # Check for a formatter specification
         formatter = None
@@ -391,7 +394,7 @@ class OutputMapping(algo.AttributeMapping):
                 formatter = (lambda val, f=formatter: field._formatter(f(val))) if formatter else field._formatter 
 
         # Return formatted value
-        if self.headers:
+        if self.obj is None:
             return key.upper()
         else:
             val = super(OutputMapping, self).__getitem__(key)

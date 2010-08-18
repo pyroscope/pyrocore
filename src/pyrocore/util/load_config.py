@@ -37,6 +37,8 @@ def validate(key, val):
     """
     if val and val.startswith("~/"):
         return os.path.expanduser(val)
+    if key == "output_header_frequency":
+        return int(val, 10)
 
     return val
 
