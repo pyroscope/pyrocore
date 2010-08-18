@@ -71,7 +71,11 @@ class RtorrentProxy(engine.TorrentProxy):
                 except xmlrpclib.Fault, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
-                getter_name = "get_" + (engine_name if engine_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name))
+                getter_name = engine_name if engine_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
+                if getter_name[0] == '=':
+                    getter_name = getter_name[1:]
+                else:
+                    getter_name = "get_" + getter_name
                 getter = getattr(self._engine._rpc.d, getter_name)
     
                 try:

@@ -49,6 +49,12 @@ def _to_iso(dt):
     return datetime.datetime.fromtimestamp(dt).isoformat(' ')[:19]
 
 
+def _fmt_tags(tagset):
+    """ Convert set of strings to sorted space-separated list as a string.
+    """
+    return ' '.join(sorted(tagset))
+
+
 #
 # Field Descriptors
 #
@@ -279,7 +285,9 @@ class TorrentProxy(object):
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=_to_iso)
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
-        accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=lambda v: ' '.join(sorted(v)))
+        accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
+    views = OnDemandField(set, "views", "views this item is attached to", 
+        matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
