@@ -148,7 +148,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if headers:
             # For headers, ensure we only have string formats
             output_format = re.sub(
-                r"(\([_.a-zA-Z]+\)[-#+0 ]?[0-9]+?)[.0-9]*[diouxXeEfFgG]", 
+                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]+?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', output_format) 
 
         item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults, headers)) 
