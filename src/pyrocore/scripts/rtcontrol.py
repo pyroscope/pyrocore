@@ -107,6 +107,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         # output control
         self.add_bool_option("-0", "--nul", "--print0",
             help="use a NUL character instead of a linebreak after items")
+        self.add_bool_option("--column-headers",
+            help="print column headers")
         #self.add_bool_option("-f", "--full",
         #    help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
@@ -139,10 +141,17 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("-F", "--flush", help="flush changes immediately (save session data)")
 
 
-    def emit(self, item, defaults=None):
+    def emit(self, item, defaults=None, headers=False):
         """ Print an item to stdout.
         """
-        item_text = fmt.to_console(self.options.output_format % engine.OutputMapping(item, defaults)) 
+        output_format = self.options.output_format
+        if headers:
+            # For headers, ensure we only have string formats
+            output_format = re.sub(
+                r"(\([_.a-zA-Z]+\)[-#+0 ]?[0-9]+?)[.0-9]*[diouxXeEfFgG]", 
+                lambda m: m.group(1) + 's', output_format) 
+
+        item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults, headers)) 
         if self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
@@ -271,6 +280,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
+                if self.options.column_headers:
+                    self.emit(None, headers=True)
                 for item in matches:
                     # Print matching item
                     self.emit(item)

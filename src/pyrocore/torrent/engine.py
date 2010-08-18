@@ -340,7 +340,7 @@ class OutputMapping(algo.AttributeMapping):
     """ Map item fields for displaying them.
     """
 
-    def __init__(self, obj, defaults=None):
+    def __init__(self, obj, defaults=None, headers=False):
         """ Store object we want to map, and any default values.
 
             @param obj: the wrapped object
@@ -349,6 +349,7 @@ class OutputMapping(algo.AttributeMapping):
             @type defaults: dict
         """
         super(OutputMapping, self).__init__(obj, defaults)
+        self.headers = headers
 
         # add percent sign so we can easily reference it in .ini files
         self.defaults.setdefault("pc", '%')
@@ -384,8 +385,11 @@ class OutputMapping(algo.AttributeMapping):
                 formatter = (lambda val, f=formatter: field._formatter(f(val))) if formatter else field._formatter 
 
         # Return formatted value
-        val = super(OutputMapping, self).__getitem__(key)
-        return formatter(val) if formatter else val
+        if self.headers:
+            return key.upper()
+        else:
+            val = super(OutputMapping, self).__getitem__(key)
+            return formatter(val) if formatter else val
 
 
 def validate_field_list(fields, allow_fmt_specs=False):
