@@ -145,6 +145,18 @@ class ScriptBase(object):
         self.LOG.debug("Options: %r" % self.options)
 
 
+    def fatal(self, msg, exc=None):
+        """ Exit on a fatal error.
+        """
+        if exc is not None:
+            self.LOG.fatal("%s (%s)" % (msg, exc))
+            if self.options.debug:
+                return # let the caller re-raise it
+        else:
+            self.LOG.fatal(msg)
+        sys.exit(1)
+    
+        
     def run(self):
         """ The main program skeleton.
         """

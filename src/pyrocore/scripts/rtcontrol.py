@@ -149,19 +149,26 @@ class RtorrentControl(ScriptBaseWithConfig):
         if item is None:
             # For headers, ensure we only have string formats
             output_format = re.sub(
-                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]+?)[.0-9]*[diouxXeEfFgG]", 
+                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', output_format) 
 
             # Use configured escape codes on a terminal
             if os.isatty(1):
                 output_format = ''.join((config.output_header_ecma48, output_format, "\x1B[0m"))
 
-        item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults)) 
+        try:
+            item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults)) 
+        except (ValueError, TypeError), exc:
+            self.fatal("Trouble with formatting item %r using %r" % (item, output_format), exc)
+            raise
+
         if self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
         else: 
             print(item_text)
+
+        return item_text.count('\n') + 1
 
 
     def validate_output_format(self, default_format):
@@ -289,13 +296,14 @@ class RtorrentControl(ScriptBaseWithConfig):
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
-                for idx, item in enumerate(matches):
-                    # Emit a header line every 'output_header_frequency' items
-                    if self.options.column_headers and idx % config.output_header_frequency == 0:
+                line_count = 0
+                for item in matches:
+                    # Emit a header line every 'output_header_frequency' lines
+                    if self.options.column_headers and line_count % config.output_header_frequency == 0:
                         self.emit(None)
 
                     # Print matching item
-                    self.emit(item)
+                    line_count += self.emit(item)
 
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
 
