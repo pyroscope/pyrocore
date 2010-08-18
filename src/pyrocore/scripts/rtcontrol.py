@@ -16,6 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import os
 import re
 import sys
 import operator
@@ -151,12 +152,16 @@ class RtorrentControl(ScriptBaseWithConfig):
                 r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]+?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', output_format) 
 
+            # Use configured escape codes on a terminal
+            if os.isatty(1):
+                output_format = ''.join((config.output_header_ecma48, output_format, "\x1B[0m"))
+
         item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults)) 
         if self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
         else: 
-            print item_text 
+            print(item_text)
 
 
     def validate_output_format(self, default_format):
@@ -218,11 +223,11 @@ class RtorrentControl(ScriptBaseWithConfig):
                 "named rTorrent custom attribute, e.g. 'custom_completion_target'"
                 return ("custom_KEY", custom_dynamic)
 
-            print
-            print "Fields are:"
-            print "\n".join(["  %-21s %s" % (name, field.__doc__)
+            print('')
+            print("Fields are:")
+            print("\n".join(["  %-21s %s" % (name, field.__doc__)
                 for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [custom_dynamic()])
-            ])
+            ]))
             sys.exit(1)
 
         # Print usage if no conditions are provided
