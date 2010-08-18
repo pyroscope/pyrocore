@@ -361,6 +361,12 @@ class OutputMapping(algo.AttributeMapping):
         return fmt.human_size(intval)
 
     
+    def fmt_pc(self, floatval):
+        """ Scale a ratio value to percent.
+        """
+        return float(floatval) * 100.0
+
+    
     def __getitem__(self, key):
         """ Return object attribute named C{key}. Attional formatting is provided
             by adding ".sz" (byte size formmating) to the normal field name.
