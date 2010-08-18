@@ -168,6 +168,10 @@ class RtorrentControl(ScriptBaseWithConfig):
         if output_format is None:
             output_format = default_format
 
+        # Check if it's a custom output format from configuration
+        # (they take precedence over field names, so name them wisely)
+        output_format = config.formats.get(output_format, output_format)
+
         # Expand plain field list to usable form
         if re.match(r"^[,._0-9a-zA-Z]+$", output_format):
             output_format = "%%(%s)s" % ")s\t%(".join(engine.validate_field_list(output_format, allow_fmt_specs=True))

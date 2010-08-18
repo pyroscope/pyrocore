@@ -66,6 +66,7 @@ throttle_names = set(("NONE", "NULL"))
 engine = Bunch(open=lambda: None)
 output_format = ""
 action_format = ""
+formats = {}
 sort_fields = ""
 announce = {}
 config_validator_callbacks = []
