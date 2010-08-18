@@ -200,10 +200,15 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Print field definitions?
         if self.options.help_fields:
             self.parser.print_help()
+
+            def custom_dynamic():
+                "named rTorrent custom attribute, e.g. 'custom_completion_target'"
+                return ("custom_KEY", custom_dynamic)
+
             print
             print "Fields are:"
             print "\n".join(["  %-21s %s" % (name, field.__doc__)
-                for name, field in sorted(engine.FieldDefinition.FIELDS.items())
+                for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [custom_dynamic()])
             ])
             sys.exit(1)
 
