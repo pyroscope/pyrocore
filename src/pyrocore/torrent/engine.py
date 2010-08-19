@@ -19,8 +19,6 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import os
-import time
-import datetime
 import operator
 
 from pyrocore import config, error 
@@ -41,12 +39,6 @@ def percent(floatval):
     """ Convert float ratio to a percent value.
     """
     return floatval * 100.0
-
-
-def _to_iso(dt):
-    """ Convert UNIX timestamp to ISO date string.
-    """
-    return datetime.datetime.fromtimestamp(dt).isoformat(' ')[:19]
 
 
 def _fmt_tags(tagset):
@@ -281,9 +273,9 @@ class TorrentProxy(object):
     throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.GlobFilter,
         accessor=lambda o: o._fields["throttle"] or "NONE")
     loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=_to_iso)
+        accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=_to_iso)
+        accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime)
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
         accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
     views = OnDemandField(set, "views", "views this item is attached to", 
@@ -359,6 +351,12 @@ class OutputMapping(algo.AttributeMapping):
         """ Format a byte sized value.
         """
         return fmt.human_size(intval)
+
+
+    def fmt_iso(self, dt):
+        """ Format a UNIX timestamp to an ISO datetime string.
+        """
+        return fmt.iso_datetime(dt)
 
     
     def fmt_pc(self, floatval):

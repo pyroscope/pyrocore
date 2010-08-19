@@ -18,6 +18,7 @@
 """
 
 import time
+import datetime
 import logging
 
 log = logging.getLogger(__name__)
@@ -40,6 +41,12 @@ def human_size(size):
             return "%6.1f %s" % (size, unit)
 
     return "%6.1f GiB" % size
+
+
+def iso_datetime(dt):
+    """ Convert UNIX timestamp to ISO datetime string.
+    """
+    return datetime.datetime.fromtimestamp(dt).isoformat(' ')[:19]
 
 
 def human_duration(time1, time2=None, precision=0):

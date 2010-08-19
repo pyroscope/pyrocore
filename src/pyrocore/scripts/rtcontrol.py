@@ -19,6 +19,7 @@
 import os
 import re
 import sys
+import time
 import operator
 
 from pyrocore import config
@@ -57,6 +58,11 @@ class RtorrentControl(ScriptBaseWithConfig):
 
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = ["", "", "Use --help-fields to list all fields and their description."]
+
+    # additional values for output formatting
+    FORMATTER_DEFAULTS = dict(
+        now = time.time(),
+    )
 
     # choices for --ignore
     IGNORE_OPTIONS = ('0', '1')
@@ -282,13 +288,15 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.LOG.info("%s %s %d out of %d torrents." % (
                 "Would" if self.options.dry_run else "About to", action.label, len(matches), len(items),
             ))
+            defaults = {"action": action.label}
+            defaults.update(self.FORMATTER_DEFAULTS)
 
             # Perform chosen action on matches
             for item in matches:
                 if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
                     continue
                 if self.options.output_format and self.options.output_format != "-":
-                    self.emit(item, {"action": action.label}) 
+                    self.emit(item, defaults) 
                 if not self.options.dry_run:
                     getattr(item, action.method)(*action.args)
                     if self.options.flush:
@@ -303,7 +311,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                         self.emit(None)
 
                     # Print matching item
-                    line_count += self.emit(item)
+                    line_count += self.emit(item, self.FORMATTER_DEFAULTS)
 
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
 
