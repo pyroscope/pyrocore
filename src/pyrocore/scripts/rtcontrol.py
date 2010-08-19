@@ -77,6 +77,12 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
         Bunch(name="tag", options=("--tag",), argshelp='"TAG +TAG -TAG..."',
             help="add or remove tag(s)", interactive=False), 
+        # TODO: --custom NAME=value
+        # TODO: --move-data output_format / the formatted result is the target path
+        #           if the target contains a ':' in place of a '/', directories
+        #           after that are auto-created
+        #        self.add_value_option("--move-data", "TARGET",
+        #            help="move data to given target directory (implies -i, can be combined with --delete)")
         # TODO:
         # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
         #     help="call a raw XMLRPC command", interactive=True), 
@@ -84,7 +90,6 @@ class RtorrentControl(ScriptBaseWithConfig):
 # TODO: implement --exterminate
 #        self.add_bool_option("--exterminate", "--delete-all",
 #            help="remove from client and also delete all data (implies -i)")
-# TODO: --custom NAME=value
 # TODO: implement --clean-partial
 #        self.add_bool_option("--clean-partial",
 #            help="remove partially downloaded 'off'ed files (also stops downloads)")
@@ -142,12 +147,10 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_value_option("--ignore", "|".join(self.IGNORE_OPTIONS),
             type="choice", choices=self.IGNORE_OPTIONS,
             help="set 'ignore commands' status on torrent")
-# TODO: implement --move-data
-#        self.add_value_option("--move-data", "DIR",
-#            help="move data to given target directory (implies -i, can be combined with --delete)")
         self.add_bool_option("-F", "--flush", help="flush changes immediately (save session data)")
 
 
+    # TODO: refactor to engine.TorrentProxy as format() method
     def emit(self, item, defaults=None):
         """ Print an item to stdout.
         """
@@ -177,6 +180,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         return item_text.count('\n') + 1
 
 
+    # TODO: refactor to engine.OutputMapping as a class method
     def validate_output_format(self, default_format):
         """ Prepare output format for later use.
         """
@@ -209,6 +213,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.options.output_format = unicode(output_format)
 
 
+    # TODO: refactor to engine.FieldDefinition as a class method
     def validate_sort_fields(self):
         """ Take care of sorting.
         """
@@ -254,6 +259,8 @@ class RtorrentControl(ScriptBaseWithConfig):
                 help="commands on torrent", interactive=False, args=(self.options.ignore,))
 
         # Check standard action options
+        # TODO: Allow certain combinations of actions (like --tag foo --stop etc.)
+        #       How do we get a sensible order of execution?
         for action_mode in self.ACTION_MODES:
             if getattr(self.options, action_mode.name):
                 if action:
