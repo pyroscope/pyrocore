@@ -91,7 +91,7 @@ class MetafileLister(ScriptBase):
                             self.LOG.error("%s: Field %r not found (%s)" % (filename, field, exc))
                             break
                         else:
-                            values.append(val)
+                            values.append(str(val))
                     else:
                         listing = '\t'.join(values)
                 else:
