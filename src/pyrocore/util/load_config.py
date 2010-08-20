@@ -195,8 +195,8 @@ class ConfigLoader(object):
 
         # Create default configuration files
         for filename in pkg_resources.resource_listdir("pyrocore", "data/config"): #@UndefinedVariable
-            # Skip hidden files
-            if filename.startswith('.'):
+            # Skip hidden and other trashy files
+            if filename.startswith('.') or any(filename.endswith(i) for i in (".pyc", ".pyo", "~")):
                 continue
             
             # Load default from package data
