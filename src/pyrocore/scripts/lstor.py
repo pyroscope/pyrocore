@@ -38,6 +38,10 @@ class MetafileLister(ScriptBase):
             help="show full announce URL including keys")
         self.add_bool_option("--raw",
             help="print the metafile's raw content in all detail")
+        self.add_value_option("-o", "--output", "KEY,KEY1.KEY2,...",
+            action="append", default=[],
+            help="select fields to print, output is separated by TABs;"
+                 " note that __file__ is the path to the metafile")
         # TODO: implement this
         #self.add_value_option("-c", "--check-data", "PATH",
         #    help="check the hash against the data in the given path")
@@ -51,15 +55,16 @@ class MetafileLister(ScriptBase):
 
         for idx, filename in enumerate(self.args):
             torrent = metafile.Metafile(filename)
-            if idx:
+            if idx and not self.options.output:
                 print
                 print "~" * 79
             try:
-                if self.options.raw:
-                    # Read and check metafile
-                    data = bencode.bread(filename)
-                    metafile.check_meta(data)
+                # Read and check metafile
+                data = bencode.bread(filename)
+                metafile.check_meta(data)
+                listing = None
 
+                if self.options.raw:
                     if not self.options.reveal:
                         # Shorten useless binary piece hashes
                         data["info"]["pieces"] = "<%d piece hashes>" % (
@@ -68,12 +73,34 @@ class MetafileLister(ScriptBase):
 
                     pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
                     listing = pprinter.pformat(data)
+                elif self.options.output:
+                    def splitter(fields):
+                        "Yield single names for a list of comma-separated strings."
+                        for flist in fields:
+                            for field in flist.split(','):
+                                yield field.strip()
+
+                    data["__file__"] = filename
+                    values = []
+                    for field in splitter(self.options.output):
+                        try:
+                            val = data
+                            for key in field.split('.'):
+                                val = val[key]
+                        except KeyError, exc:
+                            self.LOG.error("%s: Field %r not found (%s)" % (filename, field, exc))
+                            break
+                        else:
+                            values.append(val)
+                    else:
+                        listing = '\t'.join(values)
                 else:
                     listing = '\n'.join(torrent.listing(masked=not self.options.reveal))
             except (ValueError, KeyError, bencode.BencodeError), exc:
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
-                print listing
+                if listing is not None:
+                    print listing
 
 
 def run(): #pragma: no cover
