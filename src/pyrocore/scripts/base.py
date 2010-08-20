@@ -27,7 +27,7 @@ import logging.config
 from optparse import OptionParser
 from contextlib import closing
 
-from pyrocore import error
+from pyrocore import error, config
 from pyrocore.util import pymagic, load_config
 
 
@@ -215,6 +215,9 @@ class ScriptBaseWithConfig(ScriptBase):
 
         self.add_value_option("--config-dir", "DIR",
             help="configuration directory [~/.pyroscope]")
+        self.add_value_option("-D", "--define", "KEY=VAL [-D ...]",
+            default=[], action="append", dest="defines", 
+            help="override configuration attributes")
 
 
     def get_options(self):
@@ -222,6 +225,14 @@ class ScriptBaseWithConfig(ScriptBase):
         """
         super(ScriptBaseWithConfig, self).get_options()
         load_config.ConfigLoader(self.options.config_dir).load()
+
+        for key_val in self.options.defines:
+            try:
+                key, val = key_val.split('=', 1)
+            except ValueError, exc:
+                raise error.UserError("Bad config override %r (%s)" % (key_val, exc))
+            else:
+                setattr(config, key, load_config.validate(key, val))
 
 
 class PromptDecorator(object):
