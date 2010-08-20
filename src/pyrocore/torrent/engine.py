@@ -365,6 +365,12 @@ class OutputMapping(algo.AttributeMapping):
         return float(floatval) * 100.0
 
     
+    def fmt_raw(self, val):
+        """ Switch off standard formatter of a field.
+        """
+        return str(val)
+
+    
     def __getitem__(self, key):
         """ Return object attribute named C{key}. Additional formatting is provided
             by adding modifiers like ".sz" (byte size formatting) to the normal field name.
@@ -388,8 +394,8 @@ class OutputMapping(algo.AttributeMapping):
             if key not in self.defaults: 
                 raise error.UserError("Unknown field %r" % (key,))  
         else:
-            if field._formatter:
-                formatter = (lambda val, f=formatter: field._formatter(f(val))) if formatter else field._formatter 
+            if field._formatter and formatter != self.fmt_raw:
+                formatter = (lambda val, f=formatter: f(field._formatter(val))) if formatter else field._formatter 
 
         # Return formatted value
         if self.obj is None:
