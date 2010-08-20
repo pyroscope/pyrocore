@@ -173,6 +173,12 @@ def clean_meta(meta, including_info=False, log=None):
     return meta
 
 
+def info_hash(metadata):
+    """ Return info hash as a string.
+    """
+    return hashlib.sha1(bencode.bencode(metadata['info'])).hexdigest().upper()
+
+
 class Metafile(object):
     """ A torrent metafile.
     """

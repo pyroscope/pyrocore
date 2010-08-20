@@ -41,7 +41,8 @@ class MetafileLister(ScriptBase):
         self.add_value_option("-o", "--output", "KEY,KEY1.KEY2,...",
             action="append", default=[],
             help="select fields to print, output is separated by TABs;"
-                 " note that __file__ is the path to the metafile")
+                 " note that __file__ is the path to the metafile"
+                 " and __hash__ is the info hash")
         # TODO: implement this
         #self.add_value_option("-c", "--check-data", "PATH",
         #    help="check the hash against the data in the given path")
@@ -81,6 +82,7 @@ class MetafileLister(ScriptBase):
                                 yield field.strip()
 
                     data["__file__"] = filename
+                    data["__hash__"] = metafile.info_hash(data)
                     values = []
                     for field in splitter(self.options.output):
                         try:
