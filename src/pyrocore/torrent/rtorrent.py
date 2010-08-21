@@ -340,7 +340,7 @@ class RtorrentEngine(engine.TorrentEngine):
         return self._rpc
 
 
-    def items(self, view="main"):
+    def items(self, view=None):
         """ Get list of download items.
         """
         # TODO: Cache should be by hash.
@@ -350,9 +350,9 @@ class RtorrentEngine(engine.TorrentEngine):
         # fields for one hash might be done by a special view
         # (filter: $d.get_hash == hashvalue)
 
-        if view not in self._item_cache:
+        if view.viewname not in self._item_cache:
             # Prepare multi-call arguments
-            args = [view] + ["d.%s%s=" % (
+            args = [view.viewname] + ["d.%s%s=" % (
                     "" if field.startswith("is_") else "get_", field
                 ) for field in self.PRE_FETCH_FIELDS
             ]
@@ -376,9 +376,9 @@ class RtorrentEngine(engine.TorrentEngine):
                 raise error.EngineError("While getting download items from %r: %s" % (self, exc))
 
             # Everything yielded, store for next iteration
-            self._item_cache[view] = items
+            self._item_cache[view.viewname] = items
         else:
             # Yield prefetched results
-            for item in self._item_cache[view]:
+            for item in self._item_cache[view.viewname]:
                 yield item
 

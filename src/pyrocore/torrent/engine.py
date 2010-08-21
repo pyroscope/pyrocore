@@ -124,7 +124,7 @@ class MutableField(FieldDefinition):
 
 
 #
-# Generic Engine Interface (abstract base classes)
+# [Somewhat] Generic Engine Interface (abstract base classes)
 #
 class TorrentProxy(object):
     """ A single download item.
@@ -296,9 +296,48 @@ class TorrentProxy(object):
     # add field type TagField (list of tags) and appropriate matcher 
     
     # TODO: created (metafile creation date, i.e. the bencoded field; same as downloaded if missing; cached by hash)
-    # TODO: downloaded (metafile ctime; cached by hash, so the file can be touched)
-    # TODO: completed (newest timestamp of the files in the metafile list; cached by hash)
-    # add .dt, .isodt and .age formatters (age = " 1y 6m", " 2w 6d", "12h30m", etc.)
+    # add .age formatter (age = " 1y 6m", " 2w 6d", "12h30m", etc.)
+
+
+
+class TorrentView(object):
+    """ A view on a subset of torrent items.
+    """
+  
+    def __init__(self, engine, viewname, matcher=None):
+        """ Initialize view on torrent items.
+        """
+        self.engine = engine
+        self.viewname = viewname or "main"
+        self.matcher = matcher
+        self._items = None
+
+
+    def _fetch_items(self):
+        """ Fetch to attribute.
+        """
+        if self._items is None:
+            self._items = list(self.engine.items(self)) 
+
+        return self._items
+
+
+    def size(self):
+        """ Total unfiltered size of view.
+        """
+        return len(self._fetch_items())
+
+
+    def items(self):
+        """ Get list of download items.
+        """
+        if self.matcher:
+            for item in self._fetch_items():
+                if self.matcher.match(item):
+                    yield item
+        else:
+            for item in self._fetch_items():
+                yield item
 
 
 class TorrentEngine(object):
@@ -317,6 +356,12 @@ class TorrentEngine(object):
         """ Open connection.
         """
         raise NotImplementedError()
+
+
+    def view(self, viewname, matcher=None):
+        """ Get list of download items.
+        """
+        return TorrentView(self, viewname, matcher)
 
 
     def items(self, view=None):

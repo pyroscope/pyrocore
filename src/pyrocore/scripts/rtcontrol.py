@@ -292,15 +292,13 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Or sort them just the right way, and then abort after we cannot
         # possibly find more matches.
         #
-        #   prefiltered = config.engine.view("pyroscope", matcher)
-        #   items = list(prefiltered.items())
-        items = list(config.engine.items())
-        matches = [item for item in items if matcher.match(item)]
+        view = config.engine.view(None, matcher)
+        matches = list(view.items())
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
         if action:
             self.LOG.info("%s %s %d out of %d torrents." % (
-                "Would" if self.options.dry_run else "About to", action.label, len(matches), len(items),
+                "Would" if self.options.dry_run else "About to", action.label, len(matches), view.size(),
             ))
             defaults = {"action": action.label}
             defaults.update(self.FORMATTER_DEFAULTS)
@@ -327,9 +325,9 @@ class RtorrentControl(ScriptBaseWithConfig):
                     # Print matching item
                     line_count += self.emit(item, self.FORMATTER_DEFAULTS)
 
-            self.LOG.info("Filtered %d out of %d torrents." % (len(matches), len(items),))
+            self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
 
-        ##print; print repr(items[0])
+        ##print; print repr(matches[0])
         
         # print summary
 #        if self.options.summary:
