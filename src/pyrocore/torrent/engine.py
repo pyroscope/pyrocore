@@ -319,7 +319,7 @@ class TorrentEngine(object):
         raise NotImplementedError()
 
 
-    def items(self):
+    def items(self, view=None):
         """ Get list of download items.
         """
         raise NotImplementedError()

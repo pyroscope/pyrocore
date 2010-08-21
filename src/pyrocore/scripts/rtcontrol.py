@@ -287,6 +287,13 @@ class RtorrentControl(ScriptBaseWithConfig):
         matcher = engine.parse_filter_conditions(self.args)
 
         # Find matching torrents
+        # TODO: this could get speedier quite a bit when we pre-select
+        # a subset of all items in rtorrent itself, via a dynamic view!
+        # Or sort them just the right way, and then abort after we cannot
+        # possibly find more matches.
+        #
+        #   prefiltered = config.engine.view("pyroscope", matcher)
+        #   items = list(prefiltered.items())
         items = list(config.engine.items())
         matches = [item for item in items if matcher.match(item)]
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
