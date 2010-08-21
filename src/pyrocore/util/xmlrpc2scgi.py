@@ -45,7 +45,6 @@ import socket
 import urllib
 import urlparse
 import xmlrpclib
-import cStringIO as StringIO
 
 from pyrocore.util import fmt
 
@@ -187,26 +186,22 @@ class SCGIRequest(object):
     
 
     @staticmethod
-    def gen_headers(handle):
-        """ Get header lines from scgi response.
+    def parse_headers(headers):
+        """ Get header (key, value) pairs from header string.
         """
-        line = handle.readline().rstrip()
-        while line.strip():
-            yield line
-            line = handle.readline().rstrip()
+        return [line.rstrip().split(": ", 1)
+            for line in headers.splitlines()
+        ]
 
     
     @staticmethod
     def get_scgi_resp(resp):
-        "Get xmlrpc response from scgi response"
-        fresp = StringIO.StringIO(resp)
-        headers = []
-        for line in SCGIRequest.gen_headers(fresp):
-            #~ print "Header: %r"%line
-            headers.append(line.split(': ', 1))
-        
-        xmlresp = fresp.read()
-        return xmlresp, headers
+        """ Get xmlrpc response from scgi response
+        """
+        # Assume they care for standards and send us CRLF (not just LF)
+        headers, payload = resp.split("\r\n\r\n", 1)
+
+        return payload, SCGIRequest.parse_headers(headers)
 
 
 class RTorrentMethod(object):
