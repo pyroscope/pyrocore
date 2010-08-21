@@ -44,7 +44,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         super(RtorrentXmlRpc, self).add_options()
 
         # basic options
-        # TODO: self.add_bool_option("--xml", help="show XML responses")
+        self.add_bool_option("-r", "--repr", help="show Python pretty-printed response")
+        # TODO: self.add_bool_option("--xml", help="show XML response")
 
 
     def mainloop(self):
@@ -81,8 +82,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:
             if not self.options.quiet:
-                # Pretty-print collections, but not scalar types
-                if hasattr(result, "__iter__"):
+                if self.options.repr or hasattr(result, "__iter__"):
+                    # Pretty-print if requested, or it's a collection and not a scalar
                     result = pformat(result)
                 print result
 
