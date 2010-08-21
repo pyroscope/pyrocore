@@ -2,6 +2,8 @@
 
 # Copyright (C) 2005-2007, Glenn Washburn
 #
+# Refactoring - Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -31,6 +33,10 @@
 # program, then also delete it here.
 #
 # Contact:  Glenn Washburn <crass@berlios.de>
+#
+# Note that, before you contact the original author, this version of
+# the module has undergone extensive refactoring.
+#
 
 import os
 import sys
@@ -86,16 +92,25 @@ class SCGIRequest(object):
         Or use the named unix domain socket
         SCGIRequest('scgi:///tmp/rtorrent.sock').send(data)
     """
+
+    # Amount of bytes to read at once
+    CHUNK_SIZE = 32768
+
     
     def __init__(self, url):
-        self.url=url
-        self.resp_headers=[]
+        self.url = url
+        self.resp_headers = []
+        self.latency = 0.0
+
     
     def __send(self, scgireq):
+        # Parse endpoint URL
         _, netloc, path, _, _ = urlparse.urlsplit(self.url)
         host, port = urllib.splitport(netloc)
         #~ print '>>>', (netloc, host, port)
-        
+
+        # Connect to the specified endpoint
+        start = time.time()
         if netloc:
             addrinfo = list(set(socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)))
             
@@ -105,42 +120,61 @@ class SCGIRequest(object):
             sock = socket.socket(*addrinfo[0][:3])
             sock.connect(addrinfo[0][4])
         else:
-            # if no host then assume unix domain socket
+            # If no host then assume unix domain socket
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             try:
                 sock.connect(path)
             except socket.error, exc:
                 raise socket.error("Can't connect to %r (%s)" % (path, exc))
+
+        try:
+            # Send request        
+            sock.send(scgireq)
+
+            # Read response
+            resp = []
+            while True:
+                chunk = sock.recv(self.CHUNK_SIZE)
+                if chunk:
+                    resp.append(chunk)
+                else:
+                    break
+        finally:
+            # Clean up
+            sock.close()
+            self.latency = time.time() - start
         
-        sock.send(scgireq)
-        recvdata = resp = sock.recv(1024)
-        while recvdata != '':
-            recvdata = sock.recv(1024)
-            #~ print 'Trying to receive more: %r'%recvdata
-            resp += recvdata
-        sock.close()
-        return resp
+        # Return result
+        # (note that this returns resp unchanged for lists of length 1 in CPython)
+        return ''.join(resp)
+
     
     def send(self, data):
-        "Send data over scgi to url and get response"
+        """ Send data over scgi to URL and get response.
+        """
         scgiresp = self.__send(self.add_required_scgi_headers(data))
         resp, self.resp_headers = self.get_scgi_resp(scgiresp)
+
         return resp
+
     
     @staticmethod
     def encode_netstring(string):
         "Encode string as netstring"
-        return '%d:%s,'%(len(string), string)
+        return '%d:%s,' % (len(string), string)
+
     
     @staticmethod
     def make_headers(headers):
         "Make scgi header list"
-        #~ return '\x00'.join(headers)+'\x00'
-        return '\x00'.join(['%s\x00%s'%t for t in headers])+'\x00'
+        return '\x00'.join(['%s\x00%s' % t for t in headers]) + '\x00'
     
+
     @staticmethod
     def add_required_scgi_headers(data, headers=[]):
-        "Wrap data in an scgi request,\nsee spec at: http://python.ca/scgi/protocol.txt"
+        """ Wrap data in an scgi request,
+            see spec at: http://python.ca/scgi/protocol.txt
+        """
         # See spec at: http://python.ca/scgi/protocol.txt
         headers = SCGIRequest.make_headers([
             ('CONTENT_LENGTH', str(len(data))),
@@ -149,15 +183,18 @@ class SCGIRequest(object):
         
         enc_headers = SCGIRequest.encode_netstring(headers)
         
-        return enc_headers+data
+        return enc_headers + data
     
+
     @staticmethod
-    def gen_headers(file):
-        "Get header lines from scgi response"
-        line = file.readline().rstrip()
+    def gen_headers(handle):
+        """ Get header lines from scgi response.
+        """
+        line = handle.readline().rstrip()
         while line.strip():
             yield line
-            line = file.readline().rstrip()
+            line = handle.readline().rstrip()
+
     
     @staticmethod
     def get_scgi_resp(resp):
@@ -169,7 +206,7 @@ class SCGIRequest(object):
             headers.append(line.split(': ', 1))
         
         xmlresp = fresp.read()
-        return (xmlresp, headers)
+        return xmlresp, headers
 
 
 class RTorrentMethod(object):
@@ -191,15 +228,17 @@ class RTorrentMethod(object):
     def __str__(self):
         """ Return statistics for this call.
         """
-        return "out %s, in %s, took %.3fms" % (
+        return "out %s, in %s, took %.3fms/%.3fms" % (
             fmt.human_size(self._outbound).strip(), 
             fmt.human_size(self._inbound).strip(), 
+            self._net_latency * 1000.0,
             self._latency * 1000.0,
         )
 
 
     def __call__(self, *args):
-        #~ print "%s%r"%(self.methodname, args)
+        """ Execute the method call.
+        """
         self._proxy._requests += 1
         start = time.time()
 
@@ -210,9 +249,12 @@ class RTorrentMethod(object):
             self._proxy._outbound += self._outbound
 
             # Send it
-            xmlresp = SCGIRequest(self._proxy._url).send(xmlreq)
+            scgi_req = SCGIRequest(self._proxy._url)
+            xmlresp = scgi_req.send(xmlreq)
             self._inbound = len(xmlresp)
             self._proxy._inbound += self._inbound
+            self._net_latency = scgi_req.latency
+            self._proxy._net_latency += self._net_latency
             
             # This fixes a bug with the Python xmlrpclib module
             # (has no handler for <i8> in some versions)
@@ -259,6 +301,7 @@ class RTorrentProxy(object):
         self._outbound = 0L
         self._inbound = 0L
         self._latency = 0.0
+        self._net_latency = 0.0
 
         # TODO: Should also support "host:port" and "socket_path"
         scheme, _, _, _, _ = urlparse.urlsplit(self._url)
@@ -268,10 +311,11 @@ class RTorrentProxy(object):
     def __str__(self):
         """ Return statistics.
         """
-        return "%d req, out %s, in %s, %.3fms avg latency" % (
+        return "%d req, out %s, in %s, %.3fms/%.3fms avg latency" % (
             self._requests, 
             fmt.human_size(self._outbound).strip(), 
             fmt.human_size(self._inbound).strip(), 
+            self._net_latency * 1000.0 / self._requests,
             self._latency * 1000.0 / self._requests,
         )
 
