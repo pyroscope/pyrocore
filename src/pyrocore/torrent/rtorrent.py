@@ -349,6 +349,9 @@ class RtorrentEngine(engine.TorrentEngine):
         # to what's in the cache, fetch the rest. Getting the
         # fields for one hash might be done by a special view
         # (filter: $d.get_hash == hashvalue)
+        
+        if view is None:
+            view = engine.TorrentView(self, "main")
 
         if view.viewname not in self._item_cache:
             # Prepare multi-call arguments
