@@ -329,6 +329,9 @@ class RtorrentControl(ScriptBaseWithConfig):
 #            # TODO
 #            pass
 
+        # XMLRPC stats
+        self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
+
 
 def run(): #pragma: no cover
     """ The entry point.

@@ -32,12 +32,22 @@
 #
 # Contact:  Glenn Washburn <crass@berlios.de>
 
-import os, sys, cStringIO as StringIO
-import xmlrpclib, urllib, urlparse, socket
+import os
+import sys
+import time
+import socket
+import urllib
+import urlparse
+import xmlrpclib
+import cStringIO as StringIO
+
+from pyrocore.util import fmt
 
 # this allows us to parse scgi urls just like http ones
 from urlparse import uses_netloc
 uses_netloc.append('scgi')
+del uses_netloc
+
 
 def do_scgi_xmlrpc_request(host, methodname, params=()):
     """
@@ -53,6 +63,7 @@ def do_scgi_xmlrpc_request(host, methodname, params=()):
     
     return xmlresp
 
+
 def do_scgi_xmlrpc_request_py(host, methodname, params=()):
     """
         Send an xmlrpc request over scgi to host.
@@ -63,6 +74,7 @@ def do_scgi_xmlrpc_request_py(host, methodname, params=()):
     """
     xmlresp = do_scgi_xmlrpc_request(host, methodname, params)
     return xmlrpclib.loads(xmlresp)[0][0]
+
 
 class SCGIRequest(object):
     """ See spec at: http://python.ca/scgi/protocol.txt
@@ -159,34 +171,46 @@ class SCGIRequest(object):
         xmlresp = fresp.read()
         return (xmlresp, headers)
 
-class RTorrentXMLRPCClient(object):
+
+class RTorrentMethod(object):
+    """ Collect attribute accesses to build the final method name.
     """
-    The following is an exmple of how to use this class.
-    rtorrent_host='http://localhost:33000'
-    rtc = RTorrentXMLRPCClient(rtorrent_host)
-    for infohash in rtc.download_list('complete'):
-        if rtc.d.get_ratio(infohash) > 500:
-            print "%s has a ratio of over 0.5"%(rtc.d.get_name(infohash))
-    """
-    
-    def __init__(self, url, methodname=''):
-        self.url = url
-        self.methodname = methodname
-    
+
+    def __init__(self, proxy, method_name):
+        self._proxy = proxy
+        self._method_name = method_name
+
+
+    def __getattr__(self, attr):
+        """ Append attr to the existing method name.
+        """
+        self._method_name += '.' + attr
+        return self
+
+
     def __call__(self, *args):
         #~ print "%s%r"%(self.methodname, args)
-        scheme, _, _, _, _ = urlparse.urlsplit(self.url)
-        xmlreq = xmlrpclib.dumps(args, self.methodname)
-        if scheme == 'scgi':
-            xmlresp = SCGIRequest(self.url).send(xmlreq)
-            xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
+        self._proxy._requests += 1
+        start = time.time()
+
+        try:
+            xmlreq = xmlrpclib.dumps(args, self._method_name)
+            self._proxy._outbound += len(xmlreq)
+            xmlresp = SCGIRequest(self._proxy._url).send(xmlreq)
+            self._proxy._inbound += len(xmlresp)
             
+            # This fixes a bug with the Python xmlrpclib module
+            # (has no handler for <i8> in some versions)
+            xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
+
             try:
                 return xmlrpclib.loads(xmlresp)[0][0]
-                #~ return do_scgi_xmlrpc_request_py(self.url, self.methodname, args)
+                #~ return do_scgi_xmlrpc_request_py(self._proxy._url, self.method_name, args)
             except (KeyboardInterrupt, SystemExit):
+                # Don't catch these
                 raise
             except:
+                # Dump the bad packet, then re-raise
                 filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
                 handle = open(filename, "w")
                 try:
@@ -195,20 +219,60 @@ class RTorrentXMLRPCClient(object):
                 finally:
                     handle.close()
                 raise                
-            
-        elif scheme == 'http':
-            raise Exception('Unsupported protocol')
-        elif scheme == '':
-            raise Exception('Unsupported protocol')
-        else:
-            raise Exception('Unsupported protocol')
+        finally:
+            self._proxy._latency += time.time() - start
+
+
+class RTorrentProxy(object):
+    """
+    The following is an example of how to use this class.
+    rtorrent_host='http://localhost:33000'
+    rtc = RTorrentProxy(rtorrent_host)
+    for infohash in rtc.download_list('complete'):
+        if rtc.d.get_ratio(infohash) > 500:
+            print "%s has a ratio of over 0.5"%(rtc.d.get_name(infohash))
+    """
     
+    def __init__(self, url):
+        self._url = url
+
+        # Statistics (traffic w/o HTTP overhead)
+        self._requests = 0
+        self._outbound = 0L
+        self._inbound = 0L
+        self._latency = 0.0
+
+        # TODO: Should also support "host:port" and "socket_path"
+        scheme, _, _, _, _ = urlparse.urlsplit(self._url)
+        assert scheme == 'scgi', 'Unsupported protocol'
+
+    
+    def __str__(self):
+        """ Return statistics.
+        """
+        return "%d req, out %s, in %s, %.3fms avg latency" % (
+            self._requests, 
+            fmt.human_size(self._outbound).strip(), 
+            fmt.human_size(self._inbound).strip(), 
+            self._latency * 1000.0 / self._requests,
+        )
+
+
     def __getattr__(self, attr):
-        methodname = self.methodname and '.'.join([self.methodname,attr]) or attr
-        return RTorrentXMLRPCClient(self.url, methodname)
+        """ Return a method object for accesses to virtual attributes.
+        """
+        return RTorrentMethod(self, attr)
+
+
+    def __repr__(self):
+        """ Return info & statistics.
+        """
+        return "%s(%r) [%s]" % (self.__class__.__name__, self._url, self)
+
 
 def convert_params_to_native(params):
-    "Parse xmlrpc-c command line arg syntax"
+    """ Parse xmlrpc-c command line arg syntax.
+    """
     #~ print 'convert_params_to_native', params
     cparams = []
     # parse parameters
@@ -231,8 +295,11 @@ def convert_params_to_native(params):
     
     return tuple(cparams)
 
+
 def main(argv):
-    output_python=False
+    """ Command line handler.
+    """
+    output_python = False
     
     if argv[0] == '-p':
         output_python=True
@@ -241,12 +308,13 @@ def main(argv):
     host, methodname = argv[:2]
     
     respxml = do_scgi_xmlrpc_request(host, methodname, convert_params_to_native(argv[2:]))
-    ##respxml = RTorrentXMLRPCClient(host, methodname)(convert_params_to_native(argv[2:]))
+    ##respxml = RTorrentProxy(host, methodname)(convert_params_to_native(argv[2:]))
     
     if not output_python:
         print respxml
     else:
         print xmlrpclib.loads(respxml)[0][0]
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
