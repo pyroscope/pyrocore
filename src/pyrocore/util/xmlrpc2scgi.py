@@ -188,22 +188,38 @@ class RTorrentMethod(object):
         return self
 
 
+    def __str__(self):
+        """ Return statistics for this call.
+        """
+        return "out %s, in %s, took %.3fms" % (
+            fmt.human_size(self._outbound).strip(), 
+            fmt.human_size(self._inbound).strip(), 
+            self._latency * 1000.0,
+        )
+
+
     def __call__(self, *args):
         #~ print "%s%r"%(self.methodname, args)
         self._proxy._requests += 1
         start = time.time()
 
         try:
+            # Prepare request
             xmlreq = xmlrpclib.dumps(args, self._method_name)
-            self._proxy._outbound += len(xmlreq)
+            self._outbound = len(xmlreq)
+            self._proxy._outbound += self._outbound
+
+            # Send it
             xmlresp = SCGIRequest(self._proxy._url).send(xmlreq)
-            self._proxy._inbound += len(xmlresp)
+            self._inbound = len(xmlresp)
+            self._proxy._inbound += self._inbound
             
             # This fixes a bug with the Python xmlrpclib module
             # (has no handler for <i8> in some versions)
             xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
 
             try:
+                # Return deserialized data
                 return xmlrpclib.loads(xmlresp)[0][0]
                 #~ return do_scgi_xmlrpc_request_py(self._proxy._url, self.method_name, args)
             except (KeyboardInterrupt, SystemExit):
@@ -220,7 +236,9 @@ class RTorrentMethod(object):
                     handle.close()
                 raise                
         finally:
-            self._proxy._latency += time.time() - start
+            # Calculate latency
+            self._latency = time.time() - start
+            self._proxy._latency += self._latency
 
 
 class RTorrentProxy(object):

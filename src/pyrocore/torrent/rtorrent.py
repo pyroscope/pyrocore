@@ -32,14 +32,14 @@ from pyrocore.torrent import engine
 # TODO: add stats counters to xmlrpc2scgi module (data transferred and calls made)
 
 
-class RtorrentProxy(engine.TorrentProxy):
+class RtorrentItem(engine.TorrentProxy):
     """ A single download item.
     """
 
     def __init__(self, engine, fields):
         """ Initialize download item.
         """
-        super(RtorrentProxy, self).__init__()
+        super(RtorrentItem, self).__init__()
         self._engine = engine
         self._fields = dict(fields)
 
@@ -355,11 +355,14 @@ class RtorrentEngine(engine.TorrentEngine):
             items = []
             try:
                 ##self.LOG.debug("multicall %r" % (args,))
-                raw_items = self.open().d.multicall(*tuple(args))
+                multi_call = self.open().d.multicall
+                raw_items = multi_call(*tuple(args))
                 ##import pprint; self.LOG.debug(pprint.pformat(raw_items))
-                self.LOG.debug("Got %d items from %r" % (len(raw_items), self.engine_id))
+                self.LOG.debug("Got %d items with %d attributes from %r [%s]" % (
+                    len(raw_items), len(self.PRE_FETCH_FIELDS), self.engine_id, multi_call))
+
                 for item in raw_items:
-                    items.append(RtorrentProxy(self, zip(
+                    items.append(RtorrentItem(self, zip(
                         [self.RT2PYRO_MAPPING.get(i, i) for i in self.PRE_FETCH_FIELDS], item
                     )))
                     yield items[-1]
