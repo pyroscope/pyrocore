@@ -60,6 +60,9 @@ class RtorrentItem(engine.TorrentProxy):
     def fetch(self, name, engine_name=None):
         """ Get a field on demand.
         """
+        # TODO: Get each on-demand field in a multicall for all other items, since
+        # we likely need it anyway; another (more easy) way would be to pre-fetch dynamically
+        # with the list of fields from filters and output formats
         try:
             return self._fields[name]
         except KeyError:
