@@ -327,7 +327,9 @@ class RtorrentControl(ScriptBaseWithConfig):
 
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
 
-        ##print; print repr(matches[0])
+        if self.options.debug and 0:
+            print; print repr(matches[0])
+            print; print repr(matches[0].files)
         
         # print summary
 #        if self.options.summary:

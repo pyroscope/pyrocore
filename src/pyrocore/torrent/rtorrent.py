@@ -24,9 +24,10 @@ import os
 import socket
 import xmlrpclib
 from contextlib import closing
+from collections import defaultdict
 
 from pyrocore import config, error
-from pyrocore.util import xmlrpc2scgi, load_config
+from pyrocore.util import xmlrpc2scgi, load_config, types
 from pyrocore.torrent import engine
 
 # TODO: add stats counters to xmlrpc2scgi module (data transferred and calls made)
@@ -68,6 +69,18 @@ class RtorrentItem(engine.TorrentProxy):
         except KeyError:
             if name == "done":
                 val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
+            elif name == "kind":
+                # TODO: cache this in a custom attribute
+                val = defaultdict(int)
+                for i in self.files:
+                    ext = os.path.splitext(i.path)[1].lstrip('.').lower()
+                    if ext and ext[0] == 'r' and ext[1:].isdigit():
+                        ext = "rar"
+                    elif ext == "jpeg":
+                        ext = "jpg"
+                    val[ext] += 1
+                limit = sum(i for i in val.values() if i > 1) * 0.25
+                val = set(ext for ext, i in val.items() if ext and i >= limit)
             elif name.startswith("custom_"):
                 try:
                     val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('_', 1)[1])
@@ -100,6 +113,39 @@ class RtorrentItem(engine.TorrentProxy):
             return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
         except xmlrpclib.Fault, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
+
+
+    @property
+    def files(self):
+        """ Get a list of all files in this download. The items need to have
+            at least the attributes C{path} (relative to root), C{size} (in 
+            bytes), and C{mtime}.
+            
+            The rTorrent implementation also has C{priority} (0=off, 1=normal,
+            2=high), C{created}, and C{opened}.
+        """
+        try:
+            return self._fields["files"]
+        except KeyError:
+            try:
+                # Get info for all files
+                f_multicall = self._engine._rpc.f.multicall
+                rpc_result = f_multicall(self._fields["hash"], 0,
+                    "f.get_path=", "f.get_size_bytes=", "f.get_last_touched=",
+                    "f.get_priority=", "f.is_created=", "f.is_open=",
+                )
+            except xmlrpclib.Fault, exc:
+                raise error.EngineError("While %s torrent #%s: %s" % (
+                    "getting files for", self._fields["hash"], exc))
+            else:
+                #self._engine.LOG.debug("files result: %r" % rpc_result)
+
+                # Cache and return results
+                self._fields["files"] = [types.Bunch(
+                    path=i[0], size=i[1], mtime=i[2],
+                    prio=i[3], created=i[4], opened=i[5],
+                ) for i in rpc_result]
+                return self._fields["files"]
 
 
     def start(self):

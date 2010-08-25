@@ -186,6 +186,15 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    @property
+    def files(self):
+        """ Get a list of all files in this download. The items need to have
+            at least the attributes C{path} (relative to root), C{size} (in 
+            bytes), and C{mtime}.
+        """
+        raise NotImplementedError()
+
+
     def start(self):
         """ (Re-)start downloading or seeding.
         """
@@ -280,6 +289,8 @@ class TorrentProxy(object):
         accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
     views = OnDemandField(set, "views", "views this item is attached to", 
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
+    kind = OnDemandField(set, "kind", "kind of files that dominate this download", 
+        matcher=matching.TaggedAsFilter, formatter=_fmt_tags)
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
@@ -290,10 +301,6 @@ class TorrentProxy(object):
     # clear purge date for known hashes (unloaded and then reloaded torrents)
     # store a version marker and other global metadata in cache under key = None, so it can be upgraded
     # add option to pyroadmin to inspect the cache, mainly for debugging
-    
-    # TODO: kind
-    # kind = set(all [media?] extensions in the metafile path list; cached by hash)
-    # add field type TagField (list of tags) and appropriate matcher 
     
     # TODO: created (metafile creation date, i.e. the bencoded field; same as downloaded if missing; cached by hash)
     # add .age formatter (age = " 1y 6m", " 2w 6d", "12h30m", etc.)
