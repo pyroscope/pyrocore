@@ -58,6 +58,53 @@ class RtorrentItem(engine.TorrentProxy):
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
 
+    def _get_files(self):
+        """ Get a list of all files in this download; each entry has the
+            attributes C{path} (relative to root), C{size} (in bytes),
+            C{mtime}, C{priority} (0=off, 1=normal, 2=high), C{created}, 
+            and C{opened}.
+            
+            This is UNCACHED, use C{fetch("files")} instead.
+        """
+        try:
+            # Get info for all files
+            f_multicall = self._engine._rpc.f.multicall
+            rpc_result = f_multicall(self._fields["hash"], 0,
+                "f.get_path=", "f.get_size_bytes=", "f.get_last_touched=",
+                "f.get_priority=", "f.is_created=", "f.is_open=",
+            )
+        except xmlrpclib.Fault, exc:
+            raise error.EngineError("While %s torrent #%s: %s" % (
+                "getting files for", self._fields["hash"], exc))
+        else:
+            #self._engine.LOG.debug("files result: %r" % rpc_result)
+
+            # Return results
+            return [types.Bunch(
+                path=i[0], size=i[1], mtime=i[2] / 1000000.0,
+                prio=i[3], created=i[4], opened=i[5],
+            ) for i in rpc_result]
+
+
+    def _get_kind(self):
+        """ Get a set of dominant file types.
+        """
+        # TODO: cache the histogram in a custom attribute
+        histo = defaultdict(int)
+        for i in self.fetch("files"):
+            ext = os.path.splitext(i.path)[1].lstrip('.').lower()
+            if ext and ext[0] == 'r' and ext[1:].isdigit():
+                ext = "rar"
+            elif ext == "jpeg":
+                ext = "jpg"
+            histo[ext] += 1
+
+        # TODO: allow "kind_NN" fields with NN being the threshold (remove "i > 1" below)
+        #       "kind" is an alias for "kind_00" then
+        limit = sum(i for i in histo.values() if i > 1) * 0.25
+        return set(ext for ext, i in histo.items() if ext and i >= limit)
+
+
     def fetch(self, name, engine_name=None):
         """ Get a field on demand.
         """
@@ -69,20 +116,10 @@ class RtorrentItem(engine.TorrentProxy):
         except KeyError:
             if name == "done":
                 val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
+            elif name == "files":
+                val = self._get_files()
             elif name == "kind":
-                # TODO: cache the histogram in a custom attribute
-                val = defaultdict(int)
-                for i in self.files:
-                    ext = os.path.splitext(i.path)[1].lstrip('.').lower()
-                    if ext and ext[0] == 'r' and ext[1:].isdigit():
-                        ext = "rar"
-                    elif ext == "jpeg":
-                        ext = "jpg"
-                    val[ext] += 1
-                # TODO: allow "kind_NN" fields with NN being the threshold (remove "i > 1" below)
-                #       "kind" is an alias for "kind_00" then
-                limit = sum(i for i in val.values() if i > 1) * 0.25
-                val = set(ext for ext, i in val.items() if ext and i >= limit)
+                val = self._get_kind()
             elif name.startswith("custom_"):
                 try:
                     val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('_', 1)[1])
@@ -115,39 +152,6 @@ class RtorrentItem(engine.TorrentProxy):
             return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
         except xmlrpclib.Fault, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
-
-
-    @property
-    def files(self):
-        """ Get a list of all files in this download. The items need to have
-            at least the attributes C{path} (relative to root), C{size} (in 
-            bytes), and C{mtime}.
-            
-            The rTorrent implementation also has C{priority} (0=off, 1=normal,
-            2=high), C{created}, and C{opened}.
-        """
-        try:
-            return self._fields["files"]
-        except KeyError:
-            try:
-                # Get info for all files
-                f_multicall = self._engine._rpc.f.multicall
-                rpc_result = f_multicall(self._fields["hash"], 0,
-                    "f.get_path=", "f.get_size_bytes=", "f.get_last_touched=",
-                    "f.get_priority=", "f.is_created=", "f.is_open=",
-                )
-            except xmlrpclib.Fault, exc:
-                raise error.EngineError("While %s torrent #%s: %s" % (
-                    "getting files for", self._fields["hash"], exc))
-            else:
-                #self._engine.LOG.debug("files result: %r" % rpc_result)
-
-                # Cache and return results
-                self._fields["files"] = [types.Bunch(
-                    path=i[0], size=i[1], mtime=i[2],
-                    prio=i[3], created=i[4], opened=i[5],
-                ) for i in rpc_result]
-                return self._fields["files"]
 
 
     def start(self):

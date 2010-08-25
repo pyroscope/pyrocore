@@ -118,6 +118,19 @@ class GlobFilter(FieldFilter):
         return fnmatch.fnmatchcase(getattr(item, self._name).lower(), self._value) 
 
 
+class FilesFilter(GlobFilter):
+    """ Case-insensitive glob pattern filter on filenames in a torrent.
+    """
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        for fileinfo in getattr(item, self._name):
+            if fnmatch.fnmatchcase(fileinfo.path.lower(), self._value):
+                return True
+        return False
+
+
 class TaggedAsFilter(FieldFilter):
     """ Case-insensitive tags filter. Tag fields are white-space separated lists
         of tags.

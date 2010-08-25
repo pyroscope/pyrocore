@@ -47,6 +47,57 @@ def _fmt_tags(tagset):
     return ' '.join(sorted(tagset))
 
 
+def _fmt_files(filelist):
+    """ Produce a file listing.
+    """
+    depth = max(i.path.count('/') for i in filelist)
+    pad = [u'\uFFFE'] * depth
+
+    base_indent = ' ' * 38
+    indent = 0
+    result = []
+    prev_path = pad
+    sorted_files = sorted((i.path.split('/')[:-1]+pad, i.path.rsplit('/', 1)[-1], i) for i in filelist)
+
+    for path, name, fileinfo in sorted_files:
+        path = path[:depth]
+        if path != prev_path:
+            common = min([depth] + [idx
+                for idx, (dirname, prev_name) in enumerate(zip(path, prev_path))
+                if dirname != prev_name
+            ])
+            #result.append("!!%r %r" % (indent, common))
+            #result.append("!!%r" % (prev_path,))
+            #result.append("!!%r" % (path,))
+
+            while indent > common:
+                indent -= 1
+                result.append("%s%s/" % (base_indent, ' ' * indent))
+            
+            for dirname in path[common:]:
+                if dirname == u'\uFFFE':
+                    break
+                result.append("%s%s\\ %s" % (base_indent, ' ' * indent, dirname))
+                indent += 1
+        
+        ##result.append("!!%r %r" % (path, name))
+        result.append("  %s %s %s %s| %s" % (
+            {0: "off ", 1: "    ", 2: "high"}.get(fileinfo.prio, "????"),
+            fmt.iso_datetime(fileinfo.mtime),
+            fmt.human_size(fileinfo.size),
+            ' ' * indent, name,
+        ))
+
+        prev_path = path
+
+    while indent > 0:
+        indent -= 1
+        result.append("%s%s/" % (base_indent, ' ' * indent))
+    result.append("%s= %d file(s)" % (base_indent, len(filelist)))
+
+    return '\n'.join(result)
+
+
 #
 # Field Descriptors
 #
@@ -186,15 +237,6 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
-    @property
-    def files(self):
-        """ Get a list of all files in this download. The items need to have
-            at least the attributes C{path} (relative to root), C{size} (in 
-            bytes), and C{mtime}.
-        """
-        raise NotImplementedError()
-
-
     def start(self):
         """ (Re-)start downloading or seeding.
         """
@@ -289,8 +331,10 @@ class TorrentProxy(object):
         accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
     views = OnDemandField(set, "views", "views this item is attached to", 
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
-    kind = OnDemandField(set, "kind", "kind of files that dominate this download", 
+    kind = OnDemandField(set, "kind", "kind of files that dominate this item", 
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags)
+    files = OnDemandField(list, "files", "list of files in this item", 
+        matcher=matching.FilesFilter, formatter=_fmt_files)
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
