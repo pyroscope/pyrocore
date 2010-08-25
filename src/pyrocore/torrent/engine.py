@@ -396,6 +396,7 @@ class OutputMapping(algo.AttributeMapping):
 
         # add percent sign so we can easily reference it in .ini files
         # (a better way is to use "%%%%" though, so regard this as deprecated)
+        # or maybe not deprecated, header queries return '%' now...
         self.defaults.setdefault("pc", '%')
 
 
@@ -423,6 +424,12 @@ class OutputMapping(algo.AttributeMapping):
         return str(val)
 
     
+    def fmt_strip(self, val):
+        """ Strip whitespace.
+        """
+        return str(val).strip()
+
+    
     def __getitem__(self, key):
         """ Return object attribute named C{key}. Additional formatting is provided
             by adding modifiers like ".sz" (byte size formatting) to the normal field name.
@@ -430,14 +437,17 @@ class OutputMapping(algo.AttributeMapping):
             If the wrapped object is None, the upper-case C{key} (without any modifiers)
             is returned instead, to allow the formatting of a header line.
         """
-        # Check for a formatter specification
+        # Check for formatter specifications
         formatter = None
         if '.' in key:
-            key, fmtname = key.rsplit('.', 1)
-            try:
-                formatter = getattr(self, "fmt_"+fmtname)
-            except AttributeError:
-                raise error.UserError("Unknown formatting spec %r for %r" % (fmtname, key))
+            key, formats = key.split('.', 1)
+            for fmtname in formats.split('.'):
+                try:
+                    fmtfunc = getattr(self, "fmt_"+fmtname)
+                except AttributeError:
+                    raise error.UserError("Unknown formatting spec %r for %r" % (fmtname, key))
+                else:
+                    formatter = (lambda val, f=fmtfunc, k=formatter: f(k(val))) if formatter else fmtfunc
 
         # Check for a field formatter
         try:
@@ -449,10 +459,11 @@ class OutputMapping(algo.AttributeMapping):
             if field._formatter and formatter != self.fmt_raw:
                 formatter = (lambda val, f=formatter: f(field._formatter(val))) if formatter else field._formatter 
 
-        # Return formatted value
         if self.obj is None:
-            return key.upper()
+            # Return column name
+            return '%' if key == "pc" else key.upper()
         else:
+            # Return formatted value
             val = super(OutputMapping, self).__getitem__(key)
             return formatter(val) if formatter else val
 
