@@ -129,17 +129,30 @@ class TaggedAsFilter(FieldFilter):
         super(TaggedAsFilter, self).validate()
         self._value = self._value.lower()
 
+        # If the tag starts with '=', test on equality (just this tag, no others)
+        if self._value.startswith('='):
+            self._exact = True
+            self._value = self._value[1:]
+        else:
+            self._exact = not self._value
+
+        # For exact matches, value is the set to compare to
+        if self._exact:
+            # Empty tag means empty set, not set of one empty string
+            self._value = set((self._value,)) if self._value else set()
+
 
     def match(self, item):
         """ Return True if filter matches item.
         """
         tags = getattr(item, self._name)
-        if self._value:
+
+        if self._exact:
+            # Equality check
+            return self._value == tags
+        else:
             # Is given tag in list?
             return self._value in tags
-        else:
-            # Empty search tag given, is tag list empty?
-            return not tags
 
 
 class BoolFilter(FieldFilter):
