@@ -70,7 +70,7 @@ class RtorrentItem(engine.TorrentProxy):
             if name == "done":
                 val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
             elif name == "kind":
-                # TODO: cache this in a custom attribute
+                # TODO: cache the histogram in a custom attribute
                 val = defaultdict(int)
                 for i in self.files:
                     ext = os.path.splitext(i.path)[1].lstrip('.').lower()
@@ -79,6 +79,8 @@ class RtorrentItem(engine.TorrentProxy):
                     elif ext == "jpeg":
                         ext = "jpg"
                     val[ext] += 1
+                # TODO: allow "kind_NN" fields with NN being the threshold (remove "i > 1" below)
+                #       "kind" is an alias for "kind_00" then
                 limit = sum(i for i in val.values() if i > 1) * 0.25
                 val = set(ext for ext, i in val.items() if ext and i >= limit)
             elif name.startswith("custom_"):
