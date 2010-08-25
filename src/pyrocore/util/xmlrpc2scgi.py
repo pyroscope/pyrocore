@@ -267,8 +267,11 @@ class RTorrentMethod(object):
                 filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
                 handle = open(filename, "w")
                 try:
+                    handle.write("REQUEST\n")
+                    handle.write(xmlreq)
+                    handle.write("\nRESPONSE\n")
                     handle.write(xmlresp)
-                    print >>sys.stderr, "INFO: Bad data packet written to %r" % filename
+                    print >>sys.stderr, "INFO: Bad data packets written to %r" % filename
                 finally:
                     handle.close()
                 raise                
