@@ -97,11 +97,13 @@ class RtorrentItem(engine.TorrentProxy):
                 ext = "rar"
             elif ext == "jpeg":
                 ext = "jpg"
-            histo[ext] += 1
+            histo[ext] += i.size
 
-        # TODO: allow "kind_NN" fields with NN being the threshold (remove "i > 1" below)
+        # TODO: allow "kind_NN" fields with NN being the threshold
         #       "kind" is an alias for "kind_00" then
-        limit = sum(i for i in histo.values() if i > 1) * 0.25
+
+        # Return all non-empty extensions that make up at least 10% of total size
+        limit = sum(histo.values()) * 0.10
         return set(ext for ext, i in histo.items() if ext and i >= limit)
 
 
