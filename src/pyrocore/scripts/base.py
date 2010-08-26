@@ -21,6 +21,7 @@ from __future__ import with_statement
 import os
 import sys
 import time
+import errno
 import textwrap
 import pkg_resources
 import logging.config
@@ -185,6 +186,24 @@ class ScriptBase(object):
                 sys.stderr.write("\n\nAborted by CTRL-C!\n")
                 sys.stderr.flush()
                 sys.exit(2)
+            except IOError, exc:
+                # [Errno 32] Broken pipe?
+                if exc.errno == errno.EPIPE:
+                    sys.stderr.write("\n%s, exiting!\n" % exc)
+                    sys.stderr.flush()
+
+                    # Monkey patch to prevent an exception during logging shutdown
+                    try:
+                        handlers = logging._handlerList
+                    except AttributeError:
+                        pass
+                    else:
+                        for h in handlers:
+                            h.flush = lambda *_: None
+
+                    sys.exit(3)
+                else:
+                    raise
         finally:
             # Shut down
             running_time = time.time() - self.startup
