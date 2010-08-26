@@ -86,24 +86,41 @@ class RtorrentItem(engine.TorrentProxy):
             ) for i in rpc_result]
 
 
-    def _get_kind(self):
-        """ Get a set of dominant file types.
+    def _get_kind(self, limit):
+        """ Get a set of dominant file types. The files must contribute
+            at least C{limit}% to the item's total size.
         """
-        # TODO: cache the histogram in a custom attribute
-        histo = defaultdict(int)
-        for i in self.fetch("files"):
-            ext = os.path.splitext(i.path)[1].lstrip('.').lower()
-            if ext and ext[0] == 'r' and ext[1:].isdigit():
-                ext = "rar"
-            elif ext == "jpeg":
-                ext = "jpg"
-            histo[ext] += i.size
+        histo = self.fetch("custom_kind")
 
-        # TODO: allow "kind_NN" fields with NN being the threshold
-        #       "kind" is an alias for "kind_00" then
+        if histo:
+            # Parse histogram from cached field
+            histo = [i.split("%_") for i in histo.split()]
+            histo = dict((ext, int(val, 10)) for val, ext in histo)
+            ##self._engine.LOG.debug("~~~~~~~~~~ cached histo = %r" % histo)
+        else:
+            # Get total size for each file extension
+            histo = defaultdict(int)
+            for i in self.fetch("files"):
+                ext = os.path.splitext(i.path)[1].lstrip('.').lower()
+                if ext and ext[0] == 'r' and ext[1:].isdigit():
+                    ext = "rar"
+                elif ext == "jpeg":
+                    ext = "jpg"
+                histo[ext] += i.size
 
-        # Return all non-empty extensions that make up at least 10% of total size
-        limit = sum(histo.values()) * 0.10
+            # Normalize values to integer percent
+            total = sum(histo.values())
+            for ext, val in histo.items():
+                histo[ext] = int(val * 100.0 / total + .499)
+
+            # Set custom cache field with value formatted like "80%_flac 20%_jpg" (sorted by percentage)
+            histo_str = ' '.join(("%d%%_%s" % i).replace(' ', '_') for i in 
+                reversed(sorted(zip(histo.values(), histo.keys())))
+            )
+            self._make_it_so("setting kind cache %r on" % (histo_str,), ["set_custom"], "kind", histo_str)
+            self._fields["custom_kind"] = histo_str
+
+        # Return all non-empty extensions that make up at least <limit>% of total size
         return set(ext for ext, i in histo.items() if ext and i >= limit)
 
 
@@ -120,8 +137,8 @@ class RtorrentItem(engine.TorrentProxy):
                 val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
             elif name == "files":
                 val = self._get_files()
-            elif name == "kind":
-                val = self._get_kind()
+            elif name.startswith("kind_") and name[5:].isdigit():
+                val = self._get_kind(int(name[5:], 10))
             elif name.startswith("custom_"):
                 try:
                     val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('_', 1)[1])

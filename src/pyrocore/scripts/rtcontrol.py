@@ -237,14 +237,19 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.help_fields:
             self.parser.print_help()
 
-            def custom_dynamic():
+            def custom_manifold():
                 "named rTorrent custom attribute, e.g. 'custom_completion_target'"
-                return ("custom_KEY", custom_dynamic)
+                return ("custom_KEY", custom_manifold)
+            def kind_manifold():
+                "file types that contribute at least N% to the item's total size"
+                return ("kind_N", kind_manifold)
 
             print('')
             print("Fields are:")
             print("\n".join(["  %-21s %s" % (name, field.__doc__)
-                for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [custom_dynamic()])
+                for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [
+                    custom_manifold(), kind_manifold(),
+                ])
             ]))
             sys.exit(1)
 

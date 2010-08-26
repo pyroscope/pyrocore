@@ -182,10 +182,10 @@ class TorrentProxy(object):
     """
     
     @classmethod
-    def add_custom_attribute(cls, name):
-        """ Register a custom engine attribute.
+    def add_manifold_attribute(cls, name):
+        """ Register a manifold engine attribute.
         
-            Return the field or None if "name" isn't a custom attribute.
+            Return the field or None if "name" isn't a manifold attribute.
         """
         if name.startswith("custom_"):
             try:
@@ -193,6 +193,20 @@ class TorrentProxy(object):
             except KeyError:
                 field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
                     matcher=matching.GlobFilter)
+                setattr(cls, name, field)
+
+                return field
+        elif name.startswith("kind_") and name[5:].isdigit():
+            try:
+                return FieldDefinition.FIELDS[name]
+            except KeyError:
+                limit = int(name[5:].lstrip('0') or '0', 10)
+                if limit > 100:
+                    raise error.UserError("kind_N: N > 100 in %r" % name)
+                field = OnDemandField(set, name, 
+                    "kinds of files that make up more than %d%% of this item's size" % limit, 
+                    matcher=matching.TaggedAsFilter, formatter=_fmt_tags, 
+                    engine_name="kind_%d" % limit)
                 setattr(cls, name, field)
 
                 return field
@@ -331,8 +345,8 @@ class TorrentProxy(object):
         accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
     views = OnDemandField(set, "views", "views this item is attached to", 
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
-    kind = OnDemandField(set, "kind", "kind of files that dominate this item", 
-        matcher=matching.TaggedAsFilter, formatter=_fmt_tags)
+    kind = DynamicField(set, "kind", "ALL kinds of files in this item (the same as kind_0)", 
+        matcher=matching.TaggedAsFilter, formatter=_fmt_tags, accessor=lambda o: o.fetch("kind_0"))
     files = OnDemandField(list, "files", "list of files in this item", 
         matcher=matching.FilesFilter, formatter=_fmt_files)
     # = DynamicField(, "", "")
@@ -497,7 +511,7 @@ class OutputMapping(algo.AttributeMapping):
         try:
             field = FieldDefinition.FIELDS[key]
         except KeyError:
-            if key not in self.defaults: 
+            if key not in self.defaults and not TorrentProxy.add_manifold_attribute(key): 
                 raise error.UserError("Unknown field %r" % (key,))  
         else:
             if field._formatter and formatter != self.fmt_raw:
@@ -534,7 +548,7 @@ def validate_field_list(fields, allow_fmt_specs=False):
             if fmt not in formats: 
                 raise error.UserError("Unknown format specification in '%s.%s'" % (name, fmt))
             
-        if name not in FieldDefinition.FIELDS and not TorrentProxy.add_custom_attribute(name):
+        if name not in FieldDefinition.FIELDS and not TorrentProxy.add_manifold_attribute(name):
             raise error.UserError("Unknown field name %r" % (name,))
 
     return fields
@@ -554,7 +568,8 @@ def create_filter(condition):
         field = FieldDefinition.FIELDS[name]
     except KeyError:
         # Is it a custom attribute?
-        if not TorrentProxy.add_custom_attribute(name):
+        field = TorrentProxy.add_manifold_attribute(name)
+        if not field:
             raise matching.FilterError("Unknown field %r in %r" % (name, condition))  
 
     if field._matcher is None: 
