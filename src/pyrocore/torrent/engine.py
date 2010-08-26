@@ -470,16 +470,16 @@ class OutputMapping(algo.AttributeMapping):
         return fmt.iso_datetime(dt)
 
     
+    def fmt_delta(self, dt):
+        """ Format a UNIX timestamp to relative delta.
+        """
+        return fmt.human_duration(float(dt), precision=2, short=True)
+
+    
     def fmt_pc(self, floatval):
         """ Scale a ratio value to percent.
         """
         return float(floatval) * 100.0
-
-    
-    def fmt_raw(self, val):
-        """ Switch off standard formatter of a field.
-        """
-        return str(val)
 
     
     def fmt_strip(self, val):
@@ -497,9 +497,16 @@ class OutputMapping(algo.AttributeMapping):
         """
         # Check for formatter specifications
         formatter = None
+        have_raw = False
         if '.' in key:
             key, formats = key.split('.', 1)
-            for fmtname in formats.split('.'):
+            formats = formats.split('.')
+
+            have_raw = formats[0] == "raw"
+            if have_raw:
+                formats = formats[1:]
+            
+            for fmtname in formats:
                 try:
                     fmtfunc = getattr(self, "fmt_"+fmtname)
                 except AttributeError:
@@ -514,7 +521,7 @@ class OutputMapping(algo.AttributeMapping):
             if key not in self.defaults and not TorrentProxy.add_manifold_attribute(key): 
                 raise error.UserError("Unknown field %r" % (key,))  
         else:
-            if field._formatter and formatter != self.fmt_raw:
+            if field._formatter and not have_raw:
                 formatter = (lambda val, f=formatter: f(field._formatter(val))) if formatter else field._formatter 
 
         if self.obj is None:
@@ -522,8 +529,11 @@ class OutputMapping(algo.AttributeMapping):
             return '%' if key == "pc" else key.upper()
         else:
             # Return formatted value
-            val = super(OutputMapping, self).__getitem__(key)
-            return formatter(val) if formatter else val
+            try:
+                val = super(OutputMapping, self).__getitem__(key)
+                return formatter(val) if formatter else val
+            except (TypeError, ValueError, KeyError, IndexError, AttributeError), exc:
+                raise error.LoggableError("While formatting %s=%r: %s" % (key, val, exc))
 
 
 def validate_field_list(fields, allow_fmt_specs=False):

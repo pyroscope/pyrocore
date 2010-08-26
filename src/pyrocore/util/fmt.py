@@ -49,14 +49,14 @@ def iso_datetime(dt):
     return datetime.datetime.fromtimestamp(dt).isoformat(' ')[:19]
 
 
-def human_duration(time1, time2=None, precision=0):
+def human_duration(time1, time2=None, precision=0, short=False):
     """ Return a human-readable representation of a time delta.
     """
     if time2 is None:
         time2 = time.time()
 
     duration = time1 - time2
-    direction = " ago" if duration < 0 else " from now"
+    direction = " ago" if duration < 0 else (" later" if short else " from now")
     duration = abs(duration)
     parts = [
         ("weeks", duration // (7*86400)),
@@ -73,10 +73,13 @@ def human_duration(time1, time2=None, precision=0):
     # Limit to # of parts given by precision 
     if precision:
         parts = parts[:precision]
-        
-    return ", ".join("%d %s" % (val, key[:-1] if val == 1 else key)
-        for key, val in parts
-        if val
+
+    numfmt = ("%d", "%d"), ("%4d", "%2d")        
+    fmt = "%1.1s" if short else " %s"
+    sep = " " if short else ", "
+    return sep.join((numfmt[bool(short)][bool(idx)] + fmt) % (val, key[:-1] if val == 1 else key)
+        for idx, (key, val) in enumerate(parts)
+        if val #or (short and precision)
     ) + direction
 
 
