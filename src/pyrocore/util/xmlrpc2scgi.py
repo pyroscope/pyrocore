@@ -46,6 +46,7 @@ import urllib
 import urlparse
 import xmlrpclib
 
+from pyrocore import config
 from pyrocore.util import fmt
 
 # this allows us to parse scgi urls just like http ones
@@ -239,7 +240,7 @@ class RTorrentMethod(object):
 
         try:
             # Prepare request
-            xmlreq = xmlrpclib.dumps(args, self._method_name)
+            xmlreq = xmlrpclib.dumps(args, config.xmlrpc.get(self._method_name, self._method_name))
             self._outbound = len(xmlreq)
             self._proxy._outbound += self._outbound
 
