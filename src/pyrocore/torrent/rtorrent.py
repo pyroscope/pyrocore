@@ -138,8 +138,12 @@ class RtorrentItem(engine.TorrentProxy):
             elif name.startswith("kind_") and name[5:].isdigit():
                 val = self._get_kind(int(name[5:], 10))
             elif name.startswith("custom_"):
+                key = name[7:]
                 try:
-                    val = self._engine._rpc.d.get_custom(self._fields["hash"], name.split('_', 1)[1])
+                    if len(key) == 1 and key in "12345":
+                        val = getattr(self._engine._rpc.d, "get_custom"+key)(self._fields["hash"])
+                    else:
+                        val = self._engine._rpc.d.get_custom(self._fields["hash"], key)
                 except xmlrpclib.Fault, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
@@ -248,11 +252,17 @@ class RtorrentItem(engine.TorrentProxy):
                 raise error.UserError("Bad custom field assignment %r, probably missing a '=' (%s)" % (key, exc))
 
         # Check identifier rules
-        if not key.replace("_", "").isalnum():
+        if not key:
+            raise error.UserError("Custom field name cannot be empty!")
+        elif len(key) == 1 and key in "12345":
+            method, args = "set_custom"+key, (value,)
+        elif not (key[0].isalpha() and key.replace("_", "").isalnum()):
             raise error.UserError("Bad custom field name %r (must only contain a-z, A-Z, 0-9 and _)" % (key,))
+        else:
+            method, args = "set_custom", (key, value)
 
         # Make the assignment                    
-        self._make_it_so("setting custom_%s = %r on" % (key, value), ["set_custom"], key, value)
+        self._make_it_so("setting custom_%s = %r on" % (key, value), [method], *args)
         self._fields["custom_"+key] = value
         
 
