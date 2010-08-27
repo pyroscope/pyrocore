@@ -30,8 +30,6 @@ from pyrocore import config, error
 from pyrocore.util import xmlrpc2scgi, load_config, types
 from pyrocore.torrent import engine
 
-# TODO: add stats counters to xmlrpc2scgi module (data transferred and calls made)
-
 
 class RtorrentItem(engine.TorrentProxy):
     """ A single download item.
