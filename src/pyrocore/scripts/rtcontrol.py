@@ -79,10 +79,13 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="add or remove tag(s)", interactive=False), 
         Bunch(name="custom", label="SET_CUSTOM", options=("--custom",), argshelp='KEY=VALUE', method="set_custom",
             help="set value of 'custom_KEY' field", interactive=False), 
-        # TODO: --move-data output_format / the formatted result is the target path
-        #           if the target contains a ':' in place of a '/', directories
+        # TODO: --move / --link output_format / the formatted result is the target path
+        #           if the target contains a '//' in place of a '/', directories
         #           after that are auto-created
-        #        self.add_value_option("--move-data", "TARGET",
+        #           "--move tracker_dated", with a custom output format 
+        #           like "tracker_dated = ~/done//$(alias)s/$(completed).7s",
+        #           will move to ~/done/OBT/2010-08 for example
+        #        self.add_value_option("--move", "TARGET",
         #            help="move data to given target directory (implies -i, can be combined with --delete)")
         # TODO:
         # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
