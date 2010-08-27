@@ -237,6 +237,25 @@ class RtorrentItem(engine.TorrentProxy):
             self.start()
 
 
+    def set_custom(self, key, value=None):
+        """ Set a custom value. C{key} might have the form "key=value" when value is C{None}.
+        """
+        # Split combined key/value
+        if value is None:
+            try:
+                key, value = key.split('=', 1)
+            except (ValueError, TypeError), exc:
+                raise error.UserError("Bad custom field assignment %r, probably missing a '=' (%s)" % (key, exc))
+
+        # Check identifier rules
+        if not key.replace("_", "").isalnum():
+            raise error.UserError("Bad custom field name %r (must only contain a-z, A-Z, 0-9 and _)" % (key,))
+
+        # Make the assignment                    
+        self._make_it_so("setting custom_%s = %r on" % (key, value), ["set_custom"], key, value)
+        self._fields["custom_"+key] = value
+        
+
     def hash_check(self):
         """ Hash check a download.
         """

@@ -77,7 +77,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
         Bunch(name="tag", options=("--tag",), argshelp='"TAG +TAG -TAG..."',
             help="add or remove tag(s)", interactive=False), 
-        # TODO: --custom NAME=value
+        Bunch(name="custom", label="SET_CUSTOM", options=("--custom",), argshelp='KEY=VALUE', method="set_custom",
+            help="set value of 'custom_KEY' field", interactive=False), 
         # TODO: --move-data output_format / the formatted result is the target path
         #           if the target contains a ':' in place of a '/', directories
         #           after that are auto-created

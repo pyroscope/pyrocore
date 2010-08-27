@@ -282,6 +282,12 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def set_custom(self, key, value=None):
+        """ Set a custom value. C{key} might have the form "key=value" when value is C{None}.
+        """
+        raise NotImplementedError()
+
+
     def hash_check(self):
         """ Hash check a download.
         """
