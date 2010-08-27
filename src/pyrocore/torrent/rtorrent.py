@@ -395,7 +395,7 @@ class RtorrentEngine(engine.TorrentEngine):
             raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
 
         # Make sure xmlrpc-c works as expected
-        if type(time_usec) is not long:
+        if time_usec < 2**32:
             self.LOG.warn("Your xmlrpc-c is broken (64 bit integer support missing,"
                 " %r returned instead)" % (type(time_usec),))
 
