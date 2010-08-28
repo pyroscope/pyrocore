@@ -87,6 +87,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         #           will move to ~/done/OBT/2010-08 for example
         #        self.add_value_option("--move", "TARGET",
         #            help="move data to given target directory (implies -i, can be combined with --delete)")
+        # TODO: --copy, and --move/--link across devices
         # TODO:
         # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
         #     help="call a raw XMLRPC command", interactive=True), 
