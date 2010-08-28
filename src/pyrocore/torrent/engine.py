@@ -559,10 +559,12 @@ def validate_field_list(fields, allow_fmt_specs=False):
         pass
 
     for name in fields:
+        fullname = name
         if allow_fmt_specs and '.' in name:
-            name, fmt = name.rsplit('.', 1)
-            if fmt not in formats: 
-                raise error.UserError("Unknown format specification in '%s.%s'" % (name, fmt))
+            name, fmtspecs = name.split('.', 1)
+            for fmt in fmtspecs.split('.'):
+                if fmt not in formats and fmt != "raw": 
+                    raise error.UserError("Unknown format specification %r in %r" % (fmt, fullname))
             
         if name not in FieldDefinition.FIELDS and not TorrentProxy.add_manifold_attribute(name):
             raise error.UserError("Unknown field name %r" % (name,))
