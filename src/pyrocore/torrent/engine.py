@@ -30,6 +30,12 @@ from pyrocore.torrent import matching
 #
 # Conversion Helpers
 #
+def untyped(val):
+    """ A type specifier for fields that does nothing.
+    """
+    return val
+
+
 def ratio_float(intval):
     """ Convert scaled integer ratio to a normalized float.
     """
@@ -47,13 +53,13 @@ def _duration(start, end):
     """
     if start and end:
         if start > end:
-            return 0
+            return None
         else:
             return end - start
     elif start:
         return time.time() - start
     else:
-        return 0
+        return None
 
 
 def _fmt_duration(duration):
@@ -368,7 +374,7 @@ class TorrentProxy(object):
         accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime)
     started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime)
-    leechtime = DynamicField(long, "leechtime", "time taken from start to completion", matcher=matching.FloatFilter,
+    leechtime = DynamicField(untyped, "leechtime", "time taken from start to completion", matcher=matching.DurationFilter,
         accessor=lambda o: _duration(o.started, o.completed), formatter=_fmt_duration)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime)
@@ -560,8 +566,8 @@ class OutputMapping(algo.AttributeMapping):
             return '%' if key == "pc" else key.upper()
         else:
             # Return formatted value
+            val = super(OutputMapping, self).__getitem__(key)
             try:
-                val = super(OutputMapping, self).__getitem__(key)
                 return formatter(val) if formatter else val
             except (TypeError, ValueError, KeyError, IndexError, AttributeError), exc:
                 raise error.LoggableError("While formatting %s=%r: %s" % (key, val, exc))

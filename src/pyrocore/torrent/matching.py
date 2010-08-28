@@ -313,6 +313,28 @@ class TimeFilter(NumericFilterBase):
         ##print time.localtime(self._value)
             
 
+class DurationFilter(TimeFilter):
+    """ Filter durations in seconds.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        time_base = 0 if self._value.lstrip('+-').isdigit() else time.time()
+        super(DurationFilter, self).validate()
+        self._value -= time_base
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        if getattr(item, self._name) is None:
+            # Never match "N/A" items, except when "-0" was specified
+            return False if self._value else self._cmp(-1, 0) 
+        else:
+            return super(DurationFilter, self).match(item)
+
+
 class ByteSizeFilter(NumericFilterBase):
     """ Filter size and bandwidth values.
     """
@@ -339,3 +361,4 @@ class ByteSizeFilter(NumericFilterBase):
 
         # Scale to bytes
         self._value = self._value * scale
+

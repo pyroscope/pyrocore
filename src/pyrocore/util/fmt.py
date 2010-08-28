@@ -55,7 +55,7 @@ def human_duration(time1, time2=None, precision=0, short=False):
     if time2 is None:
         time2 = time.time()
 
-    duration = time1 - time2
+    duration = (time1 or 0) - time2
     direction = (
         " ago" if duration < 0 else
         ("+now" if short else " from now") if time2 else ""
