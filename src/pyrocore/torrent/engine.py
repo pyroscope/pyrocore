@@ -345,6 +345,8 @@ class TorrentProxy(object):
         accessor=lambda o: o._fields["throttle"] or "NONE")
     loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime)
+    started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
+        accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime)
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
