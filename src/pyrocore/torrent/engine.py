@@ -63,7 +63,7 @@ def _duration(start, end):
         return None
 
 
-def _interval_sum(interval, start=None, end=None, event_re=re.compile("[A-Z][0-9]+")):
+def _interval_sum(interval, start=None, end=None, context=None, event_re=re.compile("[A-Z][0-9]+")):
     """ Return sum of intervals between "R"esume and "P"aused events
         in C{interval}, optionally limited by a time window defined 
         by C{start} and C{end}. Return None if there's no sensible
@@ -86,7 +86,7 @@ def _interval_sum(interval, start=None, end=None, event_re=re.compile("[A-Z][0-9
 
     while events:
         event, resumed = split_event(events.pop())
-        ##print "~~~~~~~~~~", event, resumed
+        ##print "~~~~~~~~~~", context, event, resumed
 
         if event != "R":
             # Ignore other events
@@ -94,7 +94,7 @@ def _interval_sum(interval, start=None, end=None, event_re=re.compile("[A-Z][0-9
         resumed = max(resumed, start or resumed)
 
         if events: # Further events?
-            if events[-1] != "P":
+            if not events[-1].startswith("P"):
                 continue # If not followed by "P", it's not a valid interval
             _, paused = split_event(events.pop())
             paused = min(paused, end)
@@ -436,12 +436,14 @@ class TorrentProxy(object):
     started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime)
     leechtime = DynamicField(untyped, "leechtime", "time taken from start to completion", matcher=matching.DurationFilter,
-        accessor=lambda o: _duration(o.started, o.completed), formatter=_fmt_duration)
-    # TODO: use _interval_sum() too, to get nearer to the real value
+        accessor=lambda o: _interval_sum(o.fetch("custom_activations"), end=o.completed, context=o.name)
+                        or _duration(o.started, o.completed),
+        formatter=_fmt_duration)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime)
     seedtime = DynamicField(untyped, "seedtime", "total seeding time after completion", matcher=matching.DurationFilter,
-        accessor=lambda o: _interval_sum(o.fetch("custom_activations"), start=o.completed) if o.is_complete else None,
+        accessor=lambda o: _interval_sum(o.fetch("custom_activations"), start=o.completed, context=o.name)
+                           if o.is_complete else None,
         formatter=_fmt_duration)
 
     # Classification
