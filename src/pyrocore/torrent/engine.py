@@ -773,6 +773,7 @@ def parse_filter_conditions(conditions):
 
     # Go through conditions and parse them
     for condition in conditions:
+        # TODO: Add [ ... ] for grouping conditions
         if condition == "OR":
             # Leading OR, or OR OR in sequence?
             if not matcher:
