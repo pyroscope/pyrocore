@@ -21,13 +21,14 @@
 from __future__ import with_statement
 
 import os
+import time
 import socket
 import xmlrpclib
 from contextlib import closing
 from collections import defaultdict
 
 from pyrocore import config, error
-from pyrocore.util import xmlrpc2scgi, load_config, types
+from pyrocore.util import xmlrpc2scgi, load_config, types, fmt
 from pyrocore.torrent import engine
 
 
@@ -392,8 +393,9 @@ class RtorrentEngine(engine.TorrentEngine):
         """
         if self._rpc:
             # Connected state
-            return "%s connected to %s [%s] via %r" % (
-                self.__class__.__name__, self.engine_id, self.engine_software, config.scgi_url,
+            return "%s connected to %s [%s, up %s] via %r" % (
+                self.__class__.__name__, self.engine_id, self.engine_software,
+                fmt.human_duration(self.uptime, 0, 2, True).strip(), config.scgi_url,
             )
         else:
             # Unconnected state
@@ -401,6 +403,13 @@ class RtorrentEngine(engine.TorrentEngine):
             return "%s connectable via %r" % (
                 self.__class__.__name__, config.scgi_url,
             )
+
+
+    @property
+    def uptime(self):
+        """ rTorrent's uptime.
+        """
+        return time.time() - self.startup
 
 
     def open(self):
@@ -432,12 +441,12 @@ class RtorrentEngine(engine.TorrentEngine):
         self.engine_software = "rTorrent %s/%s" % (
             self._rpc.system.client_version(), self._rpc.system.library_version(),
         )
-        self.LOG.debug(repr(self))
-
         self._session_dir = self._rpc.get_session()
         self._download_dir = os.path.expanduser(self._rpc.get_directory())
+        self.startup = os.path.getmtime(os.path.join(self._session_dir, "rtorrent.lock"))
 
         # Return connection
+        self.LOG.debug(repr(self))
         return self._rpc
 
 
