@@ -219,9 +219,9 @@ class NumericFilterBase(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-#        if getattr(item, self._name):
-#            print "%r %r %r %r %r %r" % (self._cmp(float(getattr(item, self._name)), self._value), 
-#                  self._name, self._condition, item.name, getattr(item, self._name), self._value)
+        if 0 and getattr(item, self._name):
+            print "%r %r %r %r %r %r" % (self._cmp(float(getattr(item, self._name)), self._value), 
+                  self._name, self._condition, item.name, getattr(item, self._name), self._value)
         return self._cmp(float(getattr(item, self._name)), self._value) 
 
 
@@ -258,11 +258,11 @@ class TimeFilter(NumericFilterBase):
     ))
 
 
-    def validate(self):
+    def validate(self, duration=False):
         """ Validate filter condition (template method).
         """
         super(TimeFilter, self).validate()
-        timestamp = time.time()
+        timestamp = now = time.time()
 
         if self._value.isdigit():
             # Literal UNIX timestamp
@@ -280,11 +280,14 @@ class TimeFilter(NumericFilterBase):
                     if val:
                         timestamp = self.TIMEDELTA_UNITS[unit](timestamp, int(val, 10))  
 
-                # Invert logic for time deltas (+ = older; - = within the delta range)
-                if self._cmp == operator.lt:
-                    self._cmp = operator.gt
-                elif self._cmp == operator.gt:
-                    self._cmp = operator.lt
+                if duration:
+                    timestamp = now - timestamp
+                else:
+                    # Invert logic for time deltas (+ = older; - = within the delta range)
+                    if self._cmp == operator.lt:
+                        self._cmp = operator.gt
+                    elif self._cmp == operator.gt:
+                        self._cmp = operator.lt
             else:
                 # Assume it's an absolute date
                 if '/' in self._value:
@@ -307,6 +310,9 @@ class TimeFilter(NumericFilterBase):
                 except (ValueError), exc:
                     raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))
 
+                if duration:
+                    timestamp -= now
+
         self._value = timestamp
         ##print time.time() - self._value
         ##print time.localtime(time.time())
@@ -320,9 +326,7 @@ class DurationFilter(TimeFilter):
     def validate(self):
         """ Validate filter condition (template method).
         """
-        time_base = 0 if self._value.lstrip('+-').isdigit() else time.time()
-        super(DurationFilter, self).validate()
-        self._value -= time_base
+        super(DurationFilter, self).validate(duration=True)
 
 
     def match(self, item):
