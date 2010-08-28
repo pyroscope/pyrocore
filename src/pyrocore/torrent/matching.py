@@ -50,7 +50,7 @@ class Filter(object):
 
 
 class CompoundFilterAll(Filter, list):
-    """ List of filters that must all match.
+    """ List of filters that must all match (AND).
     """
 
     def match(self, item):
@@ -60,7 +60,7 @@ class CompoundFilterAll(Filter, list):
 
 
 class CompoundFilterAny(Filter, list):
-    """ List of filters where at least one must match.
+    """ List of filters where at least one must match (OR).
     """
 
     def match(self, item):
@@ -70,7 +70,7 @@ class CompoundFilterAny(Filter, list):
 
 
 class NegateFilter(object):
-    """ Negate result of another filter.
+    """ Negate result of another filter (NOT).
     """
 
     def __init__(self, inner):

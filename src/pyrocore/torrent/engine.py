@@ -690,11 +690,38 @@ def parse_filter_conditions(conditions):
     try:
         conditions = conditions.split()
     except AttributeError:
-        # Not a string
+        # Not a string, assume iterable
         pass
 
-    matcher = matching.CompoundFilterAll()
-    for condition in conditions:
-        matcher.append(create_filter(condition))
+    # Empty list?
+    if not conditions:
+        raise matching.FilterError("No conditions given at all!")
 
-    return matcher
+    # Prepare root matcher
+    conditions = list(conditions)
+    matcher = matching.CompoundFilterAll()
+    if "OR" in conditions:
+        root = matching.CompoundFilterAny()
+        root.append(matcher)
+    else:
+        root = matcher
+
+    # Go through conditions and parse them
+    for condition in conditions:
+        if condition == "OR":
+            # Leading OR, or OR OR in sequence?
+            if not matcher:
+                raise matching.FilterError("Left-hand side of OR missing in %r!" % ' '.join(conditions))
+
+            # Start next run of AND conditions
+            matcher = matching.CompoundFilterAll()
+            root.append(matcher)
+        else:
+            matcher.append(create_filter(condition))
+
+    # Trailing OR?
+    if not matcher:
+        raise matching.FilterError("Right-hand side of OR missing in %r!" % ' '.join(conditions))
+
+    return root
+
