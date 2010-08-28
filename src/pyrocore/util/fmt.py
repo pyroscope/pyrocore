@@ -56,7 +56,7 @@ def human_duration(time1, time2=None, precision=0, short=False):
         time2 = time.time()
 
     duration = time1 - time2
-    direction = " ago" if duration < 0 else (" later" if short else " from now")
+    direction = " ago" if duration < 0 else ("+now" if short else " from now")
     duration = abs(duration)
     parts = [
         ("weeks", duration // (7*86400)),
@@ -77,10 +77,18 @@ def human_duration(time1, time2=None, precision=0, short=False):
     numfmt = ("%d", "%d"), ("%4d", "%2d")        
     fmt = "%1.1s" if short else " %s"
     sep = " " if short else ", "
-    return sep.join((numfmt[bool(short)][bool(idx)] + fmt) % (val, key[:-1] if val == 1 else key)
+    result = sep.join((numfmt[bool(short)][bool(idx)] + fmt) % (val, key[:-1] if val == 1 else key)
         for idx, (key, val) in enumerate(parts)
         if val #or (short and precision)
     ) + direction
+
+    if not time1:
+        result = "never"
+
+    if precision and short:
+        return result.rjust(2+precision*4+4)
+    else:
+        return result
 
 
 def to_unicode(text):
