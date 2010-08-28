@@ -332,7 +332,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
                 stencil = None
-                if self.plain_output_format and matches:
+                if self.options.column_headers and self.plain_output_format and matches:
                     stencil = fmt.to_console(self.options.output_format % 
                         engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
 
