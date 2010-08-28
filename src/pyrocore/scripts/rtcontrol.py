@@ -106,6 +106,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         super(RtorrentControl, self).__init__()
 
         self.prompt = PromptDecorator(self)
+        self.plain_output_format = False
 
 
     def add_options(self):
@@ -155,7 +156,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
 
     # TODO: refactor to engine.TorrentProxy as format() method
-    def emit(self, item, defaults=None):
+    def emit(self, item, defaults=None, stencil=None):
         """ Print an item to stdout.
         """
         output_format = self.options.output_format
@@ -165,15 +166,19 @@ class RtorrentControl(ScriptBaseWithConfig):
                 r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', output_format) 
 
-            # Use configured escape codes on a terminal
-            if os.isatty(1):
-                output_format = ''.join((config.output_header_ecma48, output_format, "\x1B[0m"))
-
         try:
             item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults)) 
         except (ValueError, TypeError), exc:
             self.fatal("Trouble with formatting item %r using %r" % (item, output_format), exc)
             raise
+
+        # Justify headers according to stencil
+        if stencil:
+            item_text = '\t'.join(i.ljust(len(s)) for i, s in zip(item_text.split('\t'), stencil))
+
+        # Use configured escape codes on a terminal
+        if item is None and os.isatty(1):
+            item_text = ''.join((config.output_header_ecma48, item_text, "\x1B[0m"))
 
         if self.options.nul:
             sys.stdout.write(item_text + '\0')
@@ -200,6 +205,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Expand plain field list to usable form
         if re.match(r"^[,._0-9a-zA-Z]+$", output_format):
+            self.plain_output_format = True
             output_format = "%%(%s)s" % ")s\t%(".join(engine.validate_field_list(output_format, allow_fmt_specs=True))
 
         # Replace some escape sequences
@@ -325,11 +331,16 @@ class RtorrentControl(ScriptBaseWithConfig):
         else:
             # Display matches
             if self.options.output_format and self.options.output_format != "-":
+                stencil = None
+                if self.plain_output_format and matches:
+                    stencil = fmt.to_console(self.options.output_format % 
+                        engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
+
                 line_count = 0
                 for item in matches:
                     # Emit a header line every 'output_header_frequency' lines
                     if self.options.column_headers and line_count % config.output_header_frequency == 0:
-                        self.emit(None)
+                        self.emit(None, stencil=stencil)
 
                     # Print matching item
                     line_count += self.emit(item, self.FORMATTER_DEFAULTS)
