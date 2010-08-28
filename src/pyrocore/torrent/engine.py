@@ -19,6 +19,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import os
+import time
 import operator
 
 from pyrocore import config, error 
@@ -39,6 +40,26 @@ def percent(floatval):
     """ Convert float ratio to a percent value.
     """
     return floatval * 100.0
+
+
+def _duration(start, end):
+    """ Return time delta.
+    """
+    if start and end:
+        if start > end:
+            return 0
+        else:
+            return end - start
+    elif start:
+        return time.time() - start
+    else:
+        return 0
+
+
+def _fmt_duration(duration):
+    """ Format duration value.
+    """
+    return fmt.human_duration(duration, 0, 2, True)
 
 
 def _fmt_tags(tagset):
@@ -347,6 +368,8 @@ class TorrentProxy(object):
         accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime)
     started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime)
+    leechtime = DynamicField(long, "leechtime", "time taken from start to completion", matcher=matching.FloatFilter,
+        accessor=lambda o: _duration(o.started, o.completed), formatter=_fmt_duration)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime)
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,

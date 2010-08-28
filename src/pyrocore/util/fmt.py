@@ -56,7 +56,10 @@ def human_duration(time1, time2=None, precision=0, short=False):
         time2 = time.time()
 
     duration = time1 - time2
-    direction = " ago" if duration < 0 else ("+now" if short else " from now")
+    direction = (
+        " ago" if duration < 0 else
+        ("+now" if short else " from now") if time2 else ""
+    )
     duration = abs(duration)
     parts = [
         ("weeks", duration // (7*86400)),
@@ -83,10 +86,10 @@ def human_duration(time1, time2=None, precision=0, short=False):
     ) + direction
 
     if not time1:
-        result = "never"
+        result = "never" if time2 else "N/A"
 
     if precision and short:
-        return result.rjust(2+precision*4+4)
+        return result.rjust(1 + precision*4 + (4 if time2 else 0))
     else:
         return result
 
