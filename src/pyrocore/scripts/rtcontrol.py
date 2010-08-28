@@ -261,6 +261,13 @@ class RtorrentControl(ScriptBaseWithConfig):
                     custom_manifold(), kind_manifold(),
                 ])
             ]))
+
+            print('')
+            print("Format specifiers are:")
+            print("\n".join(["  %-21s %s" % (name, doc)
+                for name, doc in sorted(engine.OutputMapping.formatter_help())
+            ]))
+
             sys.exit(1)
 
         # Print usage if no conditions are provided

@@ -479,6 +479,19 @@ class OutputMapping(algo.AttributeMapping):
     """ Map item fields for displaying them.
     """
 
+    @classmethod
+    def formatter_help(cls):
+        """ Return a list of format specifiers and their documentation.
+        """
+        result = [("raw", "Switch off the default field formatter.")]
+
+        for name, method in vars(cls).items():
+            if name.startswith("fmt_"):
+                result.append((name[4:], method.__doc__.strip()))
+        
+        return result
+
+
     def __init__(self, obj, defaults=None):
         """ Store object we want to map, and any default values.
 
@@ -508,7 +521,7 @@ class OutputMapping(algo.AttributeMapping):
 
     
     def fmt_delta(self, dt):
-        """ Format a UNIX timestamp to relative delta.
+        """ Format a UNIX timestamp to a relative delta.
         """
         return fmt.human_duration(float(dt), precision=2, short=True)
 
@@ -520,9 +533,39 @@ class OutputMapping(algo.AttributeMapping):
 
     
     def fmt_strip(self, val):
-        """ Strip whitespace.
+        """ Strip leading and trailing whitespace.
         """
         return str(val).strip()
+
+    
+    def fmt_mtime(self, val):
+        """ Modification time of a path.
+        """
+        return os.path.getmtime(val)
+
+    
+    def fmt_pathbase(self, val):
+        """ Base name of a path.
+        """
+        return os.path.basename(val)
+
+    
+    def fmt_pathname(self, val):
+        """ Base name of a path, without its extension.
+        """
+        return os.path.splitext(os.path.basename(val))[0]
+
+    
+    def fmt_pathext(self, val):
+        """ Extension of a path (including the '.').
+        """
+        return os.path.splitext(val)[1]
+
+    
+    def fmt_pathdir(self, val):
+        """ Directory containing the given path.
+        """
+        return os.path.dirname(val)
 
     
     def __getitem__(self, key):
