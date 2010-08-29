@@ -495,3 +495,22 @@ class RtorrentEngine(engine.TorrentEngine):
             for item in self._item_cache[view.viewname]:
                 yield item
 
+    def show(self, items, view=None):
+        """ Visualize a set of items (search result).
+        """
+        proxy = self.open()
+        view = view or "rtcontrol"
+        
+        # Add view if needed
+        if view not in proxy.view_list():
+            proxy.view_add(view)
+        
+        # Clear view and show it
+        proxy.view_filter(view, "false=")
+        proxy.ui.current_view.set(view)
+
+        # Add items
+        # TODO: should be a "system.multicall"
+        for item in items:
+            proxy.view.set_visible(item.hash, view)
+

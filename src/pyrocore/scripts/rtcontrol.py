@@ -135,6 +135,10 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="fields used for sorting")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
+        self.add_bool_option("-V", "--view-only",
+            help="show search result only in default ncurses view")
+        self.add_value_option("--view", "NAME",
+            help="show search result only in named ncurses view")
 # TODO: implement -S
 #        self.add_bool_option("-S", "--summary",
 #            help="print statistics")
@@ -337,8 +341,13 @@ class RtorrentControl(ScriptBaseWithConfig):
                     if self.options.flush:
                         item.flush()
         else:
-            # Display matches
-            if self.options.output_format and self.options.output_format != "-":
+            # Show in ncurses?
+            if self.options.view or self.options.view_only:
+                # Display matches
+                config.engine.show(matches, self.options.view or "rtcontrol")
+
+            # Show on console?
+            elif self.options.output_format and self.options.output_format != "-":
                 stencil = None
                 if self.options.column_headers and self.plain_output_format and matches:
                     stencil = fmt.to_console(self.options.output_format % 

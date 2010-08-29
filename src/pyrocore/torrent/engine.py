@@ -539,6 +539,12 @@ class TorrentEngine(object):
         raise NotImplementedError()
 
 
+    def show(self, items, view=None):
+        """ Visualize a set of items (search result).
+        """
+        raise NotImplementedError()
+
+
 #
 # Displaying and filtering items
 #
