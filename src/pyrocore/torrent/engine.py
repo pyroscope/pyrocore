@@ -422,9 +422,11 @@ class TorrentProxy(object):
     files = OnDemandField(list, "files", "list of files in this item", 
         matcher=matching.FilesFilter, formatter=_fmt_files)
     
-    # Bandwidth
+    # Bandwidth & Data Transfer
     done = OnDemandField(percent, "done", "completion in percent", matcher=matching.FloatFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
+    uploaded = OnDemandField(int, "uploaded", "amount of uploaded data", 
+        matcher=matching.ByteSizeFilter, engine_name="up_total")
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
         accessor=lambda o: o.fetch("up") + o.fetch("down"))
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
