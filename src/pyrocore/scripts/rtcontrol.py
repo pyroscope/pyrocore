@@ -327,6 +327,10 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches = list(view.items())
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
+        if not matches:
+            # think "404 NOT FOUND", but then exit codes should be < 256
+            self.return_code = 44
+
         # Execute action?
         if action:
             self.LOG.info("%s %s %d out of %d torrents." % (

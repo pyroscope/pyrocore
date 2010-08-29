@@ -81,6 +81,7 @@ class ScriptBase(object):
 
         self.args = None
         self.options = None
+        self.return_code = 0
         self.parser = OptionParser(
             "%prog [options] " + self.ARGS_HELP + "\n\n"
             "%prog " + self.version + ", Copyright (c) 2009, 2010 Pyroscope Project\n\n"
@@ -209,6 +210,10 @@ class ScriptBase(object):
             running_time = time.time() - self.startup
             self.LOG.log(self.STD_LOG_LEVEL, "Total time: %.3f seconds." % running_time)
             logging.shutdown()
+
+        # Special exit code?
+        if self.return_code:
+            sys.exit(self.return_code)
 
 
     def add_options(self):
