@@ -323,6 +323,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches = list(view.items())
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
+        # Execute action?
         if action:
             self.LOG.info("%s %s %d out of %d torrents." % (
                 "Would" if self.options.dry_run else "About to", action.label, len(matches), view.size(),
@@ -340,27 +341,29 @@ class RtorrentControl(ScriptBaseWithConfig):
                     getattr(item, action.method)(*action.args)
                     if self.options.flush:
                         item.flush()
-        else:
-            # Show in ncurses?
-            if self.options.view or self.options.view_only:
-                # Display matches
-                config.engine.show(matches, self.options.view or "rtcontrol")
 
-            # Show on console?
-            elif self.options.output_format and self.options.output_format != "-":
-                stencil = None
-                if self.options.column_headers and self.plain_output_format and matches:
-                    stencil = fmt.to_console(self.options.output_format % 
-                        engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
+        # Show in ncurses?
+        elif self.options.view or self.options.view_only:
+            viewname = self.options.view or "rtcontrol"
+            config.engine.show(matches, viewname)
+            self.LOG.info("Filtered %d out of %d torrents into rTorrent view %r." % (
+                len(matches), view.size(), viewname))
 
-                line_count = 0
-                for item in matches:
-                    # Emit a header line every 'output_header_frequency' lines
-                    if self.options.column_headers and line_count % config.output_header_frequency == 0:
-                        self.emit(None, stencil=stencil)
+        # Show on console?
+        elif self.options.output_format and self.options.output_format != "-":
+            stencil = None
+            if self.options.column_headers and self.plain_output_format and matches:
+                stencil = fmt.to_console(self.options.output_format % 
+                    engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
 
-                    # Print matching item
-                    line_count += self.emit(item, self.FORMATTER_DEFAULTS)
+            line_count = 0
+            for item in matches:
+                # Emit a header line every 'output_header_frequency' lines
+                if self.options.column_headers and line_count % config.output_header_frequency == 0:
+                    self.emit(None, stencil=stencil)
+
+                # Print matching item
+                line_count += self.emit(item, self.FORMATTER_DEFAULTS)
 
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
 
