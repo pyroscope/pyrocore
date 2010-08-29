@@ -23,6 +23,8 @@
 """
 
 import os
+import re
+import sys
 
 from paver.easy import *
 from paver.setuputils import setup
@@ -47,6 +49,7 @@ project = dict(
     version = version,
     package_dir = {"": "src"},
     packages = find_packages("src", exclude = ["tests"]),
+    doc_dir = "docs/apidocs",
     entry_points = {
         "console_scripts": [
             "mktor = pyrocore.scripts.mktor:run",
@@ -123,7 +126,62 @@ def bootstrap():
 def docs():
     """ Create documentation.
     """
-    print "No core docs yet!"
+    from epydoc import cli
+
+    # get package list, without sub-packages
+    doc_packages  = set(options.setup.packages)
+    for pkg in list(doc_packages):
+        doc_packages -= set(p for p in doc_packages if str(p).startswith(pkg + '.'))
+    doc_packages = list(doc_packages)
+
+    # clean up previous docs
+    path(options.doc_dir).rmtree()
+
+    # set up excludes
+    try:
+        exclude_names = options.doc.excludes
+    except AttributeError:
+        exclude_names = []
+
+    excludes = []
+    for pkg in exclude_names:
+        excludes.append("--exclude")
+        excludes.append('^' + re.escape(pkg))
+
+    # call epydoc in-process
+    sys_argv = sys.argv
+    try:
+        sys.argv = [
+            sys.argv[0] + "::epydoc",
+            "-v",
+            "--inheritance", "listed",
+            "--output", options.doc_dir,
+            "--name", "%s %s" % (options.setup.name, options.setup.version),
+            "--url", options.setup.url,
+            "--graph", "umlclasstree",
+        ] + excludes + doc_packages
+        sys.stderr.write("Running '%s'\n" % ("' '".join(sys.argv)))
+        cli.cli()
+    finally:
+        sys.argv = sys_argv
+
+
+@task
+@needs("docs")
+def dist_docs():
+    """ Create a documentation bundle.
+    """
+    dist_dir = path("dist")
+    docs_package = path("%s/%s-%s-docs.zip" % (dist_dir.abspath(), options.setup.name, options.setup.version))
+
+    dist_dir.exists() or dist_dir.makedirs()
+    docs_package.exists() and docs_package.remove()
+
+    sh("cd docs && zip -qr %s index.html apidocs" % (docs_package,))
+
+    print
+    print "Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,)
+    print docs_package
 
 
 #
