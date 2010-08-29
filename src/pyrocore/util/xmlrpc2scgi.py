@@ -283,13 +283,10 @@ class RTorrentMethod(object):
 
 
 class RTorrentProxy(object):
-    """
-    The following is an example of how to use this class.
-    rtorrent_host='http://localhost:33000'
-    rtc = RTorrentProxy(rtorrent_host)
-    for infohash in rtc.download_list('complete'):
-        if rtc.d.get_ratio(infohash) > 500:
-            print "%s has a ratio of over 0.5"%(rtc.d.get_name(infohash))
+    """ Proxy to rTorrent's XMLRPC interface.
+
+        Method calls are built from attribute accesses, i.e. you can do
+        something like C{proxy.system.client_version()}.
     """
     
     def __init__(self, url):

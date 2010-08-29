@@ -35,7 +35,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         Control and inspect rTorrent from the command line.
     
         Filter expressions take the form "<field>=<value>", and all expressions must
-        be met (AND). If a field name is omitted, "name" is assumed.
+        be met (AND). If a field name is omitted, "name" is assumed. You can also use
+        uppercase OR to build a list of alternative conditions.
         
         For numeric fields, a leading "+" means greater than, a leading "-" means less 
         than. For string fields, the value is a glob pattern (*, ?, [a-z], [!a-z]).
@@ -43,15 +44,15 @@ class RtorrentControl(ScriptBaseWithConfig):
         "!" in front of a filter value negates it (NOT).
         
         Examples:
-          All 1:1 seeds         ratio=+1
-          All active torrents   xfer=+0
-          All seeding torrents  up=+0
-          Slow torrents         down=+0 down=-5k
-          Older than 2 weeks    completed=+2w
-          Big stuff             size=+4g
-          1:1 seeds not on NAS  ratio=+1 'realpath=!/mnt/*'
+          - All 1:1 seeds         ratio=+1
+          - All active torrents   xfer=+0
+          - All seeding torrents  up=+0
+          - Slow torrents         down=+0 down=-5k
+          - Older than 2 weeks    completed=+2w
+          - Big stuff             size=+4g
+          - 1:1 seeds not on NAS  ratio=+1 'realpath=!/mnt/*'
+          - Music                 kind=flac,mp3
     """
-    ##      Music                 kind=flac,mp3
 
     # argument description for the usage information
     ARGS_HELP = "<filter>..."
