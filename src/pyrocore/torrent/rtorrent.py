@@ -303,11 +303,16 @@ class RtorrentEngine(engine.TorrentEngine):
         "hash", "name", "is_private", "tracker_size", "size_bytes", 
     ))
 
+    # rTorrent names of fields that need to be pre-fetched
+    CORE_FIELDS = CONSTANT_FIELDS | set((
+        "complete", "tied_to_file",
+    ))
+
     # rTorrent names of fields that get fetched in multi-call
-    PRE_FETCH_FIELDS = CONSTANT_FIELDS | set((
-        "is_open", "is_active", "complete",
+    PREFETCH_FIELDS = CORE_FIELDS | set((
+        "is_open", "is_active",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",
-        "base_path", "tied_to_file", 
+        "base_path",  
     ))
 
     # mapping of our names to rTorrent names (only those that differ)
@@ -450,7 +455,7 @@ class RtorrentEngine(engine.TorrentEngine):
         return self._rpc
 
 
-    def items(self, view=None):
+    def items(self, view=None, prefetch=None):
         """ Get list of download items.
         """
         # TODO: Cache should be by hash.
@@ -464,10 +469,16 @@ class RtorrentEngine(engine.TorrentEngine):
             view = engine.TorrentView(self, "main")
 
         if view.viewname not in self._item_cache:
+            # Map pyroscope names to rTorrent ones
+            if prefetch:
+                prefetch = self.CORE_FIELDS | set((self.PYRO2RT_MAPPING.get(i, i) for i in prefetch))
+            else:
+                prefetch = self.PREFETCH_FIELDS
+
             # Prepare multi-call arguments
             args = [view.viewname] + ["d.%s%s=" % (
                     "" if field.startswith("is_") else "get_", field
-                ) for field in self.PRE_FETCH_FIELDS
+                ) for field in prefetch
             ]
 
             # Fetch items
@@ -478,11 +489,11 @@ class RtorrentEngine(engine.TorrentEngine):
                 raw_items = multi_call(*tuple(args))
                 ##import pprint; self.LOG.debug(pprint.pformat(raw_items))
                 self.LOG.debug("Got %d items with %d attributes from %r [%s]" % (
-                    len(raw_items), len(self.PRE_FETCH_FIELDS), self.engine_id, multi_call))
+                    len(raw_items), len(prefetch), self.engine_id, multi_call))
 
                 for item in raw_items:
                     items.append(RtorrentItem(self, zip(
-                        [self.RT2PYRO_MAPPING.get(i, i) for i in self.PRE_FETCH_FIELDS], item
+                        [self.RT2PYRO_MAPPING.get(i, i) for i in prefetch], item
                     )))
                     yield items[-1]
             except xmlrpclib.Fault, exc:

@@ -308,7 +308,9 @@ class TorrentProxy(object):
     def __repr__(self):
         """ Return a representation of internal state.
         """
-        attrs = set(FieldDefinition.FIELDS)
+        attrs = set((field.name for field in FieldDefinition.FIELDS.values()
+            if field._accessor or field.name in self._fields
+        ))
         return "<%s(%s)>" % (self.__class__.__name__, ", ".join(sorted(
             ["%s=%r" % (i, getattr(self, i)) for i in attrs] +
             ["%s=%r" % (i, self._fields[i]) for i in (set(self._fields) - attrs)]
@@ -424,7 +426,7 @@ class TorrentProxy(object):
     done = OnDemandField(percent, "done", "completion in percent", matcher=matching.FloatFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
-        accessor=lambda o: o._fields["up"] + o._fields["down"])
+        accessor=lambda o: o.fetch("up") + o.fetch("down"))
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
     throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.GlobFilter,
@@ -533,7 +535,7 @@ class TorrentEngine(object):
         return TorrentView(self, viewname, matcher)
 
 
-    def items(self, view=None):
+    def items(self, view=None, prefetch=None):
         """ Get list of download items.
         """
         raise NotImplementedError()
