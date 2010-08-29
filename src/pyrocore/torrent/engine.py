@@ -421,6 +421,7 @@ class TorrentProxy(object):
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
     files = OnDemandField(list, "files", "list of files in this item", 
         matcher=matching.FilesFilter, formatter=_fmt_files)
+    fno = OnDemandField(int, "fno", "number of files in this item", matcher=matching.FloatFilter, engine_name="size_files")
     
     # Bandwidth & Data Transfer
     done = OnDemandField(percent, "done", "completion in percent", matcher=matching.FloatFilter)
