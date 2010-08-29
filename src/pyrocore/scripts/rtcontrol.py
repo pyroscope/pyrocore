@@ -139,8 +139,10 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="reverse the sort order")
         self.add_bool_option("-V", "--view-only",
             help="show search result only in default ncurses view")
-        self.add_value_option("--view", "NAME",
+        self.add_value_option("--to-view", "NAME",
             help="show search result only in named ncurses view")
+        self.add_value_option("--from-view", "NAME",
+            help="select only items that are on view NAME")
 # TODO: implement -S
 #        self.add_bool_option("-S", "--summary",
 #            help="print statistics")
@@ -321,7 +323,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Or sort them just the right way, and then abort after we cannot
         # possibly find more matches.
         #
-        view = config.engine.view(None, matcher)
+        view = config.engine.view(self.options.from_view, matcher)
         matches = list(view.items())
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
@@ -345,8 +347,8 @@ class RtorrentControl(ScriptBaseWithConfig):
                         item.flush()
 
         # Show in ncurses?
-        elif self.options.view or self.options.view_only:
-            viewname = self.options.view or "rtcontrol"
+        elif self.options.to_view or self.options.view_only:
+            viewname = self.options.to_view or "rtcontrol"
             config.engine.show(matches, viewname)
             self.LOG.info("Filtered %d out of %d torrents into rTorrent view %r." % (
                 len(matches), view.size(), viewname))
@@ -367,8 +369,10 @@ class RtorrentControl(ScriptBaseWithConfig):
                 # Print matching item
                 line_count += self.emit(item, self.FORMATTER_DEFAULTS)
 
+            self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
+        else:
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
-
+        
         if self.options.debug and 0:
             print; print repr(matches[0])
             print; print repr(matches[0].files)
