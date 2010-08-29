@@ -127,7 +127,7 @@ class RtorrentMove(ScriptBaseWithConfig):
             if not self.options.dry_run:
                 try:
                     call(*args)
-                except EnvironmentError, exc:
+                except (EnvironmentError, UnicodeError), exc:
                     self.fatal('%s(%s) failed [%s]' % (
                         call.__name__, ', '.join([pretty_path(i) for i in args]), exc,
                     ))
