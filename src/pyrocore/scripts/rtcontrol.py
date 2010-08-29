@@ -73,6 +73,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="start", options=("-S", "--start"), help="start torrent"), 
         Bunch(name="close", options=("-C", "--close", "--stop"), help="stop torrent", method="stop"), 
         Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
+        # TODO: Bunch(name="announce", options=("--announce",), help="announce right now", interactive=True), 
         Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
         Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
