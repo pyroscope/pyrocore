@@ -17,6 +17,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import os
 import pprint
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
@@ -31,7 +32,9 @@ class AdminTool(ScriptBaseWithConfig):
     # argument description for the usage information
     ARGS_HELP = ""
 
-
+    # directories that should be created
+    CONFIG_DIRS = ["log", "data"]
+                
     def add_options(self):
         """ Add program options.
         """
@@ -50,7 +53,16 @@ class AdminTool(ScriptBaseWithConfig):
         """
         if self.options.create_config:
             # Create configuration
-            load_config.ConfigLoader(self.options.config_dir).create()
+            config_loader = load_config.ConfigLoader(self.options.config_dir)
+            config_loader.create()
+
+            # Create directories
+            for dirname in self.CONFIG_DIRS:
+                dirpath = os.path.join(config_loader.config_dir, dirname)
+                if not os.path.isdir(dirpath):
+                    self.LOG.info("Creating %r..." % (dirpath,))
+                    os.mkdir(dirpath)
+
         elif self.options.dump_config:
             # Get public config attributes
             public = dict((key, val)

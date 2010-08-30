@@ -36,7 +36,7 @@ class ScriptBase(object):
     """ Base class for command line interfaces.
     """
     # logging configuration
-    LOGGING_CFG = os.path.expanduser("~/.pyroscope/logging.scripts.ini")
+    LOGGING_CFG = "~/.pyroscope/logging.%s.ini"
 
     # log level for user-visible standard logging
     STD_LOG_LEVEL = logging.INFO
@@ -52,8 +52,14 @@ class ScriptBase(object):
     def setup(cls):
         """ Set up the runtime environment.
         """
-        if os.path.exists(cls.LOGGING_CFG):
-            logging.config.fileConfig(cls.LOGGING_CFG)
+        logging_cfg = cls.LOGGING_CFG
+        if "%s" in logging_cfg:
+            logging_cfg = logging_cfg % ("cron" if "--cron" in sys.argv[1:] else "scripts",)
+        logging_cfg = os.path.expanduser(logging_cfg)
+
+        if os.path.exists(logging_cfg):
+            logging.HERE = os.path.dirname(logging_cfg)
+            logging.config.fileConfig(logging_cfg)
         else:
             logging.basicConfig(level=logging.INFO)
 
@@ -125,6 +131,8 @@ class ScriptBase(object):
             help="increase informational logging")
         self.add_bool_option("--debug",
             help="always show stack-traces for errors")
+        self.add_bool_option("--cron",
+            help="run in cron mode (with different logging configuration)")
 
         # Template method to add options of derived class
         self.add_options()
@@ -137,6 +145,8 @@ class ScriptBase(object):
             self.options.quiet = False
 
         # Set logging levels
+        if self.options.cron:
+            self.STD_LOG_LEVEL = logging.DEBUG
         if self.options.verbose and self.options.quiet:
             self.parser.error("Don't know how to be quietly verbose!")
         elif self.options.quiet:
