@@ -165,7 +165,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
 
     # TODO: refactor to engine.TorrentProxy as format() method
-    def emit(self, item, defaults=None, stencil=None):
+    def emit(self, item, defaults=None, stencil=None, to_log=False):
         """ Print an item to stdout.
         """
         output_format = self.options.output_format
@@ -189,7 +189,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         if item is None and os.isatty(1):
             item_text = ''.join((config.output_header_ecma48, item_text, "\x1B[0m"))
 
-        if self.options.nul:
+        if to_log:
+            self.LOG.info(item_text)
+        elif self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
         else: 
@@ -313,7 +315,10 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        print repr(config.engine)
 
         # Preparation steps
-        self.validate_output_format(config.action_format if action else config.output_format)
+        default_output_format = "default"
+        if action:
+            default_output_format = "action_cron" if self.options.cron else "action"
+        self.validate_output_format(default_output_format)
         sort_key = self.validate_sort_fields()
         matcher = engine.parse_filter_conditions(self.args)
 
@@ -344,7 +349,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                 if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
                     continue
                 if self.options.output_format and self.options.output_format != "-":
-                    self.emit(item, defaults) 
+                    self.emit(item, defaults, to_log=self.options.cron)
                 if not self.options.dry_run:
                     getattr(item, action.method)(*action.args)
                     if self.options.flush:
