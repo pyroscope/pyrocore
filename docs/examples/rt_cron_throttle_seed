@@ -1,0 +1,91 @@
+#! /usr/bin/env python
+import logging
+
+from pyrocore import config
+from pyrocore.util import fmt
+from pyrocore.torrent import engine
+from pyrocore.scripts import base
+
+
+class SeedThrottle(base.ScriptBaseWithConfig):
+    """ 
+        Throttle seeding throttle group when other items are active.
+        All bandwidth values are in KiB/s.
+    """
+
+    # argument description for the usage information
+    ARGS_HELP = "<throttle_name> <full_rate> <nice_rate>"
+
+    # log level for user-visible standard logging
+    STD_LOG_LEVEL = logging.DEBUG
+
+
+    def add_options(self):
+        """ Add program options.
+        """
+        super(SeedThrottle, self).add_options()
+
+        # basic options
+        ##self.add_bool_option("-n", "--dry-run",
+        ##    help="don't do anything, just tell what would happen")
+
+
+    def mainloop(self):
+        """ The main loop.
+        """
+        # Get proxy and parse rtorrent.rc
+        proxy = config.engine.open()
+
+        # Get arguments
+        try:
+            throttle_name, full_rate, nice_rate = self.args
+        except ValueError:
+            self.parser.error("Exactly three arguments expected")
+        
+        if throttle_name not in config.throttle_names:
+            self.parser.error("Unknown throttle %r (expected one of %s)" % (
+                throttle_name, ", ".join(config.throttle_names),
+            ))
+        
+        try:
+            full_rate = int(full_rate, 10) * 1024
+        except (TypeError, ValueError), exc:
+            self.parser.error("Bad full rate %r (%s)" % (full_rate, exc))
+
+        try:
+            nice_rate = int(nice_rate, 10) * 1024
+        except (TypeError, ValueError), exc:
+            self.parser.error("Bad nice rate %r (%s)" % (nice_rate, exc))
+        
+        # Check for manually changed seed rate
+        current_rate = proxy.get_throttle_up_max(throttle_name)
+        self.LOG.debug("Current '%s' rate is %s/s" % (
+            throttle_name, fmt.human_size(current_rate).strip()
+        ))
+        if current_rate not in (full_rate, nice_rate):
+            self.LOG.debug("Rate was apparently set manually, won't change it!")
+            return
+
+        # Check for active items
+        view = config.engine.view("active", 
+            engine.parse_filter_conditions("up=+1 throttle=%s" % throttle_name))
+        prioritized = list(view.items())
+        self.LOG.debug("%d active items not in throttle '%s'" % (len(prioritized), throttle_name))
+
+        # Set chosen bandwidth, if different
+        rate = nice_rate if prioritized else full_rate
+        if current_rate != rate:
+            proxy.throttle_up(throttle_name, str(rate // 1024))
+            self.LOG.info("THROTTLE '%s' up=%s/s [%d prioritized]" % (
+                throttle_name,
+                fmt.human_size(proxy.get_throttle_up_max(throttle_name)).strip(),
+                len(prioritized),
+            ))
+            
+        self.LOG.debug("XMLRPC stats: %s" % proxy)
+
+
+if __name__ == "__main__":
+    base.ScriptBase.setup()
+    SeedThrottle().run()
+
