@@ -68,7 +68,7 @@ class SeedThrottle(base.ScriptBaseWithConfig):
 
         # Check for active items
         view = config.engine.view("active", 
-            engine.parse_filter_conditions("up=+1 throttle=%s" % throttle_name))
+            engine.parse_filter_conditions("up=+1 throttle=!%s" % throttle_name))
         prioritized = list(view.items())
         self.LOG.debug("%d active items not in throttle '%s'" % (len(prioritized), throttle_name))
 
