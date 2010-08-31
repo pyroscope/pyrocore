@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import time
+import logging
 import operator
 
 from pyrocore import config
@@ -338,7 +339,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Execute action?
         if action:
-            self.LOG.info("%s %s %d out of %d torrents." % (
+            self.LOG.log(logging.DEBUG if self.options.cron else logging.INFO, "%s %s %d out of %d torrents." % (
                 "Would" if self.options.dry_run else "About to", action.label, len(matches), view.size(),
             ))
             defaults = {"action": action.label}
