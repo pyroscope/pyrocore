@@ -16,6 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import logging
 from collections import defaultdict
 
 from pyrocore import config
@@ -147,6 +148,9 @@ class RtorrentMove(ScriptBaseWithConfig):
 
         ##for path in source_paths: print path, "==>"; print "  " + "\n  ".join(i.path for i in source_items[path])
 
+        if not os.path.isdir(target) and len(source_paths) > 1:
+            self.fatal("Can't move multiple files to %s which is no directory!" % (pretty_path(target),))
+
         # Actually move the data
         moved_count = 0
         for path in source_paths:
@@ -176,13 +180,11 @@ class RtorrentMove(ScriptBaseWithConfig):
                         self.LOG.warn("Won't move incomplete item '%s'!" % (item.name,))
                         continue
 
-                self.LOG.info("Moving %s..." % (pretty_path(path),))
                 moved_count += 1
-
                 dst = target
                 if os.path.isdir(dst):
                     dst = os.path.join(dst, os.path.basename(path))
-                    self.LOG.info("    to %s" % (pretty_path(dst),))
+                self.LOG.info("Moving to %s..." % (pretty_path(dst),))
 
                 # Pause torrent?
                 # was_active = item.is_active and not self.options.dry_run
@@ -193,7 +195,7 @@ class RtorrentMove(ScriptBaseWithConfig):
                 if os.path.islink(item.path):
                     if os.path.abspath(dst) == os.path.abspath(item.path.rstrip(os.sep)):
                         # Moving back to original place
-                        self.LOG.info("Unlinking %s" % (pretty_path(item.path),))
+                        self.LOG.debug("Unlinking %s" % (pretty_path(item.path),))
                         self.guarded(os.remove, item.path)
                         self.guarded(os.rename, path, dst)
                     else:
@@ -204,7 +206,7 @@ class RtorrentMove(ScriptBaseWithConfig):
                         self.guarded(os.symlink, os.path.abspath(dst), item.path)
                 else:
                     # Moving download initially
-                    self.LOG.info("Symlinking %s" % (pretty_path(item.path),))
+                    self.LOG.debug("Symlinking %s" % (pretty_path(item.path),))
                     assert os.path.abspath(item.path) == os.path.abspath(path), \
                         'Item path "%s" should match "%s"!' % (item.path, path)
                     self.guarded(os.rename, item.path, dst)
@@ -215,7 +217,7 @@ class RtorrentMove(ScriptBaseWithConfig):
 
         # Print stats
         self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
-        self.LOG.info("Moved %d path%s (skipped %d)" % (
+        self.LOG.log(logging.DEBUG if self.options.cron else logging.INFO, "Moved %d path%s (skipped %d)" % (
             moved_count, "" if moved_count == 1 else "s", len(source_paths) - moved_count
         ))
 
