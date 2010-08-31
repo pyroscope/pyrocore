@@ -74,6 +74,22 @@ class RtorrentMove(ScriptBaseWithConfig):
         return path
 
 
+    def guarded(self, call, *args):
+        """ Catch exceptions thrown by filesystem calls, and don't really 
+            execute them in dry-run mode.
+        """
+        self.LOG.debug('%s(%s)' % (
+            call.__name__, ', '.join([pretty_path(i) for i in args]),
+        ))
+        if not self.options.dry_run:
+            try:
+                call(*args)
+            except (EnvironmentError, UnicodeError), exc:
+                self.fatal('%s(%s) failed [%s]' % (
+                    call.__name__, ', '.join([pretty_path(i) for i in args]), exc,
+                ))
+
+
     def mainloop(self):
         """ The main loop.
         """
@@ -82,10 +98,23 @@ class RtorrentMove(ScriptBaseWithConfig):
             self.parser.print_help()
             self.parser.exit()
 
+        # Target handling
+        target = self.args[-1]
+        if "//" in target.rstrip('/'):
+            # Create parts of target path
+            existing, might = target.split("//", 1)
+            if not os.path.isdir(existing):
+                self.fatal("Path before '//' MUST exists in %s" % (pretty_path(target),))
+
+            # Possibly create the rest
+            target = target.replace("//", "/")
+            if not os.path.exists(target):
+                self.guarded(os.makedirs, target)
+
         # Preparation
         # TODO: Handle cases where target is the original download path correctly!
         #       i.e.   rtmv foo/ foo   AND   rtmv foo/ .   (in the download dir)
-        target = self.resolve_slashed(self.args[-1])
+        target = self.resolve_slashed(target)
         source_paths = [self.resolve_slashed(i) for i in self.args[:-1]]
         source_realpaths = [os.path.realpath(i) for i in source_paths]
         source_items = defaultdict(list) # map of source path to item
@@ -119,19 +148,6 @@ class RtorrentMove(ScriptBaseWithConfig):
         ##for path in source_paths: print path, "==>"; print "  " + "\n  ".join(i.path for i in source_items[path])
 
         # Actually move the data
-        def guarded(call, *args):
-            "Helper for filesystem calls."
-            self.LOG.debug('%s(%s)' % (
-                call.__name__, ', '.join([pretty_path(i) for i in args]),
-            ))
-            if not self.options.dry_run:
-                try:
-                    call(*args)
-                except (EnvironmentError, UnicodeError), exc:
-                    self.fatal('%s(%s) failed [%s]' % (
-                        call.__name__, ', '.join([pretty_path(i) for i in args]), exc,
-                    ))
-
         moved_count = 0
         for path in source_paths:
             item = None # Make sure there's no accidental stale reference
@@ -178,21 +194,21 @@ class RtorrentMove(ScriptBaseWithConfig):
                     if os.path.abspath(dst) == os.path.abspath(item.path.rstrip(os.sep)):
                         # Moving back to original place
                         self.LOG.info("Unlinking %s" % (pretty_path(item.path),))
-                        guarded(os.remove, item.path)
-                        guarded(os.rename, path, dst)
+                        self.guarded(os.remove, item.path)
+                        self.guarded(os.rename, path, dst)
                     else:
                         # Moving to another place
                         self.LOG.debug("Re-linking %s" % (pretty_path(item.path),))
-                        guarded(os.rename, path, dst)
-                        guarded(os.remove, item.path)
-                        guarded(os.symlink, os.path.abspath(dst), item.path)
+                        self.guarded(os.rename, path, dst)
+                        self.guarded(os.remove, item.path)
+                        self.guarded(os.symlink, os.path.abspath(dst), item.path)
                 else:
                     # Moving download initially
                     self.LOG.info("Symlinking %s" % (pretty_path(item.path),))
                     assert os.path.abspath(item.path) == os.path.abspath(path), \
                         'Item path "%s" should match "%s"!' % (item.path, path)
-                    guarded(os.rename, item.path, dst)
-                    guarded(os.symlink, os.path.abspath(dst), item.path)
+                    self.guarded(os.rename, item.path, dst)
+                    self.guarded(os.symlink, os.path.abspath(dst), item.path)
 
                 # Resume torrent?
                 # if was_active: sitem.resume()
