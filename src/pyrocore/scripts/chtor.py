@@ -46,6 +46,8 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="don't write changes to disk, just tell what would happen")
         self.add_bool_option("--no-skip",
             help="do not skip broken metafiles that fail the integrity check")
+        self.add_value_option("-o", "--output-directory", "PATH",
+            help="optional output directory for the modified metafile(s)")
         self.add_bool_option("-p", "--make-private",
             help="make torrent private (DHT/PEX disabled)")
         self.add_bool_option("-P", "--make-public",
@@ -173,23 +175,31 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Write new metafile, if changed
                 new_metainfo = bencode.bencode(metainfo)
                 if new_metainfo != old_metainfo:
-                    self.LOG.info("Changing %r..." % filename)
+                    if self.options.output_directory:
+                        filename = os.path.join(self.options.output_directory, os.path.basename(filename))
+                        self.LOG.info("Writing %r..." % filename)
+
+                        if not self.options.dry_run:
+                            bencode.bwrite(filename, metainfo)
+                    else:
+                        self.LOG.info("Changing %r..." % filename)
+
+                        if not self.options.dry_run:
+                            # Write to temporary file
+                            tempname = os.path.join(
+                                os.path.dirname(filename),
+                                '.' + os.path.basename(filename),
+                            )
+                            self.LOG.debug("Writing %r..." % tempname)
+                            bencode.bwrite(tempname, metainfo)
+
+                            # Replace existing file
+                            if os.name != "posix":
+                                # cannot rename to existing target on WIN32
+                                os.remove(filename)
+                            os.rename(tempname, filename)
+
                     changed += 1
-
-                    if not self.options.dry_run:
-                        # Write to temporary file
-                        tempname = os.path.join(
-                            os.path.dirname(filename),
-                            '.' + os.path.basename(filename),
-                        )
-                        self.LOG.debug("Writing %r..." % tempname)
-                        bencode.bwrite(tempname, metainfo)
-
-                        # Replace existing file
-                        if os.name != "posix":
-                            # cannot rename to existing target on WIN32
-                            os.remove(filename)
-                        os.rename(tempname, filename)
 
         # Print summary
         if changed:
