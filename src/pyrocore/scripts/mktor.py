@@ -80,7 +80,12 @@ class MetafileCreator(ScriptBaseWithConfig):
 
         # Create and configure metafile factory
         datapath = self.args[0].rstrip(os.sep)
-        metafile = Metafile(self.options.output_filename or (datapath + ".torrent"))
+        metapath = datapath
+        if self.options.output_filename:
+            metapath = self.options.output_filename
+            if os.path.isdir(metapath):
+                metapath = os.path.join(metapath, os.path.basename(datapath))
+        metafile = Metafile(metapath + ".torrent")
         metafile.ignore.extend(self.options.exclude)
 
         # Write the metafile(s)
