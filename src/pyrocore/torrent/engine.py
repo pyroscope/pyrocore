@@ -765,15 +765,34 @@ def parse_filter_conditions(conditions):
         @param conditions: multiple conditions.
         @type conditions: list or str 
     """
+    conditions_text = conditions
     try:
         conditions = conditions.split()
     except AttributeError:
         # Not a string, assume iterable
-        pass
+        conditions_text = ' '.join(conditions)
 
     # Empty list?
     if not conditions:
         raise matching.FilterError("No conditions given at all!")
+
+    # Handle grouping
+    if '[' in conditions:
+        tree = [[]]
+        for term in conditions:
+            if term == '[':
+                tree.append([]) # new grouping
+            elif term == ']':
+                subtree = tree.pop()
+                if not tree:
+                    raise matching.FilterError("Unbalanced brackets, too many closing ']' in condition %r" % (conditions_text,))
+                tree[-1].append(subtree) # append finished group to containing level
+            else:
+                tree[-1].append(term) # append to current level
+
+        if len(tree) > 1:
+            raise matching.FilterError("Unbalanced brackets, too many open '[' in condition %r" % (conditions_text,))
+        conditions = tree[0]
 
     # Prepare root matcher
     conditions = list(conditions)
@@ -786,21 +805,22 @@ def parse_filter_conditions(conditions):
 
     # Go through conditions and parse them
     for condition in conditions:
-        # TODO: Add [ ... ] for grouping conditions
         if condition == "OR":
             # Leading OR, or OR OR in sequence?
             if not matcher:
-                raise matching.FilterError("Left-hand side of OR missing in %r!" % ' '.join(conditions))
+                raise matching.FilterError("Left-hand side of OR missing in %r!" % (conditions_text,))
 
             # Start next run of AND conditions
             matcher = matching.CompoundFilterAll()
             root.append(matcher)
+        elif isinstance(condition, list):
+            matcher.append(parse_filter_conditions(condition))
         else:
             matcher.append(create_filter(condition))
 
     # Trailing OR?
     if not matcher:
-        raise matching.FilterError("Right-hand side of OR missing in %r!" % ' '.join(conditions))
+        raise matching.FilterError("Right-hand side of OR missing in %r!" % (conditions_text,))
 
     return root
 
