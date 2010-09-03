@@ -110,6 +110,10 @@ def name_trait(name):
                 ##data = matched.groupdict()
                 return trait
 
+    # TODO: Split by "dvdrip", year, etc. to get to the title and then
+    # do a imdb / tvdb lookup; cache results, hits for longer, misses
+    # for a day at max.
+
     # No clue
     return None
 
