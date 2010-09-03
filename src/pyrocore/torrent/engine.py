@@ -459,7 +459,7 @@ class TorrentProxy(object):
     kind = DynamicField(set, "kind", "ALL kinds of files in this item (the same as kind_0)", 
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, accessor=lambda o: o.fetch("kind_0"))
     traits = DynamicField(list, "traits", "automatic classification of this item (audio, video, tv, movie, etc.)", 
-        matcher=matching.TaggedAsFilter, formatter=lambda v: '/'.join(v or ["misc"]), 
+        matcher=matching.TaggedAsFilter, formatter=lambda v: '/'.join(v or ["misc", "other"]), 
         accessor= lambda o: traits.detect_traits((list(o.fetch("kind_51")) or [None]).pop(), o.name))
     # = DynamicField(, "", "")
 
