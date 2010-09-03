@@ -458,6 +458,11 @@ class TorrentProxy(object):
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
     kind = DynamicField(set, "kind", "ALL kinds of files in this item (the same as kind_0)", 
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, accessor=lambda o: o.fetch("kind_0"))
+    # TODO: trait = DynamicField(list, "trait", "automatic classification of this item (audio, video, tv, movie, etc.)", 
+    #           matcher=matching.TaggedAsFilter, formatter=_fmt_traits, accessor=_trait_detector)
+    #       Use kind_50 as a basis (detect audio), and do TV / movie by regexes on the name
+    #       and possibly files; do it as a list (not set) with an intrinsic order and format
+    #       to trait1/trait2 sequence, so it can be used in completion paths
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
