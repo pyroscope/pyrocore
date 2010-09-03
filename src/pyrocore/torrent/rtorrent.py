@@ -105,6 +105,8 @@ class RtorrentItem(engine.TorrentProxy):
                     ext = "rar"
                 elif ext == "jpeg":
                     ext = "jpg"
+                elif ext == "mpeg":
+                    ext = "mpg"
                 histo[ext] += i.size
 
             # Normalize values to integer percent

@@ -162,7 +162,7 @@ class TaggedAsFilter(FieldFilter):
 
         if self._exact:
             # Equality check
-            return self._value == tags
+            return self._value == set(tags)
         else:
             # Is given tag in list?
             return self._value in tags
