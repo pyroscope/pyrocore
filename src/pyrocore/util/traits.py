@@ -137,7 +137,7 @@ def detect_traits(kind, name=None):
     elif kind in KIND_DOCS:
         result = ["docs", kind]
     elif kind in KIND_ARCHIVE:
-        result = [kind]
+        result = ["misc", kind]
 
         contents = name_trait(name)
         if contents:
