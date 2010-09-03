@@ -19,6 +19,9 @@ class SeedThrottle(base.ScriptBaseWithConfig):
     # log level for user-visible standard logging
     STD_LOG_LEVEL = logging.DEBUG
 
+    # what items are prioritized?
+    PRIO_FILTER = "up=+3"
+
 
     def add_options(self):
         """ Add program options.
@@ -68,7 +71,7 @@ class SeedThrottle(base.ScriptBaseWithConfig):
 
         # Check for active items
         view = config.engine.view("active", 
-            engine.parse_filter_conditions("up=+1 throttle=!%s" % throttle_name))
+            engine.parse_filter_conditions("throttle=!%s [ %s ]" % (throttle_name, self.PRIO_FILTER)))
         prioritized = list(view.items())
         self.LOG.debug("%d active items not in throttle '%s'" % (len(prioritized), throttle_name))
 
