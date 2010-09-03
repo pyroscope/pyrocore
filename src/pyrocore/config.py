@@ -64,8 +64,6 @@ _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 scgi_local = ""
 throttle_names = set(("NONE", "NULL"))
 engine = Bunch(open=lambda: None)
-output_format = ""
-action_format = ""
 formats = {}
 sort_fields = ""
 announce = {}
