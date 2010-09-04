@@ -58,6 +58,9 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="remove all non-standard data from metafile including the info dict")
         self.add_bool_option("-R", "--clean-rtorrent",
             help="remove all rTorrent session data from metafile")
+        # TODO: -H option
+        #self.add_bool_option("-H", "--hashed", "--fast-resume",
+        #    help="add libtorrent fast-resume information")
         # TODO: chtor --tracker
         ##self.add_value_option("-T", "--tracker", "DOMAIN",
         ##    help="filter given torrents for a tracker domain")
