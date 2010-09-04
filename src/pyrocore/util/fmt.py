@@ -49,6 +49,14 @@ def iso_datetime(dt):
     return datetime.datetime.fromtimestamp(dt).isoformat(' ')[:19]
 
 
+def iso_datetime_optional(dt):
+    """ Convert UNIX timestamp to ISO datetime string, or "never".
+    """
+    if dt:
+        return iso_datetime(dt)
+    return "never"
+
+
 def human_duration(time1, time2=None, precision=0, short=False):
     """ Return a human-readable representation of a time delta.
     """

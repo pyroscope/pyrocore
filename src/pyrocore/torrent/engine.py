@@ -437,15 +437,15 @@ class TorrentProxy(object):
 
     # Lifecyle
     loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime)
+        accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime_optional)
     started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime)
+        accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime_optional)
     leechtime = DynamicField(untyped, "leechtime", "time taken from start to completion", matcher=matching.DurationFilter,
         accessor=lambda o: _interval_sum(o.fetch("custom_activations"), end=o.completed, context=o.name)
                         or _duration(o.started, o.completed),
         formatter=_fmt_duration)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime)
+        accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime_optional)
     seedtime = DynamicField(untyped, "seedtime", "total seeding time after completion", matcher=matching.DurationFilter,
         accessor=lambda o: _interval_sum(o.fetch("custom_activations"), start=o.completed, context=o.name)
                            if o.is_complete else None,
