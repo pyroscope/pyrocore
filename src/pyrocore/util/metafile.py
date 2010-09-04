@@ -18,11 +18,11 @@
 """
 from __future__ import with_statement
 
-import os
 import re
 import time
 import stat
 import math
+import errno
 import pprint
 import fnmatch
 import hashlib
@@ -30,7 +30,8 @@ import urlparse
 from contextlib import closing
 
 from pyrocore import config, error
-from pyrocore.util import bencode, fmt, pymagic
+from pyrocore.util import os, bencode, fmt, pymagic, types
+
 
 # Allowed characters in a metafile filename or path
 ALLOWED_NAME = re.compile(r"^[^/\\.~][^/\\]*$")
@@ -171,6 +172,48 @@ def clean_meta(meta, including_info=False, log=None):
                     del entry[key]
 
     return meta
+
+
+def add_fast_resume(meta, datapath):
+    """ Add fast resume data to a metafile dict.
+    """
+    # Get list of files
+    files = meta["info"].get("files", None)
+    single = files is None
+    if single:
+        files = [types.Bunch(
+            path=[os.path.abspath(datapath)],
+            length=meta["info"]["length"],
+        )]
+
+    # Prepare resume data
+    resume = meta.setdefault("libtorrent_resume", {})
+    resume["bitfield"] = len(meta["info"]["pieces"]) // 20
+    resume["files"] = []
+    piece_length = meta["info"]["piece length"]
+    offset = 0
+
+    for fileinfo in files:
+        # Get the path into the filesystem
+        filepath = os.sep.join(fileinfo["path"])
+        if not single:
+            filepath = os.path.join(datapath, filepath)
+
+        # Check file size
+        if os.path.getsize(filepath) != fileinfo["length"]:
+            raise OSError(errno.EINVAL, "File size mismatch for %r [is %d, expected %d]" % (
+                filepath, os.path.getsize(filepath), fileinfo["length"],
+            ))
+
+        # Add resume data for this file
+        resume["files"].append(dict(
+            priority=1,
+            mtime=int(os.path.getmtime(filepath)),
+            completed=(offset+fileinfo["length"]+piece_length-1) // piece_length
+                     - offset // piece_length,
+        ))
+        offset += fileinfo["length"]
+
 
 
 def info_hash(metadata):

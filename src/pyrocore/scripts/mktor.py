@@ -20,8 +20,7 @@
 import sys
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.util import types, os
-from pyrocore.util.metafile import Metafile
+from pyrocore.util import metafile, os
 
 
 class MetafileCreator(ScriptBaseWithConfig):
@@ -86,8 +85,8 @@ class MetafileCreator(ScriptBaseWithConfig):
             metapath = self.options.output_filename
             if os.path.isdir(metapath):
                 metapath = os.path.join(metapath, os.path.basename(datapath))
-        metafile = Metafile(metapath + ".torrent")
-        metafile.ignore.extend(self.options.exclude)
+        torrent = metafile.Metafile(metapath + ".torrent")
+        torrent.ignore.extend(self.options.exclude)
 
         def callback(meta):
             "Callback to set label and resume data."
@@ -95,38 +94,14 @@ class MetafileCreator(ScriptBaseWithConfig):
                 meta["info"]["x_cross_seed_label"] = self.options.cross_seed
 
             if self.options.hashed:
-                # Get list of files
-                files = meta["info"].get("files", None)
-                if files is None:
-                    files = [types.Bunch(
-                        path=[os.path.abspath(datapath)],
-                        length=os.path.getsize(datapath),
-                    )]
-
-                # Prepare resume data
-                resume = meta.setdefault("libtorrent_resume", {})
-                resume["bitfield"] = len(meta["info"]["pieces"]) // 20
-                resume["files"] = []
-                piece_length = meta["info"]["piece length"]
-                offset = 0
-
-                for fileinfo in files:
-                    # Get the path into the filesystem
-                    filepath = os.sep.join(fileinfo["path"])
-                    if not os.path.isabs(filepath):
-                        filepath = os.path.join(datapath, filepath)
-
-                    # Add resume data for this file
-                    resume["files"].append(dict(
-                        priority=1,
-                        mtime=int(os.path.getmtime(filepath)),
-                        completed=(offset+fileinfo["length"]+piece_length-1) // piece_length
-                                 - offset // piece_length,
-                    ))
-                    offset += fileinfo["length"]
+                try:
+                    metafile.add_fast_resume(meta, datapath)
+                except EnvironmentError, exc:
+                    self.fatal("Error making fast-resume data (%s)" % (exc,))
+                    raise
 
         # Create and write the metafile(s)
-        metafile.create(datapath, self.args[1:], progress=progress, 
+        torrent.create(datapath, self.args[1:], progress=progress, 
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
             comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
         )
