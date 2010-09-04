@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 KIND_AUDIO = set(("flac", "mp3", "ogg", "wav", "dts", "ac3", "alac", "wma"))
 KIND_VIDEO = set(("avi", "mkv", "m4v", "vob", "mp4", "mpg", "wmv"))
 KIND_IMAGE = set(("jpg", "png", "gif", "tif", "bmp", "svg"))
-KIND_DOCS = set(("chm", "pdf", "cbz", "odt", "ods", "doc", "xls", "ppt"))
+KIND_DOCS = set(("chm", "pdf", "cbr", "cbz", "odt", "ods", "doc", "xls", "ppt"))
 KIND_ARCHIVE = set(("rar", "zip", "tgz", "bz2", "iso", "bin"))
 
 # Regex matchers for names
