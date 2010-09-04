@@ -363,7 +363,8 @@ class Metafile(object):
 
 
     def create(self, datapath, tracker_urls, comment=None, root_name=None, 
-                     created_by=None, private=False, no_date=False, progress=None):
+                     created_by=None, private=False, no_date=False, progress=None,
+                     callback=None):
         """ Create a metafile with the path given on object creation. 
             Returns the last metafile dict that was written (as an object, not bencoded).
         """
@@ -408,6 +409,8 @@ class Metafile(object):
                 meta["created by"] = created_by
             if not no_date:
                 meta["creation date"] = long(time.time())
+            if callback:
+                callback(meta)
 
             # Write metafile to disk
             self.LOG.debug("Writing %r..." % (output_name,))
