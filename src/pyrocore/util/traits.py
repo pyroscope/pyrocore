@@ -20,6 +20,8 @@
 import re
 import logging
 
+from pyrocore import config
+
 log = logging.getLogger(__name__)
 
 # Sets of of extensions / kinds
@@ -130,7 +132,13 @@ def detect_traits(item):
     result = []
     kind = (list(item.fetch("kind_51")) or [None]).pop()
 
-    if kind in KIND_AUDIO:
+    # Check for "themed" trackers
+    theme = config.traits_by_alias.get(item.alias)
+    if theme:
+        result = [theme, kind or "other"]
+
+    # Guess from file extensionn and name
+    elif kind in KIND_AUDIO:
         result = ["audio", kind]
     elif kind in KIND_VIDEO:
         result = ["video", kind]
