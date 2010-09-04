@@ -377,7 +377,8 @@ class Metafile(object):
             # Lookup announce URLs from config file
             try:
                 if urlparse.urlparse(tracker_url).scheme:
-                    tracker_alias = urlparse.urlparse(tracker_url).netloc.split(':')[0].split('.')[-2]
+                    tracker_alias = urlparse.urlparse(tracker_url).netloc.split(':')[0].split('.')
+                    tracker_alias = tracker_alias[-2 if len(tracker_alias) > 1 else 0]
                 else:
                     tracker_alias, tracker_url = config.lookup_announce_alias(tracker_url)
                     tracker_url = tracker_url[0]
