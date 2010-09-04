@@ -50,10 +50,12 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="exclude files matching a glob pattern from hashing")
         self.add_value_option("--comment", "TEXT",
             help="optional human-readable comment")
+        self.add_value_option("-X", "--cross-seed", "LABEL",
+            help="set explicit label for cross-seeding (changes info hash)")
+# TODO: -H
+#        self.add_bool_option("-H", "--hashed", "--fast-resume",
+#            help="create second metafile containing libtorrent fast-resume information")
 # TODO: Set "encoding" correctly
-# TODO: mktor --fast-resume
-#        self.add_bool_option("-R", "--fast-resume",
-#            help="create a second metafile containing rTorrent fast-resume data")
 # TODO: Support multi-tracker extension ("announce-list" field)
 # TODO: DHT "nodes" field?! [[str IP, int port], ...]
 # TODO: Web-seeding http://www.getright.com/seedtorrent.html
@@ -89,9 +91,14 @@ class MetafileCreator(ScriptBaseWithConfig):
         metafile.ignore.extend(self.options.exclude)
 
         # Write the metafile(s)
+        def callback(meta):
+            "Callback to set label."
+            if self.options.cross_seed:
+                meta["info"]["x_cross_seed_label"] = self.options.cross_seed
+
         metafile.create(datapath, self.args[1:], progress=progress, 
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
-            comment=self.options.comment, created_by="PyroScope %s" % self.version,
+            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
         )
 
 
