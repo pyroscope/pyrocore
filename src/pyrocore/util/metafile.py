@@ -181,6 +181,8 @@ def add_fast_resume(meta, datapath):
     files = meta["info"].get("files", None)
     single = files is None
     if single:
+        if os.path.isdir(datapath):
+            datapath = os.path.join(datapath, meta["info"]["name"])
         files = [types.Bunch(
             path=[os.path.abspath(datapath)],
             length=meta["info"]["length"],
@@ -374,7 +376,11 @@ class Metafile(object):
             # for now, always 1MB
             piece_size_exp = 20 
         else:
-            piece_size_exp = int(math.log(self._calc_size()) / math.log(2)) - 9
+            total_size = self._calc_size()
+            if total_size:
+                piece_size_exp = int(math.log(total_size) / math.log(2)) - 9
+            else:
+                piece_size_exp = 0
 
         piece_size_exp = min(max(15, piece_size_exp), 22)
         piece_size = 2 ** piece_size_exp
