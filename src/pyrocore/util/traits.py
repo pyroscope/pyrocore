@@ -118,8 +118,9 @@ def name_trait(name):
     return None
 
 
-def detect_traits(kind, name=None):
-    """ Build traits list from given attributes.
+def detect_traits(item):
+    """ Build traits list from attributes of the passed item. Currently,
+        "kind_51", "name" and "alias" are considered.
     
         The result is a list of hierarchical classifiers, the top-level 
         consisting of "audio", "movie", "tv", "video", "document", etc.
@@ -127,13 +128,14 @@ def detect_traits(kind, name=None):
         structures.
     """
     result = []
+    kind = (list(item.fetch("kind_51")) or [None]).pop()
 
     if kind in KIND_AUDIO:
         result = ["audio", kind]
     elif kind in KIND_VIDEO:
         result = ["video", kind]
 
-        contents = name_trait(name)
+        contents = name_trait(item.name)
         if contents:
             result = [contents, kind]
     elif kind in KIND_IMAGE:
@@ -143,7 +145,7 @@ def detect_traits(kind, name=None):
     elif kind in KIND_ARCHIVE:
         result = ["misc", kind]
 
-        contents = name_trait(name)
+        contents = name_trait(item.name)
         if contents:
             result = [contents, kind]
 

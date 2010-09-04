@@ -460,7 +460,7 @@ class TorrentProxy(object):
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, accessor=lambda o: o.fetch("kind_0"))
     traits = DynamicField(list, "traits", "automatic classification of this item (audio, video, tv, movie, etc.)", 
         matcher=matching.TaggedAsFilter, formatter=lambda v: '/'.join(v or ["misc", "other"]), 
-        accessor= lambda o: traits.detect_traits((list(o.fetch("kind_51")) or [None]).pop(), o.name))
+        accessor=lambda o: traits.detect_traits(o))
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
