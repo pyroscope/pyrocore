@@ -16,14 +16,13 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-import os
 import time
 import hashlib
 import urlparse
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config, error
-from pyrocore.util import bencode, metafile
+from pyrocore.util import os, bencode, metafile
 
 
 class MetafileChanger(ScriptBaseWithConfig):

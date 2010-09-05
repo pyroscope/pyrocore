@@ -38,7 +38,6 @@
 # the module has undergone extensive refactoring.
 #
 
-import os
 import sys
 import time
 import socket
@@ -47,7 +46,7 @@ import urlparse
 import xmlrpclib
 
 from pyrocore import config
-from pyrocore.util import fmt
+from pyrocore.util import os, fmt
 
 # this allows us to parse scgi urls just like http ones
 from urlparse import uses_netloc

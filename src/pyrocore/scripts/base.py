@@ -18,7 +18,6 @@
 """
 from __future__ import with_statement
 
-import os
 import sys
 import time
 import errno
@@ -29,7 +28,7 @@ from optparse import OptionParser
 from contextlib import closing
 
 from pyrocore import error, config
-from pyrocore.util import pymagic, load_config
+from pyrocore.util import os, pymagic, load_config
 
 
 class ScriptBase(object):

@@ -20,7 +20,6 @@
 """
 from __future__ import with_statement
 
-import os
 import time
 import socket
 import xmlrpclib
@@ -28,7 +27,7 @@ from contextlib import closing
 from collections import defaultdict
 
 from pyrocore import config, error
-from pyrocore.util import xmlrpc2scgi, load_config, types, fmt
+from pyrocore.util import os, xmlrpc2scgi, load_config, types, fmt
 from pyrocore.torrent import engine
 
 

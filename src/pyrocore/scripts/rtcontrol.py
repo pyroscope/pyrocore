@@ -16,7 +16,6 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-import os
 import re
 import sys
 import time
@@ -24,7 +23,7 @@ import logging
 import operator
 
 from pyrocore import config
-from pyrocore.util import fmt
+from pyrocore.util import os, fmt
 from pyrocore.util.types import Bunch
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine 

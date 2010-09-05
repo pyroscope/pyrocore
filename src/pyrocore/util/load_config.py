@@ -22,14 +22,13 @@
 """
 from __future__ import with_statement
 
-import os
 import StringIO
 import ConfigParser
 import pkg_resources
 from contextlib import closing
 
 from pyrocore import config, error
-from pyrocore.util import pymagic
+from pyrocore.util import os, pymagic
 
 
 def validate(key, val):

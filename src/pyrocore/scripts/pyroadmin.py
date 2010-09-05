@@ -16,13 +16,11 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-
-import os
 import pprint
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
-from pyrocore.util import load_config, metafile
+from pyrocore.util import os, load_config, metafile
 
 
 class AdminTool(ScriptBaseWithConfig):
