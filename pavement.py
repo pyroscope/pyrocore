@@ -235,6 +235,7 @@ def release():
     print
     print "Created", " ".join([str(i) for i in path("dist").listdir()])
     print "Use 'paver sdist bdist_egg upload' to upload to PyPI"
+    print "Use 'paver dist_docs' to prepare an API documentation upload"
 
 
 #
