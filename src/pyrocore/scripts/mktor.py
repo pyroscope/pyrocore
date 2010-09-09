@@ -44,7 +44,7 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="optional file name for the metafile")
         self.add_value_option("-r", "--root-name", "NAME",
             help="optional root name (default is basename of the data path)")
-        self.add_value_option("-x", "--exclude", "PATTERN",
+        self.add_value_option("-x", "--exclude", "PATTERN [-x ...]",
             action="append", default=[],
             help="exclude files matching a glob pattern from hashing")
         self.add_value_option("--comment", "TEXT",
