@@ -13,23 +13,24 @@ test ! -e fifotest.fifo || rm fifotest.fifo
 mkfifo fifotest.fifo
 
 # Start hashing process
-mktor -r concurrent -o fifotest.torrent fifotest.fifo announce -v &
+mktor -r concurrent -o fifotest fifotest.fifo OBT -v 2>&1 | sed -e s:$HOME:~: &
 
-# Start filename emitting process
+# Start filename emitting process (fake .25 sec latency)
 ( for file in $(find tests/ -name "*.py"); do
-    echo >&2 "$file is complete!"
+    echo >&2 "$(date -u +'%T.%N') $file is complete!"
     echo $file
     sleep .25
 done ) >fifotest.fifo &
 
 # Wait for hashing to complete
 while test ! -f fifotest.torrent; do
-    echo "Waiting for metafile..."
+    echo "$(date -u +'%T.%N') Waiting for metafile..."
     sleep .1
 done
 echo
 
 # Show the result
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 lstor -q fifotest.torrent
 
 # Clean up
