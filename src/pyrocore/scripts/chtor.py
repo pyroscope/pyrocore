@@ -106,12 +106,16 @@ class MetafileChanger(ScriptBaseWithConfig):
 
         # Resolve tracker alias, if URL doesn't look like an URL
         if self.options.reannounce and not urlparse.urlparse(self.options.reannounce).scheme:
+            tracker_alias, idx = self.options.reannounce, "0"
+            if '.' in tracker_alias:
+                tracker_alias, idx = tracker_alias.split('.', 1)
             try:
-                _, tracker_url = config.lookup_announce_alias(self.options.reannounce)
-            except (KeyError, IndexError):
-                raise error.UserError("Unknown tracker alias or bogus URL %r!" % (self.options.reannounce,))
-            else:
-                self.options.reannounce = tracker_url[0]
+                idx = int(idx, 10)
+                _, tracker_url = config.lookup_announce_alias(tracker_alias)
+                self.options.reannounce = tracker_url[idx]
+            except (KeyError, IndexError, TypeError, ValueError), exc:
+                raise error.UserError("Unknown tracker alias or bogus URL %r (%s)!" % (
+                    self.options.reannounce, exc))
 
         # go through given files
         bad = 0
