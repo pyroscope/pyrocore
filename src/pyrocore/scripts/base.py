@@ -46,6 +46,12 @@ class ScriptBase(object):
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = []
     
+    # Can be empty or None in derived classes
+    COPYRIGHT = "Copyright (c) 2009, 2010 Pyroscope Project"
+
+    # Can be made explicit in derived classes
+    VERSION = None
+
 
     @classmethod
     def setup(cls):
@@ -70,26 +76,29 @@ class ScriptBase(object):
         self.LOG = pymagic.get_class_logger(self)
 
         # Get version number
-        provider = pkg_resources.get_provider(__name__)
-        pkg_info = provider.get_metadata("PKG-INFO")
-        if not pkg_info:
-            # Development setup
-            with closing(open(os.path.join(
-                    __file__.split(__name__.replace('.', os.sep))[0],
-                    __name__.split(".")[0] + ".egg-info", "PKG-INFO"))) as handle:
-                pkg_info = handle.read()
-        pkg_info = dict(line.split(": ", 1) 
-            for line in pkg_info.splitlines() 
-            if ": " in line
-        )
-        self.version = pkg_info.get("Version", "DEV")
+        self.version = self.VERSION
+        if not self.version:
+            # Take version from package
+            provider = pkg_resources.get_provider(__name__)
+            pkg_info = provider.get_metadata("PKG-INFO")
+            if not pkg_info:
+                # Development setup
+                with closing(open(os.path.join(
+                        __file__.split(__name__.replace('.', os.sep))[0],
+                        __name__.split(".")[0] + ".egg-info", "PKG-INFO"))) as handle:
+                    pkg_info = handle.read()
+            pkg_info = dict(line.split(": ", 1) 
+                for line in pkg_info.splitlines() 
+                if ": " in line
+            )
+            self.version = pkg_info.get("Version", "DEV")
 
         self.args = None
         self.options = None
         self.return_code = 0
         self.parser = OptionParser(
             "%prog [options] " + self.ARGS_HELP + "\n\n"
-            "%prog " + self.version + ", Copyright (c) 2009, 2010 Pyroscope Project\n\n"
+            "%prog " + self.version + (", " + self.COPYRIGHT if self.COPYRIGHT else "") + "\n\n"
             + textwrap.dedent(self.__doc__.rstrip()).lstrip('\n')
             + '\n'.join(self.ADDITIONAL_HELP),
             version="%prog " + self.version)
