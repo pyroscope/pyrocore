@@ -45,15 +45,17 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
 
         # basic options
         self.add_bool_option("-r", "--repr", help="show Python pretty-printed response")
-        # TODO: self.add_bool_option("--xml", help="show XML response")
+        self.add_bool_option("-x", "--xml", help="show XML response")
 
 
     def mainloop(self):
         """ The main loop.
         """
-        # Print usage if not enough args
+        # Print usage if not enough args or bad options
         if len(self.args) < 1:
             self.parser.error("No method given!")
+        if self.options.repr and self.options.xml:
+            self.parser.error("You cannot combine --repr and --xml!")
 
         # Preparation
         method = self.args[0]
@@ -78,7 +80,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         # Make the call
         proxy = config.engine.open()
         try:
-            result = getattr(proxy, method)(*tuple(args))
+            result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
         except xmlrpclib.Fault, exc:
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:

@@ -231,11 +231,12 @@ class RTorrentMethod(object):
         )
 
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
         """ Execute the method call.
         """
         self._proxy._requests += 1
         start = time.time()
+        raw_xml = kwargs.get("raw_xml", False)
 
         try:
             # Prepare request
@@ -250,6 +251,10 @@ class RTorrentMethod(object):
             self._proxy._inbound += self._inbound
             self._net_latency = scgi_req.latency
             self._proxy._net_latency += self._net_latency
+
+            # Return raw XML response?
+            if raw_xml:
+                return xmlresp
             
             # This fixes a bug with the Python xmlrpclib module
             # (has no handler for <i8> in some versions)
