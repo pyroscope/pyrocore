@@ -22,6 +22,7 @@
 """
 from __future__ import with_statement
 
+import re
 import StringIO
 import ConfigParser
 import pkg_resources
@@ -49,6 +50,7 @@ class ConfigLoader(object):
     """
     CONFIG_INI = "config.ini"
     CONFIG_PY = "config.py"
+    INTERPOLATION_ESCAPE = re.compile(r"(?<!%)%[^%(]")
 
 
     def __init__(self, config_dir=None):
@@ -66,6 +68,14 @@ class ConfigLoader(object):
             setattr(config, key, val)
 
 
+    def _interpolation_escape(self, namespace):
+        """ Re-escape interpolation strings.
+        """
+        for key, val in namespace.items():
+            if '%' in val:
+                namespace[key] = self.INTERPOLATION_ESCAPE.sub(lambda match: '%' + match.group(0), val)
+
+
     def _validate_namespace(self, namespace):
         """ Validate the given namespace. This method is idempotent!
         """
@@ -77,10 +87,13 @@ class ConfigLoader(object):
             if isinstance(val, basestring):
                 namespace["announce"][key] = val.split()
 
+        # Re-escape output formats
+        self._interpolation_escape(namespace["formats"])
+
         # Create objects from module specs
         for factory in ("engine",):
             if isinstance(namespace[factory], basestring):
-                namespace[factory] = pymagic.import_name(namespace[factory])()
+                namespace[factory] = pymagic.import_name(namespace[factory])() if namespace[factory] else None
 
         # Resolve factory and callback handler lists
         for key in namespace:
@@ -110,8 +123,10 @@ class ConfigLoader(object):
 
             # Override with values set in this INI file
             raw_vars.update(dict(ini_file.items(section, raw=True)))
-
+                
             # Interpolate and validate all values
+            if section == "FORMATS":
+                self._interpolation_escape(raw_vars)
             raw_vars.update(dict(
                 (key, validate(key, val))
                 for key, val in ini_file.items(section, vars=raw_vars)
