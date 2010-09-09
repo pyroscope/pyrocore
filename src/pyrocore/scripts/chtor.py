@@ -16,6 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import copy
 import time
 import hashlib
 import urlparse
@@ -55,6 +56,8 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="remove all non-standard data from metafile outside the info dict")
         self.add_bool_option("-A", "--clean-all",
             help="remove all non-standard data from metafile including the info dict")
+        self.add_bool_option("-X", "--clean-xseed",
+            help="like --clean-all, but keep libtorrent resume information")
         self.add_bool_option("-R", "--clean-rtorrent",
             help="remove all rTorrent session data from metafile")
         self.add_value_option("-H", "--hashed", "--fast-resume", "DATAPATH",
@@ -135,6 +138,12 @@ class MetafileChanger(ScriptBaseWithConfig):
                     self.LOG.warn("Skipping metafile %r no tracked by %r!" % (filename, filter_url_prefix,))
                     continue
 
+                # Keep resume info safe
+                libtorrent_resume = {}
+                if "libtorrent_resume" in metainfo:
+                    libtorrent_resume["bitfield"] = metainfo["libtorrent_resume"]["bitfield"]
+                    libtorrent_resume["files"] = copy.deepcopy(metainfo["libtorrent_resume"]["files"])
+
                 # Change private flag?
                 if self.options.make_private and not metainfo["info"].get("private", 0):
                     self.LOG.info("Setting private flag...")
@@ -144,8 +153,17 @@ class MetafileChanger(ScriptBaseWithConfig):
                     del metainfo["info"]["private"]
 
                 # Remove non-standard keys?
-                if self.options.clean or self.options.clean_all:
-                    metafile.clean_meta(metainfo, including_info=self.options.clean_all, log=self.LOG)
+                if self.options.clean or self.options.clean_all or self.options.clean_xseed:
+                    metafile.clean_meta(metainfo, including_info=not self.options.clean, log=self.LOG)
+
+                # Restore resume info?
+                if self.options.clean_xseed:
+                    if libtorrent_resume:
+                        self.LOG.info("Restoring key 'libtorrent_resume'...")
+                        metainfo.setdefault("libtorrent_resume", {})
+                        metainfo["libtorrent_resume"].update(libtorrent_resume)
+                    else:
+                        self.LOG.warn("No resume information found!")
 
                 # Clean rTorrent data?
                 if self.options.clean_rtorrent:
