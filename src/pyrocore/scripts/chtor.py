@@ -52,6 +52,9 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="make torrent private (DHT/PEX disabled)")
         self.add_bool_option("-P", "--make-public",
             help="make torrent public (DHT/PEX enabled)")
+        self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
+            action="append", default=[],
+            help="set a specific key to the given value")
         self.add_bool_option("-C", "--clean",
             help="remove all non-standard data from metafile outside the info dict")
         self.add_bool_option("-A", "--clean-all",
@@ -202,6 +205,23 @@ class MetafileChanger(ScriptBaseWithConfig):
                     except EnvironmentError, exc:
                         self.fatal("Error making fast-resume data (%s)" % (exc,))
                         raise
+
+                # Set specific keys?
+                for assignment in self.options.set:
+                    try:
+                        field, val = assignment.split('=', 1)
+                        
+                        if val and val[0] in "+-" and val[1:].isdigit():
+                            val = int(val, 10)
+
+                        # TODO: create dicts as we go, for now we can only assign into existing namespaces
+                        namespace = metainfo
+                        for key in field.split('.')[:-1]:
+                            namespace = namespace[key]
+                    except (KeyError, IndexError, TypeError, ValueError), exc:
+                        raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
+                    else:
+                        namespace[field.split('.')[-1]] = val
 
                 # Write new metafile, if changed
                 new_metainfo = bencode.bencode(metainfo)
