@@ -42,6 +42,10 @@ class AdminTool(ScriptBaseWithConfig):
             help="create default configuration")
         self.add_bool_option("--dump-config",
             help="pretty-print configuration including all defaults")
+        self.add_value_option("-o", "--output", "KEY,KEY1.KEY2=DEFAULT,...",
+            action="append", default=[],
+            help="select fields to print, output is separated by TABs;"
+                 " default values can be provided after the key")
         self.add_bool_option("--reveal",
             help="show config internals and full announce URL including keys")
 
@@ -61,7 +65,7 @@ class AdminTool(ScriptBaseWithConfig):
                     self.LOG.info("Creating %r..." % (dirpath,))
                     os.mkdir(dirpath)
 
-        elif self.options.dump_config:
+        elif self.options.dump_config or self.options.output:
             # Get public config attributes
             public = dict((key, val)
                 for key, val in vars(config).items()
@@ -70,9 +74,46 @@ class AdminTool(ScriptBaseWithConfig):
                 ))
             )
 
-            # Dump configuration
-            pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
-            pprinter.pprint(public)
+            if self.options.dump_config:
+                # Dump configuration
+                pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
+                pprinter.pprint(public)
+            else:
+                def splitter(fields):
+                    "Yield single names for a list of comma-separated strings."
+                    for flist in fields:
+                        for field in flist.split(','):
+                            yield field.strip()
+
+                values = []
+                for field in splitter(self.options.output):
+                    default = None
+                    if '=' in field:
+                        field, default = field.split('=', 1)
+
+                    try:
+                        val = public
+                        for key in field.split('.'):
+                            if key in val:
+                                val = val[key]
+                            elif isinstance(val, list) and key.isdigit():
+                                val = val[int(key, 10)]
+                            else:
+                                matches = [i for i in val.keys() if i.lower() == key.lower()]
+                                if matches:
+                                    val = val[matches[0]]
+                                else:
+                                    raise KeyError(key)
+                    except (IndexError, KeyError), exc:
+                        if default is None:
+                            self.LOG.error("Field %r not found (%s)" % (field, exc))
+                            break
+                        values.append(default)
+                    else:
+                        values.append(str(val))
+                else:
+                    print '\t'.join(values)
+
         else:
             # Print usage
             self.parser.print_help()
