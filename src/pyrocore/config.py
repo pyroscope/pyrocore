@@ -61,6 +61,7 @@ def map_announce2alias(url):
 _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
 # Set some defaults to shut up pydev / pylint
+config_dir = None
 scgi_local = ""
 throttle_names = set(("NONE", "NULL"))
 engine = Bunch(open=lambda: None)
