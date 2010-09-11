@@ -58,7 +58,7 @@ class MetafileChanger(ScriptBaseWithConfig):
         self.add_bool_option("-C", "--clean",
             help="remove all non-standard data from metafile outside the info dict")
         self.add_bool_option("-A", "--clean-all",
-            help="remove all non-standard data from metafile including the info dict")
+            help="remove all non-standard data from metafile including inside the info dict")
         self.add_bool_option("-X", "--clean-xseed",
             help="like --clean-all, but keep libtorrent resume information")
         self.add_bool_option("-R", "--clean-rtorrent",
@@ -248,7 +248,14 @@ class MetafileChanger(ScriptBaseWithConfig):
                             if os.name != "posix":
                                 # cannot rename to existing target on WIN32
                                 os.remove(filename)
-                            os.rename(tempname, filename)
+
+                            try:
+                                os.rename(tempname, filename)
+                            except EnvironmentError, exc:
+                                # TODO: Try to write directly, keeping a backup!
+                                raise error.LoggableError("Can't rename tempfile %r to %r (%s)" % (
+                                    tempname, filename, exc
+                                ))
 
                     changed += 1
 
