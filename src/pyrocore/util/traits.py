@@ -129,6 +129,7 @@ def detect_traits(name=None, alias=None, filetype=None):
         structures.
     """
     result = []
+    filetype = filetype.lstrip('.')
 
     # Check for "themed" trackers
     theme = config.traits_by_alias.get(alias)
