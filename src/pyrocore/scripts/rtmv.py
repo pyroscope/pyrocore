@@ -21,13 +21,14 @@ from collections import defaultdict
 
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.util import os
+from pyrocore.util import os, fmt
 #from pyrocore.torrent import engine 
 
 
 def pretty_path(path):
-    """ Prettify path from logging.
+    """ Prettify path for logging.
     """
+    path = fmt.to_utf8(path)
     home_dir = os.path.expanduser("~")
     if path.startswith(home_dir):
         path = "~" + path[len(home_dir):]
@@ -137,13 +138,13 @@ class RtorrentMove(ScriptBaseWithConfig):
             # Look if item matches a source path
             # TODO: Handle download items nested into each other!
             try:
-                path_idx = source_realpaths.index(realpath or item.path)
+                path_idx = source_realpaths.index(realpath or fmt.to_utf8(item.path))
             except ValueError:
                 continue
 
             if realpath:
-                self.LOG.debug('Item path "%s" resolved to "%s"' % (item.path, realpath))
-            self.LOG.debug('Found "%s" for %r' % (item.name, source_paths[path_idx]))
+                self.LOG.debug('Item path %s resolved to %s' % (pretty_path(item.path), pretty_path(realpath)))
+            self.LOG.debug('Found "%s" for %s' % (fmt.to_utf8(item.name), pretty_path(source_paths[path_idx])))
             source_items[source_paths[path_idx]].append(item)
 
         ##for path in source_paths: print path, "==>"; print "  " + "\n  ".join(i.path for i in source_items[path])
