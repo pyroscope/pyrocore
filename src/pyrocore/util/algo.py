@@ -63,4 +63,5 @@ class AttributeMapping(object):
             try:
                 return self.defaults[key]
             except KeyError:
-                raise exc 
+                raise AttributeError("%s for %r.%s" % (exc, self.obj, key))
+
