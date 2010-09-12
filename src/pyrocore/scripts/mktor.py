@@ -20,7 +20,7 @@
 import sys
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.util import metafile, os
+from pyrocore.util import metafile, bencode, os
 
 
 class MetafileCreator(ScriptBaseWithConfig):
@@ -83,19 +83,28 @@ class MetafileCreator(ScriptBaseWithConfig):
             if self.options.cross_seed:
                 meta["info"]["x_cross_seed_label"] = self.options.cross_seed
 
-            if self.options.hashed:
-                try:
-                    metafile.add_fast_resume(meta, datapath)
-                except EnvironmentError, exc:
-                    self.fatal("Error making fast-resume data (%s)" % (exc,))
-                    raise
-
         # Create and write the metafile(s)
-        torrent.create(datapath, self.args[1:], 
+        meta = torrent.create(datapath, self.args[1:], 
             progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
             comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
         )
+
+        # Create second metafile with fast-resume?
+        if self.options.hashed:
+            try:
+                metafile.add_fast_resume(meta, datapath)
+            except EnvironmentError, exc:
+                self.fatal("Error making fast-resume data (%s)" % (exc,))
+                raise
+
+            hashed_path = metapath + "-resume.torrent"
+            self.LOG.info("Writing fast-resume metafile %r..." % (hashed_path,))
+            try:
+                bencode.bwrite(hashed_path, meta)
+            except EnvironmentError, exc:
+                self.fatal("Error writing fast-resume metafile %r (%s)" % (hashed_path, exc,))
+                raise
 
 
 def run(): #pragma: no cover
