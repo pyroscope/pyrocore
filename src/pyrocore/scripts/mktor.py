@@ -68,16 +68,6 @@ class MetafileCreator(ScriptBaseWithConfig):
         elif len(self.args) < 2:
             self.parser.error("Expected a path and at least one announce URL, got: %s" % (' '.join(self.args),))
 
-        def progress(totalhashed, totalsize):
-            msg = " " * 30
-            if totalhashed < totalsize:
-                msg = "%5.1f%% complete" % (totalhashed * 100.0 / totalsize)
-            sys.stdout.write(msg + " \r")
-            sys.stdout.flush()
-
-        if self.options.quiet:
-            progress = None
-
         # Create and configure metafile factory
         datapath = self.args[0].rstrip(os.sep)
         metapath = datapath
@@ -101,7 +91,8 @@ class MetafileCreator(ScriptBaseWithConfig):
                     raise
 
         # Create and write the metafile(s)
-        torrent.create(datapath, self.args[1:], progress=progress, 
+        torrent.create(datapath, self.args[1:], 
+            progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
             comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
         )

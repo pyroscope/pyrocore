@@ -19,6 +19,7 @@
 from __future__ import with_statement
 
 import re
+import sys
 import time
 import stat
 import math
@@ -61,6 +62,23 @@ METAFILE_STD_KEYS = [i.split('.') for i in (
     "info.files.path",
 )]
 
+
+def console_progress():
+    """ Return a progress indicator for consoles if
+        stdout is a tty.
+    """
+    def progress(totalhashed, totalsize):
+        msg = " " * 30
+        if totalhashed < totalsize:
+            msg = "%5.1f%% complete" % (totalhashed * 100.0 / totalsize)
+        sys.stdout.write(msg + " \r")
+        sys.stdout.flush()
+
+    try:
+        return progress if sys.stdout.isatty() else None
+    except AttributeError:
+        return None
+        
 
 def mask_keys(announce_url):
     """ Mask any passkeys (hex sequences) in an announce URL.
@@ -174,6 +192,30 @@ def clean_meta(meta, including_info=False, log=None):
     return meta
 
 
+def assign_fields(meta, assignments):
+    """ Takes a list of C{key=value} strings and
+        assigns them to the given metafile.
+    """
+    for assignment in assignments:
+        try:
+            field, val = assignment.split('=', 1)
+            
+            if val and val[0] in "+-" and val[1:].isdigit():
+                val = int(val, 10)
+
+            # TODO: create dicts as we go, for now we can only assign into existing namespaces
+            # TODO: Allow numerical indices, and "+" for append
+            namespace = meta
+            for key in field.split('.')[:-1]:
+                namespace = namespace[key]
+        except (KeyError, IndexError, TypeError, ValueError), exc:
+            raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
+        else:
+            namespace[field.split('.')[-1]] = val
+
+    return meta
+
+
 def add_fast_resume(meta, datapath):
     """ Add fast resume data to a metafile dict.
     """
@@ -216,6 +258,7 @@ def add_fast_resume(meta, datapath):
         ))
         offset += fileinfo["length"]
 
+    return meta
 
 
 def info_hash(metadata):
@@ -235,17 +278,38 @@ class Metafile(object):
     ]
 
 
-    def __init__(self, filename):
+    def __init__(self, filename, datapath=None):
         """ Initialize metafile.
         """
         self.filename = filename
         self.progress = None
-        self.datapath = None
+        self.datapath = datapath
         self.ignore = self.IGNORE_GLOB[:]
         self.LOG = pymagic.get_class_logger(self)
 
 
-    def _scan(self):
+    def _get_datapath(self):
+        """ Get a valid datapath, else raise an exception.
+        """
+        if self._datapath is None:
+            raise OSError(errno.ENOENT, "You didn't provide any datapath for %r" % self.filename)
+
+        return self._datapath
+
+    def _set_datapath(self, datapath):
+        """ Set a datapath.
+        """
+        if datapath:
+            self._datapath = datapath.rstrip(os.sep)
+            self._fifo = int(stat.S_ISFIFO(os.stat(self.datapath).st_mode))
+        else:
+            self._datapath = None
+            self._fifo = False
+
+    datapath = property(_get_datapath, _set_datapath)
+
+
+    def walk(self):
         """ Generate paths in "self.datapath".
         """
         # FIFO?
@@ -290,7 +354,7 @@ class Metafile(object):
         """ Get total size of "self.datapath".
         """
         return sum(os.path.getsize(filename)
-            for filename in self._scan()
+            for filename in self.walk()
         )
 
 
@@ -310,7 +374,7 @@ class Metafile(object):
         done = 0
  
         # Hash all files
-        for filename in (self._scan() if self._fifo else sorted(self._scan())):
+        for filename in (self.walk() if self._fifo else sorted(self.walk())):
             # Assemble file info
             filesize = os.path.getsize(filename)
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
@@ -417,9 +481,13 @@ class Metafile(object):
         """ Create a metafile with the path given on object creation. 
             Returns the last metafile dict that was written (as an object, not bencoded).
         """
-        self.datapath = datapath.rstrip(os.sep)
-        self._fifo = int(stat.S_ISFIFO(os.stat(self.datapath).st_mode))
-        tracker_urls = list(tracker_urls)
+        if datapath:
+            self.datapath = datapath
+
+        try:
+            tracker_urls = ['' + tracker_urls]
+        except TypeError:
+            tracker_urls = list(tracker_urls)
         multi_mode = len(tracker_urls) > 1
 
         # TODO add optimization so the hashing happens only once for multiple URLs!
