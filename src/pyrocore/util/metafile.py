@@ -446,7 +446,7 @@ class Metafile(object):
             else:
                 piece_size_exp = 0
 
-        piece_size_exp = min(max(15, piece_size_exp), 23)
+        piece_size_exp = min(max(15, piece_size_exp), 24)
         piece_size = 2 ** piece_size_exp
 
         # Build info hash
