@@ -19,8 +19,10 @@
 
 import re
 import logging
+from collections import defaultdict
 
 from pyrocore import config
+from pyrocore.util import os
 
 log = logging.getLogger(__name__)
 
@@ -91,6 +93,35 @@ MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
 )]
 
 
+def get_filetypes(filelist, path=None, size=os.path.getsize):
+    """ Get a sorted list of file types and their weight in percent 
+        from an iterable of file names.
+        
+        @return: List of weighted file extensions (no '.'), sorted in descending order
+        @rtype: list of (weight, filetype)
+    """
+    path = path or (lambda _: _)
+
+    # Get total size for each file extension
+    histo = defaultdict(int)
+    for entry in filelist:
+        ext = os.path.splitext(path(entry))[1].lstrip('.').lower()
+        if ext and ext[0] == 'r' and ext[1:].isdigit():
+            ext = "rar"
+        elif ext == "jpeg":
+            ext = "jpg"
+        elif ext == "mpeg":
+            ext = "mpg"
+        histo[ext] += size(entry)
+
+    # Normalize values to integer percent
+    total = sum(histo.values())
+    for ext, val in histo.items():
+        histo[ext] = int(val * 100.0 / total + .499)
+
+    return sorted(zip(histo.values(), histo.keys()), reverse=True)
+
+
 def name_trait(name):
     """ Determine content type from name.
     """
@@ -129,7 +160,8 @@ def detect_traits(name=None, alias=None, filetype=None):
         structures.
     """
     result = []
-    filetype = filetype.lstrip('.')
+    if filetype:
+        filetype = filetype.lstrip('.')
 
     # Check for "themed" trackers
     theme = config.traits_by_alias.get(alias)

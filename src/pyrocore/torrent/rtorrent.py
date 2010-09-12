@@ -22,12 +22,12 @@ from __future__ import with_statement
 
 import time
 import socket
+import operator
 import xmlrpclib
 from contextlib import closing
-from collections import defaultdict
 
 from pyrocore import config, error
-from pyrocore.util import os, xmlrpc2scgi, load_config, types, fmt
+from pyrocore.util import os, xmlrpc2scgi, load_config, types, traits, fmt
 from pyrocore.torrent import engine
 
 
@@ -93,35 +93,20 @@ class RtorrentItem(engine.TorrentProxy):
         if histo:
             # Parse histogram from cached field
             histo = [i.split("%_") for i in histo.split()]
-            histo = dict((ext, int(val, 10)) for val, ext in histo)
+            histo = [(int(val, 10), ext) for val, ext in histo]
             ##self._engine.LOG.debug("~~~~~~~~~~ cached histo = %r" % histo)
         else:
-            # Get total size for each file extension
-            histo = defaultdict(int)
-            for i in self.fetch("files"):
-                ext = os.path.splitext(i.path)[1].lstrip('.').lower()
-                if ext and ext[0] == 'r' and ext[1:].isdigit():
-                    ext = "rar"
-                elif ext == "jpeg":
-                    ext = "jpg"
-                elif ext == "mpeg":
-                    ext = "mpg"
-                histo[ext] += i.size
-
-            # Normalize values to integer percent
-            total = sum(histo.values())
-            for ext, val in histo.items():
-                histo[ext] = int(val * 100.0 / total + .499)
+            # Get filetypes
+            histo = traits.get_filetypes(self.fetch("files"),
+                path=operator.attrgetter("path"), size=operator.attrgetter("size"))
 
             # Set custom cache field with value formatted like "80%_flac 20%_jpg" (sorted by percentage)
-            histo_str = ' '.join(("%d%%_%s" % i).replace(' ', '_') for i in 
-                reversed(sorted(zip(histo.values(), histo.keys())))
-            )
+            histo_str = ' '.join(("%d%%_%s" % i).replace(' ', '_') for i in histo)
             self._make_it_so("setting kind cache %r on" % (histo_str,), ["set_custom"], "kind", histo_str)
             self._fields["custom_kind"] = histo_str
 
         # Return all non-empty extensions that make up at least <limit>% of total size
-        return set(ext for ext, i in histo.items() if ext and i >= limit)
+        return set(ext for val, ext in histo if ext and val >= limit)
 
 
     def fetch(self, name, engine_name=None):
