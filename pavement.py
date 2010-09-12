@@ -177,7 +177,8 @@ def dist_docs():
     dist_dir.exists() or dist_dir.makedirs()
     docs_package.exists() and docs_package.remove()
 
-    sh("cd docs && zip -qr %s index.html apidocs examples" % (docs_package,))
+    sh(r'cd docs && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
+       ' | zip -qr -@ %s' % (docs_package,))
 
     print
     print "Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,)
