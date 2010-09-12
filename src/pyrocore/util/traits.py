@@ -120,9 +120,8 @@ def name_trait(name):
     return None
 
 
-def detect_traits(item):
-    """ Build traits list from attributes of the passed item. Currently,
-        "kind_51", "name" and "alias" are considered.
+def detect_traits(name=None, alias=None, filetype=None):
+    """ Build traits list from passed attributes.
     
         The result is a list of hierarchical classifiers, the top-level 
         consisting of "audio", "movie", "tv", "video", "document", etc.
@@ -130,32 +129,31 @@ def detect_traits(item):
         structures.
     """
     result = []
-    kind = (list(item.fetch("kind_51")) or [None]).pop()
 
     # Check for "themed" trackers
-    theme = config.traits_by_alias.get(item.alias)
-    if theme:
-        result = [theme, kind or "other"]
+    theme = config.traits_by_alias.get(alias)
+    if alias and theme:
+        result = [theme, filetype or "other"]
 
     # Guess from file extensionn and name
-    elif kind in KIND_AUDIO:
-        result = ["audio", kind]
-    elif kind in KIND_VIDEO:
-        result = ["video", kind]
+    elif filetype in KIND_AUDIO:
+        result = ["audio", filetype]
+    elif filetype in KIND_VIDEO:
+        result = ["video", filetype]
 
-        contents = name_trait(item.name)
+        contents = name_trait(name)
         if contents:
-            result = [contents, kind]
-    elif kind in KIND_IMAGE:
-        result = ["img", kind]
-    elif kind in KIND_DOCS:
-        result = ["docs", kind]
-    elif kind in KIND_ARCHIVE:
-        result = ["misc", kind]
+            result = [contents, filetype]
+    elif filetype in KIND_IMAGE:
+        result = ["img", filetype]
+    elif filetype in KIND_DOCS:
+        result = ["docs", filetype]
+    elif filetype in KIND_ARCHIVE:
+        result = ["misc", filetype]
 
-        contents = name_trait(item.name)
+        contents = name_trait(name)
         if contents:
-            result = [contents, kind]
+            result = [contents, filetype]
 
     return result
 

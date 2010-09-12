@@ -175,6 +175,18 @@ def _fmt_files(filelist):
     return '\n'.join(result)
 
 
+def detect_traits(item):
+    """ Build traits list from attributes of the passed item. Currently,
+        "kind_51", "name" and "alias" are considered.
+    
+        See pyrocore.util.traits:dectect_traits for more details.
+    """
+    return traits.detect_traits(
+        name=item.name, alias=item.alias,
+        filetype=(list(item.fetch("kind_51")) or [None]).pop(),
+    )
+
+
 #
 # Field Descriptors
 #
@@ -459,7 +471,7 @@ class TorrentProxy(object):
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, accessor=lambda o: o.fetch("kind_0"))
     traits = DynamicField(list, "traits", "automatic classification of this item (audio, video, tv, movie, etc.)", 
         matcher=matching.TaggedAsFilter, formatter=lambda v: '/'.join(v or ["misc", "other"]), 
-        accessor=lambda o: traits.detect_traits(o))
+        accessor=lambda o: detect_traits(o))
     # = DynamicField(, "", "")
 
     # TODO: metafile data cache (sqlite, shelve or maybe .ini)
