@@ -61,7 +61,13 @@ class MetafileLister(ScriptBase):
                 print "~" * 79
             try:
                 # Read and check metafile
-                data = bencode.bread(filename)
+                try:
+                    data = bencode.bread(filename)
+                except EnvironmentError, exc:
+                    self.fatal("Can't read '%s' (%s)" % (
+                        filename, str(exc).replace(": '%s'" % filename, ""),
+                    ))
+                    raise
                 metafile.check_meta(data)
                 listing = None
 
