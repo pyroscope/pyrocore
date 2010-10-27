@@ -332,7 +332,7 @@ class Metafile(object):
         # Directory?
         elif os.path.isdir(self.datapath):
             # Walk the directory tree
-            for dirpath, dirnames, filenames in os.walk(self.datapath, followlinks=True):
+            for dirpath, dirnames, filenames in os.walk(self.datapath): #, followlinks=True):
                 # Don't scan blacklisted directories
                 for bad in dirnames[:]:
                     if any(fnmatch.fnmatch(bad, pattern) for pattern in self.ignore):
