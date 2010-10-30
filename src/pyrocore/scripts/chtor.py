@@ -148,7 +148,11 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Keep resume info safe
                 libtorrent_resume = {}
                 if "libtorrent_resume" in metainfo:
-                    libtorrent_resume["bitfield"] = metainfo["libtorrent_resume"]["bitfield"]
+                    try:
+                        libtorrent_resume["bitfield"] = metainfo["libtorrent_resume"]["bitfield"]
+                    except KeyError:
+                        pass # nothing to remember
+
                     libtorrent_resume["files"] = copy.deepcopy(metainfo["libtorrent_resume"]["files"])
 
                 # Change private flag?
