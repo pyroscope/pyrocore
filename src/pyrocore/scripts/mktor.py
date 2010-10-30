@@ -53,11 +53,12 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="set explicit label for cross-seeding (changes info hash)")
         self.add_bool_option("-H", "--hashed", "--fast-resume",
             help="create second metafile containing libtorrent fast-resume information")
+# TODO: Optionally limit disk I/O bandwidth used (incl. a config default!)
 # TODO: Set "encoding" correctly
 # TODO: Support multi-tracker extension ("announce-list" field)
 # TODO: DHT "nodes" field?! [[str IP, int port], ...]
 # TODO: Web-seeding http://www.getright.com/seedtorrent.html
-
+#       field 'url-list': ['http://...'] on top-level
 
     def mainloop(self):
         """ The main loop.
