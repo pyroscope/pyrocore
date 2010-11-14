@@ -45,7 +45,7 @@ import urllib
 import urlparse
 import xmlrpclib
 
-from pyrocore import config
+from pyrocore import config, error
 from pyrocore.util import os, fmt
 
 # this allows us to parse scgi urls just like http ones
@@ -304,7 +304,10 @@ class RTorrentProxy(object):
         self._net_latency = 0.0
 
         # TODO: Should also support "host:port" and "socket_path"
-        scheme, _, _, _, _ = urlparse.urlsplit(self._url)
+        try:
+            scheme, _, _, _, _ = urlparse.urlsplit(self._url)
+        except (AttributeError, ValueError, TypeError), exc:
+            raise error.LoggableError("Bad SCGI URL %r (%s)" % (self._url, exc,))
         assert scheme == 'scgi', 'Unsupported protocol'
 
     
