@@ -358,7 +358,7 @@ class Metafile(object):
         )
 
 
-    def _make_info(self, piece_size, progress):
+    def _make_info(self, piece_size, progress, walker, piece_callback=None):
         """ Create info dict.
         """
         # These collect the file descriptions and piece hashes
@@ -374,7 +374,7 @@ class Metafile(object):
         done = 0
  
         # Hash all files
-        for filename in (self.walk() if self._fifo else sorted(self.walk())):
+        for filename in walker:
             # Assemble file info
             filesize = os.path.getsize(filename)
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
@@ -399,6 +399,8 @@ class Metafile(object):
                     # Piece is done
                     if done == piece_size:
                         pieces.append(sha1.digest())
+                        if piece_callback:
+                            piece_callback(filename, pieces[-1])
                         
                         # Start a new piece
                         sha1 = hashlib.sha1()
@@ -413,6 +415,8 @@ class Metafile(object):
         # Add hash of partial last piece
         if done > 0:
             pieces.append(sha1.digest())
+            if piece_callback:
+                piece_callback(filename, pieces[-1])
 
         # Build the meta dict
         metainfo = {
@@ -450,7 +454,7 @@ class Metafile(object):
         piece_size = 2 ** piece_size_exp
 
         # Build info hash
-        info = self._make_info(piece_size, progress)
+        info = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
 
         # Enforce unique hash per tracker
         info["x_cross_seed"] = hashlib.md5(tracker_url).hexdigest()
@@ -534,6 +538,27 @@ class Metafile(object):
             bencode.bwrite(output_name, meta)
 
         return meta
+
+
+    def check(self, metainfo, datapath, progress=None):
+        """ Check piece hashes of a metafile against the given datapath.
+        """
+        if datapath:
+            self.datapath = datapath
+
+        def check_piece(filename, piece):
+            "Callback for new piece"
+            if piece != metainfo["info"]["pieces"][check_piece.piece_index:check_piece.piece_index+20]:
+                self.LOG.warn("Piece #%d: Hashes differ in file %r" % (check_piece.piece_index//20, filename))
+            check_piece.piece_index += 20
+        check_piece.piece_index = 0
+            
+        datameta = self._make_info(int(metainfo["info"]["piece length"]), progress, 
+            [datapath] if "length" in metainfo["info"] else
+            (os.path.join(*([datapath] + i["path"])) for i in metainfo["info"]["files"]),
+            piece_callback=check_piece
+        )
+        return datameta["pieces"] == metainfo["info"]["pieces"]
 
 
     def listing(self, masked=True):

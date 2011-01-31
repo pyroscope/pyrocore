@@ -55,6 +55,7 @@ project = dict(
             "mktor = pyrocore.scripts.mktor:run",
             "lstor = pyrocore.scripts.lstor:run",
             "chtor = pyrocore.scripts.chtor:run",
+            "hashcheck = pyrocore.scripts.hashcheck:run",
             "pyroadmin = pyrocore.scripts.pyroadmin:run",
             "rtcontrol = pyrocore.scripts.rtcontrol:run",
             "rtxmlrpc = pyrocore.scripts.rtxmlrpc:run",
