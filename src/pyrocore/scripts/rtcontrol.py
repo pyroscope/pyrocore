@@ -141,6 +141,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="show search result only in default ncurses view")
         self.add_value_option("--to-view", "NAME",
             help="show search result only in named ncurses view")
+        self.add_bool_option("--tee-view",
+            help="ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)")
         self.add_value_option("--from-view", "NAME",
             help="select only items that are on view NAME")
 # TODO: implement -S
@@ -251,6 +253,15 @@ class RtorrentControl(ScriptBaseWithConfig):
         return operator.attrgetter(*tuple(self.options.sort_fields))
 
 
+    def show_in_view(self, sourceview, matches, targetname=None):
+        """ Show search result in ncurses view.
+        """
+        targetname = targetname or self.options.to_view or "rtcontrol"
+        config.engine.show(matches, targetname)
+        self.LOG.info("Filtered %d out of %d torrents into rTorrent view %r." % (
+            len(matches), sourceview.size(), targetname))
+
+
     def mainloop(self):
         """ The main loop.
         """
@@ -333,8 +344,12 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
         if not matches:
-            # think "404 NOT FOUND", but then exit codes should be < 256
+            # Think "404 NOT FOUND", but then exit codes should be < 256
             self.return_code = 44
+
+        # Tee to ncurses view, if requested
+        if self.options.tee_view and (self.options.to_view or self.options.view_only):
+            self.show_in_view(view, matches)
 
         # Execute action?
         if action:
@@ -356,14 +371,12 @@ class RtorrentControl(ScriptBaseWithConfig):
                         item.flush()
 
         # Show in ncurses?
-        elif self.options.to_view or self.options.view_only:
-            viewname = self.options.to_view or "rtcontrol"
-            config.engine.show(matches, viewname)
-            self.LOG.info("Filtered %d out of %d torrents into rTorrent view %r." % (
-                len(matches), view.size(), viewname))
+        elif not self.options.tee_view and (self.options.to_view or self.options.view_only):
+            self.show_in_view(view, matches)
 
         # Show on console?
         elif self.options.output_format and self.options.output_format != "-":
+            # Build header stencil
             stencil = None
             if self.options.column_headers and self.plain_output_format and matches:
                 stencil = fmt.to_console(self.options.output_format % 
@@ -377,7 +390,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
                 # Print matching item
                 line_count += self.emit(item, self.FORMATTER_DEFAULTS)
-
+                
             self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
         else:
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
