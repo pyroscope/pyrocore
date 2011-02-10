@@ -21,6 +21,7 @@ import sys
 import time
 import logging
 import operator
+from collections import defaultdict
 
 from pyrocore import config
 from pyrocore.util import os, fmt
@@ -133,8 +134,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         #    help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
             help="specify display format (use '-o-' to disable item display)")
-        self.add_value_option("-s", "--sort-fields", "FIELD[,...]",
-            help="fields used for sorting")
+        self.add_value_option("-s", "--sort-fields", "[-]FIELD[,...]",
+            help="fields used for sorting, descending if prefixed with '-'")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
         self.add_bool_option("-V", "--view-only",
@@ -246,11 +247,39 @@ class RtorrentControl(ScriptBaseWithConfig):
         if sort_fields is None:
             sort_fields = config.sort_fields
 
-        # Split and validate field list
-        sort_fields = engine.validate_field_list(sort_fields)
+        # Allow descending order per field by prefixing with '-'
+        descending = defaultdict(bool)
+        def sort_order_filter(name):
+            "Helper to remove flag and memoize sort order"
+            if name.startswith('-'):
+                name = name[1:]
+                descending[name] = True
+            return name
 
-        self.options.sort_fields = sort_fields
-        return operator.attrgetter(*tuple(self.options.sort_fields))
+        # Split and validate field list
+        sort_fields = engine.validate_field_list(sort_fields, name_filter=sort_order_filter)
+
+        # No descending fields?
+        if not any(descending.values()):
+            return operator.attrgetter(*tuple(sort_fields))
+
+        # Need to provide complex key
+        class Key(object):
+            "Complex sort order key"
+            def __init__(self, obj, *args):
+                "Remember object to be compared"
+                self.obj = obj
+            def __lt__(self, other):
+                "Compare to other key"
+                for field in sort_fields:
+                    a, b = getattr(self.obj, field), getattr(other.obj, field)
+                    #print descending[field], field, a, b
+                    if a == b:
+                        continue
+                    return b < a if descending[field] else a < b
+                return False
+
+        return Key
 
 
     def show_in_view(self, sourceview, matches, targetname=None):

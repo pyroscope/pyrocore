@@ -708,7 +708,7 @@ class OutputMapping(algo.AttributeMapping):
                 raise error.LoggableError("While formatting %s=%r: %s" % (key, val, exc))
 
 
-def validate_field_list(fields, allow_fmt_specs=False):
+def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
     """ Make sure the fields in the given list exist.
     
         @param fields: List of fields (comma-/space-separated if a string).
@@ -724,9 +724,12 @@ def validate_field_list(fields, allow_fmt_specs=False):
         # Not a string
         pass
 
+    if name_filter:
+        fields = [name_filter(name) for name in fields]
+
     for name in fields:
-        fullname = name
         if allow_fmt_specs and '.' in name:
+            fullname = name
             name, fmtspecs = name.split('.', 1)
             for fmt in fmtspecs.split('.'):
                 if fmt not in formats and fmt != "raw": 
