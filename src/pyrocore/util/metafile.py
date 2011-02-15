@@ -102,6 +102,8 @@ class MaskingPrettyPrinter(pprint.PrettyPrinter):
 
 def check_info(info):
     """ Validate info dict.
+    
+        Raise ValueError if validation fails.
     """
     if not isinstance(info, dict):
         raise ValueError("bad metainfo - not a dictionary")
@@ -116,7 +118,7 @@ def check_info(info):
 
     name = info.get("name")
     if not isinstance(name, basestring):
-        raise ValueError("bad metainfo - bad name")
+        raise ValueError("bad metainfo - bad name (type is %r)" % type(name).__name__)
     if not ALLOWED_NAME.match(name):
         raise ValueError("name %s disallowed for security reasons" % name)
 
@@ -159,6 +161,8 @@ def check_info(info):
 
 def check_meta(meta):
     """ Validate meta dict.
+    
+        Raise ValueError if validation fails.
     """
     if not isinstance(meta, dict):
         raise ValueError("bad metadata - not a dictionary")

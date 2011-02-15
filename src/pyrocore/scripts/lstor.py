@@ -38,6 +38,8 @@ class MetafileLister(ScriptBase):
             help="show full announce URL including keys")
         self.add_bool_option("--raw",
             help="print the metafile's raw content in all detail")
+        self.add_bool_option("-V", "--skip-validation",
+            help="show broken metafiles with an invalid structure")
         self.add_value_option("-o", "--output", "KEY,KEY1.KEY2,...",
             action="append", default=[],
             help="select fields to print, output is separated by TABs;"
@@ -68,7 +70,13 @@ class MetafileLister(ScriptBase):
                         filename, str(exc).replace(": '%s'" % filename, ""),
                     ))
                     raise
-                metafile.check_meta(data)
+                try:
+                    metafile.check_meta(data)
+                except ValueError, exc:
+                    if self.options.skip_validation:
+                        self.LOG.warn(str(exc))
+                    else:
+                        raise
                 listing = None
 
                 if self.options.raw:
