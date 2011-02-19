@@ -70,3 +70,4 @@ sort_fields = ""
 announce = {}
 config_validator_callbacks = []
 custom_field_factories = []
+xmlrpc = {}
