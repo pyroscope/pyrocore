@@ -243,12 +243,14 @@ class RTorrentMethod(object):
             xmlreq = xmlrpclib.dumps(args, config.xmlrpc.get(self._method_name, self._method_name))
             self._outbound = len(xmlreq)
             self._proxy._outbound += self._outbound
+            self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound) 
 
             # Send it
             scgi_req = SCGIRequest(self._proxy._url)
             xmlresp = scgi_req.send(xmlreq)
             self._inbound = len(xmlresp)
             self._proxy._inbound += self._inbound
+            self._proxy._inbound_max = max(self._proxy._inbound_max, self._inbound) 
             self._net_latency = scgi_req.latency
             self._proxy._net_latency += self._net_latency
 
@@ -299,7 +301,9 @@ class RTorrentProxy(object):
         # Statistics (traffic w/o HTTP overhead)
         self._requests = 0
         self._outbound = 0L
+        self._outbound_max = 0L
         self._inbound = 0L
+        self._inbound_max = 0L
         self._latency = 0.0
         self._net_latency = 0.0
 
@@ -314,10 +318,12 @@ class RTorrentProxy(object):
     def __str__(self):
         """ Return statistics.
         """
-        return "%d req, out %s, in %s, %.3fms/%.3fms avg latency" % (
+        return "%d req, out %s [%s max], in %s [%s max], %.3fms/%.3fms avg latency" % (
             self._requests, 
             fmt.human_size(self._outbound).strip(), 
+            fmt.human_size(self._outbound_max).strip(), 
             fmt.human_size(self._inbound).strip(), 
+            fmt.human_size(self._inbound_max).strip(), 
             self._net_latency * 1000.0 / self._requests,
             self._latency * 1000.0 / self._requests,
         )
