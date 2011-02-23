@@ -69,7 +69,7 @@ class CompoundFilterAny(Filter, list):
         return any(i.match(item) for i in self)
 
 
-class NegateFilter(object):
+class NegateFilter(Filter):
     """ Negate result of another filter (NOT).
     """
 
