@@ -22,6 +22,7 @@ from __future__ import with_statement
 
 import time
 import socket
+import fnmatch
 import operator
 import xmlrpclib
 from contextlib import closing
@@ -56,21 +57,26 @@ class RtorrentItem(engine.TorrentProxy):
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
 
-    def _get_files(self):
+    def _get_files(self, attrs=None):
         """ Get a list of all files in this download; each entry has the
             attributes C{path} (relative to root), C{size} (in bytes),
             C{mtime}, C{priority} (0=off, 1=normal, 2=high), C{created}, 
             and C{opened}.
             
             This is UNCACHED, use C{fetch("files")} instead.
+            
+            @param attrs: Optional list of additional attributes to fetch. 
         """
         try:
             # Get info for all files
             f_multicall = self._engine._rpc.f.multicall
-            rpc_result = f_multicall(self._fields["hash"], 0,
+            f_params = [self._fields["hash"], 0,
                 "f.get_path=", "f.get_size_bytes=", "f.get_last_touched=",
                 "f.get_priority=", "f.is_created=", "f.is_open=",
-            )
+            ]
+            for attr in (attrs or []):
+                f_params.append("f.%s=" % attr)
+            rpc_result = f_multicall(*tuple(f_params))
         except xmlrpclib.Fault, exc:
             raise error.EngineError("While %s torrent #%s: %s" % (
                 "getting files for", self._fields["hash"], exc))
@@ -78,10 +84,19 @@ class RtorrentItem(engine.TorrentProxy):
             #self._engine.LOG.debug("files result: %r" % rpc_result)
 
             # Return results
-            return [types.Bunch(
+            result = [types.Bunch(
                 path=i[0], size=i[1], mtime=i[2] / 1000000.0,
                 prio=i[3], created=i[4], opened=i[5],
             ) for i in rpc_result]
+
+            if attrs:
+                for idx, attr in enumerate(attrs):
+                    if attr.startswith("get_"):
+                        attr = attr[4:]
+                    for item, rpc_item in zip(result, rpc_result):
+                        item[attr] = rpc_item[6+idx]
+
+            return result
 
 
     def _get_kind(self, limit):
@@ -267,12 +282,95 @@ class RtorrentItem(engine.TorrentProxy):
         self._make_it_so("erasing", ["erase"])
 
 
+    def purge(self):
+        """ Delete PARTIAL data files and remove torrent from client.
+        """
+        def partial_file(item):
+            "Filter out partial files"
+            #print "???", repr(item)
+            return item.completed_chunks < item.size_chunks
+            
+        self.cull(file_filter=partial_file, attrs=["get_completed_chunks", "get_size_chunks"])
+
+    
+    def cull(self, file_filter=None, attrs=None):
+        """ Delete ALL data files and remove torrent from client.
+
+            @param attrs: Optional list of additional attributes to fetch for a filter. 
+        """
+        def remove_with_links(path):
+            "Remove a path including any symlink chains leading to it."
+            doomed = []
+            while os.path.islink(path):
+                target = os.readlink(path)
+                doomed.append(path)
+                path = target
+
+            if os.path.exists(path):
+                doomed.append(path)
+            
+            # Remove the link chain, starting at the real path
+            # (this prevents losing the chain when there's permission problems)
+            for path in reversed(doomed):
+                is_dir = os.path.isdir(path)
+                self._engine.LOG.debug("Deleting '%s%s'" % (path, '/' if is_dir else ''))
+                (os.rmdir if is_dir else os.remove)(path)
+        
+            return doomed
+        
+        # Assemble doomed files and directories
+        files, dirs = set(), set()
+        if os.path.isdir(self.path):
+            dirs.add(self.path)
+
+        for item in self._get_files(attrs=attrs):
+            if file_filter and not file_filter(item):
+                continue
+            #print repr(item)
+            path = os.path.join(self.path, item.path)
+            files.add(path)
+            if '/' in item.path:
+                dirs.add(os.path.dirname(path))
+        
+        # Delete selected files
+        self.stop()
+        for path in sorted(files):
+            ##self._engine.LOG.debug("Deleting file '%s'" % (path,))
+            remove_with_links(path)
+        
+        # Prune empty directories (longer paths first)
+        doomed = files | dirs
+        for path in sorted(dirs, reverse=True):
+            residue = set(os.listdir(path) if os.path.exists(path) else [])
+            ignorable = set(i for i in residue 
+                if any(fnmatch.fnmatch(i, pat) for pat in config.waif_pattern_list)
+                #or os.path.join(path, i) in doomed 
+            )
+            ##print "---", residue - ignorable
+            if residue and residue != ignorable:
+                self._engine.LOG.info("Keeping non-empty directory '%s' with %d %s%s!" % (
+                    path, len(residue),
+                    "entry" if len(residue) == 1 else "entries",
+                    (" (%d ignorable)" % len(ignorable)) if ignorable else "",
+                ))
+            else:
+                ##print "---", ignorable
+                for waif in ignorable - doomed:
+                    waif = os.path.join(path, waif)
+                    self._engine.LOG.debug("Deleting waif '%s'" % (waif,))
+                    os.remove(waif)
+                    
+                ##self._engine.LOG.debug("Deleting empty directory '%s'" % (path,))
+                doomed.update(remove_with_links(path))
+        
+        # Delete item from engine
+        self.delete()
+
+
     def flush(self):
         """ Write volatile data to disk.
         """
         self._make_it_so("saving session data of", ["save_session"])
-
-    # TODO: purge is probably: get base_path, self.delete(), rm -rf base_path
 
 
 class RtorrentEngine(engine.TorrentEngine):
@@ -522,4 +620,3 @@ class RtorrentEngine(engine.TorrentEngine):
         # TODO: should be a "system.multicall"
         for item in items:
             proxy.view.set_visible(item.hash, view)
-

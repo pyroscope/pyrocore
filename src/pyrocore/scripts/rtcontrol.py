@@ -75,7 +75,15 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="close", options=("-C", "--close", "--stop"), help="stop torrent", method="stop"), 
         Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
         # TODO: Bunch(name="announce", options=("--announce",), help="announce right now", interactive=True), 
+        # TODO: --pause, --resume?
+        # TODO: implement --clean-partial
+        #self.add_bool_option("--clean-partial",
+        #    help="remove partially downloaded 'off'ed files (also stops downloads)")
         Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
+        Bunch(name="purge", options=("--purge", "--delete-partial"), 
+              help="delete PARTIAL data files and remove torrent from client", interactive=True), 
+        Bunch(name="cull", options=("--cull", "--exterminate", "--delete-all"), 
+            help="delete ALL data files and remove torrent from client", interactive=True), 
         Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
             help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
         Bunch(name="tag", options=("--tag",), argshelp='"TAG +TAG -TAG..."',
@@ -95,13 +103,6 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
         #     help="call a raw XMLRPC command", interactive=True), 
     )
-# TODO: implement --exterminate
-#        self.add_bool_option("--exterminate", "--delete-all",
-#            help="remove from client and also delete all data (implies -i)")
-# TODO: implement --clean-partial
-#        self.add_bool_option("--clean-partial",
-#            help="remove partially downloaded 'off'ed files (also stops downloads)")
-# TODO: --pause, --resume?
 
 
     def __init__(self):

@@ -63,6 +63,8 @@ _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 # Set some defaults to shut up pydev / pylint
 config_dir = None
 scgi_local = ""
+scgi_port = ""
+scgi_url = ""
 throttle_names = set(("NONE", "NULL"))
 engine = Bunch(open=lambda: None)
 formats = {}
@@ -71,3 +73,5 @@ announce = {}
 config_validator_callbacks = []
 custom_field_factories = []
 xmlrpc = {}
+output_header_ecma48 = ""
+waif_pattern_list = []

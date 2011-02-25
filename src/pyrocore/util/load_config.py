@@ -95,9 +95,14 @@ class ConfigLoader(object):
             if isinstance(namespace[factory], basestring):
                 namespace[factory] = pymagic.import_name(namespace[factory])() if namespace[factory] else None
 
-        # Resolve factory and callback handler lists
+        # Do some standard type conversions
         for key in namespace:
-            if any(key.endswith(i) for i in ("_factories", "_callbacks")) and isinstance(namespace[key], basestring):
+            # Split lists
+            if key.endswith("_list") and isinstance(namespace[key], basestring):
+                namespace[key] = [i.strip() for i in namespace[key].replace(',', ' ').split()]
+
+            # Resolve factory and callback handler lists
+            elif any(key.endswith(i) for i in ("_factories", "_callbacks")) and isinstance(namespace[key], basestring):
                 namespace[key] = [pymagic.import_name(i.strip()) for i in namespace[key].replace(',', ' ').split()]
 
         # Update config values again
