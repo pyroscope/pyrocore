@@ -377,6 +377,12 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Think "404 NOT FOUND", but then exit codes should be < 256
             self.return_code = 44
 
+        # Build header stencil
+        stencil = None
+        if self.options.column_headers and self.plain_output_format and matches:
+            stencil = fmt.to_console(self.options.output_format % 
+                engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
+
         # Tee to ncurses view, if requested
         if self.options.tee_view and (self.options.to_view or self.options.view_only):
             self.show_in_view(view, matches)
@@ -388,6 +394,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             ))
             defaults = {"action": action.label}
             defaults.update(self.FORMATTER_DEFAULTS)
+
+            if self.options.column_headers and matches:
+                self.emit(None, stencil=stencil)
 
             # Perform chosen action on matches
             for item in matches:
@@ -406,12 +415,6 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Show on console?
         elif self.options.output_format and self.options.output_format != "-":
-            # Build header stencil
-            stencil = None
-            if self.options.column_headers and self.plain_output_format and matches:
-                stencil = fmt.to_console(self.options.output_format % 
-                    engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
-
             line_count = 0
             for item in matches:
                 # Emit a header line every 'output_header_frequency' lines

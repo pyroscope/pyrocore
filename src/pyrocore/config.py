@@ -74,4 +74,5 @@ config_validator_callbacks = []
 custom_field_factories = []
 xmlrpc = {}
 output_header_ecma48 = ""
+output_header_frequency = 1
 waif_pattern_list = []
