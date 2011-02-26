@@ -296,44 +296,53 @@ class RtorrentItem(engine.TorrentProxy):
     def cull(self, file_filter=None, attrs=None):
         """ Delete ALL data files and remove torrent from client.
 
+            @param file_filter: Optional callable for selecting a subset of all files.
+                The callable gets a file item as described for RtorrentItem._get_files
+                and must return True for items eligible for deletion. 
             @param attrs: Optional list of additional attributes to fetch for a filter. 
         """
+        dry_run = 0
+        
         def remove_with_links(path):
             "Remove a path including any symlink chains leading to it."
-            doomed = []
+            rm_paths = []
             while os.path.islink(path):
                 target = os.readlink(path)
-                doomed.append(path)
+                rm_paths.append(path)
                 path = target
 
             if os.path.exists(path):
-                doomed.append(path)
+                rm_paths.append(path)
             
             # Remove the link chain, starting at the real path
             # (this prevents losing the chain when there's permission problems)
-            for path in reversed(doomed):
+            for path in reversed(rm_paths):
                 is_dir = os.path.isdir(path)
                 self._engine.LOG.debug("Deleting '%s%s'" % (path, '/' if is_dir else ''))
-                (os.rmdir if is_dir else os.remove)(path)
+                if not dry_run:
+                    (os.rmdir if is_dir else os.remove)(path)
         
-            return doomed
+            return rm_paths
         
         # Assemble doomed files and directories
         files, dirs = set(), set()
-        if os.path.isdir(self.path):
+        if not os.path.isdir(self.path):
+            files.add(self.path)
+        else:
             dirs.add(self.path)
 
-        for item in self._get_files(attrs=attrs):
-            if file_filter and not file_filter(item):
-                continue
-            #print repr(item)
-            path = os.path.join(self.path, item.path)
-            files.add(path)
-            if '/' in item.path:
-                dirs.add(os.path.dirname(path))
+            for item in self._get_files(attrs=attrs):
+                if file_filter and not file_filter(item):
+                    continue
+                #print repr(item)
+                path = os.path.join(self.path, item.path)
+                files.add(path)
+                if '/' in item.path:
+                    dirs.add(os.path.dirname(path))
         
         # Delete selected files
-        self.stop()
+        if not dry_run:
+            self.stop()
         for path in sorted(files):
             ##self._engine.LOG.debug("Deleting file '%s'" % (path,))
             remove_with_links(path)
@@ -358,13 +367,15 @@ class RtorrentItem(engine.TorrentProxy):
                 for waif in ignorable - doomed:
                     waif = os.path.join(path, waif)
                     self._engine.LOG.debug("Deleting waif '%s'" % (waif,))
-                    os.remove(waif)
+                    if not dry_run:
+                        os.remove(waif)
                     
                 ##self._engine.LOG.debug("Deleting empty directory '%s'" % (path,))
                 doomed.update(remove_with_links(path))
         
         # Delete item from engine
-        self.delete()
+        if not dry_run:
+            self.delete()
 
 
     def flush(self):
