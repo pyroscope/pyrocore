@@ -52,14 +52,14 @@ project = dict(
     doc_dir = "docs/apidocs",
     entry_points = {
         "console_scripts": [
-            "mktor = pyrocore.scripts.mktor:run",
-            "lstor = pyrocore.scripts.lstor:run",
             "chtor = pyrocore.scripts.chtor:run",
             "hashcheck = pyrocore.scripts.hashcheck:run",
+            "lstor = pyrocore.scripts.lstor:run",
+            "mktor = pyrocore.scripts.mktor:run",
             "pyroadmin = pyrocore.scripts.pyroadmin:run",
             "rtcontrol = pyrocore.scripts.rtcontrol:run",
-            "rtxmlrpc = pyrocore.scripts.rtxmlrpc:run",
             "rtmv = pyrocore.scripts.rtmv:run",
+            "rtxmlrpc = pyrocore.scripts.rtxmlrpc:run",
         ],
     },
     include_package_data = True,
