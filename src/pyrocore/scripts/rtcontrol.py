@@ -299,7 +299,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.help_fields:
             self.parser.print_help()
 
-            # Mock entries that fulfill the expectations towards a field definition
+            # Mock entries, so they fulfill the expectations towards a field definition
             def custom_manifold():
                 "named rTorrent custom attribute, e.g. 'custom_completion_target'"
                 return ("custom_KEY", custom_manifold)
