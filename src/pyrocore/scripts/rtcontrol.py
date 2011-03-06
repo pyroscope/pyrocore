@@ -89,7 +89,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         Bunch(name="tag", options=("--tag",), argshelp='"TAG +TAG -TAG..."',
             help="add or remove tag(s)", interactive=False), 
         Bunch(name="custom", label="SET_CUSTOM", options=("--custom",), argshelp='KEY=VALUE', method="set_custom",
-            help="set value of 'custom_KEY' field", interactive=False), 
+            help="set value of 'custom_KEY' field (KEY might also be 1..5)", interactive=False), 
         # TODO: --move / --link output_format / the formatted result is the target path
         #           if the target contains a '//' in place of a '/', directories
         #           after that are auto-created
@@ -129,7 +129,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # output control
         self.add_bool_option("-0", "--nul", "--print0",
             help="use a NUL character instead of a linebreak after items")
-        self.add_bool_option("--column-headers",
+        self.add_bool_option("-c", "--column-headers",
             help="print column headers")
         #self.add_bool_option("-f", "--full",
         #    help="print full torrent details")
@@ -299,6 +299,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.help_fields:
             self.parser.print_help()
 
+            # Mock entries that fulfill the expectations towards a field definition
             def custom_manifold():
                 "named rTorrent custom attribute, e.g. 'custom_completion_target'"
                 return ("custom_KEY", custom_manifold)
