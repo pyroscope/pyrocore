@@ -60,7 +60,8 @@ def map_announce2alias(url):
 # Remember predefined names
 _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
-# Set some defaults to shut up pydev / pylint
+# Set some defaults to shut up pydev / pylint;
+# these later get overwritten by loading the config
 config_dir = None
 scgi_local = ""
 scgi_port = ""
@@ -76,3 +77,4 @@ xmlrpc = {}
 output_header_ecma48 = ""
 output_header_frequency = 1
 waif_pattern_list = []
+traits_by_alias = {}
