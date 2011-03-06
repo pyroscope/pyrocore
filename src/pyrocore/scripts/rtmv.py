@@ -104,7 +104,7 @@ class RtorrentMove(ScriptBaseWithConfig):
         target = self.args[-1]
         if "//" in target.rstrip('/'):
             # Create parts of target path
-            existing, might = target.split("//", 1)
+            existing, _ = target.split("//", 1)
             if not os.path.isdir(existing):
                 self.fatal("Path before '//' MUST exists in %s" % (pretty_path(target),))
 
