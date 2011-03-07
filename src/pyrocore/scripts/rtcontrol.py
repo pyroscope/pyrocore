@@ -162,7 +162,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_value_option("-o", "--output-format", "FORMAT",
             help="specify display format (use '-o-' to disable item display)")
         self.add_value_option("-s", "--sort-fields", "[-]FIELD[,...]",
-            help="fields used for sorting, descending if prefixed with '-'")
+            help="fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
         self.add_bool_option("-V", "--view-only",
@@ -279,8 +279,20 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         sort_fields = self.options.sort_fields
 
+        if sort_fields == '*':
+            # Re-engineer sort list from output format
+            emit_fields = list(i.lower() for i in re.sub(r"[^_A-Z]+", ' ', self.format_item(None)).split())
+
+            # Validate result
+            sort_fields = []
+            for name in emit_fields[:]:
+                if name not in engine.FieldDefinition.FIELDS:
+                    self.LOG.warn("Omitted unknown name '%s' from output format sorting" % name)
+                else:
+                    sort_fields.append(name)
+
         # Use default order if none is given
-        if sort_fields is None:
+        if not sort_fields:
             sort_fields = config.sort_fields
 
         # Allow descending order per field by prefixing with '-'
@@ -297,6 +309,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # No descending fields?
         if not any(descending.values()):
+            self.LOG.debug("Sorting order is: %s" % ", ".join(sort_fields))
             return operator.attrgetter(*tuple(sort_fields))
 
         # Need to provide complex key
