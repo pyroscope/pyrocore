@@ -199,10 +199,15 @@ def clean_meta(meta, including_info=False, log=None):
 def assign_fields(meta, assignments):
     """ Takes a list of C{key=value} strings and
         assigns them to the given metafile.
+        
+        If just a key name is given (no '='), the field is removed.
     """
     for assignment in assignments:
         try:
-            field, val = assignment.split('=', 1)
+            if '=' in assignment:
+                field, val = assignment.split('=', 1)
+            else:
+                field, val = assignment, None
             
             if val and val[0] in "+-" and val[1:].isdigit():
                 val = int(val, 10)
@@ -215,7 +220,10 @@ def assign_fields(meta, assignments):
         except (KeyError, IndexError, TypeError, ValueError), exc:
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
-            namespace[field.split('.')[-1]] = val
+            if val is None:
+                del namespace[field.split('.')[-1]]
+            else:
+                namespace[field.split('.')[-1]] = val
 
     return meta
 
