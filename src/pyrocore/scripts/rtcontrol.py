@@ -30,6 +30,32 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecora
 from pyrocore.torrent import engine 
 
 
+def print_help_fields():
+    """ Print help about fields and field formatters.
+    """
+    # Mock entries, so they fulfill the expectations towards a field definition
+    def custom_manifold():
+        "named rTorrent custom attribute, e.g. 'custom_completion_target'"
+        return ("custom_KEY", custom_manifold)
+    def kind_manifold():
+        "file types that contribute at least N% to the item's total size"
+        return ("kind_N", kind_manifold)
+
+    print('')
+    print("Fields are:")
+    print("\n".join(["  %-21s %s" % (name, field.__doc__)
+        for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [
+            custom_manifold(), kind_manifold(),
+        ])
+    ]))
+
+    print('')
+    print("Format specifiers are:")
+    print("\n".join(["  %-21s %s" % (name, doc)
+        for name, doc in sorted(engine.OutputMapping.formatter_help())
+    ]))
+
+
 class RtorrentControl(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
     """ 
@@ -298,29 +324,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Print field definitions?
         if self.options.help_fields:
             self.parser.print_help()
-
-            # Mock entries, so they fulfill the expectations towards a field definition
-            def custom_manifold():
-                "named rTorrent custom attribute, e.g. 'custom_completion_target'"
-                return ("custom_KEY", custom_manifold)
-            def kind_manifold():
-                "file types that contribute at least N% to the item's total size"
-                return ("kind_N", kind_manifold)
-
-            print('')
-            print("Fields are:")
-            print("\n".join(["  %-21s %s" % (name, field.__doc__)
-                for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [
-                    custom_manifold(), kind_manifold(),
-                ])
-            ]))
-
-            print('')
-            print("Format specifiers are:")
-            print("\n".join(["  %-21s %s" % (name, doc)
-                for name, doc in sorted(engine.OutputMapping.formatter_help())
-            ]))
-
+            print_help_fields()
             sys.exit(1)
 
         # Print usage if no conditions are provided
