@@ -19,6 +19,7 @@
 from __future__ import with_statement
 
 import sys
+import glob
 import time
 import errno
 import textwrap
@@ -81,12 +82,32 @@ class ScriptBase(object):
             # Take version from package
             provider = pkg_resources.get_provider(__name__)
             pkg_info = provider.get_metadata("PKG-INFO")
+
             if not pkg_info:
-                # Development setup
-                with closing(open(os.path.join(
-                        __file__.split(__name__.replace('.', os.sep))[0],
-                        __name__.split(".")[0] + ".egg-info", "PKG-INFO"))) as handle:
-                    pkg_info = handle.read()
+                pkg_info = "Version: 0.0.0\n"
+                try:
+                    # Development setup
+                    pkg_path = os.path.join(
+                        __file__.split(__name__.replace('.', os.sep))[0], # containing path
+                        __name__.split(".")[0] # package name
+                    )
+                    if os.path.exists(pkg_path + ".egg-info"):
+                        pkg_path += ".egg-info"
+                    else:
+                        pkg_path = glob.glob(pkg_path + "-*-py%d.%d.egg-info" % sys.version_info[:2])
+                        if len(pkg_path) == 1:
+                            pkg_path = pkg_path[0]
+                        else:
+                            self.LOG.warn("Found %d candidate versions" % len(pkg_path))
+                            pkg_path = None
+                    if pkg_path:
+                        with closing(open(os.path.join(pkg_path, "PKG-INFO"))) as handle:
+                            pkg_info = handle.read()
+                    else:
+                        self.LOG.warn("Software version cannot be determined!")
+                except IOError, exc:
+                    self.LOG.warn("Software version cannot be determined!")
+                    
             pkg_info = dict(line.split(": ", 1) 
                 for line in pkg_info.splitlines() 
                 if ": " in line
