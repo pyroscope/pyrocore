@@ -195,8 +195,8 @@ class RtorrentControl(ScriptBaseWithConfig):
 
 
     # TODO: refactor to engine.TorrentProxy as format() method
-    def emit(self, item, defaults=None, stencil=None, to_log=False):
-        """ Print an item to stdout.
+    def format_item(self, item, defaults=None, stencil=None):
+        """ Format an item.
         """
         output_format = self.options.output_format
         if item is None:
@@ -215,10 +215,19 @@ class RtorrentControl(ScriptBaseWithConfig):
         if stencil:
             item_text = '\t'.join(i.ljust(len(s)) for i, s in zip(item_text.split('\t'), stencil))
 
-        # Use configured escape codes on a terminal
+        return item_text
+
+
+    def emit(self, item, defaults=None, stencil=None, to_log=False):
+        """ Print an item to stdout, or the log on INFO level.
+        """
+        item_text = self.format_item(item, defaults, stencil)
+
+        # For a header, use configured escape codes on a terminal
         if item is None and os.isatty(1):
             item_text = ''.join((config.output_header_ecma48, item_text, "\x1B[0m"))
 
+        # Dump to selected target
         if to_log:
             self.LOG.info(item_text)
         elif self.options.nul:
