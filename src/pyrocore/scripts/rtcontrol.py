@@ -97,8 +97,8 @@ class RtorrentControl(ScriptBaseWithConfig):
 
     # action options that perform some change on selected items
     ACTION_MODES = ( 
-        Bunch(name="start", options=("-S", "--start"), help="start torrent"), 
-        Bunch(name="close", options=("-C", "--close", "--stop"), help="stop torrent", method="stop"), 
+        Bunch(name="start", options=("--start"), help="start torrent"), 
+        Bunch(name="close", options=("--close", "--stop"), help="stop torrent", method="stop"), 
         Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
         # TODO: Bunch(name="announce", options=("--announce",), help="announce right now", interactive=True), 
         # TODO: --pause, --resume?
