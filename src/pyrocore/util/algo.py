@@ -37,6 +37,29 @@ except ImportError:
             yield tuple(prod)
 
 
+def flatten(nested, containers=(list, tuple)):
+    """ Flatten a nested list in-place and return it.
+    """
+    flat = list(nested) # handle iterators / generators
+    i = 0
+    while i < len(flat):
+        while isinstance(flat[i], containers):
+            if not flat[i]:
+                # kill empty list
+                flat.pop(i)
+
+                # inspect new 'i'th element in outer loop
+                i -= 1
+                break
+            else:
+                flat[i:i + 1] = (flat[i])
+
+        # 'i'th element is scalar, proceed
+        i += 1
+
+    return flat
+
+
 class AttributeMapping(object):
     """ Wrap an object's dict so that it can be accessed by the mapping protocol.
     """
