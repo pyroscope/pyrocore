@@ -776,6 +776,17 @@ def create_filter(condition):
     return matching.CompoundFilterAny(filters) if len(filters) > 1 else filters[0]  
 
 
+def _tree2str(tree, root=True):
+    """ Convert parsed condition tree back to a (printable) string.
+    """
+    try:
+        # Keep strings as they are
+        return '' + tree
+    except (TypeError, ValueError):
+        flat = ' '.join(_tree2str(i, root=False) for i in tree)
+        return flat if root else "[ %s ]" % flat
+    
+
 def parse_filter_conditions(conditions):
     """ Parse filter conditions.
     
@@ -786,8 +797,8 @@ def parse_filter_conditions(conditions):
     try:
         conditions = conditions.split()
     except AttributeError:
-        # Not a string, assume iterable
-        conditions_text = ' '.join(conditions)
+        # Not a string, assume parsed tree
+        conditions_text = _tree2str(conditions)
 
     # Empty list?
     if not conditions:
