@@ -37,6 +37,11 @@ class Decoder(object):
 
 
     def decode(self, check_trailer=False):
+        """ Decode data in C{bytes} and return deserialized object.
+
+            @param check_trailer: Raise error if trailing junk is found in data?  
+            @raise BencodeError: Invalid data. 
+        """
         try:
             kind = self.bytes[self.offset]
         except IndexError:

@@ -178,19 +178,22 @@ def clean_meta(meta, including_info=False, log=None):
     """
     for key in meta.keys():
         if [key] not in METAFILE_STD_KEYS:
-            if log: log.info("Removing key %r..." % (key,))
+            if log:
+                log.info("Removing key %r..." % (key,))
             del meta[key]
 
     if including_info:
         for key in meta["info"].keys():
             if ["info", key] not in METAFILE_STD_KEYS:
-                if log: log.info("Removing key %r..." % ("info." + key,))
+                if log:
+                    log.info("Removing key %r..." % ("info." + key,))
                 del meta["info"][key]
 
         for idx, entry in enumerate(meta["info"].get("files", [])):
             for key in entry.keys():
                 if ["info", "files", key] not in METAFILE_STD_KEYS:
-                    if log: log.info("Removing key %r from file #%d..." % (key, idx+1))
+                    if log: 
+                        log.info("Removing key %r from file #%d..." % (key, idx+1))
                     del entry[key]
 
     return meta
@@ -532,7 +535,9 @@ class Metafile(object):
                 output_name = ''.join(output_name)
 
             # Hash the data
-            self.LOG.info("Creating %r for %s %r..." % (output_name, "filenames read from" if self._fifo else "data in", self.datapath))
+            self.LOG.info("Creating %r for %s %r..." % (
+                output_name, "filenames read from" if self._fifo else "data in", self.datapath,
+            ))
             meta = self._make_meta(tracker_url, root_name, private, progress)
 
             # Add optional fields

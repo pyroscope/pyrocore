@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable-msg=I0011
+# pylint: disable=I0011
 """ PyroCore - Torrent Item Filters.
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -26,12 +26,12 @@ import operator
 from pyrocore import error
 
 
-def _time_ym_delta(dt, delta, months):
+def _time_ym_delta(timestamp, delta, months):
     """ Helper to add a year or month delta to a timestamp.
     """
-    dt = list(time.localtime(dt))
-    dt[int(months)] += delta
-    return time.mktime(dt)
+    timestamp = list(time.localtime(timestamp))
+    timestamp[int(months)] += delta
+    return time.mktime(timestamp)
 
 
 class FilterError(error.UserError):

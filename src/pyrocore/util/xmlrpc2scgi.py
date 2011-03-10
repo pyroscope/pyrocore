@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+""" XML-RPC client proxy implementation. 
+"""
 # Copyright (C) 2005-2007, Glenn Washburn
 #
 # Refactoring - Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -57,6 +58,7 @@ del uses_netloc
 def do_scgi_xmlrpc_request(host, methodname, params=()):
     """
         Send an xmlrpc request over scgi to host.
+
         host:       scgi://host:port/path
         methodname: xmlrpc method name
         params:     tuple of simple python objects

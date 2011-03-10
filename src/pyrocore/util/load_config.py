@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable-msg=I0011
+# pylint: disable=I0011
 """ PyroCore - Configuration Loader.
 
     For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration

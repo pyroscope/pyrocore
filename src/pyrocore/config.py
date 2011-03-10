@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable-msg=I0011
+# pylint: disable=I0011,C0103,W0404
 """ PyroCore - Configuration.
 
     For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration

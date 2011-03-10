@@ -185,9 +185,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             action.setdefault("argshelp", "")
             action.setdefault("args", ())
             if action.argshelp:
-                self.add_value_option(*action.options + (action.argshelp,), **{"help": action.help + (" (implies -i)" if action.interactive else "")})
+                self.add_value_option(*action.options + (action.argshelp,), 
+                    **{"help": action.help + (" (implies -i)" if action.interactive else "")})
             else:
-                self.add_bool_option(*action.options, **{"help": action.help + (" (implies -i)" if action.interactive else "")})
+                self.add_bool_option(*action.options, 
+                    **{"help": action.help + (" (implies -i)" if action.interactive else "")})
         self.add_value_option("--ignore", "|".join(self.IGNORE_OPTIONS),
             type="choice", choices=self.IGNORE_OPTIONS,
             help="set 'ignore commands' status on torrent")
@@ -456,8 +458,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
         
         if self.options.debug and 0:
-            print; print repr(matches[0])
-            print; print repr(matches[0].files)
+            print '\n' + repr(matches[0])
+            print '\n' + repr(matches[0].files)
         
         # print summary
 #        if self.options.summary:

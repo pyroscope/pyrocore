@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=I0011
 """ PyroCore - Command Line Script Support.
 
     Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -105,7 +107,7 @@ class ScriptBase(object):
                             pkg_info = handle.read()
                     else:
                         self.LOG.warn("Software version cannot be determined!")
-                except IOError, exc:
+                except IOError:
                     self.LOG.warn("Software version cannot be determined!")
                     
             pkg_info = dict(line.split(": ", 1) 
@@ -238,8 +240,8 @@ class ScriptBase(object):
                     except AttributeError:
                         pass
                     else:
-                        for h in handlers:
-                            h.flush = lambda *_: None
+                        for handler in handlers:
+                            handler.flush = lambda *_: None
 
                     sys.exit(3)
                 else:
