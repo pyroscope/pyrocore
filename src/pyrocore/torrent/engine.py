@@ -621,7 +621,7 @@ class OutputMapping(algo.AttributeMapping):
     def fmt_pc(self, floatval):
         """ Scale a ratio value to percent.
         """
-        return float(floatval) * 100.0
+        return round(float(floatval) * 100.0, 2)
 
     
     def fmt_strip(self, val):
