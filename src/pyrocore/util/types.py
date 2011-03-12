@@ -16,6 +16,8 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+from collections import defaultdict
+
 
 class Bunch(dict):
     """ Generic attribute container that also is a dict.
@@ -42,3 +44,6 @@ class Bunch(dict):
             sorted("%s=%r" % attr for attr in self.items())
         )
 
+class DefaultBunch(Bunch, defaultdict):
+    """ Generic attribute container that also is a dict.
+    """

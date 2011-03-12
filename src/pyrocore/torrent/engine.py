@@ -639,25 +639,25 @@ class OutputMapping(algo.AttributeMapping):
     def fmt_pathbase(self, val):
         """ Base name of a path.
         """
-        return os.path.basename(val)
+        return os.path.basename(val or '')
 
     
     def fmt_pathname(self, val):
         """ Base name of a path, without its extension.
         """
-        return os.path.splitext(os.path.basename(val))[0]
+        return os.path.splitext(os.path.basename(val or ''))[0]
 
     
     def fmt_pathext(self, val):
         """ Extension of a path (including the '.').
         """
-        return os.path.splitext(val)[1]
+        return os.path.splitext(val or '')[1]
 
     
     def fmt_pathdir(self, val):
         """ Directory containing the given path.
         """
-        return os.path.dirname(val)
+        return os.path.dirname(val or '')
 
     
     def __getitem__(self, key):

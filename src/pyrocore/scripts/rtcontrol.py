@@ -25,9 +25,9 @@ from collections import defaultdict
 
 from pyrocore import config
 from pyrocore.util import os, fmt
-from pyrocore.util.types import Bunch
+from pyrocore.util.types import Bunch, DefaultBunch
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
-from pyrocore.torrent import engine 
+from pyrocore.torrent import engine, matching 
 
 
 def print_help_fields():
@@ -55,6 +55,51 @@ def print_help_fields():
         for name, doc in sorted(engine.OutputMapping.formatter_help())
     ]))
 
+
+class FieldStatistics(object):
+    def __init__(self, size):
+        "Initialize accumulator"
+        self.size = size
+        self.errors = DefaultBunch(int)
+        self.total = DefaultBunch(int)
+        self._basetime = time.time()
+
+    def __nonzero__(self):
+        "Truth"
+        return bool(self.total) 
+
+    def add(self, field, val):
+        "Add a sample"
+        if engine.FieldDefinition.FIELDS[field]._matcher is matching.TimeFilter:
+            val = self._basetime - val
+        try:
+            self.total[field] += val
+        except (ValueError, TypeError):
+            self.errors[field] += 1
+
+    @property
+    def average(self):
+        "Calculate average"
+        result = DefaultBunch(str)
+
+        # Calculate average if possible
+        if self.size:
+            result.update(
+                (key, '' if isinstance(val, basestring) else val / self.size)
+                for key, val in self.total.items()
+            )
+
+        # Handle time fields
+        #for key, fielddef in  engine.FieldDefinition.FIELDS.items():
+        #    if key in result and fielddef._matcher is matching.TimeFilter:
+        #       result[key] = ''
+        #for key, fielddef in  engine.FieldDefinition.FIELDS.items():
+        #    if key in result and fielddef._matcher is matching.TimeFilter:
+        #        result[key] = engine._fmt_duration(result[key])
+        #print self.total
+        #print result
+        return result
+        
 
 class RtorrentControl(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
@@ -157,6 +202,10 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="use a NUL character instead of a linebreak after items")
         self.add_bool_option("-c", "--column-headers",
             help="print column headers")
+        self.add_bool_option("-+", "--stats",
+            help="add sum / avg / median of numerical fields")
+        self.add_bool_option("--summary",
+            help="print only statistical summary, without the items")
         #self.add_bool_option("-f", "--full",
         #    help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
@@ -220,13 +269,17 @@ class RtorrentControl(ScriptBaseWithConfig):
         return item_text
 
 
-    def emit(self, item, defaults=None, stencil=None, to_log=False):
+    def emit(self, item, defaults=None, stencil=None, to_log=False, item_formatter=None):
         """ Print an item to stdout, or the log on INFO level.
         """
         item_text = self.format_item(item, defaults, stencil)
 
+        # Post-process line?
+        if item_formatter: 
+            item_text = item_formatter(item_text)
+
         # For a header, use configured escape codes on a terminal
-        if item is None and os.isatty(1):
+        if item is None and os.isatty(sys.stdout.fileno()):
             item_text = ''.join((config.output_header_ecma48, item_text, "\x1B[0m"))
 
         # Dump to selected target
@@ -276,22 +329,30 @@ class RtorrentControl(ScriptBaseWithConfig):
 
 
     # TODO: refactor to engine.FieldDefinition as a class method
+    def get_output_fields(self):
+        """ Get field names from output template.
+        """
+        # Re-engineer list from output format
+        # XXX TODO: Would be better to use a FieldRecorder class to catch the full field names 
+        emit_fields = list(i.lower() for i in re.sub(r"[^_A-Z]+", ' ', self.format_item(None)).split())
+
+        # Validate result
+        result = []
+        for name in emit_fields[:]:
+            if name not in engine.FieldDefinition.FIELDS:
+                self.LOG.warn("Omitted unknown name '%s' from statistics and output format sorting" % name)
+            else:
+                result.append(name)
+            
+        return result
+
+
     def validate_sort_fields(self):
         """ Take care of sorting.
         """
         sort_fields = self.options.sort_fields
-
         if sort_fields == '*':
-            # Re-engineer sort list from output format
-            emit_fields = list(i.lower() for i in re.sub(r"[^_A-Z]+", ' ', self.format_item(None)).split())
-
-            # Validate result
-            sort_fields = []
-            for name in emit_fields[:]:
-                if name not in engine.FieldDefinition.FIELDS:
-                    self.LOG.warn("Omitted unknown name '%s' from output format sorting" % name)
-                else:
-                    sort_fields.append(name)
+            sort_fields = self.get_output_fields()
 
         # Use default order if none is given
         if not sort_fields:
@@ -416,6 +477,18 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.tee_view and (self.options.to_view or self.options.view_only):
             self.show_in_view(view, matches)
 
+        # Generate summary?
+        summary = FieldStatistics(len(matches))
+        if self.options.stats or self.options.summary:
+            for field in self.get_output_fields():
+                try:
+                    0 + getattr(matches[0], field)
+                except (TypeError, ValueError, IndexError):
+                    summary.total[field] = ''
+                else:
+                    for item in matches:
+                        summary.add(field, getattr(item, field))
+
         # Execute action?
         if action:
             self.LOG.log(logging.DEBUG if self.options.cron else logging.INFO, "%s %s %d out of %d torrents." % (
@@ -444,14 +517,26 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Show on console?
         elif self.options.output_format and self.options.output_format != "-":
-            line_count = 0
-            for item in matches:
-                # Emit a header line every 'output_header_frequency' lines
-                if self.options.column_headers and line_count % config.output_header_frequency == 0:
-                    self.emit(None, stencil=stencil)
+            if not self.options.summary:
+                line_count = 0
+                for item in matches:
+                    # Emit a header line every 'output_header_frequency' lines
+                    if self.options.column_headers and line_count % config.output_header_frequency == 0:
+                        self.emit(None, stencil=stencil)
+    
+                    # Print matching item
+                    line_count += self.emit(item, self.FORMATTER_DEFAULTS)
 
-                # Print matching item
-                line_count += self.emit(item, self.FORMATTER_DEFAULTS)
+            # Print summary?
+            if matches and summary:
+                self.emit(None, stencil=stencil, 
+                    item_formatter=None if self.options.summary
+                        # TODO: this can be done better! 
+                        else lambda i: re.sub("[^ \t]", "=", i)
+                        #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
+                )
+                self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM]")
+                self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG]")
                 
             self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
         else:
@@ -461,11 +546,6 @@ class RtorrentControl(ScriptBaseWithConfig):
             print '\n' + repr(matches[0])
             print '\n' + repr(matches[0].files)
         
-        # print summary
-#        if self.options.summary:
-#            # TODO
-#            pass
-
         # XMLRPC stats
         self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
 
