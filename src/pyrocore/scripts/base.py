@@ -185,7 +185,7 @@ class ScriptBase(object):
         elif self.options.verbose:
             logging.getLogger().setLevel(logging.DEBUG)
 
-        self.LOG.debug("Options: %r" % self.options)
+        self.LOG.debug("Options: %s" % ", ".join("%s=%r" % i for i in sorted(vars(self.options).items())))
 
 
     def fatal(self, msg, exc=None):
