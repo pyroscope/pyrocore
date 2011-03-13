@@ -540,6 +540,12 @@ class TorrentEngine(object):
         self.engine_software = "N/A"    # Name and version of software
 
 
+    def load_config(self, namespace=config):
+        """ Load engine configuration file.
+        """
+        raise NotImplementedError()
+
+
     def open(self):
         """ Open connection.
         """

@@ -25,11 +25,12 @@ import signal
 import logging
 
 
-def daemonize(pidfile=None, sync=True):
+def daemonize(pidfile=None, logfile=None, sync=True):
     """ Fork the process into the background.
     
         @param pidfile: Optional PID file path.
         @param sync: Wait for parent process to disappear?  
+        @param logfile: Optional name of stdin/stderr log.  
     """
     log = logging.getLogger(__name__)
     ppid = os.getpid()
@@ -71,6 +72,13 @@ def daemonize(pidfile=None, sync=True):
     stdin = open("/dev/null", "r")
     os.dup2(stdin.fileno(), sys.stdin.fileno())
     signal.signal(signal.SIGTERM, sig_term)
+
+    if logfile:
+        log.debug("Redirecting stdout / stderr to %r" % logfile)
+        loghandle = open(logfile, "a+")
+        os.dup2(loghandle.fileno(), sys.stdout.fileno())
+        os.dup2(loghandle.fileno(), sys.stderr.fileno())
+        loghandle.close()
 
     if sync:
         # Wait for 5 seconds at most, in 10ms steps

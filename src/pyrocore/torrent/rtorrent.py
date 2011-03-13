@@ -391,7 +391,7 @@ class RtorrentEngine(engine.TorrentEngine):
     RTORRENT_RC_THROTTLE_KEYS = ("throttle_up", "throttle_down", "throttle_ip", )
 
     # keys we read from rTorrent's configuration
-    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", ) + RTORRENT_RC_THROTTLE_KEYS
+    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", "log.execute") + RTORRENT_RC_THROTTLE_KEYS
 
     # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
@@ -437,9 +437,13 @@ class RtorrentEngine(engine.TorrentEngine):
         self._item_cache = {}
 
 
-    def _load_rtorrent_rc(self, namespace, rtorrent_rc=None):
+    def load_config(self, namespace=config, rtorrent_rc=None):
         """ Load file given in "rtorrent_rc".
         """
+        def cfgkey(key):
+            "Sanitize rtorrent comfig keys"
+            return key.replace('.', '_')
+
         # Only load when needed (also prevents multiple loading)
         if not all(getattr(namespace, key, False) for key in self.RTORRENT_RC_KEYS):
             # Get and check config file name
@@ -472,12 +476,13 @@ class RtorrentEngine(engine.TorrentEngine):
                         val = val.split(',')[0].strip()
                         self.LOG.debug("rtorrent.rc: added throttle %r" % (val,))
                         namespace.throttle_names.add(val)
-                    elif key in self.RTORRENT_RC_KEYS and not getattr(namespace, key, None):
+                    elif key in self.RTORRENT_RC_KEYS and not getattr(namespace, cfgkey(key), None):
                         self.LOG.debug("rtorrent.rc: %s = %s" % (key, val))
-                        setattr(namespace, key, val)
+                        setattr(namespace, cfgkey(key), val)
 
         # Validate fields
         for key in self.RTORRENT_RC_KEYS:
+            key = cfgkey(key)
             setattr(namespace, key, load_config.validate(key, getattr(namespace, key, None)))
         if config.scgi_local and config.scgi_local.startswith("/"):
             config.scgi_local = "scgi://" + config.scgi_local
@@ -499,7 +504,7 @@ class RtorrentEngine(engine.TorrentEngine):
             )
         else:
             # Unconnected state
-            self._load_rtorrent_rc(config)
+            self.load_config()
             return "%s connectable via %r" % (
                 self.__class__.__name__, config.scgi_url,
             )
@@ -520,7 +525,7 @@ class RtorrentEngine(engine.TorrentEngine):
             return self._rpc
 
         # Get connection URL from rtorrent.rc
-        self._load_rtorrent_rc(config)
+        self.load_config()
 
         # Reading abilities are on the downfall, so...
         if not config.scgi_url:

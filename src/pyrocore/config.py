@@ -78,3 +78,4 @@ output_header_ecma48 = ""
 output_header_frequency = 1
 waif_pattern_list = []
 traits_by_alias = {}
+log_execute = None

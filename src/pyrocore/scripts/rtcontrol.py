@@ -458,7 +458,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Detach to background?
         # This MUST happen before the next step, when we connect to the torrent client
         if self.options.detach:
-            osmagic.daemonize()
+            config.engine.load_config()
+            osmagic.daemonize(logfile=config.log_execute)
             time.sleep(.05) # let things settle a little
 
         # Find matching torrents
