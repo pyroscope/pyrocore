@@ -75,6 +75,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     arg = int(arg, 10)
                 except (ValueError, TypeError), exc:
                     self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
+            elif arg and arg[0] == '[':
+                arg = arg.split(',')
             args.append(arg)
 
         # Make the call
