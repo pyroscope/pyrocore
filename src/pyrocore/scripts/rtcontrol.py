@@ -24,7 +24,7 @@ import operator
 from collections import defaultdict
 
 from pyrocore import config
-from pyrocore.util import os, fmt
+from pyrocore.util import os, fmt, osmagic
 from pyrocore.util.types import Bunch, DefaultBunch
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine, matching 
@@ -195,6 +195,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="show available fields and their description")
         self.add_bool_option("-n", "--dry-run",
             help="don't commit changes, just tell what would happen")
+        self.add_bool_option("--detach",
+            help="run the process in the background")
         self.prompt.add_options()
       
         # output control
@@ -453,6 +455,12 @@ class RtorrentControl(ScriptBaseWithConfig):
         sort_key = self.validate_sort_fields()
         matcher = engine.parse_filter_conditions(self.args)
 
+        # Detach to background?
+        # This MUST happen before the next step, when we connect to the torrent client
+        if self.options.detach:
+            osmagic.daemonize()
+            time.sleep(.05) # let things settle a little
+
         # Find matching torrents
         # TODO: this could get speedier quite a bit when we pre-select
         # a subset of all items in rtorrent itself, via a dynamic view!
@@ -535,8 +543,8 @@ class RtorrentControl(ScriptBaseWithConfig):
                         else lambda i: re.sub("[^ \t]", "=", i)
                         #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
                 )
-                self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM]")
-                self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG]")
+                self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM of %d item(s)]" % len(matches))
+                self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG of %d item(s)]" % len(matches))
                 
             self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
         else:
