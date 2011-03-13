@@ -18,9 +18,13 @@
 """
 
 import random
+import logging
 import unittest
 
 from pyrocore.util.metafile import * #@UnusedWildImport
+
+log = logging.getLogger(__name__)
+log.info("module loaded")
 
 
 class MaskTest(unittest.TestCase):

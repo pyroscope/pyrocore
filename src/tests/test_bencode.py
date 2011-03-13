@@ -19,9 +19,13 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import logging
 import unittest
 
 from pyrocore.util.bencode import * #@UnusedWildImport
+
+log = logging.getLogger(__name__)
+log.info("module loaded")
 
 
 class DecoderTest(unittest.TestCase):

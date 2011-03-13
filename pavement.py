@@ -25,6 +25,7 @@
 import os
 import re
 import sys
+import webbrowser
 
 from paver.easy import *
 from paver.setuputils import setup
@@ -49,7 +50,6 @@ project = dict(
     version = version,
     package_dir = {"": "src"},
     packages = find_packages("src", exclude = ["tests"]),
-    doc_dir = "docs/apidocs",
     entry_points = {
         "console_scripts": [
             "chtor = pyrocore.scripts.chtor:run",
@@ -125,10 +125,16 @@ def bootstrap():
 
 
 @task
+@cmdopts([
+    ('docs-dir=', 'd', 'directory to put the api documentation in'),
+    ('excludes=', 'x', 'list of packages to exclude'),
+])
 def docs():
     """ Create documentation.
     """
     from epydoc import cli
+
+    path('build').exists() or path('build').makedirs()
 
     # get package list, without sub-packages
     doc_packages  = set(options.setup.packages)
@@ -136,14 +142,19 @@ def docs():
         doc_packages -= set(p for p in doc_packages if str(p).startswith(pkg + '.'))
     doc_packages = list(doc_packages)
 
+    # get storage path
+    docs_dir = options.docs.get('docs_dir', 'docs/apidocs')
+
     # clean up previous docs
-    path(options.doc_dir).rmtree()
+    (path(docs_dir) / "epydoc.css").exists() and path(docs_dir).rmtree()
 
     # set up excludes
     try:
-        exclude_names = options.doc.excludes
+        exclude_names = options.docs.excludes
     except AttributeError:
         exclude_names = []
+    else:
+        exclude_names = exclude_names.replace(',', ' ').split()
 
     excludes = []
     for pkg in exclude_names:
@@ -157,7 +168,7 @@ def docs():
             sys.argv[0] + "::epydoc",
             "-v",
             "--inheritance", "listed",
-            "--output", options.doc_dir,
+            "--output", docs_dir,
             "--name", "%s %s" % (options.setup.name, options.setup.version),
             "--url", options.setup.url,
             "--graph", "umlclasstree",
@@ -190,6 +201,23 @@ def dist_docs():
 #
 # Testing
 #
+
+@task
+@needs("nosetests")
+def test():
+    """ Run unit tests.
+    """
+
+
+@task
+def coverage():
+    """ Generate coverage report and show in browser.
+    """
+    coverage_index = path("build/coverage/index.html")
+    coverage_index.remove()
+    sh("paver test")
+    coverage_index.exists() and webbrowser.open(coverage_index)
+
 
 @task
 @needs("setuptools.command.build")
@@ -245,4 +273,3 @@ def release():
 # Main
 #
 setup(**project)
-
