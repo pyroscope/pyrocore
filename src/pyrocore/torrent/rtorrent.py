@@ -567,6 +567,12 @@ class RtorrentEngine(engine.TorrentEngine):
         return self._rpc
 
 
+    def log(self, msg):
+        """ Log a message in the torrent client.
+        """
+        self.open().log(0, msg)
+
+
     def items(self, view=None, prefetch=None):
         """ Get list of download items.
         """

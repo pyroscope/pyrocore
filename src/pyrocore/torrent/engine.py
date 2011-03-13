@@ -552,6 +552,12 @@ class TorrentEngine(object):
         raise NotImplementedError()
 
 
+    def log(self, msg):
+        """ Log a message in the torrent client.
+        """
+        raise NotImplementedError()
+
+
     def view(self, viewname, matcher=None):
         """ Get list of download items.
         """
