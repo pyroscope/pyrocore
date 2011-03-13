@@ -401,8 +401,10 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         targetname = targetname or self.options.to_view or "rtcontrol"
         config.engine.show(matches, targetname)
-        self.LOG.info("Filtered %d out of %d torrents into rTorrent view %r." % (
-            len(matches), sourceview.size(), targetname))
+        msg = "Filtered %d out of %d torrents using [ %s ]" % (
+            len(matches), sourceview.size(), sourceview.matcher)
+        self.LOG.info("%s into rTorrent view %r." % (msg, targetname))
+        config.engine.log(msg)
 
 
     def mainloop(self):
