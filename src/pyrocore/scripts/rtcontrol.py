@@ -456,6 +456,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.validate_output_format(default_output_format)
         sort_key = self.validate_sort_fields()
         matcher = engine.parse_filter_conditions(self.args)
+        self.LOG.debug("Matcher is: %s" % matcher)
 
         # Detach to background?
         # This MUST happen before the next step, when we connect to the torrent client
