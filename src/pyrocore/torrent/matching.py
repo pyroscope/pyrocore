@@ -49,9 +49,17 @@ class Filter(object):
         raise NotImplementedError()
 
 
-class CompoundFilterAll(Filter, list):
+class CompoundFilterBase(Filter, list):
+    """ List of filters.
+    """
+
+
+class CompoundFilterAll(CompoundFilterBase):
     """ List of filters that must all match (AND).
     """
+
+    def __str__(self):
+        return ' '.join(str(i) for i in self)
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -59,9 +67,15 @@ class CompoundFilterAll(Filter, list):
         return all(i.match(item) for i in self)
 
 
-class CompoundFilterAny(Filter, list):
+class CompoundFilterAny(CompoundFilterBase):
     """ List of filters where at least one must match (OR).
     """
+
+    def __str__(self):
+        if all(isinstance(i, FieldFilter) for i in self) and len(set(i._name for i in self)) == 1:
+            return "%s,%s" % (str(self[0]), ','.join(i._condition for i in self[1:]))
+        else:
+            return "[ %s ]" % ' OR '.join(str(i) for i in self)
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -76,6 +90,11 @@ class NegateFilter(Filter):
     def __init__(self, inner):
         self._inner = inner
 
+    def __str__(self):
+        if isinstance(self._inner, FieldFilter):
+            return "%s=!%s" % tuple(str(self._inner).split('=', 1))
+        else:
+            return "NOT " + str(self._inner)
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -94,6 +113,10 @@ class FieldFilter(Filter):
         self._condition = value
         self._value = value
         self.validate()
+
+
+    def __str__(self):
+        return "%s=%s" % (self._name, self._condition)
 
 
     def validate(self):
@@ -188,7 +211,9 @@ class BoolFilter(FieldFilter):
         else:
             raise FilterError("Bad boolean value %r in %r (expected one of '%s', or '%s')" % (
                 self._value, self._condition, "' '".join(self.TRUE), "' '".join(self.FALSE)
-            ))  
+            ))
+            
+        self._condition = "yes" if self._value else "no" 
 
 
     def match(self, item):
