@@ -24,7 +24,7 @@ import unittest
 from pyrocore.util.metafile import * #@UnusedWildImport
 
 log = logging.getLogger(__name__)
-log.info("module loaded")
+log.trace("module loaded")
 
 
 class MaskTest(unittest.TestCase):

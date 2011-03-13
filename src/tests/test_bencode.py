@@ -25,7 +25,7 @@ import unittest
 from pyrocore.util.bencode import * #@UnusedWildImport
 
 log = logging.getLogger(__name__)
-log.info("module loaded")
+log.trace("module loaded")
 
 
 class DecoderTest(unittest.TestCase):
