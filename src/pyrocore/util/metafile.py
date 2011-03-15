@@ -282,6 +282,21 @@ def info_hash(metadata):
     return hashlib.sha1(bencode.bencode(metadata['info'])).hexdigest().upper()
 
 
+def data_size(metadata):
+    """ Calculate the size of a torrent based on parsed metadata.
+    """
+    info = metadata['info']
+
+    if info.has_key('length'):
+        # Single file
+        total_size = info['length']
+    else:
+        # Directory structure
+        total_size = sum([f['length'] for f in info['files']])
+    
+    return total_size
+
+
 class Metafile(object):
     """ A torrent metafile.
     """
@@ -587,13 +602,7 @@ class Metafile(object):
         info = metainfo['info']
         info_hash = hashlib.sha1(bencode.bencode(info))
 
-        if info.has_key('length'):
-            # Single file
-            total_size = info['length']
-        else:
-            # Directory structure
-            total_size = sum([f['length'] for f in info['files']])
-
+        total_size = data_size(metainfo)
         piece_length = info['piece length']
         piece_number, last_piece_length = divmod(total_size, piece_length)
 
