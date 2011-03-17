@@ -27,7 +27,7 @@ from pyrocore import config
 from pyrocore.util import os, fmt, osmagic
 from pyrocore.util.types import Bunch, DefaultBunch
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
-from pyrocore.torrent import engine, matching 
+from pyrocore.torrent import engine, matching, formatting 
 
 
 def print_help_fields():
@@ -52,7 +52,7 @@ def print_help_fields():
     print('')
     print("Format specifiers are:")
     print("\n".join(["  %-21s %s" % (name, doc)
-        for name, doc in sorted(engine.OutputMapping.formatter_help())
+        for name, doc in sorted(formatting.OutputMapping.formatter_help())
     ]))
 
 
@@ -259,7 +259,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                 lambda m: m.group(1) + 's', output_format) 
 
         try:
-            item_text = fmt.to_console(output_format % engine.OutputMapping(item, defaults)) 
+            item_text = fmt.to_console(output_format % formatting.OutputMapping(item, defaults)) 
         except (ValueError, TypeError), exc:
             self.fatal("Trouble with formatting item %r using %r" % (item, output_format), exc)
             raise
@@ -296,7 +296,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         return item_text.count('\n') + 1
 
 
-    # TODO: refactor to engine.OutputMapping as a class method
+    # TODO: refactor to formatting.OutputMapping as a class method
     def validate_output_format(self, default_format):
         """ Prepare output format for later use.
         """
@@ -313,7 +313,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Expand plain field list to usable form
         if re.match(r"^[,._0-9a-zA-Z]+$", output_format):
             self.plain_output_format = True
-            output_format = "%%(%s)s" % ")s\t%(".join(engine.validate_field_list(output_format, allow_fmt_specs=True))
+            output_format = "%%(%s)s" % ")s\t%(".join(formatting.validate_field_list(output_format, allow_fmt_specs=True))
 
         # Replace some escape sequences
         output_format = (output_format
@@ -370,7 +370,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             return name
 
         # Split and validate field list
-        sort_fields = engine.validate_field_list(sort_fields, name_filter=sort_order_filter)
+        sort_fields = formatting.validate_field_list(sort_fields, name_filter=sort_order_filter)
 
         # No descending fields?
         if not any(descending.values()):
@@ -483,7 +483,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         stencil = None
         if self.options.column_headers and self.plain_output_format and matches:
             stencil = fmt.to_console(self.options.output_format % 
-                engine.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
+                formatting.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
 
         # Tee to ncurses view, if requested
         if self.options.tee_view and (self.options.to_view or self.options.view_only):
