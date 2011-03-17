@@ -251,17 +251,10 @@ class RtorrentControl(ScriptBaseWithConfig):
     def format_item(self, item, defaults=None, stencil=None):
         """ Format an item.
         """
-        output_format = self.options.output_format
-        if item is None:
-            # For headers, ensure we only have string formats
-            output_format = re.sub(
-                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
-                lambda m: m.group(1) + 's', output_format) 
-
         try:
-            item_text = fmt.to_console(output_format % formatting.OutputMapping(item, defaults)) 
+            item_text = fmt.to_console(formatting.format_item(self.options.output_format, item, defaults)) 
         except (ValueError, TypeError), exc:
-            self.fatal("Trouble with formatting item %r using %r" % (item, output_format), exc)
+            self.fatal("Trouble with formatting item %r using %r" % (item, self.options.output_format), exc)
             raise
 
         # Justify headers according to stencil

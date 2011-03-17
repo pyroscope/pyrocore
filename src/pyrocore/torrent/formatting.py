@@ -18,9 +18,74 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import re
+
 from pyrocore import error 
 from pyrocore.torrent import engine 
 from pyrocore.util import os, fmt, algo
+
+
+#
+# Format specifiers
+#
+def fmt_sz(intval):
+    """ Format a byte sized value.
+    """
+    return fmt.human_size(intval)
+
+
+def fmt_iso(dt):
+    """ Format a UNIX timestamp to an ISO datetime string.
+    """
+    return fmt.iso_datetime(dt)
+
+
+def fmt_delta(dt):
+    """ Format a UNIX timestamp to a relative delta.
+    """
+    return fmt.human_duration(float(dt), precision=2, short=True)
+
+
+def fmt_pc(floatval):
+    """ Scale a ratio value to percent.
+    """
+    return round(float(floatval) * 100.0, 2)
+
+
+def fmt_strip(val):
+    """ Strip leading and trailing whitespace.
+    """
+    return str(val).strip()
+
+
+def fmt_mtime(val):
+    """ Modification time of a path.
+    """
+    return os.path.getmtime(val)
+
+
+def fmt_pathbase(val):
+    """ Base name of a path.
+    """
+    return os.path.basename(val or '')
+
+
+def fmt_pathname(val):
+    """ Base name of a path, without its extension.
+    """
+    return os.path.splitext(os.path.basename(val or ''))[0]
+
+
+def fmt_pathext(val):
+    """ Extension of a path (including the '.').
+    """
+    return os.path.splitext(val or '')[1]
+
+
+def fmt_pathdir(val):
+    """ Directory containing the given path.
+    """
+    return os.path.dirname(val or '')
 
 
 #
@@ -36,7 +101,7 @@ class OutputMapping(algo.AttributeMapping):
         """
         result = [("raw", "Switch off the default field formatter.")]
 
-        for name, method in vars(cls).items():
+        for name, method in globals().items():
             if name.startswith("fmt_"):
                 result.append((name[4:], method.__doc__.strip()))
         
@@ -59,66 +124,6 @@ class OutputMapping(algo.AttributeMapping):
         self.defaults.setdefault("pc", '%')
 
 
-    def fmt_sz(self, intval):
-        """ Format a byte sized value.
-        """
-        return fmt.human_size(intval)
-
-
-    def fmt_iso(self, dt):
-        """ Format a UNIX timestamp to an ISO datetime string.
-        """
-        return fmt.iso_datetime(dt)
-
-    
-    def fmt_delta(self, dt):
-        """ Format a UNIX timestamp to a relative delta.
-        """
-        return fmt.human_duration(float(dt), precision=2, short=True)
-
-    
-    def fmt_pc(self, floatval):
-        """ Scale a ratio value to percent.
-        """
-        return round(float(floatval) * 100.0, 2)
-
-    
-    def fmt_strip(self, val):
-        """ Strip leading and trailing whitespace.
-        """
-        return str(val).strip()
-
-    
-    def fmt_mtime(self, val):
-        """ Modification time of a path.
-        """
-        return os.path.getmtime(val)
-
-    
-    def fmt_pathbase(self, val):
-        """ Base name of a path.
-        """
-        return os.path.basename(val or '')
-
-    
-    def fmt_pathname(self, val):
-        """ Base name of a path, without its extension.
-        """
-        return os.path.splitext(os.path.basename(val or ''))[0]
-
-    
-    def fmt_pathext(self, val):
-        """ Extension of a path (including the '.').
-        """
-        return os.path.splitext(val or '')[1]
-
-    
-    def fmt_pathdir(self, val):
-        """ Directory containing the given path.
-        """
-        return os.path.dirname(val or '')
-
-    
     def __getitem__(self, key):
         """ Return object attribute named C{key}. Additional formatting is provided
             by adding modifiers like ".sz" (byte size formatting) to the normal field name.
@@ -139,8 +144,8 @@ class OutputMapping(algo.AttributeMapping):
             
             for fmtname in formats:
                 try:
-                    fmtfunc = getattr(self, "fmt_"+fmtname)
-                except AttributeError:
+                    fmtfunc = globals()["fmt_"+fmtname]
+                except KeyError:
                     raise error.UserError("Unknown formatting spec %r for %r" % (fmtname, key))
                 else:
                     formatter = (lambda val, f=fmtfunc, k=formatter: f(k(val))) if formatter else fmtfunc
@@ -167,6 +172,46 @@ class OutputMapping(algo.AttributeMapping):
                 raise error.LoggableError("While formatting %s=%r: %s" % (key, val, exc))
 
 
+def format_item(format, item, defaults=None):
+    """ Format an item according to the given output format.
+        The format can be gioven as either an interpolation string, 
+        or a Tempita template (which has to start with "{{"),
+
+        @param format: The output format. 
+        @param item: The object, which is automatically wrapped for interpolation. 
+        @param defaults: Optional default values.
+    """
+    if format.startswith("{{"):
+        # Tempita
+        import tempita
+
+        namespace = (defaults or {}).copy()
+        namespace.update({
+            "ESC": "\x1B",
+        })
+
+        # TODO: This is highly inefficent, because we fetch ANY field, whether used or not!
+        for name in engine.FieldDefinition.FIELDS:
+            namespace[name] = getattr(item, name) if item else name.upper()
+
+        namespace.update((name[4:], method if item else lambda x: x)
+            for name, method in globals().items() 
+            if name.startswith("fmt_")
+        )
+        ##print namespace
+
+        return tempita.Template(format, namespace=namespace).substitute()
+    else:
+        # Interpolation
+        if item is None:
+            # For headers, ensure we only have string formats
+            format = re.sub(
+                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
+                lambda m: m.group(1) + 's', format) 
+
+        return format % OutputMapping(item, defaults)
+
+
 def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
     """ Make sure the fields in the given list exist.
     
@@ -175,7 +220,7 @@ def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
         @return: validated field names.
         @rtype: list  
     """
-    formats = [i[4:] for i in dir(OutputMapping) if i.startswith("fmt_")]
+    formats = [i[4:] for i in globals() if i.startswith("fmt_")]
     
     try:
         fields = [i.strip() for i in fields.replace(',', ' ').split()]
