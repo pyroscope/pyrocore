@@ -57,16 +57,23 @@ def print_help_fields():
 
 
 class FieldStatistics(object):
+    """ Collect statistical values for the fields of a search result.
+    """
+    
     def __init__(self, size):
         "Initialize accumulator"
         self.size = size
         self.errors = DefaultBunch(int)
         self.total = DefaultBunch(int)
+        self.min = DefaultBunch(int)
+        self.max = DefaultBunch(int)
         self._basetime = time.time()
+
 
     def __nonzero__(self):
         "Truth"
         return bool(self.total) 
+
 
     def add(self, field, val):
         "Add a sample"
@@ -74,8 +81,11 @@ class FieldStatistics(object):
             val = self._basetime - val
         try:
             self.total[field] += val
+            self.min[field] = min(self.min[field], val) if field in self.min else val
+            self.max[field] = max(self.max[field], val)
         except (ValueError, TypeError):
             self.errors[field] += 1
+
 
     @property
     def average(self):
@@ -541,7 +551,9 @@ class RtorrentControl(ScriptBaseWithConfig):
                         #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
                 )
                 self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM of %d item(s)]" % len(matches))
+                self.emit(summary.min, item_formatter=lambda i: i.rstrip() + " [MIN of %d item(s)]" % len(matches))
                 self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG of %d item(s)]" % len(matches))
+                self.emit(summary.max, item_formatter=lambda i: i.rstrip() + " [MAX of %d item(s)]" % len(matches))
                 
             self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
         else:

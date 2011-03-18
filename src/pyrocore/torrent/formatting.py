@@ -40,7 +40,10 @@ def fmt_sz(intval):
 def fmt_iso(timestamp):
     """ Format a UNIX timestamp to an ISO datetime string.
     """
-    return fmt.iso_datetime(timestamp)
+    try:
+        return fmt.iso_datetime(timestamp)
+    except (ValueError, TypeError):
+        return "N/A".rjust(len(fmt.iso_datetime(0)))
 
 
 def fmt_duration(duration):
