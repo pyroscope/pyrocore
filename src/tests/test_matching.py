@@ -49,6 +49,13 @@ class FilterTest(unittest.TestCase):
         ("num=-1", "F0"),
         ("num=-2", "F0 T1"),
         ("num=+99", ""),
+        ("num>10", "T11"),
+        ("num>11", ""),
+        ("num>=11", "T11"),
+        ("num<=11", "F0 T1 T11"),
+        ("num<11", "F0 T1"),
+        ("num<>1", "F0 T11"),
+        ("num!=1", "F0 T11"),
         ("T?", "T1"),
         ("T*", "T1 T11"),
     ]
@@ -118,12 +125,20 @@ class MagicTest(unittest.TestCase):
 class ParserTest(unittest.TestCase):
     GOOD = [
         ("num=+1", "%s"),
+        ("num>1", "num=+1"),
+        ("num<=1", "num=!+1"),
+        ("num<1", "num=-1"),
+        ("num>=1", "num=!-1"),
+        ("num!=1", "num=!1"),
+        ("num<>1", "num=!1"),
         ("flag=y", "%ses"),
         ("some*name", "name=%s"),
     ]
     BAD = [
         "",
         "num=foo",
+        "num>-1",
+        "num>+1",
         "flag=foo",
         "unknown=",
         "no field name",
@@ -137,9 +152,11 @@ class ParserTest(unittest.TestCase):
 
     def test_good_conditions(self):
         for cond, canonical in self.GOOD:
+            if '%' in canonical:
+                canonical = canonical % cond
             matcher = matching.ConditionParser(lookup, "name").parse(cond)
             assert isinstance(matcher, matching.Filter), "Matcher is not a filter"
-            assert str(matcher) == canonical % cond, "'%s' != '%s'" % (matcher, canonical % cond)  
+            assert str(matcher) == canonical, "'%s' != '%s'" % (matcher, canonical)  
             assert matcher, "Matcher is empty" 
 
     def test_bad_conditions(self):

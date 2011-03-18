@@ -431,6 +431,14 @@ class MagicFilter(FieldFilter):
 class ConditionParser(object):
     """ Filter condition parser.
     """
+    COMPARISON_OPS = {
+        "<":  "-",
+        "<=": "!+",
+        ">":  "+",
+        ">=": "!-",
+        "<>": "!",
+        "!=": "!",
+    }
 
     def __init__(self, lookup, default_field=None):
         """ Initialize parser.
@@ -449,14 +457,22 @@ class ConditionParser(object):
     def _create_filter(self, condition):
         """ Create a filter object from a textual condition.
         """
-        # Split name from value(s)
-        try:
-            name, values = condition.split('=', 1)
-        except ValueError:
-            if self.default_field:
-                name, values = self.default_field, condition
-            else:
-                raise FilterError("Field name missing in '%s' (expected '=')" % condition)
+        # "Normal" comparison operators?
+        comparison = re.match(r"^([_.A-Za-z0-9]+)(<[>=]?|>=?|!=)(.*)$", condition)
+        if comparison: 
+            name, comparison, values = comparison.groups()
+            if values and values[0] in "+-":
+                raise FilterError("Comparison operator cannot be followed by '%s' in '%s'" % (values[0], condition))
+            values = self.COMPARISON_OPS[comparison] + values
+        else:
+            # Split name from value(s)
+            try:
+                name, values = condition.split('=', 1)
+            except ValueError:
+                if self.default_field:
+                    name, values = self.default_field, condition
+                else:
+                    raise FilterError("Field name missing in '%s' (expected '=')" % condition)
     
         # Try to find field definition
         field = self.lookup(name)
