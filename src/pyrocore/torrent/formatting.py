@@ -31,7 +31,10 @@ from pyrocore.util import os, fmt, algo
 def fmt_sz(intval):
     """ Format a byte sized value.
     """
-    return fmt.human_size(intval)
+    try:
+        return fmt.human_size(intval)
+    except ValueError:
+        return "N/A".rjust(len(fmt.human_size(0)))
 
 
 def fmt_iso(timestamp):
@@ -43,7 +46,10 @@ def fmt_iso(timestamp):
 def fmt_duration(duration):
     """ Format a duration value in seconds to a readable form.
     """
-    return fmt.human_duration(float(duration), 0, 2, True)
+    try:
+        return fmt.human_duration(float(duration), 0, 2, True)
+    except ValueError:
+        return "N/A".rjust(len(fmt.human_duration(0, 0, 2, True)))
 
 
 def fmt_delta(timestamp):
@@ -194,22 +200,29 @@ def format_item(format, item, defaults=None):
         except ImportError, exc:
             raise error.UserError("To be able to use Tempita templates, (easy_)install the 'tempita' package (%s)" % exc)
 
+        # TODO: All constant stuff should be calculated once, make this a class or something
+        # Also parse the template only once (possibly in config validation)!
+
         # Build namespace, starting with defaults
         namespace = (defaults or {}).copy()
-
-        # TODO: This is highly inefficent, because we fetch ANY field, whether used or not!
-        for name in engine.FieldDefinition.FIELDS:
-            namespace[name] = getattr(item, name) if item else name.upper()
 
         # Add format specifiers (for headers, disable them)
         namespace.update((name[4:], method if item else lambda x, m=method: str(x).rjust(len(str(m(0)))))
             for name, method in globals().items() 
             if name.startswith("fmt_")
         )
-        ##print namespace
+
+        # Set item, or field names for column titles
+        namespace["headers"] = not bool(item)
+        if item:
+            namespace["d"] = item
+        else:
+            namespace["d"] = tempita.bunch()
+            for name in engine.FieldDefinition.FIELDS:
+                namespace["d"][name] = name.upper()
 
         # Expand template
-        return tempita.Template(format, namespace=namespace).substitute()
+        return tempita.Template(format).substitute(**namespace)
     else:
         # Interpolation
         if item is None:
