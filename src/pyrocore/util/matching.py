@@ -419,6 +419,7 @@ class ConditionParser(object):
         try:
             name, values = condition.split('=', 1)
         except ValueError:
+            # TODO: Magic that should be configurable via __init__
             name, values = "name", condition
     
         # Try to find field definition
