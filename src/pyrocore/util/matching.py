@@ -127,6 +127,10 @@ class FieldFilter(Filter):
         """
 
 
+# TODO: class UntypedFilter(FieldFilter): that uses some form of clever runtime coercion
+# Could look at the comparison value and decide what type of filter to use, and aggregate that
+
+
 class GlobFilter(FieldFilter):
     """ Case-insensitive glob pattern filter.
     """
@@ -399,7 +403,7 @@ class ConditionParser(object):
     """ Filter condition parser.
     """
 
-    def __init__(self, lookup):
+    def __init__(self, lookup, default_field=None):
         """ Initialize parser.
         
             The C{lookup} callback takes a C{name} argument and returns a dict describing
@@ -410,6 +414,7 @@ class ConditionParser(object):
             @param lookup: Field lookup callable. 
         """
         self.lookup = lookup
+        self.default_field = default_field
 
     
     def _create_filter(self, condition):
@@ -419,8 +424,10 @@ class ConditionParser(object):
         try:
             name, values = condition.split('=', 1)
         except ValueError:
-            # TODO: Magic that should be configurable via __init__
-            name, values = "name", condition
+            if self.default_field:
+                name, values = self.default_field, condition
+            else:
+                raise FilterError("Field name missing in '%s' (expected '=')" % condition)
     
         # Try to find field definition
         field = self.lookup(name)

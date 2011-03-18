@@ -458,7 +458,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             default_output_format = "action_cron" if self.options.cron else "action"
         self.validate_output_format(default_output_format)
         sort_key = self.validate_sort_fields()
-        matcher = matching.ConditionParser(engine.FieldDefinition.lookup).parse(self.args)
+        matcher = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(self.args)
         self.LOG.debug("Matcher is: %s" % matcher)
 
         # Detach to background?

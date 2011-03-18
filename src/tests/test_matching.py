@@ -54,7 +54,7 @@ class FilterTest(unittest.TestCase):
 
     def test_conditions(self):
         for cond, expected in self.CASES:
-            keep = matching.ConditionParser(lookup).parse(cond)
+            keep = matching.ConditionParser(lookup, "name").parse(cond)
             result = set(i.name for i in self.DATA if keep(i))
             expected = set(expected.split())
             assert result == expected, "Expected %r, but got %r" % (expected, result) 
@@ -70,6 +70,7 @@ class ParserTest(unittest.TestCase):
         "num=foo",
         "flag=foo",
         "unknown=",
+        "no field name",
         "[ num=1",
         # TODO: "num=1 ]",
         "num=1 OR OR flag=1",
@@ -80,7 +81,7 @@ class ParserTest(unittest.TestCase):
 
     def test_good_conditions(self):
         for cond in self.GOOD:
-            matcher = matching.ConditionParser(lookup).parse(cond)
+            matcher = matching.ConditionParser(lookup, "name").parse(cond)
             assert isinstance(matcher, matching.Filter), "Matcher is not a filter" 
             assert matcher, "Matcher is empty" 
 
