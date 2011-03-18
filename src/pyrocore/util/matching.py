@@ -48,6 +48,9 @@ class Filter(object):
         """
         raise NotImplementedError()
 
+    def __call__(self, item):
+        return self.match(item)
+
 
 class CompoundFilterBase(Filter, list):
     """ List of filters.

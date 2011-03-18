@@ -24,10 +24,10 @@ import operator
 from collections import defaultdict
 
 from pyrocore import config
-from pyrocore.util import os, fmt, osmagic
+from pyrocore.util import os, fmt, osmagic, matching
 from pyrocore.util.types import Bunch, DefaultBunch
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
-from pyrocore.torrent import engine, matching, formatting 
+from pyrocore.torrent import engine, formatting 
 
 
 def print_help_fields():

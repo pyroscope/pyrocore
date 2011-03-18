@@ -23,8 +23,7 @@ import time
 import operator
 
 from pyrocore import config, error 
-from pyrocore.util import os, pymagic, fmt, traits
-from pyrocore.torrent import matching 
+from pyrocore.util import os, pymagic, fmt, traits, matching 
 
 
 #
