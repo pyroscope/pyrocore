@@ -33,7 +33,7 @@ def fmt_sz(intval):
     """
     try:
         return fmt.human_size(intval)
-    except ValueError:
+    except (ValueError, TypeError):
         return "N/A".rjust(len(fmt.human_size(0)))
 
 
@@ -48,14 +48,17 @@ def fmt_duration(duration):
     """
     try:
         return fmt.human_duration(float(duration), 0, 2, True)
-    except ValueError:
+    except (ValueError, TypeError):
         return "N/A".rjust(len(fmt.human_duration(0, 0, 2, True)))
 
 
 def fmt_delta(timestamp):
     """ Format a UNIX timestamp to a delta (relative to now).
     """
-    return fmt.human_duration(float(timestamp), precision=2, short=True)
+    try:
+        return fmt.human_duration(float(timestamp), precision=2, short=True)
+    except (ValueError, TypeError):
+        return "N/A".rjust(len(fmt.human_duration(0, precision=2, short=True)))
 
 
 def fmt_pc(floatval):
