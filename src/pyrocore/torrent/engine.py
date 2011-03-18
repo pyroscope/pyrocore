@@ -195,6 +195,21 @@ class FieldDefinition(object):
     """
     FIELDS = {}
 
+    @classmethod
+    def lookup(cls, name):
+        """ Try to find field C{name}.
+        
+            @return: Field descriptions, see C{matching.ConditionParser} for details.
+        """
+        try:
+            field = cls.FIELDS[name]
+        except KeyError:
+            # Is it a custom attribute?
+            field = TorrentProxy.add_manifold_attribute(name)
+
+        return {"matcher": field._matcher} if field else None
+
+
     def __init__(self, valtype, name, doc, accessor=None, matcher=None, formatter=None, engine_name=None):
         self.valtype = valtype
         self.name = name
@@ -274,7 +289,7 @@ class TorrentProxy(object):
     def add_manifold_attribute(cls, name):
         """ Register a manifold engine attribute.
         
-            Return the field or None if "name" isn't a manifold attribute.
+            @return: field definition object, or None if "name" isn't a manifold attribute.
         """
         if name.startswith("custom_"):
             try:
@@ -282,7 +297,7 @@ class TorrentProxy(object):
             except KeyError:
                 field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
                     matcher=matching.GlobFilter)
-                setattr(cls, name, field)
+                setattr(cls, name, field) # add field to all proxy objects
 
                 return field
         elif name.startswith("kind_") and name[5:].isdigit():
@@ -574,118 +589,3 @@ class TorrentEngine(object):
         """ Visualize a set of items (search result).
         """
         raise NotImplementedError()
-
-
-#
-# Filter rule parsing
-#
-def create_filter(condition):
-    """ Create a filter object from a textual condition.
-    """
-    # Split name from value(s)
-    try:
-        name, values = condition.split('=', 1)
-    except ValueError:
-        name, values = "name", condition
-
-    # Try to find field definition
-    try:
-        field = FieldDefinition.FIELDS[name]
-    except KeyError:
-        # Is it a custom attribute?
-        field = TorrentProxy.add_manifold_attribute(name)
-        if not field:
-            raise matching.FilterError("Unknown field %r in %r" % (name, condition))  
-
-    if field._matcher is None: 
-        raise matching.FilterError("Field %r cannot be used as a filter" % (name,))  
-
-    # Make filters from values
-    filters = []
-    for value in values.split(','):
-        wrapper = None
-        if value.startswith('!'):
-            wrapper = matching.NegateFilter
-            value = value[1:]
-        field_matcher = field._matcher(name, value)
-        filters.append(wrapper(field_matcher) if wrapper else field_matcher)
-
-    # Return filters
-    return matching.CompoundFilterAny(filters) if len(filters) > 1 else filters[0]  
-
-
-def _tree2str(tree, root=True):
-    """ Convert parsed condition tree back to a (printable) string.
-    """
-    try:
-        # Keep strings as they are
-        return '' + tree
-    except (TypeError, ValueError):
-        flat = ' '.join(_tree2str(i, root=False) for i in tree)
-        return flat if root else "[ %s ]" % flat
-    
-
-def parse_filter_conditions(conditions):
-    """ Parse filter conditions.
-    
-        @param conditions: multiple conditions.
-        @type conditions: list or str 
-    """
-    conditions_text = conditions
-    try:
-        conditions = conditions.split()
-    except AttributeError:
-        # Not a string, assume parsed tree
-        conditions_text = _tree2str(conditions)
-
-    # Empty list?
-    if not conditions:
-        raise matching.FilterError("No conditions given at all!")
-
-    # Handle grouping
-    if '[' in conditions:
-        tree = [[]]
-        for term in conditions:
-            if term == '[':
-                tree.append([]) # new grouping
-            elif term == ']':
-                subtree = tree.pop()
-                if not tree:
-                    raise matching.FilterError("Unbalanced brackets, too many closing ']' in condition %r" % (conditions_text,))
-                tree[-1].append(subtree) # append finished group to containing level
-            else:
-                tree[-1].append(term) # append to current level
-
-        if len(tree) > 1:
-            raise matching.FilterError("Unbalanced brackets, too many open '[' in condition %r" % (conditions_text,))
-        conditions = tree[0]
-
-    # Prepare root matcher
-    conditions = list(conditions)
-    matcher = matching.CompoundFilterAll()
-    if "OR" in conditions:
-        root = matching.CompoundFilterAny()
-        root.append(matcher)
-    else:
-        root = matcher
-
-    # Go through conditions and parse them
-    for condition in conditions:
-        if condition == "OR":
-            # Leading OR, or OR OR in sequence?
-            if not matcher:
-                raise matching.FilterError("Left-hand side of OR missing in %r!" % (conditions_text,))
-
-            # Start next run of AND conditions
-            matcher = matching.CompoundFilterAll()
-            root.append(matcher)
-        elif isinstance(condition, list):
-            matcher.append(parse_filter_conditions(condition))
-        else:
-            matcher.append(create_filter(condition))
-
-    # Trailing OR?
-    if not matcher:
-        raise matching.FilterError("Right-hand side of OR missing in %r!" % (conditions_text,))
-
-    return root

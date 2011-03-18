@@ -391,3 +391,126 @@ class ByteSizeFilter(NumericFilterBase):
         # Scale to bytes
         self._value = self._value * scale
 
+
+class ConditionParser(object):
+    """ Filter condition parser.
+    """
+
+    def __init__(self, lookup):
+        """ Initialize parser.
+        
+            The C{lookup} callback takes a C{name} argument and returns a dict describing
+            that field, or None for an unknown field. If a dict is returned, the "matcher"
+            key is supposed to be a C{Filter} instance; if it's None or missing, the field
+            is not comparable.
+        
+            @param lookup: Field lookup callable. 
+        """
+        self.lookup = lookup
+
+    
+    def _create_filter(self, condition):
+        """ Create a filter object from a textual condition.
+        """
+        # Split name from value(s)
+        try:
+            name, values = condition.split('=', 1)
+        except ValueError:
+            name, values = "name", condition
+    
+        # Try to find field definition
+        field = self.lookup(name)
+        if not field:
+            raise FilterError("Unknown field %r in %r" % (name, condition))  
+        if field.get("matcher") is None: 
+            raise FilterError("Field %r cannot be used as a filter" % (name,))  
+    
+        # Make filters from values
+        filters = []
+        for value in values.split(','):
+            wrapper = None
+            if value.startswith('!'):
+                wrapper = NegateFilter
+                value = value[1:]
+            field_matcher = field["matcher"](name, value)
+            filters.append(wrapper(field_matcher) if wrapper else field_matcher)
+    
+        # Return filters
+        return CompoundFilterAny(filters) if len(filters) > 1 else filters[0]  
+    
+    
+    def _tree2str(self, tree, root=True):
+        """ Convert parsed condition tree back to a (printable) string.
+        """
+        try:
+            # Keep strings as they are
+            return '' + tree
+        except (TypeError, ValueError):
+            flat = ' '.join(self._tree2str(i, root=False) for i in tree)
+            return flat if root else "[ %s ]" % flat
+        
+    
+    def parse(self, conditions):
+        """ Parse filter conditions.
+        
+            @param conditions: multiple conditions.
+            @type conditions: list or str 
+        """
+        conditions_text = conditions
+        try:
+            conditions = conditions.split()
+        except AttributeError:
+            # Not a string, assume parsed tree
+            conditions_text = self._tree2str(conditions)
+    
+        # Empty list?
+        if not conditions:
+            raise FilterError("No conditions given at all!")
+    
+        # Handle grouping
+        if '[' in conditions:
+            tree = [[]]
+            for term in conditions:
+                if term == '[':
+                    tree.append([]) # new grouping
+                elif term == ']':
+                    subtree = tree.pop()
+                    if not tree:
+                        raise FilterError("Unbalanced brackets, too many closing ']' in condition %r" % (conditions_text,))
+                    tree[-1].append(subtree) # append finished group to containing level
+                else:
+                    tree[-1].append(term) # append to current level
+    
+            if len(tree) > 1:
+                raise FilterError("Unbalanced brackets, too many open '[' in condition %r" % (conditions_text,))
+            conditions = tree[0]
+    
+        # Prepare root matcher
+        conditions = list(conditions)
+        matcher = CompoundFilterAll()
+        if "OR" in conditions:
+            root = CompoundFilterAny()
+            root.append(matcher)
+        else:
+            root = matcher
+    
+        # Go through conditions and parse them
+        for condition in conditions:
+            if condition == "OR":
+                # Leading OR, or OR OR in sequence?
+                if not matcher:
+                    raise FilterError("Left-hand side of OR missing in %r!" % (conditions_text,))
+    
+                # Start next run of AND conditions
+                matcher = CompoundFilterAll()
+                root.append(matcher)
+            elif isinstance(condition, list):
+                matcher.append(self.parse(condition))
+            else:
+                matcher.append(self._create_filter(condition))
+    
+        # Trailing OR?
+        if not matcher:
+            raise FilterError("Right-hand side of OR missing in %r!" % (conditions_text,))
+    
+        return root
