@@ -253,9 +253,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         try:
             item_text = fmt.to_console(formatting.format_item(self.options.output_format, item, defaults)) 
-        except (ValueError, TypeError), exc:
-            self.fatal("Trouble with formatting item %r using %r" % (item, self.options.output_format), exc)
-            raise
+        except (NameError, ValueError, TypeError), exc:
+            self.fatal("Trouble with formatting item %r\n\n  FORMAT = %r\n\n  REASON =" % (item, self.options.output_format), exc)
+            raise # in --debug mode
 
         # Justify headers according to stencil
         if stencil:

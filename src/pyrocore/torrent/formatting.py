@@ -34,16 +34,22 @@ def fmt_sz(intval):
     return fmt.human_size(intval)
 
 
-def fmt_iso(dt):
+def fmt_iso(timestamp):
     """ Format a UNIX timestamp to an ISO datetime string.
     """
-    return fmt.iso_datetime(dt)
+    return fmt.iso_datetime(timestamp)
 
 
-def fmt_delta(dt):
-    """ Format a UNIX timestamp to a relative delta.
+def fmt_duration(duration):
+    """ Format a duration value in seconds to a readable form.
     """
-    return fmt.human_duration(float(dt), precision=2, short=True)
+    return fmt.human_duration(float(duration), 0, 2, True)
+
+
+def fmt_delta(timestamp):
+    """ Format a UNIX timestamp to a delta (relative to now).
+    """
+    return fmt.human_duration(float(timestamp), precision=2, short=True)
 
 
 def fmt_pc(floatval):
@@ -61,7 +67,7 @@ def fmt_strip(val):
 def fmt_mtime(val):
     """ Modification time of a path.
     """
-    return os.path.getmtime(val)
+    return os.path.getmtime(val) if val else 0
 
 
 def fmt_pathbase(val):
@@ -182,24 +188,27 @@ def format_item(format, item, defaults=None):
         @param defaults: Optional default values.
     """
     if format.startswith("{{"):
-        # Tempita
-        import tempita
+        # Import tempita
+        try:
+            import tempita
+        except ImportError, exc:
+            raise error.UserError("To be able to use Tempita templates, (easy_)install the 'tempita' package (%s)" % exc)
 
+        # Build namespace, starting with defaults
         namespace = (defaults or {}).copy()
-        namespace.update({
-            "ESC": "\x1B",
-        })
 
         # TODO: This is highly inefficent, because we fetch ANY field, whether used or not!
         for name in engine.FieldDefinition.FIELDS:
             namespace[name] = getattr(item, name) if item else name.upper()
 
-        namespace.update((name[4:], method if item else lambda x: x)
+        # Add format specifiers (for headers, disable them)
+        namespace.update((name[4:], method if item else lambda x, m=method: str(x).rjust(len(str(m(0)))))
             for name, method in globals().items() 
             if name.startswith("fmt_")
         )
         ##print namespace
 
+        # Expand template
         return tempita.Template(format, namespace=namespace).substitute()
     else:
         # Interpolation
