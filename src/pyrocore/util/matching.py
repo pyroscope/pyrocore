@@ -127,10 +127,6 @@ class FieldFilter(Filter):
         """
 
 
-# TODO: class UntypedFilter(FieldFilter): that uses some form of clever runtime coercion
-# Could look at the comparison value and decide what type of filter to use, and aggregate that
-
-
 class GlobFilter(FieldFilter):
     """ Case-insensitive glob pattern filter.
     """
@@ -397,6 +393,39 @@ class ByteSizeFilter(NumericFilterBase):
 
         # Scale to bytes
         self._value = self._value * scale
+
+
+class MagicFilter(FieldFilter):
+    """ Filter that looks at the comparison value and automatically decides 
+        what type of filter to use.
+    """
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        val = self._condition.lower()
+        if val and val[0] in "+-":
+            val = val[1:]
+        
+        matcher = GlobFilter
+        if not val:
+            pass
+        elif val.replace('.', '0').isdigit(): 
+            matcher = FloatFilter
+        elif self._condition in (BoolFilter.TRUE + BoolFilter.FALSE): 
+            matcher = BoolFilter
+        elif any(val.endswith(i) for i in ByteSizeFilter.UNITS) and val[:-1].isdigit():
+            matcher = ByteSizeFilter
+        elif TimeFilter.TIMEDELTA_RE.match(val):
+            matcher = TimeFilter
+        
+        self._inner = matcher(self._name, self._condition)
+
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        return self._inner.match(item)
 
 
 class ConditionParser(object):

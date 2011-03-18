@@ -16,6 +16,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+import time
 import logging
 import unittest
 
@@ -60,13 +61,68 @@ class FilterTest(unittest.TestCase):
             assert result == expected, "Expected %r, but got %r" % (expected, result) 
 
 
+class MagicTest(unittest.TestCase):
+    CASES = [
+        ("a*", matching.GlobFilter),
+        ("y", matching.BoolFilter),
+        ("1", matching.FloatFilter),
+        ("+1", matching.FloatFilter),
+        ("-1", matching.FloatFilter),
+        ("1.0", matching.FloatFilter),
+        ("1g", matching.ByteSizeFilter),
+        ("+4g", matching.ByteSizeFilter),
+        ("0b", matching.ByteSizeFilter),
+        ("0k", matching.ByteSizeFilter),
+        ("0m", matching.ByteSizeFilter),
+        ("1m0s", matching.TimeFilter),
+        ("2w", matching.TimeFilter),
+        ("2w1y", matching.GlobFilter),
+    ]
+
+    def check(self, obj, expected, cond):
+        assert type(obj) is expected, "%s is not %s for '%s'" % (type(obj).__name__, expected.__name__, cond) 
+
+    def test_magic(self):
+        for cond, expected in self.CASES:
+            matcher = matching.ConditionParser(lambda _: {"matcher": matching.MagicFilter}, "f").parse(cond)
+            log.debug("MAGIC: '%s' ==> %s" % (cond, type(matcher[0]._inner).__name__)) 
+            self.check(matcher[0]._inner, expected, cond)
+
+    def test_magic_negate(self):
+        matcher = matching.ConditionParser(lambda _: {"matcher": matching.MagicFilter}, "f").parse("!")
+        self.check(matcher[0], matching.NegateFilter, "!")
+        self.check(matcher[0]._inner, matching.MagicFilter, "!")
+        self.check(matcher[0]._inner._inner, matching.GlobFilter, "!")
+        
+    def test_magic_matching(self):
+        item = Bunch(name="foo", date=time.time() - 86401, one=1, year=2011, size=1024**2)
+        match = lambda c: matching.ConditionParser(
+            lambda _: {"matcher": matching.MagicFilter}, "name").parse(c).match(item)
+
+        assert match("f??")
+        assert match("name=f*")
+        assert match("date=+1d")
+        assert match("one=y")
+        assert match("one=+0")
+        assert match("year=+2000")
+        assert match("size=1m")
+        assert match("size=1024k")
+        assert not match("a*")
+        assert not match("date=-1d")
+        assert not match("one=false")
+        assert not match("one=+1")
+        assert not match("year=+2525")
+        assert not match("size=-1m")
+        
+
 class ParserTest(unittest.TestCase):
     GOOD = [
-        "num=+1",
-        "flag=y",
-        "some*name",
+        ("num=+1", "%s"),
+        ("flag=y", "%ses"),
+        ("some*name", "name=%s"),
     ]
     BAD = [
+        "",
         "num=foo",
         "flag=foo",
         "unknown=",
@@ -80,9 +136,10 @@ class ParserTest(unittest.TestCase):
     ]
 
     def test_good_conditions(self):
-        for cond in self.GOOD:
+        for cond, canonical in self.GOOD:
             matcher = matching.ConditionParser(lookup, "name").parse(cond)
-            assert isinstance(matcher, matching.Filter), "Matcher is not a filter" 
+            assert isinstance(matcher, matching.Filter), "Matcher is not a filter"
+            assert str(matcher) == canonical % cond, "'%s' != '%s'" % (matcher, canonical % cond)  
             assert matcher, "Matcher is empty" 
 
     def test_bad_conditions(self):
@@ -90,7 +147,7 @@ class ParserTest(unittest.TestCase):
             try:
                 matcher = matching.ConditionParser(lookup).parse(cond)
             except matching.FilterError, exc:
-                log.info("'%s' ==> %s" % (cond, exc))
+                log.debug("BAD: '%s' ==> %s" % (cond, exc))
             else:
                 assert False, "[ %s ] '%s' raised no error" % (matcher, cond)
 
