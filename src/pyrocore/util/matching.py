@@ -130,14 +130,14 @@ class FieldFilter(Filter):
         """
 
 
-class GlobFilter(FieldFilter):
-    """ Case-insensitive glob pattern filter.
+class PatternFilter(FieldFilter):
+    """ Case-insensitive pattern filter.
     """
 
     def validate(self):
         """ Validate filter condition (template method).
         """
-        super(GlobFilter, self).validate()
+        super(PatternFilter, self).validate()
         self._value = self._value.lower()
 
 
@@ -150,8 +150,8 @@ class GlobFilter(FieldFilter):
         return fnmatch.fnmatchcase(val, self._value) 
 
 
-class FilesFilter(GlobFilter):
-    """ Case-insensitive glob pattern filter on filenames in a torrent.
+class FilesFilter(PatternFilter):
+    """ Case-insensitive pattern filter on filenames in a torrent.
     """
 
     def match(self, item):
@@ -416,7 +416,7 @@ class MagicFilter(FieldFilter):
         if val and val[0] in "+-":
             val = val[1:]
         
-        matcher = GlobFilter
+        matcher = PatternFilter
         if not val:
             pass
         elif val.replace('.', '0').isdigit(): 

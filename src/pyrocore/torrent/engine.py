@@ -295,7 +295,7 @@ class TorrentProxy(object):
                 return FieldDefinition.FIELDS[name]
             except KeyError:
                 field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
-                    matcher=matching.GlobFilter)
+                    matcher=matching.PatternFilter)
                 setattr(cls, name, field) # add field to all proxy objects
 
                 return field
@@ -411,15 +411,15 @@ class TorrentProxy(object):
         # This can be empty in derived classes
 
     # Basic fields
-    hash = ConstantField(str, "hash", "info hash", matcher=matching.GlobFilter)
-    name = ConstantField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.GlobFilter)
+    hash = ConstantField(str, "hash", "info hash", matcher=matching.PatternFilter)
+    name = ConstantField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.PatternFilter)
     size = ConstantField(int, "size", "data size", matcher=matching.ByteSizeFilter)
     prio = OnDemandField(int, "prio", "priority (0=off, 1=low, 2=normal, 3=high)", matcher=matching.FloatFilter)
-    tracker = ConstantField(str, "tracker", "first in the list of announce URLs", matcher=matching.GlobFilter,
+    tracker = ConstantField(str, "tracker", "first in the list of announce URLs", matcher=matching.PatternFilter,
         accessor=lambda o: o.announce_urls()[0])
     alias = ConstantField(config.map_announce2alias, "alias", "tracker alias or domain",
-        matcher=matching.GlobFilter, accessor=operator.attrgetter("tracker"))
-    message = OnDemandField(str, "message", "current tracker message", matcher=matching.GlobFilter)
+        matcher=matching.PatternFilter, accessor=operator.attrgetter("tracker"))
+    message = OnDemandField(str, "message", "current tracker message", matcher=matching.PatternFilter)
 
     # State
     is_private = ConstantField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter, 
@@ -437,12 +437,12 @@ class TorrentProxy(object):
         formatter=lambda val: "GHST" if val else "DATA")
 
     # Paths
-    directory = OnDemandField(fmt.to_unicode, "directory", "directory containing download data", matcher=matching.GlobFilter)
-    path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.GlobFilter,
+    directory = OnDemandField(fmt.to_unicode, "directory", "directory containing download data", matcher=matching.PatternFilter)
+    path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])) if o._fields["path"] else "")
-    realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.GlobFilter,
+    realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")) if o._fields["path"] else "")
-    metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.GlobFilter,
+    metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
     files = OnDemandField(list, "files", "list of files in this item", 
         matcher=matching.FilesFilter, formatter=_fmt_files)
@@ -457,7 +457,7 @@ class TorrentProxy(object):
         accessor=lambda o: o.fetch("up") + o.fetch("down"))
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
-    throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.GlobFilter,
+    throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.PatternFilter,
         accessor=lambda o: o._fields["throttle"] or "NONE")
 
     # Lifecyle

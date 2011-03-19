@@ -31,7 +31,7 @@ def lookup(name):
     """ Lookup for test fields.
     """
     matchers = dict(
-        name = matching.GlobFilter,
+        name = matching.PatternFilter,
         num = matching.FloatFilter,
         flag = matching.BoolFilter,
         tags = matching.TaggedAsFilter,
@@ -78,7 +78,7 @@ class FilterTest(unittest.TestCase):
 
 class MagicTest(unittest.TestCase):
     CASES = [
-        ("a*", matching.GlobFilter),
+        ("a*", matching.PatternFilter),
         ("y", matching.BoolFilter),
         ("1", matching.FloatFilter),
         ("+1", matching.FloatFilter),
@@ -91,7 +91,7 @@ class MagicTest(unittest.TestCase):
         ("0m", matching.ByteSizeFilter),
         ("1m0s", matching.TimeFilter),
         ("2w", matching.TimeFilter),
-        ("2w1y", matching.GlobFilter),
+        ("2w1y", matching.PatternFilter),
     ]
 
     def check(self, obj, expected, cond):
@@ -107,7 +107,7 @@ class MagicTest(unittest.TestCase):
         matcher = matching.ConditionParser(lambda _: {"matcher": matching.MagicFilter}, "f").parse("!")
         self.check(matcher[0], matching.NegateFilter, "!")
         self.check(matcher[0]._inner, matching.MagicFilter, "!")
-        self.check(matcher[0]._inner._inner, matching.GlobFilter, "!")
+        self.check(matcher[0]._inner._inner, matching.PatternFilter, "!")
         
     def test_magic_matching(self):
         item = Bunch(name="foo", date=time.time() - 86401, one=1, year=2011, size=1024**2)
