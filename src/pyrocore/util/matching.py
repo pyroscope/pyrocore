@@ -22,8 +22,11 @@ import re
 import time
 import fnmatch
 import operator
+import logging
 
 from pyrocore import error
+
+LOG = logging.getLogger(__name__)
 
 
 def _time_ym_delta(timestamp, delta, months):
@@ -141,7 +144,10 @@ class GlobFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        return fnmatch.fnmatchcase(getattr(item, self._name).lower(), self._value) 
+        val = getattr(item, self._name).lower()
+        #LOG.debug("%r for %r ~ %r, name %r, item %r" % (
+        #    fnmatch.fnmatchcase(val or '', self._value), val, self._value, self._name, item))
+        return fnmatch.fnmatchcase(val or '', self._value) 
 
 
 class FilesFilter(GlobFilter):
@@ -151,10 +157,12 @@ class FilesFilter(GlobFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        for fileinfo in getattr(item, self._name):
-            if fnmatch.fnmatchcase(fileinfo.path.lower(), self._value):
-                return True
-        return False
+        val = getattr(item, self._name)
+        if val is not None:
+            for fileinfo in val:
+                if fnmatch.fnmatchcase(fileinfo.path.lower(), self._value):
+                    return True
+            return False
 
 
 class TaggedAsFilter(FieldFilter):
@@ -184,8 +192,7 @@ class TaggedAsFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        tags = getattr(item, self._name)
-
+        tags = getattr(item, self._name) or []
         if self._exact:
             # Equality check
             return self._value == set(tags)
@@ -222,7 +229,8 @@ class BoolFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        return bool(getattr(item, self._name)) is self._value  
+        val = getattr(item, self._name) or False
+        return bool(val) is self._value  
 
 
 class NumericFilterBase(FieldFilter):
@@ -250,7 +258,8 @@ class NumericFilterBase(FieldFilter):
         if 0 and getattr(item, self._name):
             print "%r %r %r %r %r %r" % (self._cmp(float(getattr(item, self._name)), self._value), 
                   self._name, self._condition, item.name, getattr(item, self._name), self._value)
-        return self._cmp(float(getattr(item, self._name)), self._value) 
+        val = getattr(item, self._name) or 0
+        return self._cmp(float(val), self._value) 
 
 
 class FloatFilter(NumericFilterBase):
@@ -440,7 +449,15 @@ class ConditionParser(object):
         "!=": "!",
     }
 
-    def __init__(self, lookup, default_field=None):
+
+    @classmethod
+    def AMENABLE(cls, _):
+        """ Prefined lookup mode for typeless access to any field name.
+        """
+        return {"matcher": MagicFilter}
+
+
+    def __init__(self, lookup, default_field=None, ident_re=r"[_A-Za-z][_A-Za-z0-9]*"):
         """ Initialize parser.
         
             The C{lookup} callback takes a C{name} argument and returns a dict describing
@@ -448,17 +465,20 @@ class ConditionParser(object):
             key is supposed to be a C{Filter} instance; if it's None or missing, the field
             is not comparable.
         
-            @param lookup: Field lookup callable. 
+            @param lookup: Field definition lookup callable.
+            @param default_field: Optional default field name for conditions without an operator. 
+            @param ident_re: Regex describing valid field names.   
         """
         self.lookup = lookup
         self.default_field = default_field
+        self.ident_re = ident_re
 
     
     def _create_filter(self, condition):
         """ Create a filter object from a textual condition.
         """
         # "Normal" comparison operators?
-        comparison = re.match(r"^([_.A-Za-z0-9]+)(<[>=]?|>=?|!=)(.*)$", condition)
+        comparison = re.match(r"^(%s)(<[>=]?|>=?|!=)(.*)$" % self.ident_re, condition)
         if comparison: 
             name, comparison, values = comparison.groups()
             if values and values[0] in "+-":

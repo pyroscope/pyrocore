@@ -73,7 +73,7 @@ class FilterTest(unittest.TestCase):
             keep = matching.ConditionParser(lookup, "name").parse(cond)
             result = set(i.name for i in self.DATA if keep(i))
             expected = set(expected.split())
-            assert result == expected, "Expected %r, but got %r, for '%s'" % (expected, result, cond) 
+            assert result == expected, "Expected %r, but got %r, for '%s' [ %s ]" % (expected, result, cond, keep) 
 
 
 class MagicTest(unittest.TestCase):
