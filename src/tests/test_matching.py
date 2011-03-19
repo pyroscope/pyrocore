@@ -34,15 +34,16 @@ def lookup(name):
         name = matching.GlobFilter,
         num = matching.FloatFilter,
         flag = matching.BoolFilter,
+        tags = matching.TaggedAsFilter,
     )
     return {"matcher": matchers[name]} if name in matchers else None
 
 
 class FilterTest(unittest.TestCase):
     DATA = [
-        Bunch(name="T1", num=1, flag=True),
-        Bunch(name="F0", num=0, flag=False),
-        Bunch(name="T11", num=11, flag=True),
+        Bunch(name="T1", num=1, flag=True, tags=set("ab")),
+        Bunch(name="F0", num=0, flag=False, tags=set()),
+        Bunch(name="T11", num=11, flag=True, tags=set("b")),
     ]
     CASES = [
         ("flag=y", "T1 T11"),
@@ -58,6 +59,13 @@ class FilterTest(unittest.TestCase):
         ("num!=1", "F0 T11"),
         ("T?", "T1"),
         ("T*", "T1 T11"),
+        ("tags=a", "T1"),
+        ("tags=b", "T1 T11"),
+        ("tags=a,b", "T1 T11"),
+        ("tags==b", "T11"),
+        ("tags=", "F0"),
+        ("tags=!", "T1 T11"),
+        ("tags=!a", "F0 T11"),
     ]
 
     def test_conditions(self):
@@ -65,7 +73,7 @@ class FilterTest(unittest.TestCase):
             keep = matching.ConditionParser(lookup, "name").parse(cond)
             result = set(i.name for i in self.DATA if keep(i))
             expected = set(expected.split())
-            assert result == expected, "Expected %r, but got %r" % (expected, result) 
+            assert result == expected, "Expected %r, but got %r, for '%s'" % (expected, result, cond) 
 
 
 class MagicTest(unittest.TestCase):
@@ -133,6 +141,9 @@ class ParserTest(unittest.TestCase):
         ("num<>1", "num=!1"),
         ("flag=y", "%ses"),
         ("some*name", "name=%s"),
+        ("foo bar", "name=foo name=bar"),
+        ("foo,bar", "name=%s"),
+        ("foo OR bar", "[ name=foo OR name=bar ]"),
     ]
     BAD = [
         "",
