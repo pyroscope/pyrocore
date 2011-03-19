@@ -131,7 +131,7 @@ class FieldFilter(Filter):
 
 
 class PatternFilter(FieldFilter):
-    """ Case-insensitive pattern filter.
+    """ Case-insensitive pattern filter, either a glob or a /regex/ pattern.
     """
 
     def validate(self):
@@ -139,6 +139,10 @@ class PatternFilter(FieldFilter):
         """
         super(PatternFilter, self).validate()
         self._value = self._value.lower()
+        if self._value.startswith('/') and self._value.endswith('/'):
+            self._matcher = re.compile(self._value[1:-1]).search 
+        else:  
+            self._matcher = lambda val: fnmatch.fnmatchcase(val, self._value) 
 
 
     def match(self, item):
@@ -146,8 +150,8 @@ class PatternFilter(FieldFilter):
         """
         val = (getattr(item, self._name) or '').lower()
         #LOG.debug("%r for %r ~ %r, name %r, item %r" % (
-        #    fnmatch.fnmatchcase(val or '', self._value), val, self._value, self._name, item))
-        return fnmatch.fnmatchcase(val, self._value) 
+        #    self._matcher(val), val, self._value, self._name, item))
+        return self._matcher(val) 
 
 
 class FilesFilter(PatternFilter):
@@ -417,7 +421,7 @@ class MagicFilter(FieldFilter):
             val = val[1:]
         
         matcher = PatternFilter
-        if not val:
+        if not val or val.startswith('/') and val.endswith('/'):
             pass
         elif val.replace('.', '0').isdigit(): 
             matcher = FloatFilter
@@ -441,12 +445,13 @@ class ConditionParser(object):
     """ Filter condition parser.
     """
     COMPARISON_OPS = {
-        "<":  "-",
-        "<=": "!+",
-        ">":  "+",
-        ">=": "!-",
-        "<>": "!",
-        "!=": "!",
+        "<":  "-%s",
+        "<=": "!+%s",
+        ">":  "+%s",
+        ">=": "!-%s",
+        "<>": "!%s",
+        "!=": "!%s",
+        "~": "/%s/",
     }
 
 
@@ -478,12 +483,12 @@ class ConditionParser(object):
         """ Create a filter object from a textual condition.
         """
         # "Normal" comparison operators?
-        comparison = re.match(r"^(%s)(<[>=]?|>=?|!=)(.*)$" % self.ident_re, condition)
+        comparison = re.match(r"^(%s)(<[>=]?|>=?|!=|~)(.*)$" % self.ident_re, condition)
         if comparison: 
             name, comparison, values = comparison.groups()
             if values and values[0] in "+-":
                 raise FilterError("Comparison operator cannot be followed by '%s' in '%s'" % (values[0], condition))
-            values = self.COMPARISON_OPS[comparison] + values
+            values = self.COMPARISON_OPS[comparison] % values
         else:
             # Split name from value(s)
             try:
