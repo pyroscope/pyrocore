@@ -144,10 +144,10 @@ class GlobFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        val = getattr(item, self._name).lower()
+        val = (getattr(item, self._name) or '').lower()
         #LOG.debug("%r for %r ~ %r, name %r, item %r" % (
         #    fnmatch.fnmatchcase(val or '', self._value), val, self._value, self._name, item))
-        return fnmatch.fnmatchcase(val or '', self._value) 
+        return fnmatch.fnmatchcase(val, self._value) 
 
 
 class FilesFilter(GlobFilter):
