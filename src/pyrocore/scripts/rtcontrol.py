@@ -546,10 +546,10 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Print summary?
             if matches and summary:
                 self.emit(None, stencil=stencil, 
-                    item_formatter=None if self.options.summary
-                        # TODO: this can be done better! 
-                        else lambda i: re.sub("[^ \t]", "=", i)
-                        #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
+                    #item_formatter=None if self.options.summary
+                    #    # TODO: this can be done better! 
+                    #    else lambda i: re.sub("[^ \t]", "=", i)
+                    #    #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
                 )
                 self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM of %d item(s)]" % len(matches))
                 self.emit(summary.min, item_formatter=lambda i: i.rstrip() + " [MIN of %d item(s)]" % len(matches))
