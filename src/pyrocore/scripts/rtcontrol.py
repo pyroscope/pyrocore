@@ -79,6 +79,7 @@ class FieldStatistics(object):
         "Add a sample"
         if engine.FieldDefinition.FIELDS[field]._matcher is matching.TimeFilter:
             val = self._basetime - val
+
         try:
             self.total[field] += val
             self.min[field] = min(self.min[field], val) if field in self.min else val
