@@ -228,7 +228,22 @@ def format_item(format, item, defaults=None):
                 namespace["d"][name] = name.upper()
 
         # Expand template
-        return tempita.Template(format).substitute(**namespace)
+        try:
+            return tempita.Template(format).substitute(**namespace)
+        except (AttributeError, ValueError, NameError, TypeError), exc:
+            hint = ''
+            if "column" in str(exc):
+                try:
+                    col = int(str(exc).split("column")[1].split()[0])
+                except (TypeError, ValueError):
+                    pass
+                else:
+                    hint = "%svVv\n" % (' ' * (col+4))
+                    
+            raise error.LoggableError("%s: %s in template:\n%s%s" % (
+                type(exc).__name__, exc, hint,
+                "\n".join("%3d: %s" % (i+1, line) for i, line in enumerate(format.splitlines()))
+            ))
     else:
         # Interpolation
         if item is None:
