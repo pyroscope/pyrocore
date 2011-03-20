@@ -486,8 +486,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Build header stencil
         stencil = None
         if self.options.column_headers and self.plain_output_format and matches:
-            stencil = fmt.to_console(self.options.output_format % 
-                formatting.OutputMapping(matches[0], self.FORMATTER_DEFAULTS)).split('\t')
+            stencil = fmt.to_console(formatting.format_item(
+                self.options.output_format, matches[0], self.FORMATTER_DEFAULTS)).split('\t')
 
         # Tee to ncurses view, if requested
         if self.options.tee_view and (self.options.to_view or self.options.view_only):
