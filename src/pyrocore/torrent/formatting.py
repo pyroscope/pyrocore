@@ -23,6 +23,7 @@ import re
 from pyrocore import error 
 from pyrocore.torrent import engine 
 from pyrocore.util import os, fmt, algo
+from pyrocore.util.types import Bunch
 
 
 #
@@ -190,6 +191,26 @@ class OutputMapping(algo.AttributeMapping):
                 raise error.LoggableError("While formatting %s=%r: %s" % (key, val, exc))
 
 
+def preparse(output_format):
+    """ Do any special processing of a template, and return the result.
+    """
+    if hasattr(output_format, "__engine__"):
+        template = output_format
+    elif output_format.startswith("{{"):
+        # Import tempita
+        try:
+            import tempita
+        except ImportError, exc:
+            raise error.UserError("To be able to use Tempita templates, (easy_)install the 'tempita' package (%s)" % exc)
+
+        template = tempita.Template(output_format)
+        template.__engine__ = "tempita"
+    else:
+        template = unicode(output_format)
+
+    return template
+
+
 def format_item(format, item, defaults=None):
     """ Format an item according to the given output format.
         The format can be gioven as either an interpolation string, 
@@ -199,13 +220,7 @@ def format_item(format, item, defaults=None):
         @param item: The object, which is automatically wrapped for interpolation. 
         @param defaults: Optional default values.
     """
-    if format.startswith("{{"):
-        # Import tempita
-        try:
-            import tempita
-        except ImportError, exc:
-            raise error.UserError("To be able to use Tempita templates, (easy_)install the 'tempita' package (%s)" % exc)
-
+    if getattr(format, "__engine__", None) == "tempita" or format.startswith("{{"):
         # TODO: All constant stuff should be calculated once, make this a class or something
         # Also parse the template only once (possibly in config validation)!
 
@@ -223,13 +238,13 @@ def format_item(format, item, defaults=None):
         if item:
             namespace["d"] = item
         else:
-            namespace["d"] = tempita.bunch()
+            namespace["d"] = Bunch()
             for name in engine.FieldDefinition.FIELDS:
                 namespace["d"][name] = name.upper()
 
         # Expand template
         try:
-            return tempita.Template(format).substitute(**namespace)
+            return preparse(format).substitute(**namespace)
         except (AttributeError, ValueError, NameError, TypeError), exc:
             hint = ''
             if "column" in str(exc):

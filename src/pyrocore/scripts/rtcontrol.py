@@ -331,7 +331,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             #.replace(r"\", "\")
         )                            
 
-        self.options.output_format = unicode(output_format)
+        self.options.output_format = formatting.preparse(output_format)
 
 
     # TODO: refactor to engine.FieldDefinition as a class method
