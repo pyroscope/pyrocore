@@ -22,6 +22,7 @@ import logging
 # Add a level more detailed than DEBUG
 TRACE = logging.DEBUG-1
 
+
 class TestLogger(logging.Logger):
     """A logger with trace()."""
 
@@ -42,5 +43,11 @@ class TestLogger(logging.Logger):
         """ Micro logging.
         """
         return self.log(TRACE, msg, *args, **kwargs)
+
+
+    # FlexGet names
+    debugall = trace
+    verbose = logging.Logger.info
+
 
 TestLogger.initialize()
