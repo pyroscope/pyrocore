@@ -31,11 +31,15 @@ class AttributeAccessor(object):
     def __init__(self, obj):
         self.obj = obj
 
+
     def _getfield(self, key, lookup_error):
         fullname = key # store for logging
         obj = self.obj
 
         while key is not None:
+            if key.startswith('_'):
+                raise lookup_error("%s tries to access private member %s" % (fullname, key))
+
             try:
                 name, key = key.split('.', 1)
             except ValueError:
@@ -61,8 +65,10 @@ class AttributeAccessor(object):
 
         return obj
 
+
     def __getitem__(self, name):
         return self._getfield(name, KeyError)
+
 
     def __getattr__(self, name):
         return self._getfield(name, AttributeError)
@@ -79,6 +85,7 @@ class ConditionPluginBase(plugin.Plugin):
         root.accept("list").accept("text") # list of conditions ORed together
         root.accept("text") # a single condition
         return root
+
 
     def parse(self, config):
         """ Parse filter condition(s) from config.
@@ -102,6 +109,7 @@ class ConditionPluginBase(plugin.Plugin):
 
         log.debug("%s: %s" % (self.plugin_info.name, " OR ".join(str(i) for i in conditions)))
         return conditions, matching
+
 
     def process(self, feed, config, matched=None, failed=None):
         """ Apply config condition to all items and depending on the outcome,
