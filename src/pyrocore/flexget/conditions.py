@@ -37,9 +37,6 @@ class AttributeAccessor(object):
         obj = self.obj
 
         while key is not None:
-            if key.startswith('_'):
-                raise lookup_error("%s tries to access private member %s" % (fullname, key))
-
             try:
                 name, key = key.split('.', 1)
             except ValueError:
@@ -47,6 +44,8 @@ class AttributeAccessor(object):
             optional = name.startswith('?')
             if optional:
                 name = name[1:]
+            if name.startswith('_'):
+                raise lookup_error("%s tries to access private member %s" % (fullname, name))
 
             try:
                 obj = obj[name]
