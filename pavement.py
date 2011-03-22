@@ -73,10 +73,14 @@ project = dict(
     ],
 
     # dependencies
-    install_requires = [
-    ],
     setup_requires = [
     ],
+    install_requires = [
+        "pyrobase>=0.1",
+    ],
+    extras_require = {
+        "FlexGet": ["flexget>=1.0"],
+    },
 
     # tests
     test_suite = "nose.collector",
