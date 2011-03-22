@@ -20,7 +20,7 @@ import os
 
 if not os.path.supports_unicode_filenames:
     # Make a Unicode-aware copy of os and os.path
-    from pyrocore.util.types import Bunch
+    from pyrobase.parts import Bunch
 
     def _encode_path(text):
         """ Return a string suitable for calling file system functions.

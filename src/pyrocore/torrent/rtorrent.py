@@ -27,8 +27,9 @@ import operator
 import xmlrpclib
 from contextlib import closing
 
+from pyrobase.parts import Bunch
 from pyrocore import config, error
-from pyrocore.util import os, xmlrpc2scgi, load_config, types, traits, fmt
+from pyrocore.util import os, xmlrpc2scgi, load_config, traits, fmt
 from pyrocore.torrent import engine
 
 
@@ -84,7 +85,7 @@ class RtorrentItem(engine.TorrentProxy):
             #self._engine.LOG.debug("files result: %r" % rpc_result)
 
             # Return results
-            result = [types.Bunch(
+            result = [Bunch(
                 path=i[0], size=i[1], mtime=i[2] / 1000000.0,
                 prio=i[3], created=i[4], opened=i[5],
             ) for i in rpc_result]

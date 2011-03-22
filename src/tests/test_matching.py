@@ -20,8 +20,8 @@ import time
 import logging
 import unittest
 
+from pyrobase.parts import Bunch
 from pyrocore.util import matching
-from pyrocore.util.types import Bunch
 
 log = logging.getLogger(__name__)
 log.trace("module loaded")

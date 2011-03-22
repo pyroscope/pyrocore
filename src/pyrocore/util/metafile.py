@@ -30,8 +30,9 @@ import hashlib
 import urlparse
 from contextlib import closing
 
+from pyrobase.parts import Bunch
 from pyrocore import config, error
-from pyrocore.util import os, bencode, fmt, pymagic, types
+from pyrocore.util import os, bencode, fmt, pymagic
 
 
 # Allowed characters in a metafile filename or path
@@ -240,7 +241,7 @@ def add_fast_resume(meta, datapath):
     if single:
         if os.path.isdir(datapath):
             datapath = os.path.join(datapath, meta["info"]["name"])
-        files = [types.Bunch(
+        files = [Bunch(
             path=[os.path.abspath(datapath)],
             length=meta["info"]["length"],
         )]

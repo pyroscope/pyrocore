@@ -20,10 +20,10 @@
 """
 import re
 
+from pyrobase.parts import Bunch
 from pyrocore import error 
 from pyrocore.torrent import engine 
 from pyrocore.util import os, fmt, algo
-from pyrocore.util.types import Bunch
 
 
 #

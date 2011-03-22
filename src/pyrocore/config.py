@@ -20,7 +20,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-from pyrocore.util.types import Bunch
+from pyrobase.parts import Bunch
 
 
 def lookup_announce_alias(name):
