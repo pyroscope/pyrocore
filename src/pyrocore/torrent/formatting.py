@@ -18,10 +18,13 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+from __future__ import with_statement
+
 import re
+from contextlib import closing
 
 from pyrobase.parts import Bunch
-from pyrocore import error 
+from pyrocore import error, config 
 from pyrocore.torrent import engine 
 from pyrocore.util import os, fmt, algo
 
@@ -194,6 +197,23 @@ class OutputMapping(algo.AttributeMapping):
 def preparse(output_format):
     """ Do any special processing of a template, and return the result.
     """
+    try:
+        is_file = output_format.startswith("file:")
+    except (AttributeError, TypeError):
+        pass
+    else:
+        if is_file:
+            output_format = output_format[5:]
+            if output_format.startswith('/'):
+                output_format = output_format.lstrip('/')
+            elif output_format.startswith('~'):
+                output_format = os.path.expanduser(output_format)
+            else:
+                output_format = os.path.join(config.config_dir, output_format)
+
+            with closing(open(output_format, "r")) as handle:
+                output_format = handle.read().rstrip()
+
     if hasattr(output_format, "__engine__"):
         template = output_format
     elif output_format.startswith("{{"):
@@ -254,10 +274,11 @@ def format_item(format, item, defaults=None):
                     pass
                 else:
                     hint = "%svVv\n" % (' ' * (col+4))
-                    
+
+            content = getattr(format, "content", format)                    
             raise error.LoggableError("%s: %s in template:\n%s%s" % (
                 type(exc).__name__, exc, hint,
-                "\n".join("%3d: %s" % (i+1, line) for i, line in enumerate(format.splitlines()))
+                "\n".join("%3d: %s" % (i+1, line) for i, line in enumerate(content.splitlines()))
             ))
     else:
         # Interpolation
