@@ -18,6 +18,10 @@
 """
 import os
 
+# 0.4.1 refactoring, duplicate stuf into the old place
+from pyrobase import fmt
+
+
 if not os.path.supports_unicode_filenames:
     # Make a Unicode-aware copy of os and os.path
     from pyrobase.parts import Bunch
