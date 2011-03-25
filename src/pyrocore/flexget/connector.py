@@ -83,9 +83,10 @@ class Rtorrent(plugin.Plugin):
         #"feed_tied": ("", False,
     }
 
-    def __init__(self):
+    def __init__(self, *args, **kw):
         """ Set plugin attribute defaults.
         """
+        super(Rtorrent, self).__init__(*args, **kw)
         self.proxy = None
         self.global_config = None
 
