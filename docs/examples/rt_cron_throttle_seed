@@ -2,7 +2,7 @@
 import logging
 
 from pyrocore import config
-from pyrocore.util import fmt
+from pyrocore.util import fmt, matching
 from pyrocore.torrent import engine
 from pyrocore.scripts import base
 
@@ -70,8 +70,9 @@ class SeedThrottle(base.ScriptBaseWithConfig):
             return
 
         # Check for active items
-        view = config.engine.view("active", 
-            engine.parse_filter_conditions("throttle=!%s [ %s ]" % (throttle_name, self.PRIO_FILTER)))
+        view = config.engine.view("active", matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
+            "throttle=!%s [ %s ]" % (throttle_name, self.PRIO_FILTER)
+        ))
         prioritized = list(view.items())
         self.LOG.debug("%d active items not in throttle '%s'" % (len(prioritized), throttle_name))
 
