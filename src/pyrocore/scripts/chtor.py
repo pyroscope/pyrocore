@@ -165,7 +165,7 @@ class MetafileChanger(ScriptBaseWithConfig):
 
                 # Remove non-standard keys?
                 if self.options.clean or self.options.clean_all or self.options.clean_xseed:
-                    metafile.clean_meta(metainfo, including_info=not self.options.clean, log=self.LOG)
+                    metafile.clean_meta(metainfo, including_info=not self.options.clean, logger=self.LOG.info)
 
                 # Restore resume info?
                 if self.options.clean_xseed:

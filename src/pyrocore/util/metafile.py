@@ -174,30 +174,38 @@ def check_meta(meta):
     return meta
 
 
-def clean_meta(meta, including_info=False, log=None):
-    """ Clean meta dict.
+def clean_meta(meta, including_info=False, logger=None):
+    """ Clean meta dict. Optionally log changes using the given logger.
+    
+        @param logger: If given, a callable accepting a string message. 
+        @return: Set of keys removed from C{meta}.
     """
+    modified = set()
+
     for key in meta.keys():
         if [key] not in METAFILE_STD_KEYS:
-            if log:
-                log.info("Removing key %r..." % (key,))
+            if logger:
+                logger("Removing key %r..." % (key,))
             del meta[key]
+            modified.add(key)
 
     if including_info:
         for key in meta["info"].keys():
             if ["info", key] not in METAFILE_STD_KEYS:
-                if log:
-                    log.info("Removing key %r..." % ("info." + key,))
+                if logger: 
+                    logger("Removing key %r..." % ("info." + key,))
                 del meta["info"][key]
+                modified.add("info." + key)
 
         for idx, entry in enumerate(meta["info"].get("files", [])):
             for key in entry.keys():
                 if ["info", "files", key] not in METAFILE_STD_KEYS:
-                    if log: 
-                        log.info("Removing key %r from file #%d..." % (key, idx+1))
+                    if logger: 
+                        logger("Removing key %r from file #%d..." % (key, idx + 1))
                     del entry[key]
+                    modified.add("info.files." + key)
 
-    return meta
+    return modified
 
 
 def assign_fields(meta, assignments):
