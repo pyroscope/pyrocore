@@ -234,7 +234,7 @@ def preparse(output_format):
 def format_item(format, item, defaults=None):
     """ Format an item according to the given output format.
         The format can be gioven as either an interpolation string, 
-        or a Tempita template (which has to start with "{{"),
+        or a Tempita template (which has to start with "E{lb}E{lb}"),
 
         @param format: The output format. 
         @param item: The object, which is automatically wrapped for interpolation. 

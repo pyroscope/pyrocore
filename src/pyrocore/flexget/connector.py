@@ -52,7 +52,7 @@ def _make_validator(schema):
 class Rtorrent(plugin.Plugin):
     """ Opens a rtorrent connection and does things to it.
 
-        Example for dumping torrents matching a filter condition:
+        Example for dumping torrents matching a filter condition::
             feeds:
               pyrotest:
                 rtorrent:
@@ -60,7 +60,7 @@ class Rtorrent(plugin.Plugin):
                 quality: hdtv
                 dump: yes
 
-        Overriding the normal PyroScope configuration location:
+        Overriding the normal PyroScope configuration location::
             presets:
               global:
                 rtorrent:

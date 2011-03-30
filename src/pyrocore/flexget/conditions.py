@@ -150,7 +150,7 @@ class ConditionPluginBase(plugin.Plugin):
 class PyroRejectIf(ConditionPluginBase):
     """ Reject items that match a condition.
 
-        Example:
+        Example::
             reject_if:
               - imdb_score<6.2 imdb_year>2009
               - rotten_tomatoes<80
@@ -165,7 +165,7 @@ class PyroRejectIf(ConditionPluginBase):
 class PyroAcceptIf(ConditionPluginBase):
     """ Accept items that match a condition.
 
-        Example:
+        Example::
             accept_if: imdb_score>=8 OR year=2011
     """
 
@@ -178,7 +178,7 @@ class PyroAcceptIf(ConditionPluginBase):
 class PyroRejectIfDownload(ConditionPluginBase):
     """ Reject downloaded items that match a condition.
 
-        Example:
+        Example::
             reject_if_download: ?torrent.content.info.?private=1
     """
 
@@ -192,7 +192,7 @@ class PyroRejectIfDownload(ConditionPluginBase):
 class PyroAcceptIfDownload(ConditionPluginBase):
     """ Accept downloaded items that match a condition.
 
-        Example:
+        Example::
             # Accept by tracker
             accept_if_download: ?torrent.content.announce=*ubuntu.com[:/]*
     """
