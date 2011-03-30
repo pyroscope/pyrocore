@@ -31,6 +31,11 @@ import webbrowser
 from paver.easy import *
 from paver.setuputils import setup
 
+try:
+    from pyrobase.paver.easy import *
+except ImportError:
+    pass # dependencies not yet installed
+
 from setuptools import find_packages
 
 
@@ -45,7 +50,7 @@ if not changelog.exists():
 name, version = open(changelog).readline().split(" (", 1)
 version, _ = version.split(")", 1)
 
-project = dict(
+project = Bunch(
     # egg
     name = "pyrocore",
     version = version,
@@ -112,17 +117,10 @@ project = dict(
     ],
 )
 
-
-#
-# Helpers
-#
-def toplevel_packages():
-    """ Get package list, without sub-packages.
-    """
-    packages  = set(options.setup.packages)
-    for pkg in list(packages):
-        packages -= set(p for p in packages if str(p).startswith(pkg + '.'))
-    return list(sorted(packages))
+options(
+    setup=project,
+    docs=Bunch(docs_dir="docs/apidocs"),
+)
 
 
 #
@@ -139,55 +137,6 @@ def bootstrap():
     
     for shared in ("debian/changelog", "LICENSE"):
         path(shared).exists() or (path("..") / shared).link(shared)
-
-
-@task
-@cmdopts([
-    ('docs-dir=', 'd', 'directory to put the api documentation in'),
-    ('excludes=', 'x', 'list of packages to exclude'),
-])
-def docs():
-    """ Create documentation.
-    """
-    from epydoc import cli
-
-    path('build').exists() or path('build').makedirs()
-
-    # get storage path
-    docs_dir = options.docs.get('docs_dir', 'docs/apidocs')
-
-    # clean up previous docs
-    (path(docs_dir) / "epydoc.css").exists() and path(docs_dir).rmtree()
-
-    # set up excludes
-    try:
-        exclude_names = options.docs.excludes
-    except AttributeError:
-        exclude_names = []
-    else:
-        exclude_names = exclude_names.replace(',', ' ').split()
-
-    excludes = []
-    for pkg in exclude_names:
-        excludes.append("--exclude")
-        excludes.append('^' + re.escape(pkg))
-
-    # call epydoc in-process
-    sys_argv = sys.argv
-    try:
-        sys.argv = [
-            sys.argv[0] + "::epydoc",
-            "-v",
-            "--inheritance", "listed",
-            "--output", docs_dir,
-            "--name", "%s %s" % (options.setup.name, options.setup.version),
-            "--url", options.setup.url,
-            "--graph", "umlclasstree",
-        ] + excludes + toplevel_packages()
-        sys.stderr.write("Running '%s'\n" % ("' '".join(sys.argv)))
-        cli.cli()
-    finally:
-        sys.argv = sys_argv
 
 
 @task
@@ -279,81 +228,3 @@ def release():
     print "Use 'paver sdist bdist_egg upload' to upload to PyPI"
     print "Use 'paver dist_docs' to prepare an API documentation upload"
 
-
-#
-# Other
-#
-@task
-@cmdopts([
-    ('output=', 'o', 'Create report file (.html, .log, or .txt) [stdout]'),
-    ('rcfile=', 'r', 'Configuration file [./pylint.cfg]'),
-    ('msg-only', 'm', 'Only generate messages (no reports)'),
-])
-def lint():
-    """ Report pylint results.
-    """
-    from pylint import lint as linter
-
-    # report according to file extension
-    reporters = {
-        ".html": linter.HTMLReporter,
-        ".log": linter.ParseableTextReporter,
-        ".txt": linter.TextReporter,
-    }
-
-    lint_build_dir = path("build/lint")
-    lint_build_dir.exists() or lint_build_dir.makedirs()
-
-    argv = []
-    rcfile = options.lint.get("rcfile")
-    if not rcfile and path("pylint.cfg").exists():
-        rcfile = "pylint.cfg" 
-    if rcfile:
-        argv += ["--rcfile", os.path.abspath(rcfile)]
-    if options.lint.get("msg_only", False):
-        argv += ["-rn"]
-    argv += [
-        "--import-graph", (lint_build_dir / "imports.dot").abspath(),
-    ]
-    argv += toplevel_packages()
-
-    sys.stderr.write("Running %s::pylint '%s'\n" % (sys.argv[0], "' '".join(argv)))
-    outfile = options.lint.get("output", None)
-    if outfile:
-        outfile = os.path.abspath(outfile)
-
-    try:
-        with pushd("src" if path("src").exists() else "."):
-            if outfile:
-                reporterClass = reporters.get(path(outfile).ext, linter.TextReporter)
-                sys.stderr.write("Writing output to %r\n" % (str(outfile),))
-                linter.Run(argv, reporter=reporterClass(open(outfile, "w")))
-            else:
-                linter.Run(argv)
-    except SystemExit, exc:
-        if not exc.code:
-            sys.stderr.write("paver::lint - No problems found.\n")
-        elif exc.code & 32:
-            # usage error (internal error in this code)
-            sys.stderr.write("paver::lint - Usage error, bad arguments %r?!\n" % (argv,))
-            raise
-        else:
-            bits = {
-                1: "fatal",
-                2: "error",
-                4: "warning",
-                8: "refactor",
-                16: "convention",
-            }
-            sys.stderr.write("paver::lint - Some %s message(s) issued.\n" % (
-                ", ".join([text for bit, text in bits.items() if exc.code & bit])
-            ))
-            if exc.code & 3:
-                sys.stderr.write("paver::lint - Exiting due to fatal / error message.\n")
-                raise
-
-
-#
-# Main
-#
-setup(**project)
