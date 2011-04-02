@@ -122,6 +122,8 @@ options(
     docs=Bunch(docs_dir="docs/apidocs"),
 )
 
+setup(**project)
+
 
 #
 # Build
