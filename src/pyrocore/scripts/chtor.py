@@ -72,6 +72,8 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="set a new announce URL, but only if the old announce URL matches the new one")
         self.add_value_option("--reannounce-all", "URL",
             help="set a new announce URL on ALL given metafiles")
+        self.add_bool_option("--no-ssl",
+            help="force announce URL to 'http'")
         self.add_bool_option("--no-cross-seed",
             help="when using --reannounce-all, do not add a non-standard field to the info dict ensuring unique info hashes")
         self.add_value_option("--comment", "TEXT",
@@ -88,8 +90,8 @@ class MetafileChanger(ScriptBaseWithConfig):
         if not self.args:
             self.parser.error("No metafiles given, nothing to do!")
 
-        if self.options.reannounce and self.options.reannounce_all:
-            self.parser.error("Confliction options --reannounce and --reannounce-all!")
+        if 1 < sum(bool(i) for i in (self.options.no_ssl, self.options.reannounce, self.options.reannounce_all)):
+            self.parser.error("Conflicting options --no-ssl, --reannounce and --reannounce-all!")
 
         # Set filter criteria for metafiles
         filter_url_prefix = None
@@ -190,6 +192,10 @@ class MetafileChanger(ScriptBaseWithConfig):
                     if not self.options.no_cross_seed:
                         # Enforce unique hash per tracker
                         metainfo["info"]["x_cross_seed"] = hashlib.md5(self.options.reannounce).hexdigest()
+                if self.options.no_ssl:
+                    # We're assuming here the same (default) port is used
+                    metainfo['announce'] = (metainfo['announce']
+                        .replace("https://", "http://").replace(":443/", ":80/"))
 
                 # Change comment or creation date?
                 if self.options.comment is not None:
