@@ -19,8 +19,9 @@
 import pprint
 import hashlib
 
+from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase
-from pyrocore.util import bencode, metafile
+from pyrocore.util import metafile
 
 
 class MetafileLister(ScriptBase):

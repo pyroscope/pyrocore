@@ -21,9 +21,10 @@ import time
 import hashlib
 import urlparse
 
+from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config, error
-from pyrocore.util import os, bencode, metafile
+from pyrocore.util import os, metafile
 
 
 class MetafileChanger(ScriptBaseWithConfig):

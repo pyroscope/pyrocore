@@ -17,8 +17,9 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.util import metafile, bencode, os
+from pyrocore.util import metafile, os
 
 
 class MetafileChecker(ScriptBaseWithConfig):

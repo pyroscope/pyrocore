@@ -30,9 +30,10 @@ import hashlib
 import urlparse
 from contextlib import closing
 
+from pyrobase import bencode
 from pyrobase.parts import Bunch
 from pyrocore import config, error
-from pyrocore.util import os, bencode, fmt, pymagic
+from pyrocore.util import os, fmt, pymagic
 
 
 # Allowed characters in a metafile filename or path
@@ -213,7 +214,7 @@ def sanitize(meta):
     """
     def sane_encoding(text):
         "Transcoding helper."
-        for encoding in ('utf-8', meta.get('encoding', None), 'cp-1252'):
+        for encoding in ('utf-8', meta.get('encoding', None), 'cp1252'):
             if encoding:
                 try:
                     return text.decode(encoding).encode("utf-8")
