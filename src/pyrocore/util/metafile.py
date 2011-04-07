@@ -208,6 +208,33 @@ def clean_meta(meta, including_info=False, logger=None):
     return modified
 
 
+def sanitize(meta):
+    """ Try to fix common problems, especially transcode non-standard string encodings.
+    """
+    def sane_encoding(text):
+        "Transcoding helper."
+        for encoding in ('utf-8', meta.get('encoding', None), 'cp-1252'):
+            if encoding:
+                try:
+                    return text.decode(encoding).encode("utf-8")
+                except UnicodeError:
+                    continue
+        else:
+            # Broken beyond anything reasonable
+            return unicode(text, 'utf-8', 'replace').replace(u'\ufffd', '_').encode("utf-8")
+    
+    # Go through all string fields and check them
+    for field in ("comment", "created by"):
+        meta[field] = sane_encoding(meta[field])
+
+    meta["info"]["name"] = sane_encoding(meta["info"]["name"])
+    
+    for entry in meta["info"].get("files", []):
+        entry["path"] = [sane_encoding(i) for i in entry["path"]]
+
+    return meta
+
+
 def assign_fields(meta, assignments):
     """ Takes a list of C{key=value} strings and
         assigns them to the given metafile.
@@ -606,7 +633,7 @@ class Metafile(object):
         """ List torrent info & contents. Returns a list of formatted lines.
         """
         # Assemble data
-        metainfo = bencode.bread(self.filename)
+        metainfo = sanitize(bencode.bread(self.filename))
         announce = metainfo['announce']
         info = metainfo['info']
         info_hash = hashlib.sha1(bencode.bencode(info))
