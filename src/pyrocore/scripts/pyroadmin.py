@@ -16,7 +16,12 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
+from __future__ import with_statement
+
+import sys
+import shutil
 import pprint
+from contextlib import closing
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
@@ -48,6 +53,8 @@ class AdminTool(ScriptBaseWithConfig):
                  " default values can be provided after the key")
         self.add_bool_option("--reveal",
             help="show config internals and full announce URL including keys")
+        self.add_bool_option("--screenlet",
+            help="create screenlet stub")
 
 
     def mainloop(self):
@@ -114,6 +121,26 @@ class AdminTool(ScriptBaseWithConfig):
                 else:
                     print '\t'.join(values)
 
+        elif self.options.screenlet:
+            # Create screenlet stub
+            stub_dir = os.path.expanduser("~/.screenlets/PyroScope")
+            if os.path.exists(stub_dir):
+                self.fatal("Screenlet stub %r already exists" % stub_dir)
+
+            stub_template = os.path.join(os.path.dirname(config.__file__), "data", "screenlet")
+            shutil.copytree(stub_template, stub_dir)
+
+            py_stub= os.path.join(stub_dir, "PyroScopeScreenlet.py")
+            with closing(open(py_stub, "w")) as handle:
+                handle.write('\n'.join([
+                    "#! %s" % sys.executable,
+                    "from pyrocore.screenlet.rtorrent import PyroScopeScreenlet, run",
+                    "if __name__ == '__main__':",
+                    "    run()",
+                    "",
+                ]))
+            os.chmod(py_stub, 0755)
+            
         else:
             # Print usage
             self.parser.print_help()

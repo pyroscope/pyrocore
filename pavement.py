@@ -70,7 +70,7 @@ project = Bunch(
         ],
     },
     include_package_data = True,
-    zip_safe = True,
+    zip_safe = False,
     data_files = [
         ("EGG-INFO", [
             "README", "LICENSE", "debian/changelog", 
