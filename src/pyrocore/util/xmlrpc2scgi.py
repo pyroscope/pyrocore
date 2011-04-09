@@ -5,6 +5,8 @@
 #
 # Refactoring - Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
 #
+# SSH tunneling back-ported from https://github.com/Quantique
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -55,37 +57,34 @@ uses_netloc.append('scgi')
 del uses_netloc
 
 
-def do_scgi_xmlrpc_request(host, methodname, params=()):
-    """
-        Send an xmlrpc request over scgi to host.
+def do_scgi_xmlrpc_request(host, methodname, params=(), deserialize=False):
+    """ Send an xmlrpc request over scgi to host.
 
-        host:       scgi://host:port/path
-        methodname: xmlrpc method name
-        params:     tuple of simple python objects
-        returns:    xmlrpc response
+        @param host: scgi://host:port/path.
+        @param methodname: xmlrpc method name.
+        @param params: tuple of simple python objects.
+        @param deserialize: parse XML result? 
+        @return: xmlrpc response, or the equivalent Python data.
     """
     xmlreq = xmlrpclib.dumps(params, methodname)
     xmlresp = SCGIRequest(host).send(xmlreq)
     #~ print xmlresp
     
-    return xmlresp
+    if deserialize:
+        # This fixes a bug with the Python xmlrpclib module
+        # (has no handler for <i8> in some versions)
+        xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
 
-
-def do_scgi_xmlrpc_request_py(host, methodname, params=()):
-    """
-        Send an xmlrpc request over scgi to host.
-        host:       scgi://host:port/path
-        methodname: xmlrpc method name
-        params:     tuple of simple python objects
-        returns:    xmlrpc response converted to python
-    """
-    xmlresp = do_scgi_xmlrpc_request(host, methodname, params)
-    return xmlrpclib.loads(xmlresp)[0][0]
+        # Return deserialized data
+        return xmlrpclib.loads(xmlresp)[0][0]
+    else:
+        # Return raw XML
+        return xmlresp
 
 
 class SCGIRequest(object):
-    """ See spec at: http://python.ca/scgi/protocol.txt
-        Send an SCGI request.
+    """ Send an SCGI request.
+        See spec at "http://python.ca/scgi/protocol.txt".
         
         Use tcp socket
         SCGIRequest('scgi://host:port').send(data)
@@ -267,7 +266,6 @@ class RTorrentMethod(object):
             try:
                 # Return deserialized data
                 return xmlrpclib.loads(xmlresp)[0][0]
-                #~ return do_scgi_xmlrpc_request_py(self._proxy._url, self.method_name, args)
             except (KeyboardInterrupt, SystemExit):
                 # Don't catch these
                 raise
