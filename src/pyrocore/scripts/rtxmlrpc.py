@@ -17,10 +17,10 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 import logging
-import xmlrpclib
 from pprint import pformat
 
 from pyrocore import config
+from pyrocore.util import xmlrpc2scgi
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
@@ -83,7 +83,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         proxy = config.engine.open()
         try:
             result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
-        except xmlrpclib.Fault, exc:
+        except xmlrpc2scgi.ERRORS, exc:
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:
             if not self.options.quiet:
@@ -91,6 +91,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     # Pretty-print if requested, or it's a collection and not a scalar
                     result = pformat(result)
                 print result
+
+        # XMLRPC stats
+        self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
 
 
 def run(): #pragma: no cover
