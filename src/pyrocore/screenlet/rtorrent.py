@@ -31,7 +31,7 @@ import gobject
 import screenlets
 from screenlets import options as opt
 
-from pyrocore.util import xmlrpc2scgi
+from pyrocore.util import xmlrpc
 from pyrocore.torrent import formatting
 
 
@@ -57,7 +57,7 @@ class RtorrentState(object):
 
     def __init__(self, scgi_url):
         self.scgi_url = scgi_url
-        self._proxy = xmlrpc2scgi.RTorrentProxy(self.scgi_url)
+        self._proxy = xmlrpc.RTorrentProxy(self.scgi_url)
         self.error = ""
 
         self.time           = 0

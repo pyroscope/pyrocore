@@ -28,7 +28,7 @@ from contextlib import closing
 
 from pyrobase.parts import Bunch
 from pyrocore import config, error
-from pyrocore.util import os, xmlrpc2scgi, load_config, traits, fmt
+from pyrocore.util import os, xmlrpc, load_config, traits, fmt
 from pyrocore.torrent import engine
 
 
@@ -53,7 +53,7 @@ class RtorrentItem(engine.TorrentProxy):
                 self._engine.LOG.debug("%s%s torrent #%s (%s)" % (
                     command[0].upper(), command[1:], self._fields["hash"], call))
                 getattr(self._engine._rpc.d, call)(*args)
-        except xmlrpc2scgi.ERRORS, exc:
+        except xmlrpc.ERRORS, exc:
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
 
@@ -77,7 +77,7 @@ class RtorrentItem(engine.TorrentProxy):
             for attr in (attrs or []):
                 f_params.append("f.%s=" % attr)
             rpc_result = f_multicall(*tuple(f_params))
-        except xmlrpc2scgi.ERRORS, exc:
+        except xmlrpc.ERRORS, exc:
             raise error.EngineError("While %s torrent #%s: %s" % (
                 "getting files for", self._fields["hash"], exc))
         else:
@@ -146,7 +146,7 @@ class RtorrentItem(engine.TorrentProxy):
                         val = getattr(self._engine._rpc.d, "get_custom"+key)(self._fields["hash"])
                     else:
                         val = self._engine._rpc.d.get_custom(self._fields["hash"], key)
-                except xmlrpc2scgi.ERRORS, exc:
+                except xmlrpc.ERRORS, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
                 getter_name = engine_name if engine_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
@@ -158,7 +158,7 @@ class RtorrentItem(engine.TorrentProxy):
     
                 try:
                     val = getter(self._fields["hash"])
-                except xmlrpc2scgi.ERRORS, exc:
+                except xmlrpc.ERRORS, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
 
             # TODO: Currently, NOT caching makes no sense; in a demon, it does!
@@ -173,7 +173,7 @@ class RtorrentItem(engine.TorrentProxy):
         """
         try:
             return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
-        except xmlrpc2scgi.ERRORS, exc:
+        except xmlrpc.ERRORS, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
 
@@ -533,7 +533,7 @@ class RtorrentEngine(engine.TorrentEngine):
                 " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
 
         # Connect and get instance ID (also ensures we're connectable)
-        self._rpc = xmlrpc2scgi.RTorrentProxy(config.scgi_url)
+        self._rpc = xmlrpc.RTorrentProxy(config.scgi_url)
         try:
             self.engine_id = self._rpc.get_name()
             time_usec = self._rpc.system.time_usec()
@@ -614,7 +614,7 @@ class RtorrentEngine(engine.TorrentEngine):
                         [self.RT2PYRO_MAPPING.get(i, i) for i in prefetch], item
                     )))
                     yield items[-1]
-            except xmlrpc2scgi.ERRORS, exc:
+            except xmlrpc.ERRORS, exc:
                 raise error.EngineError("While getting download items from %r: %s" % (self, exc))
 
             # Everything yielded, store for next iteration

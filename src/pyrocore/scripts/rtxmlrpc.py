@@ -20,7 +20,7 @@ import logging
 from pprint import pformat
 
 from pyrocore import config
-from pyrocore.util import xmlrpc2scgi
+from pyrocore.util import xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
@@ -83,7 +83,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         proxy = config.engine.open()
         try:
             result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
-        except xmlrpc2scgi.ERRORS, exc:
+        except xmlrpc.ERRORS, exc:
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:
             if not self.options.quiet:

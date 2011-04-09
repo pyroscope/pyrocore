@@ -19,7 +19,7 @@
 import logging
 import unittest
 
-from pyrocore.util import xmlrpc2scgi
+from pyrocore.util import xmlrpc
 
 log = logging.getLogger(__name__)
 log.trace("module loaded")
