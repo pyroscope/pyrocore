@@ -553,7 +553,7 @@ class RtorrentEngine(engine.TorrentEngine):
         )
 
         if "+ssh:" in config.scgi_url:
-            self.startup = time.time()
+            self.startup = int(self._rpc.startup_time('') or time.time())
         else:
             self._session_dir = self._rpc.get_session()
             if not self._session_dir:
