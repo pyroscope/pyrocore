@@ -551,16 +551,20 @@ class RtorrentEngine(engine.TorrentEngine):
         self.engine_software = "rTorrent %s/%s" % (
             self._rpc.system.client_version(), self._rpc.system.library_version(),
         )
-        self._session_dir = self._rpc.get_session()
-        if not self._session_dir:
-            raise error.UserError("You need a session directory, read"
-                " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
-        if not os.path.exists(self._session_dir):
-            raise error.UserError("Non-existing session directory %r" % self._session_dir)
-        self._download_dir = os.path.expanduser(self._rpc.get_directory())
-        if not os.path.exists(self._download_dir):
-            raise error.UserError("Non-existing download directory %r" % self._download_dir)
-        self.startup = os.path.getmtime(os.path.join(self._session_dir, "rtorrent.lock"))
+
+        if "+ssh:" in config.scgi_url:
+            self.startup = time.time()
+        else:
+            self._session_dir = self._rpc.get_session()
+            if not self._session_dir:
+                raise error.UserError("You need a session directory, read"
+                    " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
+            if not os.path.exists(self._session_dir):
+                raise error.UserError("Non-existing session directory %r" % self._session_dir)
+            self._download_dir = os.path.expanduser(self._rpc.get_directory())
+            if not os.path.exists(self._download_dir):
+                raise error.UserError("Non-existing download directory %r" % self._download_dir)
+            self.startup = os.path.getmtime(os.path.join(self._session_dir, "rtorrent.lock"))
 
         # Return connection
         self.LOG.debug(repr(self))
