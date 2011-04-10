@@ -21,13 +21,14 @@
 """
 import sys
 import time
-import urlparse
+import logging
 import xmlrpclib
 
+from pyrobase.io import xmlrpc2scgi
 from pyrobase.io.xmlrpc2scgi import SCGIRequest, ERRORS #@UnusedImport
 
-from pyrocore import config, error
-from pyrocore.util import os, fmt
+from pyrocore import config
+from pyrocore.util import os, fmt, pymagic
 
 
 class RTorrentMethod(object):
@@ -72,7 +73,7 @@ class RTorrentMethod(object):
             self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound) 
 
             # Send it
-            scgi_req = SCGIRequest(self._proxy._url)
+            scgi_req = SCGIRequest(self._proxy._transport)
             xmlresp = scgi_req.send(xmlreq)
             self._inbound = len(xmlresp)
             self._proxy._inbound += self._inbound
@@ -111,6 +112,13 @@ class RTorrentMethod(object):
             # Calculate latency
             self._latency = time.time() - start
             self._proxy._latency += self._latency
+            
+            if config.debug:
+                self._proxy.LOG.debug("%s(%s) took %.3f secs" % (
+                    self._method_name, 
+                    ", ".join(repr(i) for i in args), 
+                    self._latency
+                ))
 
 
 class RTorrentProxy(object):
@@ -121,7 +129,9 @@ class RTorrentProxy(object):
     """
     
     def __init__(self, url):
+        self.LOG = pymagic.get_class_logger(self)
         self._url = url
+        self._transport = xmlrpc2scgi.transport_from_url(url)
 
         # Statistics (traffic w/o HTTP overhead)
         self._requests = 0
@@ -131,13 +141,6 @@ class RTorrentProxy(object):
         self._inbound_max = 0L
         self._latency = 0.0
         self._net_latency = 0.0
-
-        # TODO: Should also support "host:port" and "socket_path"
-        try:
-            scheme, _, _, _, _ = urlparse.urlsplit(self._url)
-        except (AttributeError, ValueError, TypeError), exc:
-            raise error.LoggableError("Bad SCGI URL %r (%s)" % (self._url, exc,))
-        assert scheme == 'scgi', 'Unsupported protocol'
 
     
     def __str__(self):
