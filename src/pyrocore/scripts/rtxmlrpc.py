@@ -79,8 +79,15 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 arg = arg.split(',')
             args.append(arg)
 
+        # Open proxy
+        if not config.scgi_url:
+            config.engine.load_config()
+        if not config.scgi_url:
+            self.LOG.error("You need to configure a XMLRPC connection, read"
+                " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
+        proxy = xmlrpc.RTorrentProxy(config.scgi_url)
+
         # Make the call
-        proxy = config.engine.open()
         try:
             result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
         except xmlrpc.ERRORS, exc:
@@ -93,7 +100,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 print result
 
         # XMLRPC stats
-        self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
+        self.LOG.debug("XMLRPC stats: %s" % proxy)
 
 
 def run(): #pragma: no cover
