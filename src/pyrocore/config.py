@@ -62,6 +62,7 @@ _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 
 # Set some defaults to shut up pydev / pylint;
 # these later get overwritten by loading the config
+debug = False
 config_dir = None
 scgi_local = ""
 scgi_port = ""

@@ -290,6 +290,8 @@ class ScriptBaseWithConfig(ScriptBase):
         """
         super(ScriptBaseWithConfig, self).get_options()
         load_config.ConfigLoader(self.options.config_dir).load()
+        if self.options.debug:
+            config.debug = True
 
         for key_val in self.options.defines:
             try:
