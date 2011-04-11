@@ -116,6 +116,8 @@ class RtorrentMove(ScriptBaseWithConfig):
         # Preparation
         # TODO: Handle cases where target is the original download path correctly!
         #       i.e.   rtmv foo/ foo   AND   rtmv foo/ .   (in the download dir)
+        proxy = config.engine.open()
+        download_path = os.path.realpath(proxy.get_directory().rstrip(os.sep))
         target = self.resolve_slashed(target)
         source_paths = [self.resolve_slashed(i) for i in self.args[:-1]]
         source_realpaths = [os.path.realpath(i) for i in source_paths]
@@ -127,13 +129,11 @@ class RtorrentMove(ScriptBaseWithConfig):
             if not item.path:
                 continue
 
-            # Symlinked item?
             realpath = None
-            if os.path.islink(item.path):
-                try:
-                    realpath = os.path.realpath(item.path)
-                except (EnvironmentError, UnicodeError), exc:
-                    self.LOG.warning("Cannot resolve symlink %r (%s)" % (item.path, exc))
+            try:
+                realpath = os.path.realpath(item.path)
+            except (EnvironmentError, UnicodeError), exc:
+                self.LOG.warning("Cannot realpath %r (%s)" % (item.path, exc))
             
             # Look if item matches a source path
             # TODO: Handle download items nested into each other!
@@ -208,7 +208,7 @@ class RtorrentMove(ScriptBaseWithConfig):
                 else:
                     # Moving download initially
                     self.LOG.debug("Symlinking %s" % (pretty_path(item.path),))
-                    assert os.path.abspath(item.path) == os.path.abspath(path), \
+                    assert os.path.join(download_path, os.path.basename(item.path)) == os.path.realpath(path), \
                         'Item path "%s" should match "%s"!' % (item.path, path)
                     self.guarded(os.rename, item.path, dst)
                     self.guarded(os.symlink, os.path.abspath(dst), item.path)
@@ -217,7 +217,7 @@ class RtorrentMove(ScriptBaseWithConfig):
                 # if was_active: sitem.resume()
 
         # Print stats
-        self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
+        self.LOG.debug("XMLRPC stats: %s" % proxy)
         self.LOG.log(logging.DEBUG if self.options.cron else logging.INFO, "Moved %d path%s (skipped %d)" % (
             moved_count, "" if moved_count == 1 else "s", len(source_paths) - moved_count
         ))
