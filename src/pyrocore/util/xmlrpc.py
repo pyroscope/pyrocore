@@ -21,7 +21,6 @@
 """
 import sys
 import time
-import logging
 import xmlrpclib
 
 from pyrobase.io import xmlrpc2scgi
