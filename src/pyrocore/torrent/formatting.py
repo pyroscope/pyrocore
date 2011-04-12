@@ -197,6 +197,7 @@ class OutputMapping(algo.AttributeMapping):
 def preparse(output_format):
     """ Do any special processing of a template, and return the result.
     """
+    # First, try to resolve file: references to their contents 
     try:
         is_file = output_format.startswith("file:")
     except (AttributeError, TypeError):
@@ -205,7 +206,7 @@ def preparse(output_format):
         if is_file:
             output_format = output_format[5:]
             if output_format.startswith('/'):
-                output_format = output_format.lstrip('/')
+                output_format = '/' + output_format.lstrip('/')
             elif output_format.startswith('~'):
                 output_format = os.path.expanduser(output_format)
             else:
@@ -215,6 +216,7 @@ def preparse(output_format):
                 output_format = handle.read().rstrip()
 
     if hasattr(output_format, "__engine__"):
+        # Already preparsed
         template = output_format
     elif output_format.startswith("{{"):
         # Import tempita
@@ -231,6 +233,50 @@ def preparse(output_format):
     return template
 
 
+# TODO: All constant stuff should be calculated once, make this a class or something
+# Also parse the template only once (possibly in config validation)!
+def expand_template(template, namespace):
+    """ Expand the given (preparsed) template.
+        Currently, only Tempita templates are supported.
+        
+        @param template: The template, in preparsed form, or as a string (which then will be preparsed).
+        @param namespace: Custom namespace that is added to the predefined defaults
+            and takes precedence over those.
+        @return: The expanded template.
+        @raise LoggableError: In case of typical errors during template execution.  
+    """
+    # Combine provided namespace with defaults
+    variables = {}
+
+    # Add format specifiers (for headers, disable them)
+    variables.update((name[4:], method)
+        for name, method in globals().items() 
+        if name.startswith("fmt_")
+    )
+
+    # Provided namespace takes precedence
+    variables.update(namespace)
+
+    # Expand template
+    try:
+        return preparse(template).substitute(**variables)
+    except (AttributeError, ValueError, NameError, TypeError), exc:
+        hint = ''
+        if "column" in str(exc):
+            try:
+                col = int(str(exc).split("column")[1].split()[0])
+            except (TypeError, ValueError):
+                pass
+            else:
+                hint = "%svVv\n" % (' ' * (col+4))
+
+        content = getattr(template, "content", template)                    
+        raise error.LoggableError("%s: %s in template:\n%s%s" % (
+            type(exc).__name__, exc, hint,
+            "\n".join("%3d: %s" % (i+1, line) for i, line in enumerate(content.splitlines()))
+        ))
+
+
 def format_item(format, item, defaults=None):
     """ Format an item according to the given output format.
         The format can be gioven as either an interpolation string, 
@@ -241,20 +287,8 @@ def format_item(format, item, defaults=None):
         @param defaults: Optional default values.
     """
     if getattr(format, "__engine__", None) == "tempita" or format.startswith("{{"):
-        # TODO: All constant stuff should be calculated once, make this a class or something
-        # Also parse the template only once (possibly in config validation)!
-
-        # Build namespace, starting with defaults
-        namespace = (defaults or {}).copy()
-
-        # Add format specifiers (for headers, disable them)
-        namespace.update((name[4:], method if item else lambda x, m=method: str(x).rjust(len(str(m(0)))))
-            for name, method in globals().items() 
-            if name.startswith("fmt_")
-        )
-
         # Set item, or field names for column titles
-        namespace["headers"] = not bool(item)
+        namespace = dict(headers = not bool(item))
         if item:
             namespace["d"] = item
         else:
@@ -262,24 +296,13 @@ def format_item(format, item, defaults=None):
             for name in engine.FieldDefinition.FIELDS:
                 namespace["d"][name] = name.upper()
 
-        # Expand template
-        try:
-            return preparse(format).substitute(**namespace)
-        except (AttributeError, ValueError, NameError, TypeError), exc:
-            hint = ''
-            if "column" in str(exc):
-                try:
-                    col = int(str(exc).split("column")[1].split()[0])
-                except (TypeError, ValueError):
-                    pass
-                else:
-                    hint = "%svVv\n" % (' ' * (col+4))
+            # Justify headers to width of a formatted value
+            namespace.update((name[4:], lambda x, m=method: str(x).rjust(len(str(m(0)))))
+                for name, method in globals().items() 
+                if name.startswith("fmt_")
+            )
 
-            content = getattr(format, "content", format)                    
-            raise error.LoggableError("%s: %s in template:\n%s%s" % (
-                type(exc).__name__, exc, hint,
-                "\n".join("%3d: %s" % (i+1, line) for i, line in enumerate(content.splitlines()))
-            ))
+        return expand_template(format, namespace)
     else:
         # Interpolation
         if item is None:
