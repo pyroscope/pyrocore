@@ -259,7 +259,8 @@ def expand_template(template, namespace):
 
     # Expand template
     try:
-        return preparse(template).substitute(**variables)
+        template = preparse(template)
+        return template.substitute(**variables)
     except (AttributeError, ValueError, NameError, TypeError), exc:
         hint = ''
         if "column" in str(exc):

@@ -223,6 +223,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         #    help="print full torrent details")
         self.add_value_option("-o", "--output-format", "FORMAT",
             help="specify display format (use '-o-' to disable item display)")
+        self.add_value_option("-O", "--output-template", "FILE",
+            help="pass control of output formatting to the specified template")
         self.add_value_option("-s", "--sort-fields", "[-]FIELD[,...]",
             help="fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list")
         self.add_bool_option("-r", "--reverse-sort",
@@ -530,6 +532,21 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Show in ncurses?
         elif not self.options.tee_view and (self.options.to_view or self.options.view_only):
             self.show_in_view(view, matches)
+
+        # Show via template?
+        elif self.options.output_template:
+            output_template = self.options.output_template
+            if not output_template.startswith("file:"):
+                    output_template = "file:" +output_template
+
+            print formatting.expand_template(output_template, dict(
+                version = self.version, 
+                proxy = config.engine.open(),
+                view = view, 
+                query = matcher, 
+                matches = matches, 
+                summary = summary
+            ))
 
         # Show on console?
         elif self.options.output_format and self.options.output_format != "-":
