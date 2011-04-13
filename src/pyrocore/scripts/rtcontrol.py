@@ -537,16 +537,17 @@ class RtorrentControl(ScriptBaseWithConfig):
         elif self.options.output_template:
             output_template = self.options.output_template
             if not output_template.startswith("file:"):
-                    output_template = "file:" +output_template
+                output_template = "file:" + output_template
 
-            print formatting.expand_template(output_template, dict(
+            sys.stdout.write(formatting.expand_template(output_template, dict(
                 version = self.version, 
                 proxy = config.engine.open(),
                 view = view, 
                 query = matcher, 
                 matches = matches, 
                 summary = summary
-            ))
+            )))
+            sys.stdout.flush()
 
         # Show on console?
         elif self.options.output_format and self.options.output_format != "-":
