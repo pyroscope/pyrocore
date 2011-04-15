@@ -94,9 +94,11 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
         else:
             if not self.options.quiet:
-                if self.options.repr or hasattr(result, "__iter__"):
+                if self.options.repr:
                     # Pretty-print if requested, or it's a collection and not a scalar
                     result = pformat(result)
+                elif hasattr(result, "__iter__"):
+                    result = '\n'.join(result)
                 print result
 
         # XMLRPC stats

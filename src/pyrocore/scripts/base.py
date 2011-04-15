@@ -168,6 +168,7 @@ class ScriptBase(object):
         # Template method to add options of derived class
         self.add_options()
 
+        self.handle_completion()
         self.options, self.args = self.parser.parse_args()
 
         # Override logging options in debug mode
@@ -186,6 +187,26 @@ class ScriptBase(object):
             logging.getLogger().setLevel(logging.DEBUG)
 
         self.LOG.debug("Options: %s" % ", ".join("%s=%r" % i for i in sorted(vars(self.options).items())))
+
+
+    def handle_completion(self):
+        """ Handle shell completion stuff.
+        """
+        # We don't want these in the help, so handle them explicitely
+        if len(sys.argv) > 1 and sys.argv[1].startswith("--help-completion-"):
+            handler = getattr(self, sys.argv[1][2:].replace('-', '_'), None)
+            if handler:
+                print '\n'.join(sorted(handler()))
+                self.STD_LOG_LEVEL = logging.DEBUG
+                sys.exit(0)
+
+
+    def help_completion_options(self):
+        """ Return options of this command.
+        """
+        for opt in self.parser.option_list:
+            for lopt in opt._long_opts:
+                yield lopt
 
 
     def fatal(self, msg, exc=None):

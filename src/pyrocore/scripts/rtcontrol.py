@@ -260,6 +260,33 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("-F", "--flush", help="flush changes immediately (save session data)")
 
 
+    def help_completion_fields(self):
+        """ Return valid field names.
+        """
+        for name, field in sorted(engine.FieldDefinition.FIELDS.items()):
+            if issubclass(field._matcher, matching.BoolFilter):
+                yield "%s=no" % (name,)
+                yield "%s=yes" % (name,)
+                continue
+            elif issubclass(field._matcher, matching.PatternFilter):
+                yield "%s=" % (name,)
+                yield "%s=/" % (name,)
+                yield "%s=?" % (name,)
+                yield "%s=\"'*'\"" % (name,)
+                continue
+            elif issubclass(field._matcher, matching.NumericFilterBase):
+                for i in range(10):
+                    yield "%s=%d" % (name, i)
+            else:
+                yield "%s=" % (name,)
+
+            yield r"%s=+" % (name,)
+            yield r"%s=-" % (name,)
+                
+        yield "custom_"
+        yield "kind_"
+
+
     # TODO: refactor to engine.TorrentProxy as format() method
     def format_item(self, item, defaults=None, stencil=None):
         """ Format an item.
