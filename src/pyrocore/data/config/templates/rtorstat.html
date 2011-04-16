@@ -10,6 +10,14 @@ import time
 rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}} 
 - {{proxy.get_name()}}
 - up {{(time.time() - proxy.startup_time()) | duration}}
+{{enddef}}{{def show(loop, d)}}
+<div class="torrent">
+    {{loop.number}}. <strong>{{d.name}}</strong> (<em>{{d.alias}}</em>)
+    <div class="downloaded">
+        <div class="status" style="width:{{d.done|int}}%;">{{"%.1f" % d.done}}%</div>
+    </div>
+    size: {{d.size|sz}} - uploaded: {{d.uploaded|sz}} - ratio: {{d.ratio|pc}}%
+</div>
 {{enddef}}
 <html>
 <head>
@@ -66,16 +74,14 @@ h2 {
 <h2>Query</h2>
 Selected {{len(matches)}} out of {{view.size()}} items using "<tt>{{query}}</tt>".
 
-<h2>Result</h2>
+<h2>Incomplete</h2>
+{{for loop, d in looper(i for i in matches if not i.is_complete)}}
+    {{show(loop, d)}}
+{{endfor}}
 
-{{for loop, d in looper(matches)}}
-<div class="torrent">
-    {{loop.number}}. <strong>{{d.name}}</strong> (<em>{{d.alias}}</em>)
-    <div class="downloaded">
-        <div class="status" style="width:{{d.done|int}}%;">{{"%.1f" % d.done}}%</div>
-    </div>
-    size: {{d.size|sz}} - uploaded: {{d.uploaded|sz}} - ratio: {{d.ratio|pc}}%
-</div>
+<h2>Active</h2>
+{{for loop, d in looper(i for i in matches if i.is_complete)}}
+    {{show(loop, d)}}
 {{endfor}}
 
 <div>
