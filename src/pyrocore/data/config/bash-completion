@@ -1,6 +1,7 @@
 # bash completion for PyroScope commands
 #
-# Source this in your ~./bashrc, or copy it to /etc/bash_completion.d/pyrocore
+# Source this in your ~/.bash_completion or ~/.bashrc, 
+# or copy it to /etc/bash_completion.d/pyrocore
 #
 _pyrocore_base() {
     COMPREPLY=()
