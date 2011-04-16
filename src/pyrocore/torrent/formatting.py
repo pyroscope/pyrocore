@@ -210,7 +210,7 @@ def preparse(output_format):
             elif output_format.startswith('~'):
                 output_format = os.path.expanduser(output_format)
             else:
-                output_format = os.path.join(config.config_dir, output_format)
+                output_format = os.path.join(config.config_dir, "templates", output_format)
 
             with closing(open(output_format, "r")) as handle:
                 output_format = handle.read().rstrip()
