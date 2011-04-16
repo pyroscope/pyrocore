@@ -2,8 +2,9 @@
 
     See the conkyrc file, and http://www.codetrax.org/projects/rtorstat
 }}{{py: 
-global time, incomplete, active, max_entries, viewdef
+global time, subprocess, incomplete, active, max_entries, viewdef
 import time
+import subprocess
 
 viewdef = [i.split() for i in (
     "i main",
@@ -31,7 +32,8 @@ active = [i for i in matches if i.is_complete]
 }}{{enddef}}{{#
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }}{{'rTorrent'|header}}      {{'VERSION  %CPU %MEM UPTIME'|label}}
-              {{"%-8s" % proxy.system.client_version()}} ${exec ps h -o %cpu,%mem,etime -p {{proxy.system.pid()}}}
+              {{"%-8s" % proxy.system.client_version()}}{{#
+           }} {{subprocess.Popen(["ps", "h", "-o", "%cpu,%mem,etime", "-p", str(proxy.system.pid())], stdout=subprocess.PIPE).communicate()[0]}}
 
 {{'Views   '|header}}      {{for title, name in viewdef}}   {{str(proxy.view.size('', name)).ljust(5)}} {{endfor}}
 ${voffset -14}              ${font Webdings:size=12}{{for title, name in viewdef}}{{title|label}}     {{endfor}}${font }
