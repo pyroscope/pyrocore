@@ -2,8 +2,15 @@
 
     See the conkyrc file, and http://www.codetrax.org/projects/rtorstat
 }}{{py: 
-global time, incomplete, active, max_entries
+global time, incomplete, active, max_entries, viewdef
 import time
+
+viewdef = [i.split() for i in (
+    "i main",
+    "< stopped",
+    "6 incomplete",
+    "5 active",
+)]
 
 max_entries = 4
 incomplete = [i for i in matches if not i.is_complete]
@@ -26,8 +33,10 @@ active = [i for i in matches if i.is_complete]
 }}{{'rTorrent'|header}}      {{'VERSION  %CPU %MEM UPTIME'|label}}
               {{"%-8s" % proxy.system.client_version()}} ${exec ps h -o %cpu,%mem,etime -p {{proxy.system.pid()}}}
 
-{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}}   {{'D'|label}}{{proxy.get_down_total()|sz}}{{#
-}}   {{'#'|label}}{{proxy.view.size('', "main")}}
+{{'Views   '|header}}      {{for title, name in viewdef}}   {{str(proxy.view.size('', name)).ljust(5)}} {{endfor}}
+${voffset -14}              ${font Webdings:size=12}{{for title, name in viewdef}}{{title|label}}     {{endfor}}${font }
+${voffset 4}{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}}   {{'D'|label}}{{proxy.get_down_total()|sz}}{{#
+}}
 {{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}% {{#
     }}${color #0d6}${execgraph echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
 ${voffset -20} {{proxy.get_up_rate()|sz}}/s

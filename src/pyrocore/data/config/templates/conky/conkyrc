@@ -22,6 +22,7 @@ draw_shades yes
 
 use_xft yes
 xftfont Lucida Sans Typewriter:size=8
+#xftfont Bitstream Vera Sans Mono:size=8
 xftalpha 0.8
 
 background yes
