@@ -64,4 +64,4 @@ ${voffset -20} {{proxy.get_down_rate()|sz}}/s
 {{endfor}}
 {{endif}}
 ${font Verdana:slant=italic:size=6}${color #666}PyroScope {{version}} at {{time.time() | iso}}   ${color }${font }
-
+{{#EOF}}
