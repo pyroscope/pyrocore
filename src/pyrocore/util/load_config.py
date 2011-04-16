@@ -45,6 +45,27 @@ def validate(key, val):
     return val
 
 
+def walk_resources(package_or_requirement, resource_name, recurse=True, base=''):
+    """ Yield paths of files in the given resource directory, all paths start with '/'.
+    """
+    base = base.rstrip('/') + '/' 
+    resource_name = (resource_name.rstrip('/') + '/' + base.strip('/')).rstrip('/')
+    
+    # Create default configuration files
+    for filename in pkg_resources.resource_listdir(package_or_requirement, resource_name):
+        # Skip hidden and other trashy names
+        if filename.startswith('.') or any(filename.endswith(i) for i in (".pyc", ".pyo", "~")):
+            continue
+
+        # Handle subdirectories
+        if pkg_resources.resource_isdir(package_or_requirement, resource_name + '/' + filename):
+            if recurse:
+                for i in walk_resources(package_or_requirement, resource_name, recurse, base=base + filename):
+                    yield i
+        else:
+            yield base + filename
+
+
 class ConfigLoader(object):
     """ Populates this module's dictionary with the user-defined configuration values.
     """
@@ -213,21 +234,22 @@ class ConfigLoader(object):
             os.mkdir(self.config_dir)
 
         # Create default configuration files
-        for filename in pkg_resources.resource_listdir("pyrocore", "data/config"): #@UndefinedVariable
-            # Skip hidden and other trashy files
-            if filename.startswith('.') or any(filename.endswith(i) for i in (".pyc", ".pyo", "~")):
-                continue
-            
-            # Load default from package data
-            text = pkg_resources.resource_string("pyrocore", "data/config/" + filename) #@UndefinedVariable
+        for filepath in walk_resources("pyrocore", "data/config"):
+            # Load from package data
+            text = pkg_resources.resource_string("pyrocore", "data/config" + filepath)
 
             # Check for existing configuration file
-            config_file = os.path.join(self.config_dir, filename)
+            config_file = self.config_dir + filepath
             if os.path.exists(config_file):
                 self.LOG.warn("Configuration file %r already exists!" % (config_file,))
                 config_file += ".default"
+
+            # Create missing subdirs
+            if not os.path.exists(os.path.dirname(config_file)):
+                os.makedirs(os.path.dirname(config_file))
 
             # Write new configuration file
             with closing(open(config_file, "w")) as handle:
                 handle.write(text)
             self.LOG.info("Configuration file %r written!" % (config_file,))
+
