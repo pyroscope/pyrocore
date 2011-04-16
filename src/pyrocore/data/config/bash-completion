@@ -16,6 +16,20 @@ _pyrocore_base() {
     esac
 }
 
+_pyrocore_generic() {
+    local cur prev choices
+    _pyrocore_base 
+    test -z "$COMPREPLY" || return 0
+
+    case "${cur}" in 
+        -*)
+            choices="$(${COMP_WORDS[0]} --help-completion-options)"
+            COMPREPLY=( $(compgen -W "${choices}" -- ${cur}) )
+            return 0
+            ;;
+    esac
+}
+
 _rtxmlrpc() {
     local cur prev choices
     _pyrocore_base 
@@ -78,7 +92,6 @@ _rtcontrol() {
         -*)
             choices="$(rtcontrol --help-completion-options)"
             COMPREPLY=( $(compgen -W "${choices}" -- ${cur}) )
-            #echo $cur $COMPREPLY
             return 0
             ;;
         or | O)
@@ -111,4 +124,7 @@ _rtcontrol() {
 
 complete -F _rtxmlrpc  rtxmlrpc
 complete -F _rtcontrol rtcontrol
+complete -F _pyrocore_generic pyroadmin
+complete -F _pyrocore_generic -f chtor lstor
+complete -F _pyrocore_generic -o default hashcheck mktor rtevent rtmv 
 
