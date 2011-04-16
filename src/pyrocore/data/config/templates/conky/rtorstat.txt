@@ -1,0 +1,48 @@
+{{# Template example for conky that is similar to the rtorstat output.
+
+    See the conkyrc file, and http://www.codetrax.org/projects/rtorstat
+}}{{py: 
+global time, incomplete, active
+import time
+
+incomplete = [i for i in matches if not i.is_complete]
+active = [i for i in matches if i.is_complete]
+}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def color(c, s)}}${color {{c}}}{{s}}${color }{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def header(s)}}{{color('#9bf', s)}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def label(s)}}{{color('#66d', s)}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def show(loop, d)}}{{#
+}}{{"%2d." % loop.number|label}} {{d.name}} {{'['|label}}{{d.alias}}{{']'|label}}
+    {{'S'|label}} {{d.size|sz}} {{'U'|label}} {{d.uploaded|sz}} {{'R'|label}} {{d.ratio|pc}}%{{#
+}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{'rTorrent'|header}}      {{'VERSION  %CPU %MEM UPTIME'|label}}
+              {{"%-8s" % proxy.system.client_version()}} ${exec ps h -o %cpu,%mem,etime -p {{proxy.system.pid()}}}
+
+{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}}   {{'D'|label}}{{proxy.get_down_total()|sz}}{{#
+}}   {{'#'|label}}{{proxy.view.size('', "main")}}
+{{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}% ${execgraph echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}
+${voffset -20} {{proxy.get_up_rate()|sz}}/s
+{{'Download'|label}} {{"%3.0f" % (100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}% ${execgraph echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}
+${voffset -20} {{proxy.get_down_rate()|sz}}/s 
+{{if incomplete}}
+
+{{'Incomplete'|header}}
+{{for loop, d in looper(incomplete)}}
+{{show(loop, d)}}
+    ${execbar echo {{d.done}}} {{"%.1f" % d.done}}%
+{{endfor}}
+{{endif}}
+{{if active}}
+
+{{'Active'|header}}
+{{for loop, d in looper(active)}}
+{{show(loop, d)}}
+{{endfor}}
+{{endif}}
+${font Verdana:slant=italic:size=6}${color #666}PyroScope {{version}} at {{time.time() | iso}}   ${color }${font }
+
