@@ -226,7 +226,8 @@ def sanitize(meta):
     
     # Go through all string fields and check them
     for field in ("comment", "created by"):
-        meta[field] = sane_encoding(meta[field])
+        if field in meta:
+            meta[field] = sane_encoding(meta[field])
 
     meta["info"]["name"] = sane_encoding(meta["info"]["name"])
     
@@ -661,7 +662,7 @@ class Metafile(object):
         
         for label, key in (("BY  ", "created by"), ("REM ", "comment")):
             if key in metainfo:
-                result.append("%s %s" % (label, metainfo[key]))
+                result.append("%s %s" % (label, metainfo.get(key, "N/A")))
                 
         result.extend([
             "",

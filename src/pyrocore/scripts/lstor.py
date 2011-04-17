@@ -117,6 +117,8 @@ class MetafileLister(ScriptBase):
                 else:
                     listing = '\n'.join(torrent.listing(masked=not self.options.reveal))
             except (ValueError, KeyError, bencode.BencodeError), exc:
+                if self.options.debug:
+                    raise
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
                 if listing is not None:
