@@ -2,7 +2,8 @@
 
     See the conkyrc file, and http://www.codetrax.org/projects/rtorstat
 }}{{py: 
-global time, subprocess, incomplete, active, max_entries, viewdef
+global os, time, subprocess, incomplete, active, max_entries, viewdef, df
+import os
 import time
 import subprocess
 
@@ -12,6 +13,9 @@ viewdef = [i.split() for i in (
     "6 incomplete",
     "5 active",
 )]
+
+df = os.statvfs(proxy.get_directory())
+df = df.f_bavail * df.f_bsize
 
 max_entries = 4
 incomplete = [i for i in matches if not i.is_complete]
@@ -38,7 +42,7 @@ active = [i for i in matches if i.is_complete]
 {{'Views   '|header}}      {{for title, name in viewdef}}   {{str(proxy.view.size('', name)).ljust(5)}} {{endfor}}
 ${voffset -14}              ${font Webdings:size=12}{{for title, name in viewdef}}{{title|label}}     {{endfor}}${font }
 ${voffset 4}{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}}   {{'D'|label}}{{proxy.get_down_total()|sz}}{{#
-}}
+}}   {{'F'|label}}{{df|sz}}
 {{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}% {{#
     }}${color #0d6}${execgraph echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
 ${voffset -20} {{proxy.get_up_rate()|sz}}/s
