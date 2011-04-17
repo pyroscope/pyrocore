@@ -37,7 +37,7 @@ active = [i for i in matches if i.is_complete]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }}{{'rTorrent'|header}}      {{'VERSION  %CPU %MEM UPTIME'|label}}
 {{"%-13.13s" % proxy.get_name()}} {{"%-8s" % proxy.system.client_version()}}{{#
-           }} {{subprocess.Popen(["ps", "h", "-o", "%cpu,%mem,etime", "-p", str(proxy.system.pid())], stdout=subprocess.PIPE).communicate()[0].strip()}}
+           }} {{subprocess.Popen(["ps", "h", "-o", "%cpu,%mem,etime", "-p", str(proxy.system.pid())], stdout=subprocess.PIPE).communicate()[0].rstrip()}}
 
 {{'Views   '|header}}      {{for title, name in viewdef}}   {{str(proxy.view.size('', name)).ljust(5)}} {{endfor}}
 ${voffset -14}              ${font Webdings:size=12}{{for title, name in viewdef}}{{title|label}}     {{endfor}}${font }
