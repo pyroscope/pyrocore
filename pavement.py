@@ -119,7 +119,7 @@ project = Bunch(
 
 options(
     setup=project,
-    docs=Bunch(docs_dir="docs/apidocs"),
+    docs=Bunch(docs_dir="docs/apidocs", includes="pyrobase"),
 )
 
 setup(**project)
