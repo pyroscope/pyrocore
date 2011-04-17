@@ -47,7 +47,7 @@ ${voffset -20} {{proxy.get_up_rate()|sz}}/s
 ${voffset -20} {{proxy.get_down_rate()|sz}}/s 
 {{if incomplete}}
 
-{{'Incomplete'|header}}
+{{'Incomplete'|header}} {{'['|label}}{{len(incomplete)}}{{']'|label}}
 {{for loop, d in looper(incomplete[:max_entries])}}
 {{show(loop, d)}} {{'D'|label}} {{d.down|sz}}/s
       {{pc_col(d.done)}}{{"%5.1f" % d.done}}% ${execbar echo {{d.done}}}${color }
@@ -58,7 +58,7 @@ ${voffset -20} {{proxy.get_down_rate()|sz}}/s
 {{endfor}}
 {{if active}}
 
-{{'Active'|header}}
+{{'Active'|header}} {{'['|label}}{{len(active)}}{{']'|label}}
 {{for loop, d in looper(active[:max_entries])}}
 {{show(loop, d)}}
 {{endfor}}
