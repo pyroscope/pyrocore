@@ -64,6 +64,8 @@ METAFILE_STD_KEYS = [i.split('.') for i in (
     "info.files.path",
 )]
 
+del i
+
 
 def console_progress():
     """ Return a progress indicator for consoles if

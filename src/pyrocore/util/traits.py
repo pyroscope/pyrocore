@@ -92,6 +92,8 @@ MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
     ),
 )]
 
+del i
+
 
 def get_filetypes(filelist, path=None, size=os.path.getsize):
     """ Get a sorted list of file types and their weight in percent 
