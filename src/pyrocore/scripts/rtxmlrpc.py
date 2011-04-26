@@ -20,7 +20,7 @@ import logging
 from pprint import pformat
 
 from pyrocore import config
-from pyrocore.util import xmlrpc
+from pyrocore.util import fmt, xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
@@ -99,7 +99,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     result = pformat(result)
                 elif hasattr(result, "__iter__"):
                     result = '\n'.join(result)
-                print result
+                print fmt.to_console(result)
 
         # XMLRPC stats
         self.LOG.debug("XMLRPC stats: %s" % proxy)
