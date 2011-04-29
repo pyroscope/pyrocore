@@ -47,7 +47,7 @@ def load_plugin_classes():
     return plugins
 
 
-FLEXGET_BOOTSTRAP = os.path.expanduser("~/.flexget/plugins/pyroflex.py")
+FLEXGET_BOOTSTRAP = "~/.flexget/plugins/pyroflex.py"
 PLUGINS = load_plugin_classes()
 globals().update(PLUGINS)
 __all__ = list(PLUGINS.keys()) + ["PLUGINS", "FLEXGET_BOOTSTRAP"]

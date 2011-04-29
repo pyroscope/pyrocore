@@ -54,7 +54,7 @@ def load_flexget_tests():
     return flexget_tests
 
 
-if os.path.exists(FLEXGET_BOOTSTRAP) and load_flexget_tests():
+if os.path.exists(os.path.expanduser(FLEXGET_BOOTSTRAP)) and load_flexget_tests():
     from flexget_tests import FlexGetBase #@UnresolvedImport
     from flexget import plugin
 
