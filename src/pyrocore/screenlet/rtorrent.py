@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" PyroCore - RTorrent Screenlet.
+""" RTorrent Screenlet.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

@@ -1,4 +1,4 @@
-""" PyroCore - Metafile Editor.
+""" Metafile Editor.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011
-""" PyroCore - Platform Specific Incantations.
+""" Platform Specific Incantations.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011,C0103,W0404
-""" PyroCore - Configuration.
+""" Configuration.
 
     For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration
 

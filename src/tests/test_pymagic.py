@@ -1,4 +1,4 @@
-""" PyroCore - Python utilities tests.
+""" Python utilities tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

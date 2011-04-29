@@ -1,4 +1,4 @@
-""" PyroCore - Filter condition tests.
+""" Filter condition tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

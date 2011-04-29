@@ -1,4 +1,4 @@
-""" PyroCore - Torrent Engine tests.
+""" Torrent Engine tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

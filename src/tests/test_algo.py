@@ -1,4 +1,4 @@
-""" PyroCore - Algorithm tests.
+""" Algorithm tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

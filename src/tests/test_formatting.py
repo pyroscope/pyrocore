@@ -1,4 +1,4 @@
-""" PyroCore - Item Formatting tests.
+""" Item Formatting tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

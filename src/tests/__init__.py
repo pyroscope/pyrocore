@@ -1,4 +1,4 @@
-""" PyroCore - Unit Tests.
+""" Unit Tests.
 
     Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
 

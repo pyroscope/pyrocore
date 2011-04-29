@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=I0011
-""" PyroCore - Torrent Item Filters.
+""" Torrent Item Filters.
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

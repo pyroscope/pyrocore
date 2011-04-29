@@ -1,4 +1,4 @@
-""" PyroCore - Metafile Checker.
+""" Metafile Checker.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

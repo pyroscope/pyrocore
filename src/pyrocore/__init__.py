@@ -1,4 +1,4 @@
-""" PyroCore - Python Torrent Tools Core Package.
+""" Python Torrent Tools Core Package.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
 

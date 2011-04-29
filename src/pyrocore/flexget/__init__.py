@@ -1,4 +1,4 @@
-""" PyroCore - FlexGet Plugins Package.
+""" FlexGet Plugins Package.
 
     To load all PyroScope plugins into FlexGet, create the file 
     "~/.flexget/plugins/pyroflex.py" with this content::

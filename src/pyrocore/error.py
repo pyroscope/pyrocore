@@ -1,4 +1,4 @@
-""" PyroCore - Exception Classes.
+""" Exception Classes.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
 

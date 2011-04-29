@@ -1,4 +1,4 @@
-""" PyroCore - Move seeding data.
+""" Move seeding data.
 
     Copyright (c) 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

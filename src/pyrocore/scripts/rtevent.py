@@ -1,4 +1,4 @@
-""" PyroCore - Rtorrent event handler.
+""" Rtorrent event handler.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

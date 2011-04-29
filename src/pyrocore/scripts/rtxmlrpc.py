@@ -1,4 +1,4 @@
-""" PyroCore - Perform raw XMLRPC calls.
+""" Perform raw XMLRPC calls.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
 

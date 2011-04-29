@@ -1,4 +1,4 @@
-""" PyroCore - Traits tests.
+""" Traits tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

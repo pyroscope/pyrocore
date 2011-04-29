@@ -1,4 +1,4 @@
-""" PyroCore - Metafile Creator.
+""" Metafile Creator.
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
 

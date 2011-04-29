@@ -1,4 +1,4 @@
-""" PyroCore - Screenlets.
+""" Screenlets.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
 
