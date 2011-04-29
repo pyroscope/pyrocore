@@ -441,7 +441,7 @@ class RtorrentEngine(engine.TorrentEngine):
         """ Load file given in "rtorrent_rc".
         """
         def cfgkey(key):
-            "Sanitize rtorrent comfig keys"
+            "Sanitize rtorrent config keys"
             return key.replace('.', '_')
 
         if namespace is None:
