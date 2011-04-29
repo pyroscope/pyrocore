@@ -437,12 +437,15 @@ class RtorrentEngine(engine.TorrentEngine):
         self._item_cache = {}
 
 
-    def load_config(self, namespace=config, rtorrent_rc=None):
+    def load_config(self, namespace=None, rtorrent_rc=None):
         """ Load file given in "rtorrent_rc".
         """
         def cfgkey(key):
             "Sanitize rtorrent comfig keys"
             return key.replace('.', '_')
+
+        if namespace is None:
+            namespace = config
 
         # Only load when needed (also prevents multiple loading)
         if not all(getattr(namespace, key, False) for key in self.RTORRENT_RC_KEYS):

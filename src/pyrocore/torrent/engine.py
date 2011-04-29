@@ -554,7 +554,7 @@ class TorrentEngine(object):
         self.engine_software = "N/A"    # Name and version of software
 
 
-    def load_config(self, namespace=config):
+    def load_config(self, namespace=None):
         """ Load engine configuration file.
         """
         raise NotImplementedError()
