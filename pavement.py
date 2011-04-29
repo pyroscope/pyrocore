@@ -26,6 +26,7 @@ from __future__ import with_statement
 import os
 import re
 import sys
+import glob
 import webbrowser
 
 from paver.easy import *
@@ -139,6 +140,17 @@ def bootstrap():
     
     for shared in ("debian/changelog", "LICENSE"):
         path(shared).exists() or (path("..") / shared).link(shared)
+
+
+@task
+@needs("distutils.command.clean")
+def clean():
+    """ Take out the trash
+    """
+    with pushd("src"):
+        for pkg in set(options.setup.packages) | set(("tests",)):
+            for filename in glob.glob(pkg.replace('.', os.sep) + "/*.py[oc~]"):
+                path(filename).remove()
 
 
 @task
