@@ -49,7 +49,7 @@ def _make_validator(schema):
     return root
 
 
-class Rtorrent(plugin.Plugin):
+class RtorrentView(plugin.Plugin):
     """ Opens a rtorrent connection and does things to it.
 
         Example for dumping torrents matching a filter condition::
@@ -86,7 +86,7 @@ class Rtorrent(plugin.Plugin):
     def __init__(self, *args, **kw):
         """ Set plugin attribute defaults.
         """
-        super(Rtorrent, self).__init__(*args, **kw)
+        super(RtorrentView, self).__init__(*args, **kw)
         self.proxy = None
         self.global_config = None
 

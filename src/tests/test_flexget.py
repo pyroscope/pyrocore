@@ -166,13 +166,13 @@ if os.path.exists(FLEXGET_BOOTSTRAP) and load_flexget_tests():
         __yaml__ = """
             presets:
               global:
-                rtorrent:
+                rtorrent_view:
                   enabled: no
                   config_dir: __tmp__
     
             feeds:
               test_rtorrent_disabled:
-                rtorrent:
+                rtorrent_view:
                   enabled: no
         """
     
@@ -180,7 +180,7 @@ if os.path.exists(FLEXGET_BOOTSTRAP) and load_flexget_tests():
             "Test 'enabled' flag"
             self.execute_feed('test_rtorrent_disabled')
     
-            rtorrent = plugin.get_plugin_by_name("rtorrent") #@UndefinedVariable
+            rtorrent = plugin.get_plugin_by_name("rtorrent_view") #@UndefinedVariable
             assert rtorrent.instance.proxy is None
             assert rtorrent.instance.global_config is not None
     
