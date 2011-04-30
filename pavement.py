@@ -132,8 +132,7 @@ setup(**project)
 @task
 @needs(["setuptools.command.egg_info"])
 def bootstrap():
-    """ Initialize project.
-    """
+    "initialize project"
     # Link files shared by subprojects
     debian = path("debian")
     debian.exists() or debian.makedirs()
@@ -143,21 +142,9 @@ def bootstrap():
 
 
 @task
-@needs("distutils.command.clean")
-def clean():
-    """ Take out the trash
-    """
-    with pushd("src"):
-        for pkg in set(options.setup.packages) | set(("tests",)):
-            for filename in glob.glob(pkg.replace('.', os.sep) + "/*.py[oc~]"):
-                path(filename).remove()
-
-
-@task
 @needs("docs")
 def dist_docs():
-    """ Create a documentation bundle.
-    """
+    "create a documentation bundle"
     dist_dir = path("dist")
     docs_package = path("%s/%s-%s-docs.zip" % (dist_dir.abspath(), options.setup.name, options.setup.version))
 
@@ -179,14 +166,12 @@ def dist_docs():
 @task
 @needs("nosetests")
 def test():
-    """ Run unit tests.
-    """
+    "run unit tests"
 
 
 @task
 def coverage():
-    """ Generate coverage report and show in browser.
-    """
+    "generate coverage report and show in browser"
     coverage_index = path("build/coverage/index.html")
     coverage_index.remove()
     sh("paver test")
@@ -196,8 +181,7 @@ def coverage():
 @task
 @needs("setuptools.command.build")
 def functest():
-    """ Functional test of the command line tools.
-    """
+    "functional test of the command line tools"
     sh("bin/mktor -o build/pavement.torrent pavement.py http://example.com/")
     sh("bin/mktor -o build/tests.torrent -x '*.pyc' -r 'pyroscope tests' --private src/tests/ http://example.com/")
     sh("bin/lstor build/*.torrent")
@@ -207,18 +191,9 @@ def functest():
 # Release Management
 #
 @task
-@needs("clean")
-def dist_clean():
-    """ Clean up including dist directory.
-    """
-    path("dist").rmtree()
-
-
-@task
 @needs(["dist_clean", "minilib", "generate_setup", "sdist"])
 def release():
-    """ Check release before upload to PyPI.
-    """
+    "check release before upload to PyPI"
     sh("paver bdist_egg")
 
     # Check that source distribution can be built and is complete
