@@ -207,8 +207,8 @@ class RtorrentMove(ScriptBaseWithConfig):
                 else:
                     # Moving download initially
                     self.LOG.debug("Symlinking %s" % (pretty_path(item.path),))
-                    assert os.path.join(download_path, os.path.basename(item.path)) == os.path.realpath(path), \
-                        'Item path "%s" should match "%s"!' % (item.path, path)
+                    assert os.path.join(download_path, os.path.basename(item.path)) == fmt.to_unicode(os.path.realpath(path)), \
+                        'Item path "%s" should match "%s"!' % (fmt.to_console(item.path), fmt.to_console(path))
                     self.guarded(os.rename, item.path, dst)
                     self.guarded(os.symlink, os.path.abspath(dst), item.path)
 
