@@ -34,7 +34,7 @@ class Rtorrent(plugin.Plugin):
         """ Set plugin attribute defaults.
         """
         super(Rtorrent, self).__init__(*args, **kw)
-        self.LOG = pymagic.get_class_logger(self)
+        #self.LOG = pymagic.get_class_logger(self)
         self.proxy = None
 
 
@@ -70,7 +70,7 @@ class Rtorrent(plugin.Plugin):
             try:
                 # Open the connection
                 self.proxy = pyrocfg.engine.open()
-                self.LOG.info(self.proxy) # where are we connected?
+                self.log.info(self.proxy) # where are we connected?
             except error.LoggableError, exc:
                 raise plugin.PluginError(str(exc))
 
@@ -88,7 +88,7 @@ class Rtorrent(plugin.Plugin):
         """ Show final XMLRPC stats.
         """
         if self.proxy:
-            self.LOG.info("XMLRPC stats: %s" % (self.proxy,))
+            self.log.info("XMLRPC stats: %s" % (self.proxy,))
             self.proxy = None
 
 
@@ -112,7 +112,7 @@ class Rtorrent(plugin.Plugin):
         """ Load entries into rTorrent.
         """
         if not self.config["enabled"]:
-            self.LOG.debugall("plugin disabled")
+            self.log.debugall("plugin disabled")
             return
         
         if self.proxy:
@@ -120,3 +120,4 @@ class Rtorrent(plugin.Plugin):
                 pass
             except error.LoggableError, exc:
                 raise plugin.PluginError(exc)
+
