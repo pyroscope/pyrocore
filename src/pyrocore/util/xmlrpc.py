@@ -24,6 +24,9 @@ from pyrobase.io import xmlrpc2scgi
 from pyrocore import config
 from pyrocore.util import os, fmt, pymagic
 
+# Currently, we don't have our own errors, so just copy it
+ERRORS = xmlrpc2scgi.ERRORS
+
 
 class RTorrentMethod(object):
     """ Collect attribute accesses to build the final method name.
