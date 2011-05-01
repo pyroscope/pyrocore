@@ -99,6 +99,7 @@ case "$1" in
     check)      check ;;
     *)
         echo >&2 "Usage: $0 (all | clean | clean_all | download | build | check)"
+        grep "() { #" $0 | grep -v grep | sort | sed -e "s:^:  :" -e "s:() { #:  @:" | tr @ \\t
         exit 1
         ;;
 esac
