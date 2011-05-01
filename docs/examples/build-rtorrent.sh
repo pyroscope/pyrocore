@@ -36,6 +36,20 @@ set +x
 #
 # HELPERS
 #
+symlink_binary() {
+    binary="$INST_DIR/bin/rtorrent"
+    flavour="$1"
+    test -z "$flavour" || ln -f "$binary" "$binary$flavour"
+
+    mkdir -p ~/bin
+    ln -nfs "$binary$flavour" ~/bin/rtorrent-$RT_VERSION
+    ln -nfs rtorrent-$RT_VERSION ~/bin/rtorrent
+}
+
+
+#
+# RULES
+#
 prep() { # Create directories
     mkdir -p $INST_DIR/{bin,include,lib,man,share}
 }
@@ -60,9 +74,14 @@ build() { # Build and install all components
     sed -ie s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la 
     ( cd rtorrent-*[0-9] && ./configure --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && make && make prefix=$INST_DIR install )
 
-    mkdir -p ~/bin
-    ln -nfs $INST_DIR/bin/rtorrent ~/bin/rtorrent-$RT_VERSION
-    ln -nfs rtorrent-$RT_VERSION ~/bin/rtorrent
+    symlink_binary -vanilla
+}
+
+extend() { # Rebuild and install rTorrent with patches applied
+    tar xfz rtorrent-$RT_VERSION.tar.gz
+    ( cd rtorrent-*[0-9] && ./configure --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && make && make prefix=$INST_DIR install )
+
+    symlink_binary -extended
 }
 
 clean() { # Clean up generated files
@@ -79,11 +98,14 @@ clean_all() { # Remove all downloads and created files
 }
 
 check() { # Print some diagnostic success indicators
+    for i in ~/bin/rtorrent{,-$RT_VERSION}; do
+        echo $i "->" $(readlink $i) | sed -e "s:$HOME:~:g"
+    done
     echo
     echo -n "Check that static linking worked: "
-    libs=$(ldd $INST_DIR/bin/rtorrent | egrep "lib(cares|curl|xmlrpc|torrent)")
+    libs=$(ldd ~/bin/rtorrent | egrep "lib(cares|curl|xmlrpc|torrent)")
     test -n $(echo "$libs" | grep -v "$INST_DIR") && echo OK || echo FAIL
-    echo "$libs"
+    echo "$libs" | sed -e "s:$HOME:~:g"
 }
 
 
@@ -96,9 +118,10 @@ case "$1" in
     clean_all)  clean_all ;; 
     download)   download ;;
     build)      prep; build; check ;;
+    extend)     extend; check ;;
     check)      check ;;
     *)
-        echo >&2 "Usage: $0 (all | clean | clean_all | download | build | check)"
+        echo >&2 "Usage: $0 (all | clean | clean_all | download | build | check | extend )"
         grep "() { #" $0 | grep -v grep | sort | sed -e "s:^:  :" -e "s:() { #:  @:" | tr @ \\t
         exit 1
         ;;
