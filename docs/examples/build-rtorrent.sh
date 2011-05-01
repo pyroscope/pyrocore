@@ -59,6 +59,10 @@ build() { # Build and install all components
     ( cd libtorrent-*[0-9] && ./configure && make && make prefix=$INST_DIR install )
     sed -ie s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la 
     ( cd rtorrent-*[0-9] && ./configure --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && make && make prefix=$INST_DIR install )
+
+    mkdir -p ~/bin
+    ln -nfs $INST_DIR/bin/rtorrent ~/bin/rtorrent-$RT_VERSION
+    ln -nfs rtorrent-$RT_VERSION ~/bin/rtorrent
 }
 
 clean() { # Clean up generated files
