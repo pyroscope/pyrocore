@@ -216,7 +216,7 @@ class BoolFilter(FieldFilter):
         """
         super(BoolFilter, self).validate()
         
-        lower_val = self._value.lower()
+        lower_val = str(self._value).lower()
         if lower_val in self.TRUE:
             self._value = True
         elif lower_val in self.FALSE:
@@ -304,7 +304,7 @@ class TimeFilter(NumericFilterBase):
         super(TimeFilter, self).validate()
         timestamp = now = time.time()
 
-        if self._value.isdigit():
+        if str(self._value).isdigit():
             # Literal UNIX timestamp
             try:
                 timestamp = float(self._value)
@@ -340,7 +340,7 @@ class TimeFilter(NumericFilterBase):
                     # Fall back to ISO
                     fmt = "%Y-%m-%d"
 
-                val = self._value.upper().replace(' ', 'T')
+                val = str(self._value).upper().replace(' ', 'T')
                 if 'T' in val:
                     # Time also given
                     fmt += "T%H:%M:%S"[:3+3*val.count(':')]
@@ -390,7 +390,7 @@ class ByteSizeFilter(NumericFilterBase):
         super(ByteSizeFilter, self).validate()
 
         # Get scale
-        lower_val = self._value.lower()
+        lower_val = str(self._value).lower()
         if any(lower_val.endswith(i) for i in self.UNITS):
             scale = self.UNITS[lower_val[-1]]
             self._value = self._value[:-1]

@@ -34,7 +34,7 @@ def load_plugin_classes():
     """
     plugins = {}
     modules = set(os.path.splitext(module_file)[0]
-        for module_file in pkg_resources.resource_listdir(__name__, '') #@UndefinedVariable
+        for module_file in pymagic.resource_listdir(__name__, '')
         if not module_file.startswith('_') and module_file.endswith(".py")
     )
     

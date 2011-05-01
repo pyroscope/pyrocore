@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 
 try:
-    from itertools import product #@UnusedImport
+    from itertools import product # @UnusedImport pylint: disable=E0611
 except ImportError:
     def product(*args, **kwds):
         """ product('ABCD', 'xy') --> Ax Ay Bx By Cx Cy Dx Dy

@@ -75,6 +75,12 @@ class AttributeAccessor(object):
 class ConditionPluginBase(plugin.Plugin):
     """ Base class for condition filter plugins.
     """
+    
+    @property
+    def name(self):
+        "Plugin name"
+        return self.plugin_info.name # pylint: disable=E1101
+
 
     def validator(self):
         """ Return validator suitable for filter conditions.
@@ -92,7 +98,7 @@ class ConditionPluginBase(plugin.Plugin):
             from pyrocore.util import matching
         except ImportError, exc:
             raise plugin.DependencyError("You need to (easy_)install 'pyrocore>=0.4' to use the %s plugin (%s)" % (
-                self.plugin_info.name, exc))
+                self.name, exc))
 
         if isinstance(config, basestring):
             config = [config]        
@@ -105,7 +111,7 @@ class ConditionPluginBase(plugin.Plugin):
             except matching.FilterError, exc:
                 raise plugin.PluginError(str(exc))
 
-        log.debug("%s: %s" % (self.plugin_info.name, " OR ".join(str(i) for i in conditions)))
+        log.debug("%s: %s" % (self.name, " OR ".join(str(i) for i in conditions)))
         return conditions, matching
 
 

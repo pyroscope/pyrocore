@@ -20,7 +20,6 @@ import logging
 
 from flexget import plugin, validator
 from flexget import feed as flexfeed
-from flexget.utils import bittorrent
 ##from flexget.plugins import plugin_torrent
 
 from pyrocore import error
@@ -82,7 +81,7 @@ class RtorrentView(plugin.Plugin):
         #"feed_tied": ("", False,
     }
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw): # bogus super error pylint: disable=E1002
         """ Set plugin attribute defaults.
         """
         super(RtorrentView, self).__init__(*args, **kw)

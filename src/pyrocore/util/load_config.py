@@ -24,7 +24,6 @@ from __future__ import with_statement
 import re
 import StringIO
 import ConfigParser
-import pkg_resources
 from contextlib import closing
 
 from pyrocore import config, error
@@ -51,13 +50,13 @@ def walk_resources(package_or_requirement, resource_name, recurse=True, base='')
     resource_base = (resource_name.rstrip('/') + '/' + base.strip('/')).rstrip('/')
     
     # Create default configuration files
-    for filename in pkg_resources.resource_listdir(package_or_requirement, resource_base):
+    for filename in pymagic.resource_listdir(package_or_requirement, resource_base):
         # Skip hidden and other trashy names
         if filename.startswith('.') or any(filename.endswith(i) for i in (".pyc", ".pyo", "~")):
             continue
 
         # Handle subdirectories
-        if pkg_resources.resource_isdir(package_or_requirement, resource_base + '/' + filename):
+        if pymagic.resource_isdir(package_or_requirement, resource_base + '/' + filename):
             if recurse:
                 for i in walk_resources(package_or_requirement, resource_name, recurse, base=base + filename):
                     yield i
@@ -168,7 +167,7 @@ class ConfigLoader(object):
         namespace["config_dir"] = self.config_dir
 
         # Load defaults
-        defaults = pkg_resources.resource_string("pyrocore", "data/config/config.ini") #@UndefinedVariable
+        defaults = pymagic.resource_string("pyrocore", "data/config/config.ini") #@UndefinedVariable
         ini_file = ConfigParser.SafeConfigParser()
         ini_file.optionxform = str # case-sensitive option names
         ini_file.readfp(StringIO.StringIO(defaults), "<defaults>")
@@ -235,7 +234,7 @@ class ConfigLoader(object):
         # Create default configuration files
         for filepath in walk_resources("pyrocore", "data/config"):
             # Load from package data
-            text = pkg_resources.resource_string("pyrocore", "data/config" + filepath)
+            text = pymagic.resource_string("pyrocore", "data/config" + filepath)
 
             # Check for existing configuration file
             config_file = self.config_dir + filepath

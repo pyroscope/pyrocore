@@ -30,12 +30,13 @@ class Rtorrent(plugin.Plugin):
     """
     PRIO = 144
     
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw): # bogus super error pylint: disable=E1002
         """ Set plugin attribute defaults.
         """
         super(Rtorrent, self).__init__(*args, **kw)
         #self.LOG = pymagic.get_class_logger(self)
         self.proxy = None
+        self.log = self.log # happy now, pylint?
 
 
     def validator(self):

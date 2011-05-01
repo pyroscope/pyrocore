@@ -106,7 +106,7 @@ class RtorrentItem(engine.TorrentProxy):
 
         if histo:
             # Parse histogram from cached field
-            histo = [i.split("%_") for i in histo.split()]
+            histo = [i.split("%_") for i in str(histo).split()]
             histo = [(int(val, 10), ext) for val, ext in histo]
             ##self._engine.LOG.debug("~~~~~~~~~~ cached histo = %r" % histo)
         else:

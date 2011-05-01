@@ -18,6 +18,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import logging
+import pkg_resources
+
+# Create aliases to make pydev / pylint happy
+resource_isdir = pkg_resources.resource_isdir # @UndefinedVariable pylint: disable=E1101
+resource_listdir = pkg_resources.resource_listdir # @UndefinedVariable pylint: disable=E1101
+resource_string = pkg_resources.resource_string # @UndefinedVariable pylint: disable=E1101
 
 
 def import_name(module_spec, name=None):
