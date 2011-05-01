@@ -227,7 +227,7 @@ class ConfigLoader(object):
         """
         # Check and create configuration directory
         if os.path.exists(self.config_dir):
-            self.LOG.warn("Configuration directory %r already exists!" % (self.config_dir,))
+            self.LOG.debug("Configuration directory %r already exists!" % (self.config_dir,))
         else:
             os.mkdir(self.config_dir)
 
@@ -239,7 +239,7 @@ class ConfigLoader(object):
             # Check for existing configuration file
             config_file = self.config_dir + filepath
             if os.path.exists(config_file):
-                self.LOG.warn("Configuration file %r already exists!" % (config_file,))
+                self.LOG.debug("Configuration file %r already exists!" % (config_file,))
                 config_file += ".default"
 
             # Create missing subdirs
