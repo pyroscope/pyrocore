@@ -1,9 +1,6 @@
-""" RTorrent client proxy over various transports.
+""" RTorrent client proxy.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
-
-    Losely based on code Copyright (C) 2005-2007, Glenn Washburn <crass@berlios.de>
-    SSH tunneling back-ported from https://github.com/Quantique
 """
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +20,6 @@ import time
 import xmlrpclib
 
 from pyrobase.io import xmlrpc2scgi
-from pyrobase.io.xmlrpc2scgi import SCGIRequest, ERRORS #@UnusedImport
 
 from pyrocore import config
 from pyrocore.util import os, fmt, pymagic
@@ -71,7 +67,7 @@ class RTorrentMethod(object):
             self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound) 
 
             # Send it
-            scgi_req = SCGIRequest(self._proxy._transport)
+            scgi_req = xmlrpc2scgi.SCGIRequest(self._proxy._transport)
             xmlresp = scgi_req.send(xmlreq)
             self._inbound = len(xmlresp)
             self._proxy._inbound += self._inbound
