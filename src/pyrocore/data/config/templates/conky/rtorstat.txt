@@ -46,9 +46,11 @@ ${voffset 4}{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}} 
 {{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}% {{#
     }}${color #0d6}${execgraph echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
 ${voffset -20} {{proxy.get_up_rate()|sz}}/s
+             {{pc_col(100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}} ${execbar echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
 {{'Download'|label}} {{"%3.0f" % (100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}% {{#
     }}${color #d06}${execgraph echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}${color }
 ${voffset -20} {{proxy.get_down_rate()|sz}}/s 
+             {{pc_col(100.0 * proxy.get_down_rate() / proxy.get_download_rate())}} ${execbar echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}${color }
 {{if incomplete}}
 
 {{'Incomplete'|header}} {{'['|label}}{{len(incomplete)}}{{']'|label}}
