@@ -392,6 +392,16 @@ class RtorrentEngine(engine.TorrentEngine):
     # keys we read from rTorrent's configuration
     RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", "log.execute") + RTORRENT_RC_THROTTLE_KEYS
 
+    # mapping from new to old commands, and thus our config keys
+    RTORRENT_RC_ALIASES = {
+        "network.scgi.open_local": "scgi_local", 
+        "network.scgi.open_port": "scgi_port", 
+        #"log.execute": "", 
+        "throttle.up": "throttle_up", 
+        "throttle.down": "throttle_down", 
+        "throttle.ip": "throttle_ip",
+    }
+
     # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
         "hash", "name", "is_private", "tracker_size", "size_bytes", 
@@ -472,6 +482,7 @@ class RtorrentEngine(engine.TorrentEngine):
                         self.LOG.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
                         continue
                     key, val = key.strip(), val.strip()
+                    key = self.RTORRENT_RC_ALIASES.get(key, key)
 
                     # Copy values we're interested in
                     if key in self.RTORRENT_RC_THROTTLE_KEYS:
