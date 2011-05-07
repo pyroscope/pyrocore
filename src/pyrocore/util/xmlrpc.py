@@ -64,7 +64,8 @@ class RTorrentMethod(object):
 
         try:
             # Prepare request
-            xmlreq = xmlrpclib.dumps(args, config.xmlrpc.get(self._method_name, self._method_name))
+            xmlreq = xmlrpclib.dumps(args, self._proxy._mapping.get(self._method_name, self._method_name))
+            ##xmlreq = xmlreq.replace('\n', '')
             self._outbound = len(xmlreq)
             self._proxy._outbound += self._outbound
             self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound) 
@@ -125,10 +126,12 @@ class RTorrentProxy(object):
         something like C{proxy.system.client_version()}.
     """
     
-    def __init__(self, url):
+    def __init__(self, url, mapping=None):
         self.LOG = pymagic.get_class_logger(self)
         self._url = url
         self._transport = xmlrpc2scgi.transport_from_url(url)
+        self._use_deprecated = True
+        self._mapping = mapping or config.xmlrpc
 
         # Statistics (traffic w/o HTTP overhead)
         self._requests = 0
@@ -157,6 +160,11 @@ class RTorrentProxy(object):
     def __getattr__(self, attr):
         """ Return a method object for accesses to virtual attributes.
         """
+        if not self._use_deprecated:
+            # These we do by code, to avoid lengthy lists in the config
+            if attr.startswith("d.get_"):
+                attr = "d." + attr[6:]
+            
         return RTorrentMethod(self, attr)
 
 
@@ -164,3 +172,4 @@ class RTorrentProxy(object):
         """ Return info & statistics.
         """
         return "%s(%r) [%s]" % (self.__class__.__name__, self._url, self)
+

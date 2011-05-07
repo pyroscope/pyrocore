@@ -151,7 +151,7 @@ class RtorrentItem(engine.TorrentProxy):
                 getter_name = engine_name if engine_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
                 if getter_name[0] == '=':
                     getter_name = getter_name[1:]
-                else:
+                elif self._engine._rpc._use_deprecated:
                     getter_name = "get_" + getter_name
                 getter = getattr(self._engine._rpc.d, getter_name)
     
@@ -171,7 +171,7 @@ class RtorrentItem(engine.TorrentProxy):
         """ Get a list of all announce URLs.
         """
         try:
-            return [self._engine._rpc.t.get_url(self._fields["hash"], i) for i in range(self._fields["tracker_size"])]
+            return self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=" if self._engine._rpc._use_deprecated else "t.url=")[0]
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
@@ -440,6 +440,8 @@ class RtorrentEngine(engine.TorrentEngine):
         """ Initialize proxy.
         """
         super(RtorrentEngine, self).__init__()
+        self.versions = (None, None)
+        self.startup = time.time()
         self._rpc = None
         self._session_dir = None
         self._download_dir = None
@@ -548,6 +550,16 @@ class RtorrentEngine(engine.TorrentEngine):
         # Connect and get instance ID (also ensures we're connectable)
         self._rpc = xmlrpc.RTorrentProxy(config.scgi_url)
         try:
+            self.versions = (self._rpc.system.client_version(), self._rpc.system.library_version(),)
+            self.version_info = tuple(int(i) for i in self.versions[0].split('.'))
+            self._rpc._use_deprecated = self.version_info < (0, 8, 7)
+
+            # Merge mappings for this version
+            self._rpc._mapping = config.xmlrpc.copy()
+            for key, val in sorted(i for i in vars(config).items() if i[0].startswith("xmlrpc_")):
+                if tuple(int(i) for i in key.split('_')[1:]) <= self.version_info:
+                    self._rpc._mapping.update(val)
+
             self.engine_id = self._rpc.get_name()
             time_usec = self._rpc.system.time_usec()
         except socket.error, exc:
@@ -561,9 +573,7 @@ class RtorrentEngine(engine.TorrentEngine):
                 " %r returned instead)" % (type(time_usec),))
 
         # Get other manifest values
-        self.engine_software = "rTorrent %s/%s" % (
-            self._rpc.system.client_version(), self._rpc.system.library_version(),
-        )
+        self.engine_software = "rTorrent %s/%s" % self.versions
 
         if "+ssh:" in config.scgi_url:
             self.startup = int(self._rpc.startup_time() or time.time())
@@ -610,17 +620,21 @@ class RtorrentEngine(engine.TorrentEngine):
             else:
                 prefetch = self.PREFETCH_FIELDS
 
-            # Prepare multi-call arguments
-            args = [view.viewname] + ["d.%s%s=" % (
-                    "" if field.startswith("is_") else "get_", field
-                ) for field in prefetch
-            ]
-
             # Fetch items
             items = []
             try:
                 ##self.LOG.debug("multicall %r" % (args,))
                 multi_call = self.open().d.multicall
+
+                # Prepare multi-call arguments
+                args = ["d.%s%s" % ("" if not self._rpc._use_deprecated or field.startswith("is_") else "get_", field)
+                    for field in prefetch
+                ]
+                args = [view.viewname] + [self._rpc._mapping.get(field, field) + '=' for field in args]
+                if not self._rpc._use_deprecated:
+                    args.insert(0, 0)
+
+                # Execute it
                 raw_items = multi_call(*tuple(args))
                 ##import pprint; self.LOG.debug(pprint.pformat(raw_items))
                 self.LOG.debug("Got %d items with %d attributes from %r [%s]" % (
