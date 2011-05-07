@@ -97,7 +97,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     # Pretty-print if requested, or it's a collection and not a scalar
                     result = pformat(result)
                 elif hasattr(result, "__iter__"):
-                    result = '\n'.join(result)
+                    result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
                 print fmt.to_console(result)
 
         # XMLRPC stats
