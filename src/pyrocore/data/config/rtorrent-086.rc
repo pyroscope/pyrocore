@@ -1,7 +1,50 @@
 #
 # Standard PyroScope rTorrent configuration
 #
-# Include this into your ~/.rtorrent,.rc by adding...
+# Include this into your main "~/.rtorrent.rc" by adding...
+#
+#
+# Things marked with #087# are for version 0.8.7 only!
+#
 
+# Log extension switch setting
+branch=pyro.extended=,print=rTorrent-PS\\\ features\\\ active!,print=rTorrent-PS\\\ features\\\ NOT\\\ active!
 
+# COMMAND: Return startup time (can be used to calculate uptime)
+system.method.insert = startup_time,value,$system.time=
+
+# EVENTS: Timestamps
+#   tm_loaded = time loaded into client
+#   tm_started = time of *first* start
+#   tm_completed = time of completion
+system.method.insert = pyro.tm_started.now,simple|private,"d.set_custom=tm_started,$cat=$system.time= ;d.save_session="
+system.method.set_key = event.download.resumed,time_stamp,"branch=d.get_custom=tm_started,false=,pyro.tm_started.now="
+system.method.set_key = event.download.inserted_new,time_stamp,"d.set_custom=tm_loaded,$cat=$system.time= ;d.save_session="
+system.method.set_key = event.download.finished,time_stamp,"d.set_custom=tm_completed,$cat=$system.time= ;d.save_session="
+
+# EVENTS: Activation intervals
+system.method.insert = pyro.activations.append,simple|private,"d.set_custom=activations,\"$cat=$d.get_custom=activations,$argument.0=,$system.time=\" ;d.save_session="
+system.method.set_key = event.download.paused,activations,"pyro.activations.append=P"
+system.method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
+
+# UI/VIEW: Default view for filtering results (bound to '0' key in rT-PS)
+view_add = rtcontrol
+view_filter = rtcontrol,false=
+branch=pyro.extended=,"schedule = bind_rtcontrol,0,0,\"ui.bind_key=download_list,0,ui.current_view.set=rtcontrol\""
+
+# UI/VIEW: Show active and incomplete torrents (in view #9) and update every 20 seconds
+#   Items are grouped into complete, incomplete, and queued, in that order (rT-PS only).
+#   Within each group, they're sorted by download and then upload speed.
+branch=pyro.extended=,false=,"view_sort_current = active,greater=d.get_up_rate="
+branch=pyro.extended=,"view_sort_current = active,\"compare=----,d.is_open=,d.get_complete=,d.get_down_rate=,d.get_up_rate=\""
+schedule = filter_active,12,20,"view_filter = active,\"or={d.get_up_rate=,d.get_down_rate=,not=$d.get_complete=}\" ;view_sort=active"
+
+# UI/CMD: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
+system.method.insert = s,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,\"$cat=*,$argument.0=,*\""
+system.method.insert = t,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
+system.method.insert = f,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,$argument.0="
+
+# UI/CMD: Housekeeping (delete item + data)
+system.method.insert = purge,simple|private,"execute_nothrow=rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
+system.method.insert = cull,simple|private,"execute_nothrow=rtcontrol,-q,--detach,--cull,--yes,\"$cat=hash=,$d.get_hash=\""
 

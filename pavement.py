@@ -140,6 +140,8 @@ def bootstrap():
     for shared in ("debian/changelog", "LICENSE"):
         path(shared).exists() or (path("..") / shared).link(shared)
 
+    build()
+
 
 @task
 def build():
@@ -147,8 +149,9 @@ def build():
     rtrc_086 = path("src/pyrocore/data/config/rtorrent-086.rc")
     rtrc_087 = path(str(rtrc_086).replace("086", "087"))
     if not rtrc_087.exists() or rtrc_086.mtime > rtrc_087.mtime:
-        rtrc_087.write_bytes(rtrc_086.text())
+        rtrc_087.write_bytes(rtrc_086.text().replace("#087#", ""))
         sh("./docs/rtorrent-extended/migrate_rtorrent_rc.sh %s" % rtrc_087)
+        path(rtrc_087 + ",0.8.6").remove()
 
     call_task("setuptools.command.build")
 
