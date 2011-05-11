@@ -142,6 +142,18 @@ def bootstrap():
 
 
 @task
+def build():
+    "build the software"
+    rtrc_086 = path("src/pyrocore/data/config/rtorrent-086.rc")
+    rtrc_087 = path(str(rtrc_086).replace("086", "087"))
+    if not rtrc_087.exists() or rtrc_086.mtime > rtrc_087.mtime:
+        rtrc_087.write_bytes(rtrc_086.text())
+        sh("./docs/rtorrent-extended/migrate_rtorrent_rc.sh %s" % rtrc_087)
+
+    call_task("setuptools.command.build")
+
+
+@task
 @needs("docs")
 def dist_docs():
     "create a documentation bundle"
@@ -179,7 +191,7 @@ def coverage():
 
 
 @task
-@needs("setuptools.command.build")
+@needs("build")
 def functest():
     "functional test of the command line tools"
     sh("bin/mktor -o build/pavement.torrent pavement.py http://example.com/")
@@ -191,7 +203,7 @@ def functest():
 # Release Management
 #
 @task
-@needs(["dist_clean", "minilib", "generate_setup", "sdist"])
+@needs(["dist_clean", "build", "minilib", "generate_setup", "sdist"])
 def release():
     "check release before upload to PyPI"
     sh("paver bdist_egg")
