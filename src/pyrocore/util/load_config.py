@@ -236,18 +236,19 @@ class ConfigLoader(object):
             # Load from package data
             text = pymagic.resource_string("pyrocore", "data/config" + filepath)
 
-            # Check for existing configuration file
-            config_file = self.config_dir + filepath
-            if os.path.exists(config_file):
-                self.LOG.debug("Configuration file %r already exists!" % (config_file,))
-                config_file += ".default"
-
             # Create missing subdirs
+            config_file = self.config_dir + filepath
             if not os.path.exists(os.path.dirname(config_file)):
                 os.makedirs(os.path.dirname(config_file))
 
-            # Write new configuration file
-            with closing(open(config_file, "w")) as handle:
-                handle.write(text)
-            self.LOG.info("Configuration file %r written!" % (config_file,))
+            # Write configuration files
+            config_trail = [".default"]
+            if os.path.exists(config_file):
+                self.LOG.debug("Configuration file %r already exists!" % (config_file,))
+            else:
+                config_trail.append('')
+            for i in config_trail:
+                with closing(open(config_file + i, "w")) as handle:
+                    handle.write(text)
+                self.LOG.info("Configuration file %r written!" % (config_file + i,))
 
