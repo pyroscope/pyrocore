@@ -254,11 +254,11 @@ def assign_fields(meta, assignments):
             if val and val[0] in "+-" and val[1:].isdigit():
                 val = int(val, 10)
 
-            # TODO: create dicts as we go, for now we can only assign into existing namespaces
             # TODO: Allow numerical indices, and "+" for append
             namespace = meta
             for key in field.split('.')[:-1]:
-                namespace = namespace[key]
+                # Create missing dicts as we go...
+                namespace = namespace.setdefault(key, {})
         except (KeyError, IndexError, TypeError, ValueError), exc:
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
