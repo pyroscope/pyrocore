@@ -18,7 +18,7 @@
 import logging
 from pprint import pformat
 
-from pyrocore import config
+from pyrocore import config, error
 from pyrocore.util import fmt, xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
@@ -91,6 +91,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
         except xmlrpc.ERRORS, exc:
             self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
+            self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
         else:
             if not self.options.quiet:
                 if self.options.repr:

@@ -197,7 +197,7 @@ class ScriptBase(object):
             if handler:
                 print '\n'.join(sorted(handler()))
                 self.STD_LOG_LEVEL = logging.DEBUG
-                sys.exit(0)
+                sys.exit(error.EX_OK)
 
 
     def help_completion_options(self):
@@ -217,7 +217,7 @@ class ScriptBase(object):
                 return # let the caller re-raise it
         else:
             self.LOG.fatal(msg)
-        sys.exit(1)
+        sys.exit(error.EX_SOFTWARE)
     
         
     def run(self):
@@ -240,14 +240,14 @@ class ScriptBase(object):
                 except UnicodeError:
                     msg = unicode(exc, "UTF-8")
                 self.LOG.error(msg)
-                sys.exit(1)
+                sys.exit(error.EX_SOFTWARE)
             except KeyboardInterrupt, exc:
                 if self.options.debug:
                     raise
 
                 sys.stderr.write("\n\nAborted by CTRL-C!\n")
                 sys.stderr.flush()
-                sys.exit(2)
+                sys.exit(error.EX_TEMPFAIL)
             except IOError, exc:
                 # [Errno 32] Broken pipe?
                 if exc.errno == errno.EPIPE:
@@ -263,7 +263,7 @@ class ScriptBase(object):
                         for handler in handlers:
                             handler.flush = lambda *_: None
 
-                    sys.exit(3)
+                    sys.exit(error.EX_IOERR)
                 else:
                     raise
         finally:
