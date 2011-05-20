@@ -151,7 +151,7 @@ class RtorrentItem(engine.TorrentProxy):
                 getter_name = engine_name if engine_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
                 if getter_name[0] == '=':
                     getter_name = getter_name[1:]
-                elif self._engine._rpc._use_deprecated:
+                else:
                     getter_name = "get_" + getter_name
                 getter = getattr(self._engine._rpc.d, getter_name)
     
@@ -171,7 +171,7 @@ class RtorrentItem(engine.TorrentProxy):
         """ Get a list of all announce URLs.
         """
         try:
-            return self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=" if self._engine._rpc._use_deprecated else "t.url=")[0]
+            return self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=")[0]
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
@@ -557,8 +557,12 @@ class RtorrentEngine(engine.TorrentEngine):
             # Merge mappings for this version
             self._rpc._mapping = config.xmlrpc.copy()
             for key, val in sorted(i for i in vars(config).items() if i[0].startswith("xmlrpc_")):
-                if tuple(int(i) for i in key.split('_')[1:]) <= self.version_info:
+                map_version = tuple(int(i) for i in key.split('_')[1:])
+                if map_version <= self.version_info:
+                    if config.debug:
+                        self.LOG.debug("MAPPING for %r added: %r" % (map_version, val))
                     self._rpc._mapping.update(val)
+            self._rpc._fix_mappings()
 
             self.engine_id = self._rpc.get_name()
             time_usec = self._rpc.system.time_usec()
@@ -627,12 +631,10 @@ class RtorrentEngine(engine.TorrentEngine):
                 multi_call = self.open().d.multicall
 
                 # Prepare multi-call arguments
-                args = ["d.%s%s" % ("" if not self._rpc._use_deprecated or field.startswith("is_") else "get_", field)
+                args = ["d.%s%s" % ("" if field.startswith("is_") else "get_", field)
                     for field in prefetch
                 ]
-                args = [view.viewname] + [self._rpc._mapping.get(field, field) + '=' for field in args]
-                if not self._rpc._use_deprecated:
-                    args.insert(0, 0)
+                args = [view.viewname] + [field + '=' for field in args]
 
                 # Execute it
                 raw_items = multi_call(*tuple(args))

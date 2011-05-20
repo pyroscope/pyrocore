@@ -63,8 +63,18 @@ class RTorrentMethod(object):
         raw_xml = kwargs.get("raw_xml", False)
 
         try:
+            # Map multicall arguments
+            if not self._proxy._use_deprecated and self._method_name.endswith(".multicall"):
+                if self._method_name == "d.multicall":
+                    args = (0,) + args
+                if config.debug:
+                    self._proxy.LOG.debug("BEFORE MAPPING: %r" % (args,))
+                args = args[0:2] + tuple(self._proxy._map_call(i) for i in args[2:])
+                if config.debug:
+                    self._proxy.LOG.debug("AFTER MAPPING: %r" % (args,))
+
             # Prepare request
-            xmlreq = xmlrpclib.dumps(args, self._proxy._mapping.get(self._method_name, self._method_name))
+            xmlreq = xmlrpclib.dumps(args, self._proxy._map_call(self._method_name))
             ##xmlreq = xmlreq.replace('\n', '')
             self._outbound = len(xmlreq)
             self._proxy._outbound += self._outbound
@@ -132,6 +142,7 @@ class RTorrentProxy(object):
         self._transport = xmlrpc2scgi.transport_from_url(url)
         self._use_deprecated = True
         self._mapping = mapping or config.xmlrpc
+        self._fix_mappings()
 
         # Statistics (traffic w/o HTTP overhead)
         self._requests = 0
@@ -157,14 +168,32 @@ class RTorrentProxy(object):
         )
 
 
+    def _fix_mappings(self):
+        """ Add computed stuff to mappings.
+        """
+        self._mapping.update((key+'=', val+'=') for key, val in self._mapping.items() if not key.endswith('='))
+
+        if config.debug:
+            self.LOG.debug("CMD MAPPINGS ARE: %r" % (self._mapping,))
+
+
+    def _map_call(self, cmd):
+        """ Map old to new command names.
+        """
+        if config.debug and cmd != self._mapping.get(cmd, cmd):
+            self.LOG.debug("MAP %s ==> %s" % (cmd, self._mapping[cmd]))
+        cmd = self._mapping.get(cmd, cmd)
+        
+        # These we do by code, to avoid lengthy lists in the config
+        if not self._use_deprecated and any(cmd.startswith(i) for i in ("d.get_", "f.get_", "p.get_", "t.get_")):
+            cmd = cmd[:2] + cmd[6:]
+
+        return cmd
+
+
     def __getattr__(self, attr):
         """ Return a method object for accesses to virtual attributes.
         """
-        if not self._use_deprecated:
-            # These we do by code, to avoid lengthy lists in the config
-            if attr.startswith("d.get_"):
-                attr = "d." + attr[6:]
-            
         return RTorrentMethod(self, attr)
 
 
