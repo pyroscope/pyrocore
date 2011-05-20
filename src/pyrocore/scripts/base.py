@@ -327,7 +327,7 @@ class PromptDecorator(object):
     """
 
     # Return code for Q)uit choice
-    QUIT_RC = 3
+    QUIT_RC = error.EX_TEMPFAIL
 
 
     def __init__(self, script_obj):
