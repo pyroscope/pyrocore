@@ -549,27 +549,9 @@ class RtorrentEngine(engine.TorrentEngine):
 
         # Connect and get instance ID (also ensures we're connectable)
         self._rpc = xmlrpc.RTorrentProxy(config.scgi_url)
-        try:
-            self.versions = (self._rpc.system.client_version(), self._rpc.system.library_version(),)
-            self.version_info = tuple(int(i) for i in self.versions[0].split('.'))
-            self._rpc._use_deprecated = self.version_info < (0, 8, 7)
-
-            # Merge mappings for this version
-            self._rpc._mapping = config.xmlrpc.copy()
-            for key, val in sorted(i for i in vars(config).items() if i[0].startswith("xmlrpc_")):
-                map_version = tuple(int(i) for i in key.split('_')[1:])
-                if map_version <= self.version_info:
-                    if config.debug:
-                        self.LOG.debug("MAPPING for %r added: %r" % (map_version, val))
-                    self._rpc._mapping.update(val)
-            self._rpc._fix_mappings()
-
-            self.engine_id = self._rpc.get_name()
-            time_usec = self._rpc.system.time_usec()
-        except socket.error, exc:
-            raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
-        except Exception, exc:
-            raise error.LoggableError("Can't connect to %s (%s)" % (config.scgi_url, exc))
+        self.versions, self.version_info = self._rpc._set_mappings()
+        self.engine_id = self._rpc.get_name()
+        time_usec = self._rpc.system.time_usec()
 
         # Make sure xmlrpc-c works as expected
         if time_usec < 2**32:

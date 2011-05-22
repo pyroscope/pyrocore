@@ -140,6 +140,8 @@ class RTorrentProxy(object):
         self.LOG = pymagic.get_class_logger(self)
         self._url = url
         self._transport = xmlrpc2scgi.transport_from_url(url)
+        self._versions = ("", "")
+        self._version_info = ()
         self._use_deprecated = True
         self._mapping = mapping or config.xmlrpc
         self._fix_mappings()
@@ -166,6 +168,29 @@ class RTorrentProxy(object):
             self._net_latency * 1000.0 / self._requests,
             self._latency * 1000.0 / self._requests,
         )
+
+
+    def _set_mappings(self):
+        """ Set command mappings according to rTorrent version.
+        """
+        try:
+            self._versions = (self.system.client_version(), self.system.library_version(),)
+            self._version_info = tuple(int(i) for i in self._versions[0].split('.'))
+            self._use_deprecated = self._version_info < (0, 8, 7)
+
+            # Merge mappings for this version
+            self._mapping = self._mapping.copy()
+            for key, val in sorted(i for i in vars(config).items() if i[0].startswith("xmlrpc_")):
+                map_version = tuple(int(i) for i in key.split('_')[1:])
+                if map_version <= self._version_info:
+                    if config.debug:
+                        self.LOG.debug("MAPPING for %r added: %r" % (map_version, val))
+                    self._mapping.update(val)
+            self._fix_mappings()
+        except ERRORS, exc:
+            raise error.LoggableError("Can't connect to %s (%s)" % (self._url, exc))
+
+        return self._versions, self._version_info
 
 
     def _fix_mappings(self):

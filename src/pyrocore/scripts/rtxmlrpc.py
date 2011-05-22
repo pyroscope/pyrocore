@@ -85,6 +85,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             self.LOG.error("You need to configure a XMLRPC connection, read"
                 " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
         proxy = xmlrpc.RTorrentProxy(config.scgi_url)
+        proxy._set_mappings()
 
         # Make the call
         try:
