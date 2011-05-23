@@ -21,7 +21,7 @@ import xmlrpclib
 
 from pyrobase.io import xmlrpc2scgi
 
-from pyrocore import config
+from pyrocore import config, error
 from pyrocore.util import os, fmt, pymagic
 
 # Currently, we don't have our own errors, so just copy it
