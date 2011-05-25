@@ -20,6 +20,7 @@
 from __future__ import with_statement
 
 import time
+import errno
 import socket
 import fnmatch
 import operator
@@ -322,7 +323,14 @@ class RtorrentItem(engine.TorrentProxy):
                 is_dir = os.path.isdir(path)
                 self._engine.LOG.debug("Deleting '%s%s'" % (path, '/' if is_dir else ''))
                 if not dry_run:
-                    (os.rmdir if is_dir else os.remove)(path)
+                    try:
+                        (os.rmdir if is_dir else os.remove)(path)
+                    except OSError, exc:
+                        if exc.errno == errno.ENOENT:
+                            # Seems this disappeared somehow inbetween (race condition)
+                            self._engine.LOG.info("Path '%s%s' disappeared before it could be deleted" % (path, '/' if is_dir else ''))
+                        else:
+                            raise
         
             return rm_paths
         
