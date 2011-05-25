@@ -312,6 +312,9 @@ class RtorrentItem(engine.TorrentProxy):
 
             if os.path.exists(path):
                 rm_paths.append(path)
+            else:
+                self._engine.LOG.debug("Real path '%s' doesn't exist,"
+                    " but %d symlink(s) leading to it will be deleted..." % (path, len(rm_paths)))
             
             # Remove the link chain, starting at the real path
             # (this prevents losing the chain when there's permission problems)
@@ -325,19 +328,23 @@ class RtorrentItem(engine.TorrentProxy):
         
         # Assemble doomed files and directories
         files, dirs = set(), set()
-        if not os.path.isdir(self.path):
-            files.add(self.path)
-        else:
-            dirs.add(self.path)
+        base_path = self.directory
+        item_files = list(self._get_files(attrs=attrs))
 
-            for item in self._get_files(attrs=attrs):
-                if file_filter and not file_filter(item):
-                    continue
-                #print repr(item)
-                path = os.path.join(self.path, item.path)
-                files.add(path)
-                if '/' in item.path:
-                    dirs.add(os.path.dirname(path))
+        if not self.directory:
+            raise error.EngineError("Directory for item #%s is empty,"
+                " you might want to add a filter 'directory=!'" % ( self._fields["hash"],))
+        if len(item_files) > 1 and os.path.isdir(self.directory):
+            dirs.add(self.directory)
+
+        for item_file in item_files:
+            if file_filter and not file_filter(item_file):
+                continue
+            #print repr(item_file)
+            path = os.path.join(base_path, item_file.path)
+            files.add(path)
+            if '/' in item_file.path:
+                dirs.add(os.path.dirname(path))
         
         # Delete selected files
         if not dry_run:
