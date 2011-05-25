@@ -328,12 +328,15 @@ class RtorrentItem(engine.TorrentProxy):
         
         # Assemble doomed files and directories
         files, dirs = set(), set()
-        base_path = self.directory
+        base_path = os.path.expanduser(self.directory)
         item_files = list(self._get_files(attrs=attrs))
 
         if not self.directory:
             raise error.EngineError("Directory for item #%s is empty,"
-                " you might want to add a filter 'directory=!'" % ( self._fields["hash"],))
+                " you might want to add a filter 'directory=!'" % (self._fields["hash"],))
+        if not os.path.isabs(base_path):
+            raise error.EngineError("Directory '%s' for item #%s is not absolute, which is a bad idea;"
+                " fix your .rtorrent.rc, and use 'directory.default.set = /...' with rTorrent 0.8.7+" % (self.directory, self._fields["hash"],))
         if len(item_files) > 1 and os.path.isdir(self.directory):
             dirs.add(self.directory)
 
