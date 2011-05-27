@@ -55,6 +55,6 @@ system.method.insert = t,simple|private,"execute_nothrow=~/bin/rtcontrol,--detac
 system.method.insert = f,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,$argument.0="
 
 # UI/CMD: Housekeeping (delete item + data)
-system.method.insert = purge,simple|private,"execute_nothrow=rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
-system.method.insert = cull,simple|private,"execute_nothrow=rtcontrol,-q,--detach,--cull,--yes,\"$cat=hash=,$d.get_hash=\""
+system.method.insert = purge,simple|private,"execute_nothrow=~/bin/rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
+system.method.insert = cull,simple|private,"execute_nothrow=~/bin/rtcontrol,-q,--detach,--cull,--yes,\"$cat=hash=,$d.get_hash=\""
 
