@@ -30,7 +30,7 @@ from optparse import OptionParser
 from contextlib import closing
 
 from pyrocore import error, config
-from pyrocore.util import os, pymagic, load_config
+from pyrocore.util import os, fmt, pymagic, load_config
 
 
 class ScriptBase(object):
@@ -365,7 +365,7 @@ class PromptDecorator(object):
             choice = '*'
             while choice not in "YNAQ":
                 choice = raw_input("%s? [%s)es, %s)o, a)ll yes, q)uit]: " % (
-                    question, "yY"[int(default)], "Nn"[int(default)],
+                    fmt.to_console(question), "yY"[int(default)], "Nn"[int(default)],
                 ))
                 choice = choice[:1].upper() or "NY"[int(default)]
 

@@ -4,7 +4,7 @@
         rtcontrol -qO orphans.txt \*
 }}{{py:
 global os, download_dir, entries
-import os
+from pyrocore.util import os
 
 download_dir = proxy.get_directory().rstrip(os.sep) + os.sep
 

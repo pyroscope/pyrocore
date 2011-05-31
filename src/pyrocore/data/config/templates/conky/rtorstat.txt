@@ -3,9 +3,9 @@
     See the conkyrc file, and http://www.codetrax.org/projects/rtorstat
 }}{{py: 
 global os, time, subprocess, incomplete, active, max_entries, viewdef, df
-import os
 import time
 import subprocess
+from pyrocore.util import os
 
 viewdef = [i.split() for i in (
     "i main",

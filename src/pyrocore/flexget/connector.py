@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import os
 import logging
 
 from flexget import plugin, validator
@@ -24,7 +23,7 @@ from flexget import feed as flexfeed
 
 from pyrocore import error
 from pyrocore import config as pyrocfg
-from pyrocore.util import load_config, matching
+from pyrocore.util import os, load_config, matching
 from pyrocore.torrent import engine
 
 

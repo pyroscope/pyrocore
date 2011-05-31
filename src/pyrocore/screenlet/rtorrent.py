@@ -18,7 +18,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
-import os
 import socket
 from contextlib import contextmanager
 
@@ -30,7 +29,7 @@ import gobject
 import screenlets
 from screenlets import options as opt
 
-from pyrocore.util import xmlrpc
+from pyrocore.util import os, xmlrpc
 from pyrocore.torrent import formatting
 
 
