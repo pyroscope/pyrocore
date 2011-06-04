@@ -50,7 +50,7 @@ if not os.path.supports_unicode_filenames:
     _wrap("remove", lambda path, o=os: o.remove(_encode_path(path)))
     _wrap("rename", lambda src, dst, o=os: o.rename(_encode_path(src), _encode_path(dst)))
     _wrap("symlink", lambda src, dst, o=os: o.symlink(_encode_path(src), _encode_path(dst)))
-    _wrap("listdir", lambda path: o.listdir(_encode_path(path)))
+    _wrap("listdir", lambda path, o=os: o.listdir(_encode_path(path)))
 
     # wrap os.path stuff
     _unary_fs_functions = [
