@@ -2,12 +2,11 @@
 # Standard PyroScope rTorrent Configuration
 #
 # Include this into your main "~/.rtorrent.rc" for 0.8.6 by adding...
-#   system.method.insert = pyro.extended,value,0
-#   import = ~/.pyroscope/rtorrent-086.rc.default
+#   system.method.insert = pyro.extended, value|const, 0
+#   system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$system.client_version=\",.rc.default"
+#   import = $pyro.rtorrent_rc=
 #
-# And for 0.8.7 and up, use this...
-#   method.insert = pyro.extended,value,0
-#   import = ~/.pyroscope/rtorrent-087.rc.default
+# For 0.8.8 and up, use "method.insert" instead.
 #
 # Remove the ".default" if you want to change something (else your 
 # changes get over-written on update).
