@@ -3,6 +3,7 @@
 #
 # Include this into your main "~/.rtorrent.rc" for 0.8.6 by adding...
 #   system.method.insert = pyro.extended, value|const, 0
+#   system.method.insert = pyro.bin_dir, string|const, 
 #   system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$system.client_version=\",.rc.default"
 #   import = $pyro.rtorrent_rc=
 #
@@ -56,12 +57,15 @@ branch=pyro.extended=,"view_sort_new     = trackers,\"compare=,d.tracker_domain=
 branch=pyro.extended=,"view_sort_current = trackers,\"compare=,d.tracker_domain=,d.get_name=\""
 branch=pyro.extended=,"schedule = bind_trackers,0,0,\"ui.bind_key=download_list,t,ui.current_view.set=trackers\""
 
+# UI/VIEW: Bind "*" to toggle between collapsed and expanded display
+branch=pyro.extended=,"schedule = bind_collapsed,0,0,\"ui.bind_key=download_list,*,view.collapsed.toggle=\""
+
 # UI/CMD: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
-system.method.insert = s,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,\"$cat=*,$argument.0=,*\""
-system.method.insert = t,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
-system.method.insert = f,simple|private,"execute_nothrow=~/bin/rtcontrol,--detach,-qV,$argument.0="
+system.method.insert = s,simple|private,"execute_nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=*,$argument.0=,*\""
+system.method.insert = t,simple|private,"execute_nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
+system.method.insert = f,simple|private,"execute_nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,$argument.0="
 
 # UI/CMD: Housekeeping (delete item + data)
-system.method.insert = purge,simple|private,"execute_nothrow=~/bin/rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
-system.method.insert = cull,simple|private,"execute_nothrow=~/bin/rtcontrol,-q,--detach,--cull,--yes,\"$cat=hash=,$d.get_hash=\""
+system.method.insert = purge,simple|private,"execute_nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
+system.method.insert = cull,simple|private,"execute_nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--cull,--yes,\"$cat=hash=,$d.get_hash=\""
 
