@@ -32,6 +32,12 @@ class RTorrentMethod(object):
     """ Collect attribute accesses to build the final method name.
     """
 
+    # Actually, many more methods might need a fake target added; but these are the ones we call...
+    NEEDS_FAKE_TARGET = set((
+        "ui.current_view.set",
+    ))
+
+
     def __init__(self, proxy, method_name):
         self._proxy = proxy
         self._method_name = method_name
@@ -64,14 +70,17 @@ class RTorrentMethod(object):
 
         try:
             # Map multicall arguments
-            if not self._proxy._use_deprecated and self._method_name.endswith(".multicall"):
-                if self._method_name == "d.multicall":
+            if not self._proxy._use_deprecated:
+                if self._method_name.endswith(".multicall"):
+                    if self._method_name == "d.multicall":
+                        args = (0,) + args
+                    if config.debug:
+                        self._proxy.LOG.debug("BEFORE MAPPING: %r" % (args,))
+                    args = args[0:2] + tuple(self._proxy._map_call(i) for i in args[2:])
+                    if config.debug:
+                        self._proxy.LOG.debug("AFTER MAPPING: %r" % (args,))
+                elif self._method_name in self.NEEDS_FAKE_TARGET:
                     args = (0,) + args
-                if config.debug:
-                    self._proxy.LOG.debug("BEFORE MAPPING: %r" % (args,))
-                args = args[0:2] + tuple(self._proxy._map_call(i) for i in args[2:])
-                if config.debug:
-                    self._proxy.LOG.debug("AFTER MAPPING: %r" % (args,))
 
             # Prepare request
             xmlreq = xmlrpclib.dumps(args, self._proxy._map_call(self._method_name))
