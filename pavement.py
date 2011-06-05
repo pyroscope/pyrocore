@@ -82,7 +82,7 @@ project = Bunch(
     setup_requires = [
     ],
     install_requires = [
-        "pyrobase>=0.1",
+        "pyrobase>=0.2",
     ],
     extras_require = {
         "FlexGet": ["flexget>=1.0"],
