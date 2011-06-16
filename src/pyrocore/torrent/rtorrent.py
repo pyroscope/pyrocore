@@ -60,7 +60,7 @@ class RtorrentItem(engine.TorrentProxy):
     def _get_files(self, attrs=None):
         """ Get a list of all files in this download; each entry has the
             attributes C{path} (relative to root), C{size} (in bytes),
-            C{mtime}, C{priority} (0=off, 1=normal, 2=high), C{created}, 
+            C{mtime}, C{prio} (0=off, 1=normal, 2=high), C{created}, 
             and C{opened}.
             
             This is UNCACHED, use C{fetch("files")} instead.
