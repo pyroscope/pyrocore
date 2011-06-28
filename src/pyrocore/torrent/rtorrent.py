@@ -320,7 +320,7 @@ class RtorrentItem(engine.TorrentProxy):
             # Remove the link chain, starting at the real path
             # (this prevents losing the chain when there's permission problems)
             for path in reversed(rm_paths):
-                is_dir = os.path.isdir(path)
+                is_dir = os.path.isdir(path) and not os.path.islink(path)
                 self._engine.LOG.debug("Deleting '%s%s'" % (path, '/' if is_dir else ''))
                 if not dry_run:
                     try:
