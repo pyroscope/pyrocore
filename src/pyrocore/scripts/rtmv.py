@@ -116,7 +116,7 @@ class RtorrentMove(ScriptBaseWithConfig):
         # TODO: Handle cases where target is the original download path correctly!
         #       i.e.   rtmv foo/ foo   AND   rtmv foo/ .   (in the download dir)
         proxy = config.engine.open()
-        download_path = os.path.realpath(proxy.get_directory().rstrip(os.sep))
+        download_path = os.path.realpath(os.path.expanduser(proxy.get_directory().rstrip(os.sep)))
         target = self.resolve_slashed(target)
         source_paths = [self.resolve_slashed(i) for i in self.args[:-1]]
         source_realpaths = [os.path.realpath(i) for i in source_paths]
