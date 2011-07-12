@@ -20,6 +20,7 @@
 from __future__ import with_statement
 
 import re
+import sys
 from contextlib import closing
 
 from pyrobase.parts import Bunch
@@ -222,7 +223,9 @@ def preparse(output_format):
         try:
             import tempita
         except ImportError, exc:
-            raise error.UserError("To be able to use Tempita templates, (easy_)install the 'tempita' package (%s)" % exc)
+            raise error.UserError("To be able to use Tempita templates, install the 'tempita' package (%s)\n"
+                "    Possibly using the following command:\n"
+                "        %s/easy_install tempita" % (exc, os.path.dirname(sys.executable)))
 
         template = tempita.Template(output_format)
         template.__engine__ = "tempita"
