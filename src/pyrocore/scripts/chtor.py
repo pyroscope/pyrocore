@@ -228,6 +228,12 @@ class MetafileChanger(ScriptBaseWithConfig):
 
                         if not self.options.dry_run:
                             bencode.bwrite(filename, metainfo)
+                            if "libtorrent_resume" in metainfo:
+                                # Also write clean version
+                                filename = filename.replace(".torrent", "-no-resume.torrent")
+                                del metainfo["libtorrent_resume"]
+                                self.LOG.info("Writing %r..." % filename)
+                                bencode.bwrite(filename, metainfo)
                     else:
                         self.LOG.info("Changing %r..." % filename)
 
