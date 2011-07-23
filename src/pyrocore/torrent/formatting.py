@@ -224,7 +224,7 @@ def preparse(output_format):
             import tempita
         except ImportError, exc:
             raise error.UserError("To be able to use Tempita templates, install the 'tempita' package (%s)\n"
-                "    Possibly using the following command:\n"
+                "    Possibly USING THE FOLLOWING COMMAND:\n"
                 "        %s/easy_install tempita" % (exc, os.path.dirname(sys.executable)))
 
         template = tempita.Template(output_format)
