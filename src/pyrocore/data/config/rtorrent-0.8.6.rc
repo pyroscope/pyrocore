@@ -12,9 +12,11 @@
 # Remove the ".default" if you want to change something (else your 
 # changes get over-written on update).
 #
-# Set "pyro.extended" to 1 to activate rTorrent-PS features!
+# Set "pyro.extended" to 1 to activate rTorrent-PS features, but ONLY if
+# you actually run that patched version of rTorrent!
 #
-# Things marked with #087# are for version 0.8.7 only!
+# Things marked with ♯087♯ are for version 0.8.7+ only (the migration script
+# reacts on that)!
 #
 
 # Log extension switch setting
