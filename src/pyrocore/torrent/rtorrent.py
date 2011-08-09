@@ -301,7 +301,7 @@ class RtorrentItem(engine.TorrentProxy):
                 and must return True for items eligible for deletion. 
             @param attrs: Optional list of additional attributes to fetch for a filter. 
         """
-        dry_run = 0
+        dry_run = 0 # set to 1 for testing
         
         def remove_with_links(path):
             "Remove a path including any symlink chains leading to it."
@@ -345,7 +345,7 @@ class RtorrentItem(engine.TorrentProxy):
         if not os.path.isabs(base_path):
             raise error.EngineError("Directory '%s' for item #%s is not absolute, which is a bad idea;"
                 " fix your .rtorrent.rc, and use 'directory.default.set = /...' with rTorrent 0.8.7+" % (self.directory, self._fields["hash"],))
-        if len(item_files) > 1 and os.path.isdir(self.directory):
+        if self.fetch("is_multi_file") and os.path.isdir(self.directory):
             dirs.add(self.directory)
 
         for item_file in item_files:
@@ -381,11 +381,14 @@ class RtorrentItem(engine.TorrentProxy):
                 ))
             else:
                 ##print "---", ignorable
-                for waif in ignorable - doomed:
+                for waif in ignorable:# - doomed:
                     waif = os.path.join(path, waif)
                     self._engine.LOG.debug("Deleting waif '%s'" % (waif,))
                     if not dry_run:
-                        os.remove(waif)
+                        try:
+                            os.remove(waif)
+                        except EnvironmentError, exc:
+                            self._engine.LOG.warn("Problem deleting waif '%s' (%s)" % (waif, exc))
                     
                 ##self._engine.LOG.debug("Deleting empty directory '%s'" % (path,))
                 doomed.update(remove_with_links(path))

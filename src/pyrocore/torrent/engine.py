@@ -429,6 +429,8 @@ class TorrentProxy(object):
         formatter=lambda val: "ACT" if val else "STP")
     is_complete = DynamicField(bool, "is_complete", "download complete?", matcher=matching.BoolFilter,
         formatter=lambda val: "DONE" if val else "PART")
+    is_multi_file = OnDemandField(bool, "is_multi_file", "single- or multi-file download?", matcher=matching.BoolFilter,
+        formatter=lambda val: "DIR " if val else "FILE")
     is_ignored = OnDemandField(bool, "is_ignored", "ignore commands?", matcher=matching.BoolFilter,
         formatter=lambda val: "IGN!" if int(val) else "HEED")
     is_ghost = DynamicField(bool, "is_ghost", "has no data file or directory?", matcher=matching.BoolFilter,
