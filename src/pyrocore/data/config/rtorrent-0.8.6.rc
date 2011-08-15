@@ -69,7 +69,7 @@ branch=pyro.extended=,"schedule = bind_trackers,0,0,\"ui.bind_key=download_list,
 
 # UI/VIEW: Manually tag (select) items
 # . = toggle focused item between tagged and untagged
-# _ = clear all tags
+# T = clear all tags
 # : = show tagged items view
 view_add = tagged
 view.persistent = tagged
@@ -77,7 +77,7 @@ branch=pyro.extended=,view.collapsed.toggle=tagged
 system.method.insert = view.toggle_visible,simple,"branch=d.views.has=$argument.0=,view.set_not_visible=$argument.0=,view.set_visible=$argument.0="
 system.method.insert = pyro.view_tagged_clear,simple|private,"view_filter=tagged,false="
 branch=pyro.extended=,"schedule = bind_tag_toggle,0,0,\"ui.bind_key=download_list,.,view.toggle_visible=tagged\""
-branch=pyro.extended=,"schedule = bind_tag_clear,0,0,\"ui.bind_key=download_list,_,pyro.view_tagged_clear=\""
+branch=pyro.extended=,"schedule = bind_tag_clear,0,0,\"ui.bind_key=download_list,T,pyro.view_tagged_clear=\""
 branch=pyro.extended=,"schedule = bind_tag_show,0,0,\"ui.bind_key=download_list,:,ui.current_view.set=tagged\""
 
 # UI/VIEW: Bind "*" to toggle between collapsed and expanded display
