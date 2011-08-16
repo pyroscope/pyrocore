@@ -76,7 +76,9 @@ class MetafileLister(ScriptBase):
                     metafile.check_meta(data)
                 except ValueError, exc:
                     if self.options.skip_validation:
-                        self.LOG.warn(str(exc))
+                        # Warn about it, unless it's a quiet value query
+                        if not (self.options.quiet and (self.options.output or self.options.raw)):
+                            self.LOG.warn(str(exc))
                     else:
                         raise
                 listing = None
@@ -98,8 +100,9 @@ class MetafileLister(ScriptBase):
                                 yield field.strip()
 
                     data["__file__"] = filename
-                    data["__hash__"] = metafile.info_hash(data)
-                    data["__size__"] = metafile.data_size(data)
+                    if 'info' in data:
+                        data["__hash__"] = metafile.info_hash(data)
+                        data["__size__"] = metafile.data_size(data)
                     values = []
                     for field in splitter(self.options.output):
                         try:
