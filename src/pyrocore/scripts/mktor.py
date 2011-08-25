@@ -50,8 +50,10 @@ class MetafileCreator(ScriptBaseWithConfig):
         self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
             action="append", default=[],
             help="set a specific key to the given value")
+        self.add_bool_option("--no-cross-seed",
+            help="do not automatically add a field to the info dict ensuring unique info hashes")
         self.add_value_option("-X", "--cross-seed", "LABEL",
-            help="set explicit label for cross-seeding (changes info hash)")
+            help="set additional explicit label for cross-seeding (changes info hash)")
         self.add_bool_option("-H", "--hashed", "--fast-resume",
             help="create second metafile containing libtorrent fast-resume information")
 # TODO: Optionally limit disk I/O bandwidth used (incl. a config default!)
@@ -84,6 +86,8 @@ class MetafileCreator(ScriptBaseWithConfig):
             "Callback to set label and resume data."
             if self.options.cross_seed:
                 meta["info"]["x_cross_seed_label"] = self.options.cross_seed
+            if self.options.no_cross_seed:
+                del meta["info"]["x_cross_seed"]
 
             # Set specific keys?
             metafile.assign_fields(meta, self.options.set)
