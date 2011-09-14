@@ -345,7 +345,7 @@ class RtorrentItem(engine.TorrentProxy):
         if not os.path.isabs(base_path):
             raise error.EngineError("Directory '%s' for item #%s is not absolute, which is a bad idea;"
                 " fix your .rtorrent.rc, and use 'directory.default.set = /...' with rTorrent 0.8.7+" % (self.directory, self._fields["hash"],))
-        if self.fetch("is_multi_file") and os.path.isdir(self.directory):
+        if self.fetch("=is_multi_file") and os.path.isdir(self.directory):
             dirs.add(self.directory)
 
         for item_file in item_files:
