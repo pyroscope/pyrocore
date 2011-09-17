@@ -64,7 +64,8 @@ TV_PATTERNS = [re.compile(i, re.I) for i in (
     ),
     ( # Mini Series
         r"^(?P<show>.+?)"
-        r"(?:\.(?:(?P<year>\d{4})|Part(?P<part>\d+?)|Pilot)){1,2}"
+        r"(?:\.(?:Part(?P<part>\d+?)|Pilot)){1,2}"
+        #         (?P<year>\d{4})| creates false positives for movies!
         r"(?:\.(?P<title>.+[a-z]{1,2}.+?))?"
         + _TV_TRAIL
     ),
