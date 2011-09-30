@@ -124,33 +124,40 @@ def get_filetypes(filelist, path=None, size=os.path.getsize):
     return sorted(zip(histo.values(), histo.keys()), reverse=True)
 
 
-def name_trait(name):
+def name_trait(name, add_info=False):
     """ Determine content type from name.
     """
-    if not name:
-        # Nothing to check against
-        return None
+    kind, info = None, {}
 
-    lower_name = name.lower()
+    # Anything to check against?
+    if name:
+        lower_name = name.lower()
+        trait_patterns = (("tv", TV_PATTERNS), ("movie", MOVIE_PATTERNS))
 
-    # TV check
-    if any(i in lower_name for i in _DEFINITELY_TV):
-        return "tv"
+        # TV check
+        if any(i in lower_name for i in _DEFINITELY_TV):
+            kind = "tv"
+            trait_patterns = trait_patterns[:1]
 
-    # Regex checks
-    for trait, patterns in (("tv", TV_PATTERNS), ("movie", MOVIE_PATTERNS)):
-        for pattern in patterns:
-            matched = pattern.match(name)
+        # Regex checks
+        for trait, patterns in trait_patterns:
+            matched = None
+
+            for pattern in patterns:
+                matched = pattern.match(name)
+                if matched:
+                    kind, info = trait, matched.groupdict()
+                    break
+
             if matched:
-                ##data = matched.groupdict()
-                return trait
+                break
 
-    # TODO: Split by "dvdrip", year, etc. to get to the title and then
-    # do a imdb / tvdb lookup; cache results, hits for longer, misses
-    # for a day at max.
+        # TODO: Split by "dvdrip", year, etc. to get to the title and then
+        # do a imdb / tvdb lookup; cache results, hits for longer, misses
+        # for a day at max.
 
-    # No clue
-    return None
+    # Return requested result
+    return (kind, info) if add_info else kind
 
 
 def detect_traits(name=None, alias=None, filetype=None):
