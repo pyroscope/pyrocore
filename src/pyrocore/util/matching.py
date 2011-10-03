@@ -129,6 +129,16 @@ class FieldFilter(Filter):
         """
 
 
+class EqualsFilter(FieldFilter):
+    """ Filter fields equal to the given value.
+    """
+
+    def match(self, item):
+        """ Return True if filter matches item.
+        """
+        return self._value == getattr(item, self._name)
+
+
 class PatternFilter(FieldFilter):
     """ Case-insensitive pattern filter, either a glob or a /regex/ pattern.
     """
