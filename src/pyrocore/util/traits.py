@@ -39,7 +39,9 @@ _TV_TRAIL = (
     r"(?:[._](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
     r"(?:[._](?P<aspect>WS))?"
     r"(?:[._](?P<format>HDTV|PDTV|DSR|DVDSCR|720p))?"
-    r"(?:[._][Xx][Vv2][Ii6][Dd4])?(?:[-.](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
+    r"(?:[._][Xx][Vv2][Ii6][Dd4])?"
+    r"(?:[._](?P<sound>MP3|AC3))?"
+    r"(?:[-.](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
 )
 _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
 
@@ -83,9 +85,9 @@ MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
         r"(?:[._ ](?P<format>480p|576p|720p))?"
         r"(?:[._ ](?P<source>BDRip|BRRip|HDRip|DVDRip|PAL|NTSC))"
-        r"(?:[._ ](?P<sound1>AC3|DTS))?"
+        r"(?:[._ ](?P<sound1>MP3|AC3|DTS))?"
         r"(?:[._ ][Xx][Vv2][Ii6][Dd4])"
-        r"(?:[._ ](?P<sound2>AC3|DTS))?"
+        r"(?:[._ ](?P<sound2>MP3|AC3|DTS))?"
         #r"(?:[._ ](?P<channels>6ch))?"
         r"(?:[-.](?P<group>.+?))"
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
