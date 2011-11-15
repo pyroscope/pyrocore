@@ -239,8 +239,12 @@ def sanitize(meta):
 
 
 def assign_fields(meta, assignments):
-    """ Takes a list of C{key=value} strings and
-        assigns them to the given metafile.
+    """ Takes a list of C{key=value} strings and assigns them to the 
+        given metafile. If you want to set nested keys (e.g. "info.source"),
+        you have to use a dot as a separator. For exotic keys *containing* 
+        a dot, double that dot ("dotted..key").
+        
+        Numeric values starting with "+" or "-" are converted to integers.
         
         If just a key name is given (no '='), the field is removed.
     """
@@ -256,16 +260,17 @@ def assign_fields(meta, assignments):
 
             # TODO: Allow numerical indices, and "+" for append
             namespace = meta
-            for key in field.split('.')[:-1]:
+            keypath = [i.replace('\0', '.') for i in field.replace('..', '\0').split('.')]
+            for key in keypath[:-1]:
                 # Create missing dicts as we go...
                 namespace = namespace.setdefault(key, {})
         except (KeyError, IndexError, TypeError, ValueError), exc:
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
             if val is None:
-                del namespace[field.split('.')[-1]]
+                del namespace[keypath[-1]]
             else:
-                namespace[field.split('.')[-1]] = val
+                namespace[keypath[-1]] = val
 
     return meta
 
