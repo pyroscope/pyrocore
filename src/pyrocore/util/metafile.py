@@ -48,6 +48,7 @@ PASSKEY_OK = ("announce", "TrackerServlet",)
 # List of all standard keys in a metafile
 METAFILE_STD_KEYS = [i.split('.') for i in (
     "announce",
+    "announce-list", # BEP-0012
     "comment",
     "created by",
     "creation date",
