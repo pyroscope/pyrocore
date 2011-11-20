@@ -198,21 +198,22 @@ def preparse(output_format):
     """ Do any special processing of a template, and return the result.
     """
     # First, try to resolve file: references to their contents 
+    template_path = None
     try:
         is_file = output_format.startswith("file:")
     except (AttributeError, TypeError):
         pass
     else:
         if is_file:
-            output_format = output_format[5:]
-            if output_format.startswith('/'):
-                output_format = '/' + output_format.lstrip('/')
-            elif output_format.startswith('~'):
-                output_format = os.path.expanduser(output_format)
+            template_path = output_format[5:]
+            if template_path.startswith('/'):
+                template_path = '/' + template_path.lstrip('/')
+            elif template_path.startswith('~'):
+                template_path = os.path.expanduser(template_path)
             else:
-                output_format = os.path.join(config.config_dir, "templates", output_format)
+                template_path = os.path.join(config.config_dir, "templates", template_path)
 
-            with closing(open(output_format, "r")) as handle:
+            with closing(open(template_path, "r")) as handle:
                 output_format = handle.read().rstrip()
 
     if hasattr(output_format, "__engine__"):
@@ -229,6 +230,7 @@ def preparse(output_format):
 
         template = tempita.Template(output_format)
         template.__engine__ = "tempita"
+        template.__file__ = template_path
     else:
         template = unicode(output_format)
 
