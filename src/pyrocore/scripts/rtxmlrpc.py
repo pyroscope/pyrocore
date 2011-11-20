@@ -75,7 +75,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 except (ValueError, TypeError), exc:
                     self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
             elif arg and arg[0] == '[':
-                arg = arg.split(',')
+                arg = arg[1:].split(',')
+                if all(i.isdigit() for i in arg):
+                    arg = [int(i, 10) for i in arg]
             args.append(arg)
 
         # Open proxy
