@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 # Sets of of extensions / kinds
 KIND_AUDIO = set(("flac", "mp3", "ogg", "wav", "dts", "ac3", "alac", "wma"))
-KIND_VIDEO = set(("avi", "mkv", "m4v", "vob", "mp4", "mpg", "wmv"))
+KIND_VIDEO = set(("avi", "mkv", "m4v", "vob", "mp4", "mpg", "mpeg", "m2ts", "ts", "ogv", "wmv"))
 KIND_IMAGE = set(("jpg", "png", "gif", "tif", "bmp", "svg"))
 KIND_DOCS = set(("chm", "pdf", "cbr", "cbz", "odt", "ods", "doc", "xls", "ppt"))
 KIND_ARCHIVE = set(("rar", "zip", "tgz", "bz2", "iso", "bin"))
@@ -83,16 +83,33 @@ MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
     ( # Scene tagged names
         r"^(?P<title>.+?)[. ](?P<year>\d{4})"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
-        r"(?:[._ ](?P<format>480p|576p|720p))?"
+        r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i))?"
         r"(?:[._ ](?P<source>BDRip|BRRip|HDRip|DVDRip|PAL|NTSC))"
-        r"(?:[._ ](?P<sound1>MP3|AC3|DTS))?"
+        r"(?:[._ ](?P<sound1>MP3|AC3|DTS(?:-HD)?|AVC))?"
         r"(?:[._ ][Xx][Vv2][Ii6][Dd4])"
-        r"(?:[._ ](?P<sound2>MP3|AC3|DTS))?"
+        r"(?:[._ ](?P<sound2>MP3|AC3|DTS(?:-HD)?|AVC))?"
         #r"(?:[._ ](?P<channels>6ch))?"
         r"(?:[-.](?P<group>.+?))"
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
+    ( # Blu-ray
+        r"^(?P<title>.+?)[. ](?P<year>\d{4})"
+        r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
+        r"(?:[._ ](?P<format0>720p|1080p|1080i))?"
+        r"(?:[._ ](?P<source>Blu-ray|BluRay))"
+        r"(?:[._ ](?P<format>720p|1080p|1080i))?"
+        r"(?:[._ ](?P<sound1>DTS(?:-HD)?|AVC))*"
+        r"(?:[._ ](?P<channels>6ch|MA.5.1))?"
+        r"(?:[-.](?P<group>.+?))"
+        r"(?P<extension>" + _VIDEO_EXT + ")?$"
+    ),
 )]
+
+BAD_TITLE_WORDS = set((
+    "bdrip", "brrip", "hdrip", "dvdrip", "ntsc", 
+    "hdtv", "dvd-r", "dvdr", "blu-ray", "bluray", "720p", "1080p",
+    "mp3", "ac3", "dts",
+))
 
 del i
 
@@ -134,7 +151,7 @@ def name_trait(name, add_info=False):
     # Anything to check against?
     if name:
         lower_name = name.lower()
-        trait_patterns = (("tv", TV_PATTERNS), ("movie", MOVIE_PATTERNS))
+        trait_patterns = (("tv", TV_PATTERNS, "show"), ("movie", MOVIE_PATTERNS, "title"))
 
         # TV check
         if any(i in lower_name for i in _DEFINITELY_TV):
@@ -142,12 +159,12 @@ def name_trait(name, add_info=False):
             trait_patterns = trait_patterns[:1]
 
         # Regex checks
-        for trait, patterns in trait_patterns:
+        for trait, patterns, title_group in trait_patterns:
             matched = None
 
             for pattern in patterns:
                 matched = pattern.match(name)
-                if matched:
+                if matched and not any(i in matched.groupdict()[title_group].lower() for i in BAD_TITLE_WORDS):
                     kind, info = trait, matched.groupdict()
                     break
 
