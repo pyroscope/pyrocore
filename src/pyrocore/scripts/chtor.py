@@ -44,7 +44,7 @@ class MetafileChanger(ScriptBaseWithConfig):
 
         self.add_bool_option("-n", "--dry-run",
             help="don't write changes to disk, just tell what would happen")
-        self.add_bool_option("--no-skip",
+        self.add_bool_option("-V", "--no-skip",
             help="do not skip broken metafiles that fail the integrity check")
         self.add_value_option("-o", "--output-directory", "PATH",
             help="optional output directory for the modified metafile(s)")
