@@ -476,6 +476,8 @@ class TorrentProxy(object):
         accessor=lambda o: _interval_sum(o.fetch("custom_activations"), start=o.completed, context=o.name)
                            if o.is_complete else None,
         formatter=_fmt_duration)
+    active = DynamicField(long, "active", "last time a peer was connected", matcher=matching.TimeFilter,
+        accessor=lambda o: long(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
 
     # Classification
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
