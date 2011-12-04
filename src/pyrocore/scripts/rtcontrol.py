@@ -171,7 +171,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="add or remove tag(s)", interactive=False), 
         Bunch(name="custom", label="SET_CUSTOM", options=("--custom",), argshelp='KEY=VALUE', method="set_custom",
             help="set value of 'custom_KEY' field (KEY might also be 1..5)", interactive=False), 
-        # TODO: --keep-dupes / -K Prevents the deletion of data paths that are still referenced by other items
+        # TODO: --with-dupes / -D Include any items that reference the same data paths as the selected ones
+        # TODO: --no-dupes / --unique / -U Exclude any items that reference the same data paths as any other (from deletion, etc.)
         # TODO: --move / --link output_format / the formatted result is the target path
         #           if the target contains a '//' in place of a '/', directories
         #           after that are auto-created
