@@ -39,6 +39,11 @@ system.method.insert = pyro.activations.append,simple|private,"d.set_custom=acti
 system.method.set_key = event.download.paused,activations,"pyro.activations.append=P"
 system.method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
 
+# SCHEDULE: Set "last_active" custom field for items that have peers
+system.method.insert = d.last_active, simple|value, "if=$d.peers_connected=,$system.time=,$d.custom=last_active"
+schedule = update_last_active,24,42,"d.multicall=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
+system.method.insert = d.last_active.print, simple|private, "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
+
 # UI/VIEW: Default view for filtering results (bound to '^' key in rT-PS)
 view_add = rtcontrol
 view_filter = rtcontrol,false=
