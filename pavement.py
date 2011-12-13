@@ -167,7 +167,7 @@ def wiki():
         "",
         "This page is automatically generated and shows the options available in the *development* version of the code (SVN head).",
         "See CommandLineTools for more details on how to use these commands.",
-        "The help output presented here applies to version %s of the tools." % sh("pyroadmin --version", capture=True).split()[1],
+        "The help output presented here applies to version `%s` of the tools." % sh("pyroadmin --version", capture=True).split()[1],
         "",
     ]
     
