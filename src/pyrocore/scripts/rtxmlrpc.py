@@ -114,3 +114,7 @@ def run(): #pragma: no cover
     ScriptBase.setup()
     RtorrentXmlRpc().run()
 
+
+if __name__ == "__main__":
+    run()
+

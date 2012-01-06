@@ -133,3 +133,7 @@ def run(): #pragma: no cover
     ScriptBase.setup()
     MetafileLister().run()
 
+
+if __name__ == "__main__":
+    run()
+

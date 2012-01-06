@@ -152,3 +152,7 @@ def run(): #pragma: no cover
     ScriptBase.setup()
     AdminTool().run()
 
+
+if __name__ == "__main__":
+    run()
+

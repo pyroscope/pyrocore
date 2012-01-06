@@ -620,3 +620,7 @@ def run(): #pragma: no cover
     ScriptBase.setup()
     RtorrentControl().run()
 
+
+if __name__ == "__main__":
+    run()
+

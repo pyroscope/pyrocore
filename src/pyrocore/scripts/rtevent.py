@@ -61,3 +61,7 @@ def run(): #pragma: no cover
     ScriptBase.setup()
     RtorrentEventHandler().run()
 
+
+if __name__ == "__main__":
+    run()
+
