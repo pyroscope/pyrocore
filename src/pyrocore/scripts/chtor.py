@@ -188,6 +188,8 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Change announce URL?
                 if self.options.reannounce:
                     metainfo['announce'] = self.options.reannounce 
+                    if "announce-list" in metainfo:
+                        del metainfo["announce-list"]
 
                     if not self.options.no_cross_seed:
                         # Enforce unique hash per tracker
