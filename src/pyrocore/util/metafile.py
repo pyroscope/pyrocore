@@ -673,7 +673,7 @@ class Metafile(object):
                 
         result.extend([
             "",
-            "FILE LISTING",
+            "FILE LISTING%s" % ("" if info.has_key('length') else " [%d file(s)]" % len(info['files']),),
         ])
         if info.has_key('length'):
             # Single file
