@@ -15,8 +15,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import with_statement
+
 import pprint
 import hashlib
+
+from contextlib import closing
 
 from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase
@@ -66,7 +70,9 @@ class MetafileLister(ScriptBase):
             try:
                 # Read and check metafile
                 try:
-                    data = bencode.bread(filename)
+                    with closing(open(filename, "rb")) as handle:
+                        raw_data = handle.read()
+                    data = bencode.bdecode(raw_data)
                 except EnvironmentError, exc:
                     self.fatal("Can't read '%s' (%s)" % (
                         filename, str(exc).replace(": '%s'" % filename, ""),
@@ -74,11 +80,13 @@ class MetafileLister(ScriptBase):
                     raise
                 try:
                     metafile.check_meta(data)
+                    if raw_data != bencode.bencode(data):
+                        raise ValueError("Bad bencoded data - dict keys out of order?")
                 except ValueError, exc:
                     if self.options.skip_validation:
                         # Warn about it, unless it's a quiet value query
                         if not (self.options.quiet and (self.options.output or self.options.raw)):
-                            self.LOG.warn(str(exc))
+                            self.LOG.warn("%s: %s" % (filename, exc))
                     else:
                         raise
                 listing = None
