@@ -17,16 +17,23 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from pyrobase import bencode
+from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.util import metafile, os
 
 
 class MetafileCreator(ScriptBaseWithConfig):
-    """ Create a bittorrent metafile.
+    """ 
+        Create a bittorrent metafile.
+
+        If passed a magnet URI as the only argument, a metafile is created 
+        in the directory specified via the configuration value 'magnet_watch',
+        loadable by rTorrent. Which means you can register 'mktor' as a magnet:
+        URL handler in Firefox.
     """
 
     # argument description for the usage information
-    ARGS_HELP = "<dir-or-file> <tracker-url-or-alias>..."
+    ARGS_HELP = "<dir-or-file> <tracker-url-or-alias>... | <magnet-uri>"
 
 
     def add_options(self):
@@ -63,9 +70,40 @@ class MetafileCreator(ScriptBaseWithConfig):
 # TODO: Web-seeding http://www.getright.com/seedtorrent.html
 #       field 'url-list': ['http://...'] on top-level
 
+
+    def make_magnet_meta(self, magnet_uri):
+        """ Create a magnet-uri torrent.
+        """
+        import cgi, re, hashlib
+
+        if magnet_uri.startswith("magnet:"):
+            magnet_uri = magnet_uri[7:] 
+        meta = {"magnet-uri": "magnet:" + magnet_uri}
+        magnet_params = cgi.parse_qs(magnet_uri.lstrip('?'))
+
+        meta_name = magnet_params.get("xt", [hashlib.sha1(magnet_uri).hexdigest()])[0]
+        if "dn" in magnet_params:
+            meta_name = "%s-%s" % (magnet_params["dn"][0], meta_name)
+        meta_name = re.sub(r"[^-_,a-zA-Z0-9]+", '.', meta_name).strip('.').replace("urn.btih.", "")
+        
+        meta_path = os.path.join(config.magnet_watch, "magnet-%s.torrent" % meta_name)
+        self.LOG.debug("Writing magnet-uri metafile %r..." % (meta_path,))
+
+        try:
+            bencode.bwrite(meta_path, meta)
+        except EnvironmentError, exc:
+            self.fatal("Error writing magnet-uri metafile %r (%s)" % (hashed_path, exc,))
+            raise
+
+
     def mainloop(self):
         """ The main loop.
         """
+        if len(self.args) == 1 and "=urn:btih:" in self.args[0]:
+            # Handle magnet link
+            self.make_magnet_meta(self.args[0])
+            return
+
         if not self.args:
             self.parser.print_help()
             self.parser.exit()
