@@ -16,6 +16,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+git_projects="pyrobase auvyon"
+
 # generic bootstrap
 if test ! -f ../bin/activate; then
     ( cd .. && . ./bootstrap.sh ) || return 1
@@ -25,8 +27,10 @@ fi
 # essential tools
 test -x ../bin/paver || ../bin/easy_install -U "paver>=1.0.1" || return 1
 
-# pyrobase
-test ! -d ../pyrobase || ( cd ../pyrobase && $PWD/../bin/paver develop -U)
+# git dependencies
+for project in $git_projects; do
+    test ! -d ../$project || ( cd ../$project && $PWD/../bin/paver develop -U)
+done
 
 # project
 ../bin/paver develop -U || return 1
