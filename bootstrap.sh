@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 git_projects="pyrobase auvyon"
+set -e
 
 # generic bootstrap
 if test ! -f ../bin/activate; then
