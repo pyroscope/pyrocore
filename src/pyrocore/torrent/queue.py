@@ -19,3 +19,24 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+from pyrocore import error, config
+from pyrocore.util import os, pymagic
+
+
+class QueueManager(object):
+    """ rTorrent queue manager implementation.
+    """
+
+    def __init__(self, config=None):
+        """ Set up queue manager.
+        """
+        self.config = config or {}
+        self.LOG = pymagic.get_class_logger(self)
+        self.LOG.info("Queue manager created with config %r" % self.config)
+
+
+    def run(self):
+        """ The job callback.
+        """
+        self.LOG.info("Queue manager run")
+
