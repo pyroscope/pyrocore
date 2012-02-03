@@ -49,7 +49,7 @@ class ScriptBase(object):
     ADDITIONAL_HELP = []
     
     # Can be empty or None in derived classes
-    COPYRIGHT = "Copyright (c) 2009, 2010 Pyroscope Project"
+    COPYRIGHT = "Copyright (c) 2009, 2010, 2011, 2012 Pyroscope Project"
 
     # Can be made explicit in derived classes
     VERSION = None
