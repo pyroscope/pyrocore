@@ -68,6 +68,8 @@ project = Bunch(
             "rtevent = pyrocore.scripts.rtevent:run",
             "rtmv = pyrocore.scripts.rtmv:run",
             "rtxmlrpc = pyrocore.scripts.rtxmlrpc:run",
+            "pyrotorque = pyrocore.scripts.pyrotorque:run",
+            # "rtorrd = pyrocore.scripts.rtorrd:run",
         ],
     },
     include_package_data = True,
