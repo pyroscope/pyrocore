@@ -63,6 +63,7 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="set additional explicit label for cross-seeding (changes info hash)")
         self.add_bool_option("-H", "--hashed", "--fast-resume",
             help="create second metafile containing libtorrent fast-resume information")
+# TODO: Optionally pass torrent directly to rTorrent (--load / --start)
 # TODO: Optionally limit disk I/O bandwidth used (incl. a config default!)
 # TODO: Set "encoding" correctly
 # TODO: Support multi-tracker extension ("announce-list" field)
