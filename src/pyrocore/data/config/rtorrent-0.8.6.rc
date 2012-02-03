@@ -99,7 +99,8 @@ system.method.insert = cull,simple|private,"execute_nothrow=\"$cat=$pyro.bin_dir
 
 # QUEUE MANAGER: View for queue manager daemon
 # (this is not the buggy internal scheduler controlled by scheduler.max_active)
-view.add = pyrotorque
-schedule = filter_pyrotorque,1,15,"view_filter = pyrotorque,\"or={d.get_up_rate=,d.get_down_rate=,not=$d.get_complete=}\""
+view_add = pyrotorque
+view_filter = pyrotorque,false=
+schedule = filter_pyrotorque,1,15,"view_filter = pyrotorque,\"or={d.get_up_rate=,d.get_down_rate=,d.get_peers_connected=,not=$d.get_complete=}\""
 branch=pyro.extended=,"schedule = bind_pyrotorque,0,0,\"ui.bind_key=download_list,Q,ui.current_view.set=pyrotorque\""
 
