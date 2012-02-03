@@ -19,7 +19,7 @@ df = df.f_bavail * df.f_bsize
 
 max_entries = 4
 incomplete = [i for i in matches if not i.is_complete]
-active = [i for i in matches if i.is_complete]
+active = [] #[i for i in matches if i.is_complete]
 }}{{#
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }}{{def color(c, s)}}${color {{c}}}{{s}}${color }{{enddef}}{{#
