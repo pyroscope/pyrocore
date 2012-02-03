@@ -88,6 +88,7 @@ project = Bunch(
     ],
     extras_require = {
         "FlexGet": ["flexget>=1.0"],
+        "pyrotorque": ["APScheduler>=2.0.2"],
     },
 
     # tests

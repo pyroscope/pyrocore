@@ -16,6 +16,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sys
+import time
 
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
@@ -43,7 +44,26 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
     def mainloop(self):
         """ The main loop.
         """
-        # TODO: Actually implement something here 
+        # Set up scheduler
+        from apscheduler.scheduler import Scheduler
+        sched = Scheduler()
+
+        # Add configured tasks
+
+        # Start scheduler
+        sched.start()
+        try:
+            while True:
+                try:
+                    time.sleep(1)
+                except KeyboardInterrupt:
+                    self.LOG.info("Termination request received")
+                    break
+                else:
+                    # Idle work
+                    pass
+        finally:
+            sched.shutdown()
 
 
 def run(): #pragma: no cover
