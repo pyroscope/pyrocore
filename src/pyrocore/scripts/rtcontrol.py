@@ -184,7 +184,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # TODO: --copy, and --move/--link across devices
         # TODO:
         # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
-        #     help="call a raw XMLRPC command", interactive=True), 
+        #     help="call raw XMLRPC command", interactive=True), 
     )
 
 
