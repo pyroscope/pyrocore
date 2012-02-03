@@ -17,6 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sys
 import time
+import shlex
 from collections import defaultdict
 
 from pyrobase.parts import Bunch
@@ -45,6 +46,22 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         self.add_bool_option("--no-fork", "--fg", help="Don't fork into background (stay in foreground and log to console)")
 
 
+    def _parse_schedule(self, schedule):
+        """ Parse a job schedule.
+        """
+        result = {}
+
+        for param in shlex.split(schedule):
+            try:
+                key, val = param.split('=', 1)
+            except (TypeError, ValueError):
+                self.fatal("Bad param '%s' in job schedule '%s'" % (param, schedule))
+            else:
+                result[key] = val
+
+        return result
+
+
     def _validate_config(self):
         """ Handle and check configuration.
         """
@@ -64,22 +81,26 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 else:
                     self.jobs[name][param] = val
 
-
-    def _add_jobs(self):
-        """ Add configured jobs.
-        """
+        # Validate jobs
         for name, params in self.jobs.items():
-            for key in ("handler", "interval"):
+            for key in ("handler", "schedule"):
                 if key not in params:
                     self.fatal("Job '%s' is missing the required 'job.%s.%s' parameter" % (name, name, key))
+
+            params.schedule = self._parse_schedule(params.schedule)
     
             try:
                 params.handler = pymagic.import_name(params.handler)
             except ImportError, exc:
                 self.fatal("Bad handler name '%s' for job '%s'" % (params.handler, name))
-            else:
-                params.handler = params.handler(params)
-                self.sched.add_interval_job(params.handler.run, seconds=params["interval"])
+
+
+    def _add_jobs(self):
+        """ Add configured jobs.
+        """
+        for name, params in self.jobs.items():
+            params.handler = params.handler(params)
+            self.sched.add_cron_job(params.handler.run, **params.schedule)
 
 
     def _run_forever(self):
