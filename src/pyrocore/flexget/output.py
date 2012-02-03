@@ -122,3 +122,7 @@ class Rtorrent(plugin.Plugin):
             except error.LoggableError, exc:
                 raise plugin.PluginError(exc)
 
+            # TODO: if rT is not up, save torrent in watch dir as a fallback; 
+            #       possibly add meta info to a special key then, so it can later be restored from session
+            
+
