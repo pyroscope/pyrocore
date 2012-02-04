@@ -51,7 +51,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         """
         result = {}
 
-        for param in shlex.split(schedule):
+        for param in shlex.split(str(schedule)): # do not feed unicode to shlex
             try:
                 key, val = param.split('=', 1)
             except (TypeError, ValueError):
