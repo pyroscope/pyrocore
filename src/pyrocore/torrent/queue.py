@@ -26,6 +26,8 @@ from pyrocore.util import os, pymagic
 class QueueManager(object):
     """ rTorrent queue manager implementation.
     """
+    VIEWNAME = "pyrotorque"
+
 
     def __init__(self, config=None):
         """ Set up queue manager.
@@ -39,4 +41,28 @@ class QueueManager(object):
         """ The job callback.
         """
         self.LOG.info("Queue manager run")
+
+        # Get items from 'pyrotorque' view
+
+        # Check if anything more can be started
+        startable = []
+        if not startable:
+            return
+
+        # Check out already started items
+        down_traffic = 0
+        num_started = 0
+        
+        # Start at most start_at_once items from those eligible
+        for idx in range(min(self.config.start_at_once, len(startable))):
+            # Check conditions
+            ok = False
+
+            # Should one more item be started?
+            if ok:
+                self.LOG.info("%s %r..." % ("WOULD start" if self.config.dry_run else "Starting", startable[idx]))
+                if not self.config.dry_run:
+                    startable[idx].start()
+                continue
+            break
 

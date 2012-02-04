@@ -43,6 +43,8 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         super(RtorrentQueueManager, self).add_options()
 
         # basic options
+        self.add_bool_option("-n", "--dry-run",
+            help="advise jobs not to do any real work, just tell what would happen")
         self.add_bool_option("--no-fork", "--fg", help="Don't fork into background (stay in foreground and log to console)")
 
 
@@ -87,6 +89,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 if key not in params:
                     self.fatal("Job '%s' is missing the required 'job.%s.%s' parameter" % (name, name, key))
 
+            params.dry_run = params.get("dry_run", False) or self.options.dry_run
             params.active = matching.truth(params.get("active", True), "job.%s.active" % (name,))
             params.schedule = self._parse_schedule(params.schedule)
     
