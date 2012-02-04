@@ -23,7 +23,7 @@ from collections import defaultdict
 from pyrobase.parts import Bunch
 
 from pyrocore import config
-from pyrocore.util import os, pymagic
+from pyrocore.util import os, pymagic, matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
@@ -87,20 +87,23 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 if key not in params:
                     self.fatal("Job '%s' is missing the required 'job.%s.%s' parameter" % (name, name, key))
 
+            params.active = matching.truth(params.get("active", True), "job.%s.active" % (name,))
             params.schedule = self._parse_schedule(params.schedule)
     
-            try:
-                params.handler = pymagic.import_name(params.handler)
-            except ImportError, exc:
-                self.fatal("Bad handler name '%s' for job '%s'" % (params.handler, name))
+            if params.active:
+                try:
+                    params.handler = pymagic.import_name(params.handler)
+                except ImportError, exc:
+                    self.fatal("Bad handler name '%s' for job '%s':\n    %s" % (params.handler, name, exc))
 
 
     def _add_jobs(self):
         """ Add configured jobs.
         """
         for name, params in self.jobs.items():
-            params.handler = params.handler(params)
-            self.sched.add_cron_job(params.handler.run, **params.schedule)
+            if params.active:
+                params.handler = params.handler(params)
+                self.sched.add_cron_job(params.handler.run, **params.schedule)
 
 
     def _run_forever(self):
