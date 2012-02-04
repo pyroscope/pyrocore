@@ -27,6 +27,29 @@ from pyrocore import error
 
 LOG = logging.getLogger(__name__)
 
+TRUE = ["true", "t", "yes", "y", "1", "+",]
+FALSE = ["false", "f", "no", "n", "0", "-",]
+
+
+def truth(val, context):
+    """ Convert truth value in "val" to a boolean.
+    """
+    try:
+        0 + val
+    except TypeError:
+        lower_val = val.lower()
+
+        if lower_val in TRUE:
+            return True
+        elif lower_val in FALSE:
+            return False
+        else:
+            raise FilterError("Bad boolean value %r in %r (expected one of '%s', or '%s')" % (
+                val, context, "' '".join(TRUE), "' '".join(FALSE)
+            ))
+    else:
+        return bool(val)
+
 
 def _time_ym_delta(timestamp, delta, months):
     """ Helper to add a year or month delta to a timestamp.
@@ -217,25 +240,13 @@ class TaggedAsFilter(FieldFilter):
 class BoolFilter(FieldFilter):
     """ Filter boolean values.
     """
-    TRUE = ["true", "t", "yes", "y", "1", "+",]
-    FALSE = ["false", "f", "no", "n", "0", "-",]
-
 
     def validate(self):
         """ Validate filter condition (template method).
         """
         super(BoolFilter, self).validate()
         
-        lower_val = str(self._value).lower()
-        if lower_val in self.TRUE:
-            self._value = True
-        elif lower_val in self.FALSE:
-            self._value = False
-        else:
-            raise FilterError("Bad boolean value %r in %r (expected one of '%s', or '%s')" % (
-                self._value, self._condition, "' '".join(self.TRUE), "' '".join(self.FALSE)
-            ))
-            
+        self._value = truth(str(self._value), self._condition)
         self._condition = "yes" if self._value else "no" 
 
 
