@@ -40,7 +40,9 @@ class EngineStats(object):
         try:
             proxy = config.engine.open()
             self.LOG.info("Stats for %s - up %s, %s" % (
-                config.engine.engine_id, fmt.human_duration(config.engine.uptime, 0, 2, True).strip(), proxy
+                config.engine.engine_id, 
+                fmt.human_duration(proxy.system.time() - config.engine.startup, 0, 2, True).strip(), 
+                proxy
             ))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             self.LOG.warn(str(exc))
