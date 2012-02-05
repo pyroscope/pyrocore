@@ -58,15 +58,22 @@ class QueueManager(object):
         
         # Start eligible items
         for idx, item in enumerate(startable):
+            # Check if we reached 'start_now' in this run
             if idx >= start_now:
                 self.LOG.debug("Only starting %d item(s) in this run, %d more could be downloading" % (
                     start_now, len(startable)-idx,))
                 break
-                
-            if len(downloading) >= self.config.downloading_max:
-                self.LOG.debug("Already downloading %d item(s) out of %d max, %d more could be downloading" % (
-                    len(downloading), downloading_max, len(startable)-idx,))
-                break
+
+            # Only check the other conditions when we have `downloading_min` covered
+            if len(downloading) < self.config.downloading_min:
+                self.LOG.debug("Catching up from %d to a minimum of %d downloading item(s)" % (
+                    len(downloading), self.config.downloading_min))
+            else:
+                # Limit to the given maximum of downloading items
+                if len(downloading) >= self.config.downloading_max:
+                    self.LOG.debug("Already downloading %d item(s) out of %d max, %d more could be downloading" % (
+                        len(downloading), self.config.downloading_max, len(startable)-idx,))
+                    break
 
             # If we made it here, start it!
             downloading.append(item)
