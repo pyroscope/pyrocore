@@ -581,7 +581,7 @@ class TorrentEngine(object):
         return TorrentView(self, viewname, matcher)
 
 
-    def items(self, view=None, prefetch=None):
+    def items(self, view=None, prefetch=None, cache=True):
         """ Get list of download items.
         """
         raise NotImplementedError()

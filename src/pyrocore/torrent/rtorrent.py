@@ -607,8 +607,12 @@ class RtorrentEngine(engine.TorrentEngine):
         self.open().log(0, msg)
 
 
-    def items(self, view=None, prefetch=None):
+    def items(self, view=None, prefetch=None, cache=True):
         """ Get list of download items.
+        
+            @param view: Name of the view.
+            @param prefetch: OPtional list of field names to fetch initially.
+            @param cache: Cache items for the given view?
         """
         # TODO: Cache should be by hash.
         # Then get the initial data when cache is empty,
@@ -619,8 +623,10 @@ class RtorrentEngine(engine.TorrentEngine):
         
         if view is None:
             view = engine.TorrentView(self, "main")
+        elif isinstance(view, basestring):
+            view = engine.TorrentView(self, view)
 
-        if view.viewname not in self._item_cache:
+        if not cache or view.viewname not in self._item_cache:
             # Map pyroscope names to rTorrent ones
             if prefetch:
                 prefetch = self.CORE_FIELDS | set((self.PYRO2RT_MAPPING.get(i, i) for i in prefetch))
@@ -654,11 +660,13 @@ class RtorrentEngine(engine.TorrentEngine):
                 raise error.EngineError("While getting download items from %r: %s" % (self, exc))
 
             # Everything yielded, store for next iteration
-            self._item_cache[view.viewname] = items
+            if cache:
+                self._item_cache[view.viewname] = items
         else:
             # Yield prefetched results
             for item in self._item_cache[view.viewname]:
                 yield item
+
 
     def show(self, items, view=None):
         """ Visualize a set of items (search result).
@@ -678,3 +686,4 @@ class RtorrentEngine(engine.TorrentEngine):
         # TODO: should be a "system.multicall"
         for item in items:
             proxy.view.set_visible(item.hash, view)
+

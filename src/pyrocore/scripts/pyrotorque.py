@@ -89,8 +89,10 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 if key not in params:
                     self.fatal("Job '%s' is missing the required 'job.%s.%s' parameter" % (name, name, key))
 
-            params.dry_run = params.get("dry_run", False) or self.options.dry_run
-            params.active = matching.truth(params.get("active", True), "job.%s.active" % (name,))
+            bool_param = lambda key, default: matching.truth(params.get(key, default), "job.%s.%s" % (name, key))
+
+            params.dry_run = bool_param("dry_run", False) or self.options.dry_run
+            params.active = bool_param("active", True)
             params.schedule = self._parse_schedule(params.schedule)
     
             if params.active:
