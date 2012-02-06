@@ -42,6 +42,8 @@ class QueueManager(object):
     def _start(self, items):
         """ Start some items if conditions are met.
         """
+        # TODO: Filter by a custom date field, for scheduled downloads starting at a certain time, or after a given delay
+
         # Check if anything more can be downloading at all
         startable = [i for i in items if not (i.is_open or i.is_active or i.is_ignored or i.is_complete)]
         if not startable:
@@ -63,6 +65,9 @@ class QueueManager(object):
                 self.LOG.debug("Only starting %d item(s) in this run, %d more could be downloading" % (
                     start_now, len(startable)-idx,))
                 break
+
+            # TODO: Prevent start of more torrents that can fit on the drive (taking "off" files into account)
+            # (restarts items that were stopped due to the "low_diskspace" schedule, and also avoids triggering it at all)
 
             # Only check the other conditions when we have `downloading_min` covered
             if len(downloading) < self.config.downloading_min:
@@ -96,6 +101,8 @@ class QueueManager(object):
 
             # Handle found items
             self._start(items)
+
+            self.LOG.debug("%s - %s" % (config.engine.engine_id, proxy))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             # only debug, let the statistics logger do its job
             self.LOG.debug(str(exc)) 
