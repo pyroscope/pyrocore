@@ -44,6 +44,10 @@ class QueueManager(object):
         """
         # TODO: Filter by a custom date field, for scheduled downloads starting at a certain time, or after a given delay
 
+        # TODO: Add condition that prevents auto-start, with default "is_ignored=y"
+        # Config sample: job.queue.no_start = is_ignored=y OR metafile=//watch/load//
+        # replace "is_ignored" below with evaluating that
+
         # Check if anything more can be downloading at all
         startable = [i for i in items if not (i.is_open or i.is_active or i.is_ignored or i.is_complete)]
         if not startable:
