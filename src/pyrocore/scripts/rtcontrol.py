@@ -212,6 +212,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.prompt.add_options()
       
         # output control
+        self.add_bool_option("-S", "--shell",
+            help="escape output following shell rules")
         self.add_bool_option("-0", "--nul", "--print0",
             help="use a NUL character instead of a linebreak after items")
         self.add_bool_option("-c", "--column-headers",
@@ -297,6 +299,14 @@ class RtorrentControl(ScriptBaseWithConfig):
         except (NameError, ValueError, TypeError), exc:
             self.fatal("Trouble with formatting item %r\n\n  FORMAT = %r\n\n  REASON =" % (item, self.options.output_format), exc)
             raise # in --debug mode
+
+        # Escape for shell use?
+        def shell_escape(text):
+            "Escape helper"
+            return text if text.isalnum() else "'%s'" % text.replace("'", r"'\''")
+
+        if self.options.shell:
+            item_text = '\t'.join(shell_escape(i) for i in item_text.split('\t'))
 
         # Justify headers according to stencil
         if stencil:
