@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import re
 import copy
 import time
 import hashlib
@@ -24,6 +25,26 @@ from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config, error
 from pyrocore.util import os, metafile
+
+
+def replace_fields(meta, patterns):
+    """ Replace patterns in fields.
+    """
+    for pattern in patterns:
+        try:
+            field, regex, subst, _ = pattern.split(pattern[-1])
+    
+            # TODO: Allow numerical indices, and "+" for append
+            namespace = meta
+            keypath = [i.replace('\0', '.') for i in field.replace('..', '\0').split('.')]
+            for key in keypath[:-1]:
+                namespace = namespace[key]
+
+            namespace[keypath[-1]] = re.sub(regex, subst, namespace[keypath[-1]])
+        except (KeyError, IndexError, TypeError, ValueError), exc:
+            raise error.UserError("Bad substitution '%s' (%s)!" % (pattern, exc))
+
+    return meta
 
 
 class MetafileChanger(ScriptBaseWithConfig):
@@ -55,6 +76,9 @@ class MetafileChanger(ScriptBaseWithConfig):
         self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
             action="append", default=[],
             help="set a specific key to the given value")
+        self.add_value_option("-r", "--regex", "KEYcREGEXcSUBSTc [-r ...]",
+            action="append", default=[],
+            help="replace pattern in a specific key by the given substitutionm")
         self.add_bool_option("-C", "--clean",
             help="remove all non-standard data from metafile outside the info dict")
         self.add_bool_option("-A", "--clean-all",
@@ -64,7 +88,7 @@ class MetafileChanger(ScriptBaseWithConfig):
         self.add_bool_option("-R", "--clean-rtorrent",
             help="remove all rTorrent session data from metafile")
         self.add_value_option("-H", "--hashed", "--fast-resume", "DATAPATH",
-            help="add libtorrent fast-resume information")
+            help="add libtorrent fast-resume information (use {} in place of the torrent's name in DATAPATH)")
         # TODO: chtor --tracker
         ##self.add_value_option("-T", "--tracker", "DOMAIN",
         ##    help="filter given torrents for a tracker domain")
@@ -213,13 +237,14 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Add fast-resume data?
                 if self.options.hashed:
                     try:
-                        metafile.add_fast_resume(metainfo, self.options.hashed)
+                        metafile.add_fast_resume(metainfo, self.options.hashed.replace("{}", metainfo["info"]["name"]))
                     except EnvironmentError, exc:
                         self.fatal("Error making fast-resume data (%s)" % (exc,))
                         raise
 
                 # Set specific keys?
                 metafile.assign_fields(metainfo, self.options.set)
+                replace_fields(metainfo, self.options.regex)
 
                 # Write new metafile, if changed
                 new_metainfo = bencode.bencode(metainfo)
