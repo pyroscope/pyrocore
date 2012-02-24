@@ -301,9 +301,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             raise # in --debug mode
 
         # Escape for shell use?
-        def shell_escape(text):
+        def shell_escape(text, safe=re.compile(r"^[-._,+a-zA-Z0-9]+$")):
             "Escape helper"
-            return text if text.isalnum() else "'%s'" % text.replace("'", r"'\''")
+            return text if safe.match(text) else "'%s'" % text.replace("'", r"'\''")
 
         if self.options.shell:
             item_text = '\t'.join(shell_escape(i) for i in item_text.split('\t'))
