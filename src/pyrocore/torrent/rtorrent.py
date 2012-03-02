@@ -282,6 +282,11 @@ class RtorrentItem(engine.TorrentProxy):
         self._make_it_so("erasing", ["erase"])
 
 
+    #TODO: def set_files_priority(self, pattern, prio)
+    # Set priority of selected files
+    # NOTE: need to call d.update_priorities after f.set_priority!
+
+
     def purge(self):
         """ Delete PARTIAL data files and remove torrent from client.
         """

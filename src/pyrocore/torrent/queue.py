@@ -48,11 +48,15 @@ class QueueManager(object):
         # Config sample: job.queue.no_start = is_ignored=y OR metafile=//watch/load//
         # replace "is_ignored" below with evaluating that
 
+        # TODO: ignore items that are priority "off"
+
         # Check if anything more can be downloading at all
         startable = [i for i in items if not (i.is_open or i.is_active or i.is_ignored or i.is_complete)]
         if not startable:
             self.LOG.debug("Checked %d item(s), none startable" % (len(items),))
             return
+
+        # TODO: sort by priority, then loaded time
 
         # Stick to "start_at_once" parameter, unless "downloading_min" is violated
         downloading = [i for i in items if i.is_active and not i.is_complete]
@@ -105,6 +109,8 @@ class QueueManager(object):
 
             # Handle found items
             self._start(items)
+            
+            # TODO: Add a log message to rTorrent via print= (Started by queue emanager ...)
 
             self.LOG.debug("%s - %s" % (config.engine.engine_id, proxy))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
