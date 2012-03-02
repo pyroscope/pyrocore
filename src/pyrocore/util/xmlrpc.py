@@ -67,6 +67,7 @@ class RTorrentMethod(object):
         self._proxy._requests += 1
         start = time.time()
         raw_xml = kwargs.get("raw_xml", False)
+        fail_silently = kwargs.get("fail_silently", False)
 
         try:
             # Map multicall arguments
@@ -113,17 +114,18 @@ class RTorrentMethod(object):
                 # Don't catch these
                 raise
             except:
-                # Dump the bad packet, then re-raise
-                filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
-                handle = open(filename, "w")
-                try:
-                    handle.write("REQUEST\n")
-                    handle.write(xmlreq)
-                    handle.write("\nRESPONSE\n")
-                    handle.write(xmlresp)
-                    print >>sys.stderr, "INFO: Bad data packets written to %r" % filename
-                finally:
-                    handle.close()
+                if not fail_silently:
+                    # Dump the bad packet, then re-raise
+                    filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
+                    handle = open(filename, "w")
+                    try:
+                        handle.write("REQUEST\n")
+                        handle.write(xmlreq)
+                        handle.write("\nRESPONSE\n")
+                        handle.write(xmlresp)
+                        print >>sys.stderr, "INFO: Bad data packets written to %r" % filename
+                    finally:
+                        handle.close()
                 raise                
         finally:
             # Calculate latency
