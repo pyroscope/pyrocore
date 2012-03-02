@@ -139,6 +139,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         """ The main loop.
         """
         self._validate_config()
+        config.engine.load_config()
 
         # Set up scheduler
         from apscheduler.scheduler import Scheduler
