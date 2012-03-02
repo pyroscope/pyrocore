@@ -123,6 +123,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
     def handle_path(self, event):
         """ Handle a path-related event.
         """
+        self.job.LOG.debug("Notification %r" % event)
         if event.dir:
             return
         
