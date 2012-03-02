@@ -342,6 +342,31 @@ def data_size(metadata):
     return total_size
 
 
+def checked_open(filename, log=None, quiet=False):
+    """ Open and validate the given metafile.
+        Optionally provide diagnostics on the passed logger, for
+        invalid metafiles, which then just cause a warning but no exception.
+        "quiet" can supress that warning.
+    """
+    with closing(open(filename, "rb")) as handle:
+        raw_data = handle.read()
+    data = bencode.bdecode(raw_data)
+
+    try:
+        check_meta(data)
+        if raw_data != bencode.bencode(data):
+            raise ValueError("Bad bencoded data - dict keys out of order?")
+    except ValueError, exc:
+        if log:
+            # Warn about it, unless it's a quiet value query
+            if not quiet:
+                log.warn("%s: %s" % (filename, exc))
+        else:
+            raise
+
+    return data
+
+
 class Metafile(object):
     """ A torrent metafile.
     """

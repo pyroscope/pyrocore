@@ -67,28 +67,18 @@ class MetafileLister(ScriptBase):
             if idx and not self.options.output:
                 print
                 print "~" * 79
+
             try:
                 # Read and check metafile
                 try:
-                    with closing(open(filename, "rb")) as handle:
-                        raw_data = handle.read()
-                    data = bencode.bdecode(raw_data)
+                    data = metafile.checked_open(filename, log=self.LOG if self.options.skip_validation else None,
+                        quiet=(self.options.quiet and (self.options.output or self.options.raw)))
                 except EnvironmentError, exc:
                     self.fatal("Can't read '%s' (%s)" % (
                         filename, str(exc).replace(": '%s'" % filename, ""),
                     ))
                     raise
-                try:
-                    metafile.check_meta(data)
-                    if raw_data != bencode.bencode(data):
-                        raise ValueError("Bad bencoded data - dict keys out of order?")
-                except ValueError, exc:
-                    if self.options.skip_validation:
-                        # Warn about it, unless it's a quiet value query
-                        if not (self.options.quiet and (self.options.output or self.options.raw)):
-                            self.LOG.warn("%s: %s" % (filename, exc))
-                    else:
-                        raise
+
                 listing = None
 
                 if self.options.raw:
