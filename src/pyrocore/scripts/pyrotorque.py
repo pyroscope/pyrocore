@@ -18,6 +18,7 @@
 import sys
 import time
 import shlex
+import asyncore
 from collections import defaultdict
 
 from pyrobase.parts import Bunch
@@ -93,6 +94,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
 
             bool_param = lambda key, default: matching.truth(params.get(key, default), "job.%s.%s" % (name, key))
 
+            params.job_name = name
             params.dry_run = bool_param("dry_run", False) or self.options.dry_run
             params.active = bool_param("active", True)
             params.schedule = self._parse_schedule(params.schedule)
@@ -118,7 +120,13 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         """
         while True:
             try:
-                time.sleep(1)
+                tick = time.time()
+
+                asyncore.loop(timeout=1, use_poll=True)
+
+                tick += 1.0 - time.time()
+                if tick > 0:
+                    time.sleep(tick)
             except KeyboardInterrupt:
                 self.LOG.info("Termination request received")
                 break
