@@ -78,7 +78,7 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="set a specific key to the given value")
         self.add_value_option("-r", "--regex", "KEYcREGEXcSUBSTc [-r ...]",
             action="append", default=[],
-            help="replace pattern in a specific key by the given substitutionm")
+            help="replace pattern in a specific key by the given substitution")
         self.add_bool_option("-C", "--clean",
             help="remove all non-standard data from metafile outside the info dict")
         self.add_bool_option("-A", "--clean-all",
