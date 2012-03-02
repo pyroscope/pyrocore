@@ -292,6 +292,8 @@ class ScriptBase(object):
 class ScriptBaseWithConfig(ScriptBase):
     """ CLI tool with configuration support.
     """
+    OPTIONAL_CFG_FILES = []
+
 
     def add_options(self):
         """ Add configuration options.
@@ -300,6 +302,9 @@ class ScriptBaseWithConfig(ScriptBase):
 
         self.add_value_option("--config-dir", "DIR",
             help="configuration directory [~/.pyroscope]")
+        self.add_value_option("-c", "--config-file", "PATH",
+            action="append", default=[],
+            help="additional config file(s) to read")
         self.add_value_option("-D", "--define", "KEY=VAL [-D ...]",
             default=[], action="append", dest="defines", 
             help="override configuration attributes")
@@ -309,7 +314,7 @@ class ScriptBaseWithConfig(ScriptBase):
         """ Get program options.
         """
         super(ScriptBaseWithConfig, self).get_options()
-        load_config.ConfigLoader(self.options.config_dir).load()
+        load_config.ConfigLoader(self.options.config_dir).load(self.OPTIONAL_CFG_FILES + self.options.config_file)
         if self.options.debug:
             config.debug = True
 

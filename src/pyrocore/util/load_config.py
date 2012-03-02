@@ -22,6 +22,7 @@
 from __future__ import with_statement
 
 import re
+import errno
 import StringIO
 import ConfigParser
 from contextlib import closing
@@ -160,18 +161,28 @@ class ConfigLoader(object):
         namespace.update(global_vars)
 
 
-    def _set_defaults(self, namespace):
+    def _set_defaults(self, namespace, optional_cfg_files):
         """ Set default values in the given dict.
         """
         # Add current configuration directory
         namespace["config_dir"] = self.config_dir
 
         # Load defaults
-        defaults = pymagic.resource_string("pyrocore", "data/config/config.ini") #@UndefinedVariable
-        ini_file = ConfigParser.SafeConfigParser()
-        ini_file.optionxform = str # case-sensitive option names
-        ini_file.readfp(StringIO.StringIO(defaults), "<defaults>")
-        self._set_from_ini(namespace, ini_file)
+        for idx, cfg_file in enumerate([self.CONFIG_INI] + optional_cfg_files):
+            if any(i in cfg_file for i in set('/' + os.sep)):
+                continue # skip any non-plain filenames
+
+            try:                
+                defaults = pymagic.resource_string("pyrocore", "data/config/" + cfg_file) #@UndefinedVariable
+            except IOError, exc:
+                if idx and exc.errno == errno.ENOENT:
+                    continue
+                raise
+
+            ini_file = ConfigParser.SafeConfigParser()
+            ini_file.optionxform = str # case-sensitive option names
+            ini_file.readfp(StringIO.StringIO(defaults), "<defaults>")
+            self._set_from_ini(namespace, ini_file)
 
 
     def _load_ini(self, namespace, config_file):
@@ -197,9 +208,11 @@ class ConfigLoader(object):
             self.LOG.warning("Configuration file %r not found!" % (config_file,))
             
 
-    def load(self):
+    def load(self, optional_cfg_files=None):
         """ Actually load the configuation from either the default location or the given directory.
         """
+        optional_cfg_files = optional_cfg_files or []
+
         # Guard against coding errors
         if self._loaded:
             raise RuntimeError("INTERNAL ERROR: Attempt to load configuration twice!")
@@ -207,8 +220,17 @@ class ConfigLoader(object):
         try:
             # Load configuration
             namespace = {}
-            self._set_defaults(namespace)
+            self._set_defaults(namespace, optional_cfg_files)
+
             self._load_ini(namespace, os.path.join(self.config_dir, self.CONFIG_INI))
+
+            for cfg_file in optional_cfg_files:
+                if not os.path.isabs(cfg_file):
+                    cfg_file = os.path.join(self.config_dir, cfg_file)
+
+                if os.path.exists(cfg_file):
+                    self._load_ini(namespace, cfg_file)
+
             self._validate_namespace(namespace)
             self._load_py(namespace, namespace["config_script"])
             self._validate_namespace(namespace)

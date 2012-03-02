@@ -36,6 +36,8 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
     # argument description for the usage information
     ARGS_HELP = ""
 
+    OPTIONAL_CFG_FILES = ["torque.ini"]
+
 
     def add_options(self):
         """ Add program options.
