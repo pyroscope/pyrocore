@@ -25,7 +25,7 @@ import asyncore
 
 from pyrobase.parts import Bunch
 from pyrocore import error, config
-from pyrocore.util import os, xmlrpc, pymagic
+from pyrocore.util import os, xmlrpc, pymagic, metafile
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 try: 
@@ -60,25 +60,57 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
     
         See https://github.com/seb-m/pyinotify/.
     """
+    
+    METAFILE_EXT = (".torrent", ".torrent.load", ".torrent.start")
+    
 
     def my_init(self, **kw):
         self.job = kw["job"]
         
 
+    def handle_metafile(self, pathname):
+        """ Handle a new metafile.
+        """
+        try:
+            data = metafile.checked_open(pathname)
+        except EnvironmentError, exc:
+            self.error("Can't read metafile '%s' (%s)" % (
+                pathname, str(exc).replace(": '%s'" % pathname, ""),
+            ))
+            return
+        except ValueError, exc:
+            self.job.LOG.error("Invalid metafile '%s': %s" % (pathname, exc))
+            return
+ 
+        self.job.LOG.info("Loaded '%s' from metafile '%s'" % (data["info"]["name"], pathname))
+        # TODO: Load metafile, possibly scrub it, load into client, set fields
+
+
+    def handle_path(self, event):
+        """ Handle a path-related event.
+        """
+        if event.dir:
+            return
+        
+        if any(event.pathname.endswith(i) for i in self.METAFILE_EXT):
+            self.handle_metafile(event.pathname)
+        elif os.path.basename(event.pathname) == "watch.ini":
+            self.job.LOG.info("Reloading watch config for '%s'" % event.path)
+            # TODO: Load new metadata
+
+
     def process_IN_CLOSE_WRITE(self, event):
         """ File written.
         """
         # <Event dir=False name=xx path=/var/torrent/watch/tmp pathname=/var/torrent/watch/tmp/xx>
-        if not event.dir:
-            self.job.LOG.info("File %r written" % event.pathname)
+        self.handle_path(event)
 
 
     def process_IN_MOVED_TO(self, event):
         """ File moved into tree.
         """
         # <Event dir=False name=yy path=/var/torrent/watch/tmp pathname=/var/torrent/watch/tmp/yy>
-        if not event.dir:
-            self.job.LOG.info("File %r moved here" % event.pathname)
+        self.handle_path(event)
 
 
     def process_default(self, event):
@@ -154,8 +186,7 @@ class TreeWatchCommand(ScriptBaseWithConfig):
         if len(self.args) < 1:
             self.parser.error("No method given!")
 
-        watch = TreeWatch(Bunch(path = self.args[0], active = False, dry_run=True))
-        watch.setup()
+        watch = TreeWatch(Bunch(path=self.args[0], active=True, dry_run=True))
         asyncore.loop(timeout=~0, use_poll=True)
 
 
