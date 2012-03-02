@@ -24,7 +24,8 @@ import logging
 import asyncore
 
 from pyrobase.parts import Bunch
-from pyrocore import error, config
+from pyrocore import error
+from pyrocore import config as configuration
 from pyrocore.util import os, xmlrpc, pymagic, metafile
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
@@ -82,8 +83,41 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             self.job.LOG.error("Invalid metafile '%s': %s" % (pathname, exc))
             return
  
+        info_hash = metafile.info_hash(data)
         self.job.LOG.info("Loaded '%s' from metafile '%s'" % (data["info"]["name"], pathname))
-        # TODO: Load metafile, possibly scrub it, load into client, set fields
+        
+        # Check whether item is already loaded
+        try:
+            name = self.job.proxy.d.get_name(info_hash, fail_silently=True)
+        except xmlrpc.ERRORS, exc:
+            if exc.faultString != "Could not find info-hash.":
+                self.job.LOG.error("While checking for #%s: %s" % (info_hash, exc))
+                return
+        else:
+            self.job.LOG.warn("Item #%s '%s' already added to client" % (info_hash, name))
+            return
+
+        try:
+            # TODO: Scrub metafile if requested
+
+            # Load metafile into client and get created item back
+            flags = pathname.split(os.sep)
+            flags.extend(flags[-1].split('.'))
+
+            action = self.job.config.load_mode
+            if "start" in flags:
+                action = "start"
+            elif "load" in flags:
+                action = None
+
+            action = "load_start" if action == "start" else "load"
+            getattr(self.job.proxy, action + "_verbose")(pathname)
+
+            # TODO: Evaluate fields and set client values
+            # TODO: Add metadata to tied file if requested
+
+        except xmlrpc.ERRORS, exc:
+            self.job.LOG.error("While loading #%s: %s" % (info_hash, exc))
 
 
     def handle_path(self, event):
@@ -138,6 +172,10 @@ class TreeWatch(object):
         self.config.path = os.path.abspath(os.path.expanduser(self.config.path.rstrip(os.sep)))
         if not os.path.isdir(self.config.path):
             raise error.UserError("Path '%s' is not a directory!" % self.config.path)
+
+        # Get client proxy
+        self.proxy = xmlrpc.RTorrentProxy(configuration.scgi_url)
+        self.proxy._set_mappings()
         
         if self.config.active:
             self.setup()
@@ -184,9 +222,10 @@ class TreeWatchCommand(ScriptBaseWithConfig):
         """
         # Print usage if not enough args or bad options
         if len(self.args) < 1:
-            self.parser.error("No method given!")
+            self.parser.error("You have to provide the root directory of your watch tree!")
 
-        watch = TreeWatch(Bunch(path=self.args[0], active=True, dry_run=True))
+        configuration.engine.load_config()
+        watch = TreeWatch(Bunch(path=self.args[0], active=True, dry_run=True, load_mode=None))
         asyncore.loop(timeout=~0, use_poll=True)
 
 
