@@ -302,7 +302,7 @@ class ScriptBaseWithConfig(ScriptBase):
 
         self.add_value_option("--config-dir", "DIR",
             help="configuration directory [~/.pyroscope]")
-        self.add_value_option("-c", "--config-file", "PATH",
+        self.add_value_option("--config-file", "PATH",
             action="append", default=[],
             help="additional config file(s) to read")
         self.add_value_option("-D", "--define", "KEY=VAL [-D ...]",
