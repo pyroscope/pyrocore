@@ -232,6 +232,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
+        self.add_value_option("-/", "--select", "[N-]M",
+            help="select result subset by item position (counting from 1)")
         self.add_bool_option("-V", "--view-only",
             help="show search result only in default ncurses view")
         self.add_value_option("--to-view", "NAME",
@@ -489,6 +491,16 @@ class RtorrentControl(ScriptBaseWithConfig):
         if action and action.interactive:
             self.options.interactive = True
 
+        selection = None
+        if self.options.select:
+            try:
+                if '-' in self.options.select:
+                    selection = tuple(int(i, 10) for i in self.options.select.split('-', 1))
+                else:
+                    selection = 1, int(self.options.select, 10)
+            except (ValueError, TypeError), exc:
+                self.fatal("Bad selection '%s' (%s)" % (self.options.select, exc))
+
 #        print repr(config.engine)
 #        config.engine.open()
 #        print repr(config.engine)
@@ -518,6 +530,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         view = config.engine.view(self.options.from_view, matcher)
         matches = list(view.items())
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
+        if selection:
+            matches = matches[selection[0]-1:selection[1]]
 
         if not matches:
             # Think "404 NOT FOUND", but then exit codes should be < 256
