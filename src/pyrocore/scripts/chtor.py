@@ -154,7 +154,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Read and remember current content
                 metainfo = bencode.bread(filename)
                 old_metainfo = bencode.bencode(metainfo)
-            except (KeyError, bencode.BencodeError), exc:
+            except (EnvironmentError, KeyError, bencode.BencodeError), exc:
                 self.LOG.warning("Skipping bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
                 bad += 1
             else:
