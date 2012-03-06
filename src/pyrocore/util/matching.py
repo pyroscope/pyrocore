@@ -24,6 +24,7 @@ import operator
 import logging
 
 from pyrocore import error
+from pyrocore.util import fmt
 
 LOG = logging.getLogger(__name__)
 
@@ -138,13 +139,12 @@ class FieldFilter(Filter):
         """ Store field name and filter value for later evaluations. 
         """
         self._name = name
-        self._condition = value
-        self._value = value
+        self._condition = self._value = fmt.to_unicode(value)
         self.validate()
 
 
     def __str__(self):
-        return "%s=%s" % (self._name, self._condition)
+        return fmt.to_utf8("%s=%s" % (self._name, self._condition))
 
 
     def validate(self):
@@ -159,7 +159,10 @@ class EqualsFilter(FieldFilter):
     def match(self, item):
         """ Return True if filter matches item.
         """
-        return self._value == getattr(item, self._name)
+        result = self._value == getattr(item, self._name)
+        #logging.getLogger("matching").debug("%r for %r = %r, name %r, item %r" % (
+        #    result, getattr(item, self._name), self._value, self._name, item))
+        return result
 
 
 class PatternFilter(FieldFilter):
@@ -181,7 +184,7 @@ class PatternFilter(FieldFilter):
         """ Return True if filter matches item.
         """
         val = (getattr(item, self._name) or '').lower()
-        #LOG.debug("%r for %r ~ %r, name %r, item %r" % (
+        #logging.getLogger("matching").debug("%r for %r ~ %r, name %r, item %r" % (
         #    self._matcher(val), val, self._value, self._name, item))
         return self._matcher(val) 
 
@@ -615,3 +618,4 @@ class ConditionParser(object):
             raise FilterError("Right-hand side of OR missing in %r!" % (conditions_text,))
     
         return root
+
