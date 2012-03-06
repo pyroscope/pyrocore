@@ -118,7 +118,9 @@ class MetafileCreator(ScriptBaseWithConfig):
             metapath = self.options.output_filename
             if os.path.isdir(metapath):
                 metapath = os.path.join(metapath, os.path.basename(datapath))
-        torrent = metafile.Metafile(metapath + ".torrent")
+        if not metapath.endswith(".torrent"):
+            metapath += ".torrent"
+        torrent = metafile.Metafile(metapath)
         torrent.ignore.extend(self.options.exclude)
 
         def callback(meta):
