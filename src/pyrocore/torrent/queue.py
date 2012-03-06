@@ -36,7 +36,7 @@ class QueueManager(object):
         """
         self.config = config or {}
         self.LOG = pymagic.get_class_logger(self)
-        self.LOG.info("Queue manager created with config %r" % self.config)
+        self.LOG.debug("Queue manager created with config %r" % self.config)
 
 
     def _start(self, items):

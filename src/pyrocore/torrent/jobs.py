@@ -31,7 +31,7 @@ class EngineStats(object):
         """
         self.config = config or {}
         self.LOG = pymagic.get_class_logger(self)
-        self.LOG.info("Statistics logger created with config %r" % self.config)
+        self.LOG.debug("Statistics logger created with config %r" % self.config)
 
 
     def run(self):

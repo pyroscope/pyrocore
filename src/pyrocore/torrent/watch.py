@@ -44,7 +44,7 @@ class RemoteWatch(object):
         """
         self.config = config or {}
         self.LOG = pymagic.get_class_logger(self)
-        self.LOG.info("Remote watcher created with config %r" % self.config)
+        self.LOG.debug("Remote watcher created with config %r" % self.config)
 
 
     def run(self):
@@ -161,7 +161,7 @@ class TreeWatch(object):
     def __init__(self, config=None):
         self.config = config or {}
         self.LOG = pymagic.get_class_logger(self)
-        self.LOG.info("Tree watcher created with config %r" % self.config)
+        self.LOG.debug("Tree watcher created with config %r" % self.config)
 
         self.manager = None
         self.handler = None

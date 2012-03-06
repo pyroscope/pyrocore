@@ -56,12 +56,12 @@ class ScriptBase(object):
 
 
     @classmethod
-    def setup(cls):
+    def setup(cls, cron_cfg="cron"):
         """ Set up the runtime environment.
         """
         logging_cfg = cls.LOGGING_CFG
         if "%s" in logging_cfg:
-            logging_cfg = logging_cfg % ("cron" if "--cron" in sys.argv[1:] else "scripts",)
+            logging_cfg = logging_cfg % (cron_cfg if "--cron" in sys.argv[1:] else "scripts",)
         logging_cfg = os.path.expanduser(logging_cfg)
 
         if os.path.exists(logging_cfg):
@@ -69,6 +69,8 @@ class ScriptBase(object):
             logging.config.fileConfig(logging_cfg)
         else:
             logging.basicConfig(level=logging.INFO)
+
+        logging.getLogger().debug("Logging config read from '%s'" % logging_cfg)
 
 
     def __init__(self):
