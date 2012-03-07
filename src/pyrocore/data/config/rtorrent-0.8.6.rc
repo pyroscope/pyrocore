@@ -98,5 +98,5 @@ schedule = filter_pyrotorque,1,15,"view_filter = pyrotorque,\"or={d.get_up_rate=
 branch=pyro.extended=,"schedule = bind_pyrotorque,0,0,\"ui.bind_key=download_list,Q,ui.current_view.set=pyrotorque\""
 
 # TORQUE: Daemon watchdog
-# TODO: Add watchdog ## schedule = pyrotorque_watchdog,1,66,"..."
+system.method.insert = pyro.watchdog,simple|private,"execute_nothrow=bash,-c,\"$cat=\\\"test ! -f \\\",$argument.0=,\\\"/run/pyrotorque || \\\",$pyro.bin_dir=,\\\"pyrotorque --cron\\\"\""
 
