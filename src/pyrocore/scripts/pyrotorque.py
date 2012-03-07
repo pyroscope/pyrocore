@@ -180,7 +180,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 else:
                     self.LOG.info("No pid file '%s'" % (self.options.pid_file or "<N/A>"))
             else:
-                self.LOG.info("Process #%d %srunning." % (pid, "" if running else "NOT "))
+                self.LOG.info("Process #%d %s running." % (pid, "UP and" if running else "NOT"))
 
             self.return_code = error.EX_OK if running else error.EX_UNAVAILABLE
             return
