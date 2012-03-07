@@ -18,14 +18,22 @@
 import sys
 import time
 import shlex
+import signal
 import asyncore
 from collections import defaultdict
 
+from pyrobase import logutil
 from pyrobase.parts import Bunch
 
-from pyrocore import config
-from pyrocore.util import os, pymagic, matching
+from pyrocore import config, error
+from pyrocore.util import os, pymagic, osmagic, matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+
+
+def _raise_interrupt(signo, dummy):
+    """ Helper for signal handling.
+    """
+    raise KeyboardInterrupt("Caught signal #%d" % signo)
 
 
 class RtorrentQueueManager(ScriptBaseWithConfig):
@@ -49,6 +57,12 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         self.add_bool_option("-n", "--dry-run",
             help="advise jobs not to do any real work, just tell what would happen")
         self.add_bool_option("--no-fork", "--fg", help="Don't fork into background (stay in foreground and log to console)")
+        self.add_bool_option("--stop", help="Stop running daemon")
+        self.add_bool_option("-?", "--status", help="Check daemon status")
+        self.add_value_option("--pid-file", "PATH",
+            help="file holding the process ID of the daemon, when running in background")
+        self.add_value_option("--guard-file", "PATH",
+            help="guard file for the process watchdog")
 
 
     def _parse_schedule(self, schedule):
@@ -127,12 +141,15 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 tick += 1.0 - time.time()
                 if tick > 0:
                     time.sleep(tick)
-            except KeyboardInterrupt:
-                self.LOG.info("Termination request received")
+            except KeyboardInterrupt, exc:
+                self.LOG.info("Termination request received (%s)" % exc)
                 break
             else:
                 # Idle work
-                pass
+                #self.LOG.warn("IDLE %s %r" % (self.options.guard_file, os.path.exists(self.options.guard_file)))
+                if self.options.guard_file and not os.path.exists(self.options.guard_file):
+                    self.LOG.warn("Guard file '%s' disappeared, exiting!" % self.options.guard_file)
+                    break
 
 
     def mainloop(self):
@@ -140,6 +157,47 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         """
         self._validate_config()
         config.engine.load_config()
+
+        # Defaults for process control paths
+        if not self.options.no_fork and not self.options.guard_file:
+            self.options.guard_file = os.path.join(config.config_dir, "run/pyrotorque") 
+        if not self.options.pid_file:
+            self.options.pid_file = os.path.join(config.config_dir, "run/pyrotorque.pid") 
+
+        # Process control
+        if self.options.status or self.options.stop:
+            if self.options.pid_file and os.path.exists(self.options.pid_file):
+                running, pid = osmagic.check_process(self.options.pid_file)
+            else:
+                running, pid = False, 0
+    
+            if self.options.stop:
+                if running:
+                    os.kill(pid, signal.SIGTERM)
+                    self.LOG.info("Process #%d stopped." % (pid))
+                elif pid:
+                    self.LOG.info("Process #%d NOT running anymore." % (pid))
+                else:
+                    self.LOG.info("No pid file '%s'" % (self.options.pid_file or "<N/A>"))
+            else:
+                self.LOG.info("Process #%d %srunning." % (pid, "" if running else "NOT "))
+
+            self.return_code = error.EX_OK if running else error.EX_UNAVAILABLE
+            return
+
+        # Check for guard file and running daemon, abort if not OK
+        try:
+            osmagic.guard(self.options.pid_file, self.options.guard_file)
+        except EnvironmentError, exc:
+            self.LOG.debug(str(exc))
+            self.return_code = error.EX_TEMPFAIL 
+            return
+
+        # Detach, if not disabled via option 
+        if not self.options.no_fork: # or getattr(sys.stdin, "isatty", lambda: False)():
+            osmagic.daemonize(pidfile=self.options.pid_file, logfile=logutil.get_logfile())
+            time.sleep(.05) # let things settle a little
+        signal.signal(signal.SIGTERM, _raise_interrupt)
 
         # Set up scheduler
         from apscheduler.scheduler import Scheduler
@@ -153,6 +211,13 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             self._run_forever()
         finally:
             self.sched.shutdown()
+
+            if self.options.pid_file:
+                try:
+                    os.remove(self.options.pid_file)
+                except EnvironmentError, exc:
+                    self.LOG.warn("Failed to remove pid file '%s' (%s)" % (self.options.pid_file, exc))
+                    self.return_code = error.EX_IOERR 
 
 
 def run(): #pragma: no cover

@@ -24,15 +24,66 @@ import logging
 
 from pyrocore.util import os
 
+def _write_pidfile(pidfile):
+    """ Write file with current process ID.
+    """
+    pid = str(os.getpid())
+    handle = open(pidfile, 'w')
+    try:
+        handle.write("%s\n" % pid)
+    finally:
+        handle.close()
+
+
+def check_process(pidfile):
+    """ Read pid file and check process status.
+        Return (running, pid).
+    """
+    # Check pid file
+    handle = open(pidfile, 'r')
+    try:
+        pid = int(handle.read().strip(), 10)
+    except (TypeError, ValueError), exc:
+        raise EnvironmentError("Invalid PID file '%s' (%s), won't start!" % (pidfile, exc))
+    finally:
+        handle.close()
+    
+    # Check process
+    try:
+        os.kill(pid, 0)
+    except EnvironmentError, exc:
+        return False, pid
+    else:
+        return True, pid
+
+
+def guard(pidfile, guardfile=None):
+    """ Raise an EnvironmentError when the "guardfile" doesn't exist, or
+        the process with the ID found in "pidfile" is still active.
+    """
+    # Check guard
+    if guardfile and not os.path.exists(guardfile):
+        raise EnvironmentError("Guard file '%s' not found, won't start!" % guardfile)
+
+    if os.path.exists(pidfile):
+        running, pid = check_process(pidfile)
+        if running:
+            raise EnvironmentError("Daemon process #%d still running, won't start!" % pid)
+        else:
+            logging.getLogger("daemonize").info("Process #%d disappeared, continuing..." % pid)
+
+    # Keep race condition window small, by immediately writing launcher process ID
+    _write_pidfile(pidfile)
+
 
 def daemonize(pidfile=None, logfile=None, sync=True):
     """ Fork the process into the background.
     
         @param pidfile: Optional PID file path.
         @param sync: Wait for parent process to disappear?  
-        @param logfile: Optional name of stdin/stderr log.  
+        @param logfile: Optional name of stdin/stderr log file or stream.  
     """
-    log = logging.getLogger(__name__)
+    log = logging.getLogger("daemonize")
     ppid = os.getpid()
 
     try:
@@ -58,12 +109,7 @@ def daemonize(pidfile=None, logfile=None, sync=True):
         sys.exit(1)
 
     if pidfile:
-        pid = str(os.getpid())
-        handle = open(pidfile, 'w')
-        try:
-            handle.write("%s\n" % pid)
-        finally:
-            handle.close()
+        _write_pidfile(pidfile)
 
     def sig_term(*dummy):
         "Handler for SIGTERM."
@@ -74,11 +120,19 @@ def daemonize(pidfile=None, logfile=None, sync=True):
     signal.signal(signal.SIGTERM, sig_term)
 
     if logfile:
-        log.debug("Redirecting stdout / stderr to %r" % logfile)
-        loghandle = open(logfile, "a+")
-        os.dup2(loghandle.fileno(), sys.stdout.fileno())
-        os.dup2(loghandle.fileno(), sys.stderr.fileno())
-        loghandle.close()
+        try:
+            logfile + ""
+        except TypeError:
+            if logfile.fileno() != sys.stdout.fileno():
+                os.dup2(logfile.fileno(), sys.stdout.fileno())
+            if logfile.fileno() != sys.stderr.fileno():
+                os.dup2(logfile.fileno(), sys.stderr.fileno())
+        else:
+            log.debug("Redirecting stdout / stderr to %r" % logfile)
+            loghandle = open(logfile, "a+")
+            os.dup2(loghandle.fileno(), sys.stdout.fileno())
+            os.dup2(loghandle.fileno(), sys.stderr.fileno())
+            loghandle.close()
 
     if sync:
         # Wait for 5 seconds at most, in 10ms steps

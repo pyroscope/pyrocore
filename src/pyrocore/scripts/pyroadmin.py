@@ -35,7 +35,7 @@ class AdminTool(ScriptBaseWithConfig):
     ARGS_HELP = ""
 
     # directories that should be created
-    CONFIG_DIRS = ["log", "data"]
+    CONFIG_DIRS = ["log", "data", "run"]
                 
     def add_options(self):
         """ Add program options.
