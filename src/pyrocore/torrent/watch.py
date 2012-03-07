@@ -98,6 +98,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             self.job.LOG.warn("Item #%s '%s' already added to client" % (info_hash, name))
             return
 
+        # TODO: dry_run
         try:
             # TODO: Scrub metafile if requested
 
@@ -124,10 +125,12 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             else:
                 commands = ("d.start=",) if start_it else ()
             self.job.proxy.load_verbose(pathname, *commands)
-            self.job.LOG.info("Loaded into %s: %s" % (
-                self.job.proxy.engine_id, 
+            msg = "%s: Loaded '%s' from '%s'" % (
+                self.__class__.__name__,
                 fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
-            ))
+                pathname,
+            )
+            self.job.proxy.log('', msg)
 
             # TODO: Evaluate fields and set client values
             # TODO: Add metadata to tied file if requested
@@ -167,7 +170,10 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
     def process_default(self, event):
         """ Fallback.
         """
-        self.job.LOG.warning("Unexpected inotify event %r" % event)
+        if self.LOG.isEnabledFor(logging.DEBUG):
+            self.job.LOG.debug("Ignored inotify event:\n    %r" % event)
+        else:
+            self.job.LOG.warning("Unexpected inotify event %r" % event)
 
 
 class TreeWatch(object):
@@ -186,7 +192,7 @@ class TreeWatch(object):
         bool_param = lambda key, default: matching.truth(self.config.get(key, default), "job.%s.%s" % (self.config.job_name, key))
 
         if not self.config.path:
-            raise error.UserError("You nedd to set 'job.%s.path' in the condfiguration!" % self.config.job_name)
+            raise error.UserError("You need to set 'job.%s.path' in the configuration!" % self.config.job_name)
 
         self.config.queued = bool_param("queued", False)
 
@@ -215,15 +221,28 @@ class TreeWatch(object):
         self.handler = TreeWatchHandler(job=self)
         self.notifier = pyinotify.AsyncNotifier(self.manager, self.handler)
 
-        mask = pyinotify.IN_CLOSE_WRITE | pyinotify.IN_MOVED_TO
-        self.manager.add_watch(self.config.path, mask, rec=True)
+        if self.LOG.isEnabledFor(logging.DEBUG):
+            mask = pyinotify.ALL_EVENTS
+        else:
+            mask = pyinotify.IN_CLOSE_WRITE | pyinotify.IN_MOVED_TO
+
+        # Add all configured base dirs
+        for path in self.config.path.split(os.pathsep):
+            self.manager.add_watch(path.strip(), mask, rec=True, auto_add=True)
 
 
     def run(self):
         """ We don't really need any timed scheduling.
         """
         # TODO: Maybe do some stats logging here, once per hour or so
-        # XXX: We can handle files that were not valid bencode here, from a Queue! And watch.ini reloading.
+        # TODO: We can handle files that were not valid bencode here, from a Queue! And watch.ini reloading.
+
+        # XXX: Add a check that the notifier is working, by creating / deleting a file
+        # XXX: Also check for unhandled files
+
+        # TODO: XXX: Esepcially on startup, we need to walk the directory tree
+        #    and check for files not loaded (by checking hashes)!
+        #    Or maybe rename them during loading?! Makes detection easy.
 
 
 class TreeWatchCommand(ScriptBaseWithConfig):
