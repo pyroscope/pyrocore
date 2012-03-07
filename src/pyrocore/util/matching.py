@@ -19,6 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import re
 import time
+import shlex
 import fnmatch
 import operator
 import logging
@@ -122,8 +123,10 @@ class NegateFilter(Filter):
     def __str__(self):
         if isinstance(self._inner, FieldFilter):
             return "%s=!%s" % tuple(str(self._inner).split('=', 1))
+        elif isinstance(self._inner, CompoundFilterBase):
+            return "[ NOT [ %s ] ]" % str(self._inner)
         else:
-            return "NOT " + str(self._inner)
+            return "[ NOT %s ]" % str(self._inner)
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -562,7 +565,7 @@ class ConditionParser(object):
         """
         conditions_text = conditions
         try:
-            conditions = conditions.split()
+            conditions = shlex.split(fmt.to_utf8(conditions))
         except AttributeError:
             # Not a string, assume parsed tree
             conditions_text = self._tree2str(conditions)
@@ -570,6 +573,13 @@ class ConditionParser(object):
         # Empty list?
         if not conditions:
             raise FilterError("No conditions given at all!")
+
+        # NOT *must* appear at the start of a group
+        negate = conditions[:1] == ["NOT"]
+        if negate:
+            conditions = conditions[1:]
+            if not conditions:
+                raise FilterError("NOT must be followed by some conditions!")
     
         # Handle grouping
         if '[' in conditions:
@@ -617,5 +627,4 @@ class ConditionParser(object):
         if not matcher:
             raise FilterError("Right-hand side of OR missing in %r!" % (conditions_text,))
     
-        return root
-
+        return NegateFilter(root) if negate else root
