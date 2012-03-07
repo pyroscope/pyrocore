@@ -87,8 +87,9 @@ project = Bunch(
         "pyrobase>=0.2",
     ],
     extras_require = {
-        "FlexGet": ["flexget>=1.0"],
+        "templating": ["Tempita>=0.5.1"],
         "pyrotorque": ["APScheduler>=2.0.2"],
+        "FlexGet": ["flexget>=1.0"],
     },
 
     # tests
