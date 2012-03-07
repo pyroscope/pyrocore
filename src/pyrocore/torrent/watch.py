@@ -26,7 +26,8 @@ import asyncore
 from pyrobase.parts import Bunch
 from pyrocore import error
 from pyrocore import config as configuration
-from pyrocore.util import os, xmlrpc, pymagic, metafile
+from pyrocore.util import os, fmt, xmlrpc, pymagic, metafile
+from pyrocore.torrent import matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 try: 
@@ -62,7 +63,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         See https://github.com/seb-m/pyinotify/.
     """
     
-    METAFILE_EXT = (".torrent", ".torrent.load", ".torrent.start")
+    METAFILE_EXT = (".torrent", ".load", ".start", ".queue")
     
 
     def my_init(self, **kw):
@@ -100,18 +101,33 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         try:
             # TODO: Scrub metafile if requested
 
-            # Load metafile into client and get created item back
+            # Build indicator flags for target state from filename
             flags = pathname.split(os.sep)
             flags.extend(flags[-1].split('.'))
+            flags = set(flags)
 
-            action = self.job.config.load_mode
+            # Determine target state
+            start_it = self.job.config.load_mode in ("start",)
+            queue_it = self.job.config.queued 
+
             if "start" in flags:
-                action = "start"
+                start_it = True
             elif "load" in flags:
-                action = None
+                start_it = False
 
-            action = "load_start" if action == "start" else "load"
-            getattr(self.job.proxy, action + "_verbose")(pathname)
+            if "queue" in flags:
+                queue_it = True
+
+            # Load metafile into client
+            if queue_it:
+                commands = () if start_it else ("d.set_priority=0",)
+            else:
+                commands = ("d.start=",) if start_it else ()
+            self.job.proxy.load_verbose(pathname, *commands)
+            self.job.LOG.info("Loaded into %s: %s" % (
+                self.job.proxy.engine_id, 
+                fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
+            ))
 
             # TODO: Evaluate fields and set client values
             # TODO: Add metadata to tied file if requested
@@ -167,8 +183,12 @@ class TreeWatch(object):
         self.handler = None
         self.notifier = None
 
+        bool_param = lambda key, default: matching.truth(self.config.get(key, default), "job.%s.%s" % (self.config.job_name, key))
+
         if not self.config.path:
             raise error.UserError("You nedd to set 'job.%s.path' in the condfiguration!" % self.config.job_name)
+
+        self.config.queued = bool_param("queued", False)
 
         self.config.path = os.path.abspath(os.path.expanduser(self.config.path.rstrip(os.sep)))
         if not os.path.isdir(self.config.path):
