@@ -23,6 +23,7 @@ import operator
 
 from pyrocore import error, config
 from pyrocore.util import os, fmt, xmlrpc, pymagic
+from pyrocore.torrent import engine, matching
 
 
 class QueueManager(object):
@@ -35,8 +36,14 @@ class QueueManager(object):
         """ Set up queue manager.
         """
         self.config = config or {}
+        self.proxy = None
         self.LOG = pymagic.get_class_logger(self)
         self.LOG.debug("Queue manager created with config %r" % self.config)
+
+        self.config.startable = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
+            "is_open=0 is_active=0 is_complete=0 [ %s ]" % self.config.startable
+        )
+        self.LOG.info("Startable matcher for '%s' is: [ %s ]" % (self.config.job_name, self.config.startable))
 
 
     def _start(self, items):
@@ -44,14 +51,8 @@ class QueueManager(object):
         """
         # TODO: Filter by a custom date field, for scheduled downloads starting at a certain time, or after a given delay
 
-        # TODO: Add condition that prevents auto-start, with default "is_ignored=y"
-        # Config sample: job.queue.no_start = is_ignored=y OR metafile=//watch/load//
-        # replace "is_ignored" below with evaluating that
-
-        # TODO: ignore items that are priority "off"
-
-        # Check if anything more can be downloading at all
-        startable = [i for i in items if not (i.is_open or i.is_active or i.is_ignored or i.is_complete)]
+        # Check if anything more is ready to start downloading
+        startable = [i for i in items if self.config.startable.match(i)]
         if not startable:
             self.LOG.debug("Checked %d item(s), none startable" % (len(items),))
             return
@@ -95,13 +96,16 @@ class QueueManager(object):
                 fmt.to_utf8(item.name), item.alias, item.hash))
             if not self.config.dry_run:
                 item.start()
+                self.proxy.log('', "%s: Started '%s' {%s}" % (
+                    self.__class__.__name__, fmt.to_utf8(item.name), item.alias,
+                ))
 
 
     def run(self):
         """ Queue manager job callback.
         """
         try:
-            proxy = config.engine.open()
+            self.proxy = config.engine.open()
             
             # Get items from 'pyrotorque' view
             items = list(config.engine.items(self.VIEWNAME, cache=False))
@@ -112,7 +116,7 @@ class QueueManager(object):
             
             # TODO: Add a log message to rTorrent via print= (Started by queue emanager ...)
 
-            self.LOG.debug("%s - %s" % (config.engine.engine_id, proxy))
+            self.LOG.debug("%s - %s" % (config.engine.engine_id, self.proxy))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             # only debug, let the statistics logger do its job
             self.LOG.debug(str(exc)) 
