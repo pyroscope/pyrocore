@@ -19,6 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sys
 import time
+import errno
 import signal
 import logging
 
@@ -40,7 +41,14 @@ def check_process(pidfile):
         Return (running, pid).
     """
     # Check pid file
-    handle = open(pidfile, 'r')
+    try:
+        handle = open(pidfile, 'r')
+    except IOError, exc:
+        if exc.errno == errno.ENOENT:
+            # pid file disappeared
+            return False, 0
+        raise
+
     try:
         pid = int(handle.read().strip(), 10)
     except (TypeError, ValueError), exc:

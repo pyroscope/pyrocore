@@ -58,6 +58,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             help="advise jobs not to do any real work, just tell what would happen")
         self.add_bool_option("--no-fork", "--fg", help="Don't fork into background (stay in foreground and log to console)")
         self.add_bool_option("--stop", help="Stop running daemon")
+        self.add_bool_option("--restart", help="Stop running daemon, then fork into background")
         self.add_bool_option("-?", "--status", help="Check daemon status")
         self.add_value_option("--pid-file", "PATH",
             help="file holding the process ID of the daemon, when running in background")
@@ -165,15 +166,23 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             self.options.pid_file = os.path.join(config.config_dir, "run/pyrotorque.pid") 
 
         # Process control
-        if self.options.status or self.options.stop:
+        if self.options.status or self.options.stop or self.options.restart:
             if self.options.pid_file and os.path.exists(self.options.pid_file):
                 running, pid = osmagic.check_process(self.options.pid_file)
             else:
                 running, pid = False, 0
     
-            if self.options.stop:
+            if self.options.stop or self.options.restart:
                 if running:
                     os.kill(pid, signal.SIGTERM)
+
+                    # Wait for termination (max. 10 secs)
+                    for _ in range(100):
+                        running, _ = osmagic.check_process(self.options.pid_file)
+                        if not running:
+                            break
+                        time.sleep(.1)
+                    
                     self.LOG.info("Process #%d stopped." % (pid))
                 elif pid:
                     self.LOG.info("Process #%d NOT running anymore." % (pid))
@@ -182,8 +191,15 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             else:
                 self.LOG.info("Process #%d %s running." % (pid, "UP and" if running else "NOT"))
 
-            self.return_code = error.EX_OK if running else error.EX_UNAVAILABLE
-            return
+            if self.options.restart:
+                if self.options.pid_file:
+                    running, pid = osmagic.check_process(self.options.pid_file)
+                    if running:
+                        self.return_code = error.EX_TEMPFAIL
+                        return
+            else:
+                self.return_code = error.EX_OK if running else error.EX_UNAVAILABLE
+                return
 
         # Check for guard file and running daemon, abort if not OK
         try:
