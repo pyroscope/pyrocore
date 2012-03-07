@@ -413,7 +413,8 @@ class TorrentProxy(object):
     hash = ConstantField(str, "hash", "info hash", matcher=matching.PatternFilter)
     name = ConstantField(fmt.to_unicode, "name", "name (file or root directory)", matcher=matching.PatternFilter)
     size = ConstantField(int, "size", "data size", matcher=matching.ByteSizeFilter)
-    prio = OnDemandField(int, "prio", "priority (0=off, 1=low, 2=normal, 3=high)", matcher=matching.FloatFilter)
+    prio = OnDemandField(int, "prio", "priority (0=off, 1=low, 2=normal, 3=high)", matcher=matching.FloatFilter,
+        formatter=lambda val: "X- +"[val])
     tracker = ConstantField(str, "tracker", "first in the list of announce URLs", matcher=matching.PatternFilter,
         accessor=lambda o: o.announce_urls()[0])
     alias = ConstantField(config.map_announce2alias, "alias", "tracker alias or domain",
