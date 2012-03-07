@@ -125,10 +125,10 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             else:
                 commands = ("d.start=",) if start_it else ()
             self.job.proxy.load_verbose(pathname, *commands)
-            msg = "%s: Loaded '%s' from '%s'" % (
+            msg = "%s: Loaded '%s' from '%s/'" % (
                 self.__class__.__name__,
                 fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
-                pathname,
+                os.path.dirname(pathname).rstrip(os.sep),
             )
             self.job.proxy.log('', msg)
 
@@ -196,9 +196,12 @@ class TreeWatch(object):
 
         self.config.queued = bool_param("queued", False)
 
-        self.config.path = os.path.abspath(os.path.expanduser(self.config.path.rstrip(os.sep)))
-        if not os.path.isdir(self.config.path):
-            raise error.UserError("Path '%s' is not a directory!" % self.config.path)
+        self.config.path = set([os.path.abspath(os.path.expanduser(path.strip()).rstrip(os.sep))
+            for path in self.config.path.split(os.pathsep)
+        ])
+        for path in self.config.path:
+            if not os.path.isdir(path):
+                raise error.UserError("Path '%s' is not a directory!" % path)
 
         # Get client proxy
         self.proxy = xmlrpc.RTorrentProxy(configuration.scgi_url)
@@ -227,7 +230,7 @@ class TreeWatch(object):
             mask = pyinotify.IN_CLOSE_WRITE | pyinotify.IN_MOVED_TO
 
         # Add all configured base dirs
-        for path in self.config.path.split(os.pathsep):
+        for path in self.config.path:
             self.manager.add_watch(path.strip(), mask, rec=True, auto_add=True)
 
 
