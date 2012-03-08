@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import re
 
 from pyrobase import bencode
 from pyrocore import config
@@ -148,7 +149,7 @@ class MetafileCreator(ScriptBaseWithConfig):
                 self.fatal("Error making fast-resume data (%s)" % (exc,))
                 raise
 
-            hashed_path = metapath + "-resume.torrent"
+            hashed_path = re.sub(r"\.torrent$", "", metapath) + "-resume.torrent"
             self.LOG.info("Writing fast-resume metafile %r..." % (hashed_path,))
             try:
                 bencode.bwrite(hashed_path, meta)
