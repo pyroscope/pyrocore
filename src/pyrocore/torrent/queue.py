@@ -40,6 +40,9 @@ class QueueManager(object):
         self.LOG = pymagic.get_class_logger(self)
         self.LOG.debug("Queue manager created with config %r" % self.config)
 
+        bool_param = lambda key, default: matching.truth(self.config.get(key, default), "job.%s.%s" % (self.config.job_name, key))
+
+        self.config.quiet = bool_param("quiet", False)
         self.config.startable = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
             "is_open=0 is_active=0 is_complete=0 [ %s ]" % self.config.startable
         )
@@ -96,9 +99,10 @@ class QueueManager(object):
                 fmt.to_utf8(item.name), item.alias, item.hash))
             if not self.config.dry_run:
                 item.start()
-                self.proxy.log('', "%s: Started '%s' {%s}" % (
-                    self.__class__.__name__, fmt.to_utf8(item.name), item.alias,
-                ))
+                if not self.config.quiet:
+                    self.proxy.log('', "%s: Started '%s' {%s}" % (
+                        self.__class__.__name__, fmt.to_utf8(item.name), item.alias,
+                    ))
 
 
     def run(self):

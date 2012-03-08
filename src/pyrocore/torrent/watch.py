@@ -20,6 +20,7 @@
 from __future__ import with_statement
 
 import sys
+import time
 import logging
 import asyncore
 
@@ -125,12 +126,15 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             else:
                 commands = ("d.start=",) if start_it else ()
             self.job.proxy.load_verbose(pathname, *commands)
-            msg = "%s: Loaded '%s' from '%s/'" % (
-                self.__class__.__name__,
-                fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
-                os.path.dirname(pathname).rstrip(os.sep),
-            )
-            self.job.proxy.log('', msg)
+            time.sleep(.05) # let things settle
+            
+            if not self.job.config.quiet:
+                msg = "%s: Loaded '%s' from '%s/'" % (
+                    self.__class__.__name__,
+                    fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
+                    os.path.dirname(pathname).rstrip(os.sep),
+                )
+                self.job.proxy.log('', msg)
 
             # TODO: Evaluate fields and set client values
             # TODO: Add metadata to tied file if requested
@@ -170,7 +174,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
     def process_default(self, event):
         """ Fallback.
         """
-        if self.LOG.isEnabledFor(logging.DEBUG):
+        if self.job.LOG.isEnabledFor(logging.DEBUG):
             self.job.LOG.debug("Ignored inotify event:\n    %r" % event)
         else:
             self.job.LOG.warning("Unexpected inotify event %r" % event)
@@ -194,6 +198,7 @@ class TreeWatch(object):
         if not self.config.path:
             raise error.UserError("You need to set 'job.%s.path' in the configuration!" % self.config.job_name)
 
+        self.config.quiet = bool_param("quiet", False)
         self.config.queued = bool_param("queued", False)
 
         self.config.path = set([os.path.abspath(os.path.expanduser(path.strip()).rstrip(os.sep))
