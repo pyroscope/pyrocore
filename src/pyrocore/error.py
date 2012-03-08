@@ -48,6 +48,11 @@ class EngineError(LoggableError):
     """
 
 
+class NetworkError(LoggableError):
+    """ External connection errors.
+    """
+
+
 class UserError(LoggableError):
     """ Yes, it was your fault!
     """
