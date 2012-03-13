@@ -495,7 +495,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.select:
             try:
                 if '-' in self.options.select:
-                    selection = tuple(int(i, 10) for i in self.options.select.split('-', 1))
+                    selection = tuple(int(i or default, 10) for i, default in 
+                        zip(self.options.select.split('-', 1), ("1", "-1")))
                 else:
                     selection = 1, int(self.options.select, 10)
             except (ValueError, TypeError), exc:
