@@ -242,6 +242,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)")
         self.add_value_option("--from-view", "NAME",
             help="select only items that are on view NAME")
+        self.add_value_option("-M", "--modify-view", "NAME",
+            help="get items from given view and write result back to it (short-cut to combine --from-view and --to-view)")
 # TODO: implement -S
 #        self.add_bool_option("-S", "--summary",
 #            help="print statistics")
@@ -521,6 +523,12 @@ class RtorrentControl(ScriptBaseWithConfig):
             config.engine.load_config()
             osmagic.daemonize(logfile=config.log_execute)
             time.sleep(.05) # let things settle a little
+
+        # View handling
+        if self.options.modify_view:
+            if self.options.from_view or self.options.to_view:
+                self.fatal("You cannot combine with --modify_view with --from-view or --to-view")
+            self.options.from_view = self.options.to_view = self.options.modify_view
 
         # Find matching torrents
         # TODO: this could get speedier quite a bit when we pre-select
