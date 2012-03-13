@@ -589,6 +589,7 @@ class TorrentEngine(object):
 
 
     def show(self, items, view=None):
-        """ Visualize a set of items (search result).
+        """ Visualize a set of items (search result), and return the view name.
         """
         raise NotImplementedError()
+

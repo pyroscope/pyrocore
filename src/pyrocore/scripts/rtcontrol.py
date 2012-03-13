@@ -447,8 +447,7 @@ class RtorrentControl(ScriptBaseWithConfig):
     def show_in_view(self, sourceview, matches, targetname=None):
         """ Show search result in ncurses view.
         """
-        targetname = targetname or self.options.to_view or "rtcontrol"
-        config.engine.show(matches, targetname)
+        targetname = config.engine.show(matches, targetname or self.options.to_view or "rtcontrol")
         msg = "Filtered %d out of %d torrents using [ %s ]" % (
             len(matches), sourceview.size(), sourceview.matcher)
         self.LOG.info("%s into rTorrent view %r." % (msg, targetname))

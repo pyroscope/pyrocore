@@ -558,6 +558,19 @@ class RtorrentEngine(engine.TorrentEngine):
         return time.time() - self.startup
 
 
+    def _resolve_viewname(self, viewname):
+        """
+        """
+        if viewname == "-":
+            try:
+                # Only works with rTorrent-PS at this time!
+                viewname = self.open().ui.current_view()
+            except xmlrpc.ERRORS, exc:
+                raise error.EngineError("Can't get name of current view: %s" % (exc))
+        
+        return viewname
+
+
     def open(self):
         """ Open connection.
         """
@@ -629,7 +642,9 @@ class RtorrentEngine(engine.TorrentEngine):
         if view is None:
             view = engine.TorrentView(self, "main")
         elif isinstance(view, basestring):
-            view = engine.TorrentView(self, view)
+            view = engine.TorrentView(self, self._resolve_viewname(view))
+        else:
+            view.viewname = self._resolve_viewname(view.viewname)
 
         if not cache or view.viewname not in self._item_cache:
             # Map pyroscope names to rTorrent ones
@@ -674,10 +689,10 @@ class RtorrentEngine(engine.TorrentEngine):
 
 
     def show(self, items, view=None):
-        """ Visualize a set of items (search result).
+        """ Visualize a set of items (search result), and return the view name.
         """
         proxy = self.open()
-        view = view or "rtcontrol"
+        view = self._resolve_viewname(view or "rtcontrol")
         
         # Add view if needed
         if view not in proxy.view_list():
@@ -691,4 +706,6 @@ class RtorrentEngine(engine.TorrentEngine):
         # TODO: should be a "system.multicall"
         for item in items:
             proxy.view.set_visible(item.hash, view)
+
+        return view
 
