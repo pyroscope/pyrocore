@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import with_statement
 
 import re
 import sys
-from contextlib import closing
 
+from pyrobase import templating
 from pyrobase.parts import Bunch
+
 from pyrocore import error, config 
 from pyrocore.torrent import engine 
 from pyrocore.util import os, fmt, algo
@@ -197,44 +197,14 @@ class OutputMapping(algo.AttributeMapping):
 def preparse(output_format):
     """ Do any special processing of a template, and return the result.
     """
-    # First, try to resolve file: references to their contents 
-    template_path = None
     try:
-        is_file = output_format.startswith("file:")
-    except (AttributeError, TypeError):
-        pass
-    else:
-        if is_file:
-            template_path = output_format[5:]
-            if template_path.startswith('/'):
-                template_path = '/' + template_path.lstrip('/')
-            elif template_path.startswith('~'):
-                template_path = os.path.expanduser(template_path)
-            else:
-                template_path = os.path.join(config.config_dir, "templates", template_path)
-
-            with closing(open(template_path, "r")) as handle:
-                output_format = handle.read().rstrip()
-
-    if hasattr(output_format, "__engine__"):
-        # Already preparsed
-        template = output_format
-    elif output_format.startswith("{{"):
-        # Import tempita
-        try:
-            import tempita
-        except ImportError, exc:
+        return templating.preparse(output_format, lambda path: os.path.join(config.config_dir, "templates", path))
+    except ImportError, exc:
+        if "tempita" in str(exc):
             raise error.UserError("To be able to use Tempita templates, install the 'tempita' package (%s)\n"
                 "    Possibly USING THE FOLLOWING COMMAND:\n"
                 "        %s/easy_install tempita" % (exc, os.path.dirname(sys.executable)))
-
-        template = tempita.Template(output_format)
-        template.__engine__ = "tempita"
-        template.__file__ = template_path
-    else:
-        template = unicode(output_format)
-
-    return template
+        raise
 
 
 # TODO: All constant stuff should be calculated once, make this a class or something
@@ -291,7 +261,10 @@ def format_item(format, item, defaults=None):
         @param item: The object, which is automatically wrapped for interpolation. 
         @param defaults: Optional default values.
     """
-    if getattr(format, "__engine__", None) == "tempita" or format.startswith("{{"):
+    template_engine = getattr(format, "__engine__", None)
+
+    # TODO: Make differences between engines transparent
+    if template_engine == "tempita" or (not template_engine and format.startswith("{{")):
         # Set item, or field names for column titles
         namespace = dict(headers = not bool(item))
         if item:
@@ -316,7 +289,7 @@ def format_item(format, item, defaults=None):
                 r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', format) 
 
-        return format % OutputMapping(item, defaults)
+        return getattr(format, "fmt", format) % OutputMapping(item, defaults)
 
 
 def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
