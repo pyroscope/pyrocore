@@ -99,6 +99,8 @@ class RtorrentMove(ScriptBaseWithConfig):
             self.parser.print_help()
             self.parser.exit()
 
+        # TODO: Add mode to move tied metafiles, without losing the tie
+
         # Target handling
         target = self.args[-1]
         if "//" in target.rstrip('/'):

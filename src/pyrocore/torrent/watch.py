@@ -130,7 +130,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             
             if not self.job.config.quiet:
                 msg = "%s: Loaded '%s' from '%s/'" % (
-                    self.__class__.__name__,
+                    self.job.__class__.__name__,
                     fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
                     os.path.dirname(pathname).rstrip(os.sep),
                 )
@@ -240,7 +240,7 @@ class TreeWatch(object):
 
 
     def run(self):
-        """ We don't really need any timed scheduling.
+        """ Regular maintenance and fallback task.
         """
         # TODO: Maybe do some stats logging here, once per hour or so
         # TODO: We can handle files that were not valid bencode here, from a Queue! And watch.ini reloading.
@@ -248,9 +248,11 @@ class TreeWatch(object):
         # XXX: Add a check that the notifier is working, by creating / deleting a file
         # XXX: Also check for unhandled files
 
-        # TODO: XXX: Esepcially on startup, we need to walk the directory tree
+        # TODO: XXX: Especially on startup, we need to walk the directory tree
         #    and check for files not loaded (by checking hashes)!
         #    Or maybe rename them during loading?! Makes detection easy.
+
+        # TODO: Move untied *.torrent.loaded in the tree to *.torrent.dead
 
 
 class TreeWatchCommand(ScriptBaseWithConfig):
