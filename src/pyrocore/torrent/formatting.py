@@ -283,13 +283,15 @@ def format_item(format, item, defaults=None):
         return expand_template(format, namespace)
     else:
         # Interpolation
+        format = getattr(format, "fmt", format)
+
         if item is None:
             # For headers, ensure we only have string formats
             format = re.sub(
                 r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
                 lambda m: m.group(1) + 's', format) 
 
-        return getattr(format, "fmt", format) % OutputMapping(item, defaults)
+        return format % OutputMapping(item, defaults)
 
 
 def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
