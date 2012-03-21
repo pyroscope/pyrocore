@@ -582,7 +582,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             for item in matches:
                 if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
                     continue
-                if self.options.output_format and self.options.output_format != "-":
+                if self.options.output_format and str(self.options.output_format) != "-":
                     self.emit(item, defaults, to_log=self.options.cron)
                 if not self.options.dry_run:
                     getattr(item, action.method)(*action.args)
@@ -610,7 +610,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             sys.stdout.flush()
 
         # Show on console?
-        elif self.options.output_format and self.options.output_format != "-":
+        elif self.options.output_format and str(self.options.output_format) != "-":
             if not self.options.summary:
                 line_count = 0
                 for item in matches:
