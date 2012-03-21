@@ -679,10 +679,11 @@ class Metafile(object):
         # Build result
         result = [
             "NAME %s" % (os.path.basename(self.filename)),
-            "SIZE %s (%i * %s + %s)" % (
+            "SIZE %s (%i * %s + %s; metafile=%s)" % (
                 fmt.human_size(total_size).strip(),
                 piece_number, fmt.human_size(piece_length).strip(),
                 fmt.human_size(last_piece_length).strip(),
+                fmt.human_size(os.path.getsize(self.filename)).strip(),
             ),
             "HASH %s" % (info_hash.hexdigest().upper()),
             "URL  %s" % (mask_keys if masked else str)(announce),
