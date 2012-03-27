@@ -34,7 +34,7 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 try: 
     import pyinotify
 except ImportError, exc:
-    pyinotify = Bunch(WatchManager=None, ProcessEvent=object)
+    pyinotify = Bunch(WatchManager=None, ProcessEvent=object, _import_error=str(exc))
 
 
 class RemoteWatch(object):
@@ -175,6 +175,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         """ Fallback.
         """
         if self.job.LOG.isEnabledFor(logging.DEBUG):
+            # On debug level, we subscribe to ALL events, so they're expected in that case ;)
             self.job.LOG.debug("Ignored inotify event:\n    %r" % event)
         else:
             self.job.LOG.warning("Unexpected inotify event %r" % event)
@@ -222,8 +223,8 @@ class TreeWatch(object):
             See https://github.com/seb-m/pyinotify/.
         """
         if not pyinotify.WatchManager:
-            raise error.UserError("You need to install 'pyinotify' to use %s!" % (
-                self.__class__.__name__))
+            raise error.UserError("You need to install 'pyinotify' to use %s (%s)!" % (
+                self.__class__.__name__, pyinotify._import_error))
 
         self.manager = pyinotify.WatchManager()
         self.handler = TreeWatchHandler(job=self)
