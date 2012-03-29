@@ -77,7 +77,11 @@ class RTorrentMethod(object):
                         args = (0,) + args
                     if config.debug:
                         self._proxy.LOG.debug("BEFORE MAPPING: %r" % (args,))
-                    args = args[0:2] + tuple(self._proxy._map_call(i) for i in args[2:])
+                    if self._method_name == "system.multicall":
+                        for call in args[0]:
+                            call["methodName"] = self._proxy._map_call(call["methodName"])
+                    else:
+                        args = args[0:2] + tuple(self._proxy._map_call(i) for i in args[2:])
                     if config.debug:
                         self._proxy.LOG.debug("AFTER MAPPING: %r" % (args,))
                 elif self._method_name in self.NEEDS_FAKE_TARGET:
