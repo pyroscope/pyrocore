@@ -19,10 +19,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+import sys
 import time
 import errno
 import socket
 import fnmatch
+import logging
 import operator
 from contextlib import closing
 
@@ -625,6 +627,12 @@ class RtorrentEngine(engine.TorrentEngine):
         self.open().log(0, msg)
 
 
+    def item(self, infohash, prefetch=None, cache=False):
+        """ Fetch a single item by its info hash.
+        """
+        return self.items(infohash, prefetch, cache).next()
+
+
     def items(self, view=None, prefetch=None, cache=True):
         """ Get list of download items.
         
@@ -656,17 +664,32 @@ class RtorrentEngine(engine.TorrentEngine):
             # Fetch items
             items = []
             try:
-                ##self.LOG.debug("multicall %r" % (args,))
-                multi_call = self.open().d.multicall
-
                 # Prepare multi-call arguments
                 args = ["d.%s%s" % ("" if field.startswith("is_") else "get_", field)
                     for field in prefetch
                 ]
-                args = [view.viewname] + [field + '=' for field in args]
 
-                # Execute it
-                raw_items = multi_call(*tuple(args))
+                infohash = None
+                if view.viewname.startswith('#'):
+                    infohash = view.viewname[1:]
+                elif len(view.viewname) == 40:
+                    try:
+                        int(view.viewname, 16)
+                    except (TypeError, ValueError):
+                        pass
+                    else:
+                        infohash = view.viewname
+
+                if infohash:
+                    multi_call = self.open().system.multicall
+                    args = [dict(methodName=field, params=[infohash]) for field in args]
+                    raw_items = [[i[0] for i in multi_call(args)]]
+                else:
+                    multi_call = self.open().d.multicall
+                    args = [view.viewname] + [field + '=' for field in args]
+                    raw_items = multi_call(*tuple(args))
+
+                ##self.LOG.debug("multicall %r" % (args,))
                 ##import pprint; self.LOG.debug(pprint.pformat(raw_items))
                 self.LOG.debug("Got %d items with %d attributes from %r [%s]" % (
                     len(raw_items), len(prefetch), self.engine_id, multi_call))
@@ -708,4 +731,19 @@ class RtorrentEngine(engine.TorrentEngine):
             proxy.view.set_visible(item.hash, view)
 
         return view
+
+
+def run():
+    """ Module level test.
+    """
+    from pyrocore.util import load_config
+
+    logging.basicConfig(level=logging.DEBUG)
+    load_config.ConfigLoader().load()
+    config.debug = True
+    print(repr(config.engine.item(sys.argv[1])))
+
+
+if __name__ == "__main__":
+    run()
 
