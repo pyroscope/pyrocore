@@ -39,8 +39,10 @@ _TV_TRAIL = (
     r"(?:[._](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
     r"(?:[._](?P<aspect>WS))?"
     r"(?:[._](?P<format>HDTV|PDTV|DSR|DVDSCR|720p))?"
-    r"(?:[._][Xx][Vv2][Ii6][Dd4])?"
-    r"(?:[._](?P<sound>MP3|AC3))?"
+    r"(?:[._](?P<release2>WEB-DL|WEB.DL))?"
+    r"(?:[._](?P<codec>[XxHh]\.?264|[Xx][Vv][Ii][Dd]))?"
+    r"(?:[._](?P<sound>MP3|AC3|DD5\.1))?"
+    r"(?:[._](?P<codec2>[XxHh]\.?264|[Xx][Vv][Ii][Dd]))?"
     r"(?:[-.](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
 )
 _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
@@ -48,17 +50,17 @@ _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
 TV_PATTERNS = [re.compile(i, re.I) for i in (
     ( # Normal TV Episodes
         r"^(?P<show>.+?)\.[sS]?(?P<season>\d{1,2})[xeE](?P<episode>\d{2}(?:eE\d{2})?)"
-        r"(?:\.(?P<title>.+[a-z]{1,2}.+?))?"
+        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
     ( # Normal TV Episodes (all-numeric season+episode)
         r"^(?P<show>.+?)\.(?P<season>\d)(?P<episode>\d{2})"
-        r"(?:\.(?P<title>.+[a-z]{1,2}.+?))?"
+        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
     ( # Daily Shows
         r"^(?P<show>.+?)\.(?P<date>\d{4}\.\d{2}\.\d{2})"
-        r"(?:\.(?P<title>.+[a-z]{1,2}.+?))?"
+        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
     ( # Whole Seasons
@@ -68,13 +70,13 @@ TV_PATTERNS = [re.compile(i, re.I) for i in (
         r"^(?P<show>.+?)"
         r"(?:\.(?:Part(?P<part>\d+?)|Pilot)){1,2}"
         #         (?P<year>\d{4})| creates false positives for movies!
-        r"(?:\.(?P<title>.+[a-z]{1,2}.+?))?"
+        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
     ( # Mini Series (Roman numerals)
         r"^(?P<show>.+?)"
         r"(?:\.Pa?r?t\.(?P<part>[ivxIVX]{1,3}?))"
-        r"(?:\.(?P<title>.+[a-z]{1,2}.+?))?"
+        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
 )]
