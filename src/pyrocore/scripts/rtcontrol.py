@@ -468,28 +468,29 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.parser.error("No filter conditions given!")
 
         # Check special action options
-        action = None
+        actions = []
         if self.options.ignore:
-            action = Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED", 
-                help="commands on torrent", interactive=False, args=(self.options.ignore,))
+            actions.append(Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED", 
+                help="commands on torrent", interactive=False, args=(self.options.ignore,)))
 
         # Check standard action options
         # TODO: Allow certain combinations of actions (like --tag foo --stop etc.)
         #       How do we get a sensible order of execution?
         for action_mode in self.ACTION_MODES:
             if getattr(self.options, action_mode.name):
-                if action:
+                if actions:
                     self.parser.error("Options --%s and --%s are mutually exclusive" % (
-                        action.name.replace('_', '-'), action_mode.name.replace('_', '-'),
+                        ", --".join(i.name.replace('_', '-') for i in actions),
+                        action_mode.name.replace('_', '-'),
                     ))
-                action = action_mode
-                if action.argshelp:
-                    action.args = (getattr(self.options, action.name),)
-        if not action and self.options.flush:
-            action = Bunch(name="flush", method="flush", label="FLUSH", 
-                help="flush session data", interactive=False, args=())
+                if action_mode.argshelp:
+                    action_mode.args = (getattr(self.options, action_mode.name),)
+                actions.append(action_mode)
+        if not actions and self.options.flush:
+            actions.append(Bunch(name="flush", method="flush", label="FLUSH", 
+                help="flush session data", interactive=False, args=()))
             self.options.flush = False # No need to flush twice
-        if action and action.interactive:
+        if any(i.interactive for i in actions):
             self.options.interactive = True
 
         selection = None
@@ -509,7 +510,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Preparation steps
         default_output_format = "default"
-        if action:
+        if actions:
             default_output_format = "action_cron" if self.options.cron else "action"
         self.validate_output_format(default_output_format)
         sort_key = self.validate_sort_fields()
@@ -568,7 +569,8 @@ class RtorrentControl(ScriptBaseWithConfig):
                         summary.add(field, getattr(item, field))
 
         # Execute action?
-        if action:
+        if actions:
+            action = actions[0] # TODO: loop over it
             self.LOG.log(logging.DEBUG if self.options.cron else logging.INFO, "%s %s %d out of %d torrents." % (
                 "Would" if self.options.dry_run else "About to", action.label, len(matches), view.size(),
             ))
