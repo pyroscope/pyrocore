@@ -175,6 +175,14 @@ def name_trait(name, add_info=False):
 
             if matched:
                 info["pattern"] = patname
+                
+                # Fold auxiliary groups into main one
+                for key, val in list(info.items()):
+                    if key[-1].isdigit():
+                        del info[key]
+                        if val:
+                            key = re.sub("[0-9]+$", "", key)
+                            info[key] = ("%s %s" % (info.get(key) or "", val)).strip()
                 break
 
         # TODO: Split by "dvdrip", year, etc. to get to the title and then
