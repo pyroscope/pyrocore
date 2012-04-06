@@ -35,54 +35,54 @@ KIND_ARCHIVE = set(("rar", "zip", "tgz", "bz2", "iso", "bin"))
 # Regex matchers for names
 _VIDEO_EXT = '|'.join(re.escape('.' + i) for i in KIND_VIDEO)
 _TV_TRAIL = (
-    r"(?:\.(?P<release_tags>PREAIR|READNFO))?"
-    r"(?:[._](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
-    r"(?:[._](?P<aspect>WS))?"
-    r"(?:[._](?P<format>HDTV|PDTV|DSR|DVDSCR|720p))?"
-    r"(?:[._](?P<release2>WEB-DL|WEB.DL))?"
-    r"(?:[._](?P<codec>[XxHh]\.?264|[Xx][Vv][Ii][Dd]))?"
-    r"(?:[._](?P<sound>MP3|AC3|DD5\.1))?"
-    r"(?:[._](?P<codec2>[XxHh]\.?264|[Xx][Vv][Ii][Dd]))?"
-    r"(?:[-.](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
+    r"(?:[._ ](?P<release_tags>PREAIR|READNFO))?"
+    r"(?:[._ ](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
+    r"(?:[._ ](?P<aspect>WS))?"
+    r"(?:[._ ](?P<format>HDTV|PDTV|DSR|DVDSCR|720p|1080p|1080i))?"
+    r"(?:[._ ](?P<release2>WEB-DL|WEB.DL))?"
+    r"(?:[._ ](?P<codec>[XH]\.?264|XviD))?"
+    r"(?:[._ ](?P<sound>MP3|AC3|DD5\.1))?"
+    r"(?:[._ ](?P<codec2>[XH]\.?264|XviD))?"
+    r"(?:[-. ](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
 )
 _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
 
-TV_PATTERNS = [re.compile(i, re.I) for i in (
-    ( # Normal TV Episodes
-        r"^(?P<show>.+?)\.[sS]?(?P<season>\d{1,2})[xeE](?P<episode>\d{2}(?:eE\d{2})?)"
-        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
+TV_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
+    ( "Normal TV Episodes",
+        r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})[xE](?P<episode>\d{2}(?:E\d{2})?)"
+        r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
-    ( # Normal TV Episodes (all-numeric season+episode)
-        r"^(?P<show>.+?)\.(?P<season>\d)(?P<episode>\d{2})"
-        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
+    ( "Normal TV Episodes (all-numeric season+episode)",
+        r"^(?P<show>.+?)[._ ](?P<season>\d)(?P<episode>\d{2})"
+        r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
-    ( # Daily Shows
-        r"^(?P<show>.+?)\.(?P<date>\d{4}\.\d{2}\.\d{2})"
-        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
+    ( "Daily Shows",
+        r"^(?P<show>.+?)[._ ](?P<date>\d{4}\.\d{2}\.\d{2})"
+        r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
-    ( # Whole Seasons
-        r"^(?P<show>.+?)\.[sS]?(?P<season>\d{1,2})" + _TV_TRAIL
+    ( "Full Seasons",
+        r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})" + _TV_TRAIL
     ),
-    ( # Mini Series
+    ( "Mini Series",
         r"^(?P<show>.+?)"
-        r"(?:\.(?:Part(?P<part>\d+?)|Pilot)){1,2}"
+        r"(?:[._ ](?:Part(?P<part>\d+?)|Pilot)){1,2}"
         #         (?P<year>\d{4})| creates false positives for movies!
-        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
+        r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
-    ( # Mini Series (Roman numerals)
+    ( "Mini Series (Roman numerals)",
         r"^(?P<show>.+?)"
-        r"(?:\.Pa?r?t\.(?P<part>[ivxIVX]{1,3}?))"
-        r"(?:\.(?P<title>.+?[a-z]{1,2}.+?))??"
+        r"(?:[._ ]Pa?r?t[._ ](?P<part>[ivxIVX]{1,3}?))"
+        r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
 )]
 
-MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
-    ( # Scene tagged names
+MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
+    ( "Scene tagged movie",
         r"^(?P<title>.+?)[. ](?P<year>\d{4})"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
         r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i))?"
@@ -94,7 +94,7 @@ MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
         r"(?:[-.](?P<group>.+?))"
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
-    ( # Blu-ray
+    ( "Blu-ray movie",
         r"^(?P<title>.+?)[. ](?P<year>\d{4})"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
         r"(?:[._ ](?P<format0>720p|1080p|1080i))?"
@@ -110,11 +110,12 @@ MOVIE_PATTERNS = [re.compile(i, re.I) for i in (
 
 BAD_TITLE_WORDS = set((
     "bdrip", "brrip", "hdrip", "dvdrip", "ntsc", 
-    "hdtv", "dvd-r", "dvdr", "blu-ray", "bluray", "720p", "1080p",
+    "hdtv", "dvd-r", "dvdr", "blu-ray", "bluray", "web-dl",
+    "720p", "1080p",
     "mp3", "ac3", "dts",
 ))
 
-del i
+del k, i
 
 
 def get_filetypes(filelist, path=None, size=os.path.getsize):
@@ -165,13 +166,15 @@ def name_trait(name, add_info=False):
         for trait, patterns, title_group in trait_patterns:
             matched = None
 
-            for pattern in patterns:
+            for patname, pattern in patterns:
                 matched = pattern.match(name)
+                ##print matched, patname; print "   ", pattern.pattern
                 if matched and not any(i in matched.groupdict()[title_group].lower() for i in BAD_TITLE_WORDS):
                     kind, info = trait, matched.groupdict()
                     break
 
             if matched:
+                info["pattern"] = patname
                 break
 
         # TODO: Split by "dvdrip", year, etc. to get to the title and then
