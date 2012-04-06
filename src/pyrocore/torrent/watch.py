@@ -75,9 +75,13 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         """ Handle a new metafile.
         """
         try:
+            if not os.path.getsize(pathname):
+                # Ignore 0-byte dummy files (Firefox creates these while downloading)
+                self.job.LOG.warn("Ignoring 0-byte metafile '%s'" % (pathname,))
+                return
             data = metafile.checked_open(pathname)
         except EnvironmentError, exc:
-            self.error("Can't read metafile '%s' (%s)" % (
+            self.job.LOG.error("Can't read metafile '%s' (%s)" % (
                 pathname, str(exc).replace(": '%s'" % pathname, ""),
             ))
             return
@@ -121,13 +125,18 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
                 queue_it = True
 
             # Load metafile into client
+            commands = []
+            for _, cmd in sorted(self.job.custom_cmds.items()):
+                commands.append(cmd)
             if queue_it:
-                commands = () if start_it else ("d.set_priority=0",)
-            else:
-                commands = ("d.start=",) if start_it else ()
-            self.job.proxy.load_verbose(pathname, *commands)
+                if not start_it:
+                    commands.append("d.set_priority=0")
+            elif start_it:
+                commands.append("d.start=")
+            self.job.proxy.load_verbose(pathname, *tuple(commands))
             time.sleep(.05) # let things settle
             
+            # Announce new item
             if not self.job.config.quiet:
                 msg = "%s: Loaded '%s' from '%s/'" % (
                     self.job.__class__.__name__,
@@ -208,6 +217,17 @@ class TreeWatch(object):
         for path in self.config.path:
             if not os.path.isdir(path):
                 raise error.UserError("Path '%s' is not a directory!" % path)
+
+        # Assemble custom commands
+        self.custom_cmds = {}
+        for key, val in self.config.items():
+            if key.startswith("cmd."):
+                _, key = key.split('.', 1)
+                if key in self.custom_cmds:
+                    raise error.UserError("Duplicate custom command definition '%s'"
+                        " (%r already registered, you also added %r)!" % (key, self.custom_cmds[key], val))
+                self.custom_cmds[key] = val
+        self.LOG.debug("custom commands = %r" % self.custom_cmds)
 
         # Get client proxy
         self.proxy = xmlrpc.RTorrentProxy(configuration.scgi_url)
