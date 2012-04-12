@@ -435,7 +435,7 @@ class TorrentProxy(object):
     is_ignored = OnDemandField(bool, "is_ignored", "ignore commands?", matcher=matching.BoolFilter,
         formatter=lambda val: "IGN!" if int(val) else "HEED")
     is_ghost = DynamicField(bool, "is_ghost", "has no data file or directory?", matcher=matching.BoolFilter,
-        accessor=lambda o: not os.path.exists(fmt.to_unicode(o._fields["path"])),
+        accessor=lambda o: o._fields["path"] and not os.path.exists(fmt.to_unicode(o._fields["path"])),
         formatter=lambda val: "GHST" if val else "DATA")
 
     # Paths
