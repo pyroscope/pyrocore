@@ -110,7 +110,7 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
 
 BAD_TITLE_WORDS = set((
     "bdrip", "brrip", "hdrip", "dvdrip", "ntsc", 
-    "hdtv", "dvd-r", "dvdr", "blu-ray", "bluray", "web-dl",
+    "hdtv", "dvd-r", "dvdr", "dvd5", "dvd9", "blu-ray", "bluray", "web-dl",
     "720p", "1080p",
     "mp3", "ac3", "dts",
 ))
@@ -153,7 +153,7 @@ def name_trait(name, add_info=False):
     kind, info = None, {}
 
     # Anything to check against?
-    if name:
+    if name and not name.startswith("VTS_"):
         lower_name = name.lower()
         trait_patterns = (("tv", TV_PATTERNS, "show"), ("movie", MOVIE_PATTERNS, "title"))
 
