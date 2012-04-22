@@ -38,11 +38,11 @@ _TV_TRAIL = (
     r"(?:[._ ](?P<release_tags>PREAIR|READNFO))?"
     r"(?:[._ ](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
     r"(?:[._ ](?P<aspect>WS))?"
-    r"(?:[._ ](?P<format>HDTV|PDTV|DSR|DVDSCR|720p|1080p|1080i))?"
+    r"(?:[._ ](?P<format>HDTV|PDTV|DSR|DVD[59]?|DVDSCR|720p|1080p|1080i))?"
     r"(?:[._ ](?P<release2>WEB-DL|WEB.DL))?"
-    r"(?:[._ ](?P<codec>[XH]\.?264|XviD))?"
-    r"(?:[._ ](?P<sound>MP3|AC3|DD5\.1))?"
-    r"(?:[._ ](?P<codec2>[XH]\.?264|XviD))?"
+    r"(?:[._ ](?P<codec>[XH]\.?264|XviD|VTS|ISO|NTSC|PAL))?"
+    r"(?:[._ ](?P<sound>MP3|AC3|DD5\.1|L?PCM))?"
+    r"(?:[._ ](?P<codec2>[XH]\.?264|XviD|VTS|ISO|NTSC|PAL))?"
     r"(?:[-. ](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
 )
 _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
