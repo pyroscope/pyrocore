@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+# TODO: Re-tie metafiles when they're moved in the tree
+
 import sys
 import time
 import logging
@@ -147,6 +149,11 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
 
             # TODO: Evaluate fields and set client values
             # TODO: Add metadata to tied file if requested
+
+            # TODO: Execute commands AFTER adding the item, with full templating
+            # Example: Labeling - add items to a persistent view, i.e. "postcmd = view.set_visible={{label}}"
+            #   could also be done automatically from the path, see above under "flags" (autolabel = True)
+            #   and add traits to the flags, too, in that case
 
         except xmlrpc.ERRORS, exc:
             self.job.LOG.error("While loading #%s: %s" % (info_hash, exc))

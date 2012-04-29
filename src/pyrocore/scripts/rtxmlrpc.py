@@ -46,6 +46,10 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         self.add_bool_option("-r", "--repr", help="show Python pretty-printed response")
         self.add_bool_option("-x", "--xml", help="show XML response")
 
+        # TODO: Tempita with "result" object in namespace
+        #self.add_value_option("-o", "--output-format", "FORMAT",
+        #    help="pass result to a template for formatting")
+
 
     def mainloop(self):
         """ The main loop.
