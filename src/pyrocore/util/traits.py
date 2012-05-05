@@ -141,8 +141,9 @@ def get_filetypes(filelist, path=None, size=os.path.getsize):
 
     # Normalize values to integer percent
     total = sum(histo.values())
-    for ext, val in histo.items():
-        histo[ext] = int(val * 100.0 / total + .499)
+    if total:
+        for ext, val in histo.items():
+            histo[ext] = int(val * 100.0 / total + .499)
 
     return sorted(zip(histo.values(), histo.keys()), reverse=True)
 
