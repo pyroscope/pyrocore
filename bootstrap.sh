@@ -28,6 +28,11 @@ fi
 # essential tools
 test -x ../bin/paver || ../bin/easy_install -U "paver>=1.0.1" || return 1
 
+# package dependencies
+for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
+    ../bin/easy_install "$pkgreq"
+done
+
 # git dependencies
 for project in $git_projects; do
     test ! -d ../$project || ( cd ../$project && $PWD/../bin/paver develop -U)
