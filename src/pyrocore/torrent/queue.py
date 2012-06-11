@@ -47,12 +47,18 @@ class QueueManager(object):
             "is_open=0 is_active=0 is_complete=0 [ %s ]" % self.config.startable
         )
         self.LOG.info("Startable matcher for '%s' is: [ %s ]" % (self.config.job_name, self.config.startable))
+        self.config.downloading = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
+            "is_active=1 is_complete=0" + (" [ %s ]" % self.config.downloading if "downloading" in self.config else "")
+        )
+        self.LOG.info("Downloading matcher for '%s' is: [ %s ]" % (self.config.job_name, self.config.downloading))
 
 
     def _start(self, items):
         """ Start some items if conditions are met.
         """
         # TODO: Filter by a custom date field, for scheduled downloads starting at a certain time, or after a given delay
+
+        # TODO: Don't start anything more if download BW is used >= config threshold in %
 
         # Check if anything more is ready to start downloading
         startable = [i for i in items if self.config.startable.match(i)]
@@ -63,7 +69,7 @@ class QueueManager(object):
         # TODO: sort by priority, then loaded time
 
         # Stick to "start_at_once" parameter, unless "downloading_min" is violated
-        downloading = [i for i in items if i.is_active and not i.is_complete]
+        downloading = [i for i in items if self.config.downloading.match(i)]
         start_now = max(self.config.start_at_once, self.config.downloading_min - len(downloading))
         start_now = min(start_now, len(startable))
 
