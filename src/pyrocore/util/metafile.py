@@ -208,6 +208,9 @@ def clean_meta(meta, including_info=False, logger=None):
                     del entry[key]
                     modified.add("info.files." + key)
 
+            # Remove crap that certain PHP software puts in paths
+            entry["path"] = [i for i in entry["path"] if i]
+
     return modified
 
 
@@ -712,12 +715,15 @@ class Metafile(object):
             result.append("%s/" % info['name'])
             oldpaths = [None] * 99
             for entry in info['files']:
-                for idx, item in enumerate(entry['path'][:-1]):
+                # Remove crap that certain PHP software puts in paths
+                entry_path = [i for i in entry["path"] if i]
+
+                for idx, item in enumerate(entry_path[:-1]):
                     if item != oldpaths[idx]:
                         result.append("%s%s/" % (' ' * (4*(idx+1)), item))
                         oldpaths[idx] = item
                 result.append("%-69s%9s" % (
-                    ' ' * (4*len(entry['path'])) + entry['path'][-1],
+                    ' ' * (4*len(entry_path)) + entry_path[-1],
                     fmt.human_size(entry['length']),
                 ))
 
