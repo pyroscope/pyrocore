@@ -16,3 +16,17 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+
+def connect(config_dir=None, optional_config_files=None, cron_cfg="cron"):
+    """ Initialize everything for interactive use.
+    
+        Returns a ready-to-use RtorrentEngine object.
+    """
+    from pyrocore.scripts.base import ScriptBase
+    from pyrocore.util import load_config
+
+    ScriptBase.setup(cron_cfg=cron_cfg)
+    load_config.ConfigLoader(config_dir).load(optional_config_files or [])
+    config.engine.open()
+
+    return config.engine
