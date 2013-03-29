@@ -19,6 +19,7 @@ import sys
 import time
 import shlex
 import signal
+import logging
 import asyncore
 from collections import defaultdict
 
@@ -46,6 +47,8 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
     ARGS_HELP = ""
 
     OPTIONAL_CFG_FILES = ["torque.ini"]
+
+    POLL_TIMEOUT = 1.0
 
 
     def add_options(self):
@@ -85,21 +88,39 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
     def _validate_config(self):
         """ Handle and check configuration.
         """
-        self.jobs = defaultdict(Bunch)
+        groups = dict(
+            job = defaultdict(Bunch),
+            httpd = defaultdict(Bunch),
+        )
 
         for key, val in config.torque.items():
-            # Auto-convert numbers
+            # Auto-convert numbers and bools
             if val.isdigit():
                 config.torque[key] = val = int(val)
+            elif val.lower() in (matching.TRUE | matching.FALSE):
+                val = matching.truth(str(val), key)
 
-            # Assemble job parameters
-            if key.startswith("job."):
+            # Assemble grouped parameters
+            stem = key.split('.', 1)[0]
+            if key == "httpd.active":
+                groups[stem]["active"] = val
+            elif stem in groups:
                 try:
-                    _, name, param = key.split('.', 2)
+                    stem, name, param = key.split('.', 2)
                 except (TypeError, ValueError):
-                    self.fatal("Bad job configuration key %r (expecting job.NAME.PARAM)" % key)
+                    self.fatal("Bad %s configuration key %r (expecting %s.NAME.PARAM)" % (stem, key, stem))
                 else:
-                    self.jobs[name][param] = val
+                    groups[stem][name][param] = val
+
+        for key, val in groups.iteritems():
+            setattr(self, key.replace("job", "jobs"), Bunch(val))
+
+        # Validate httpd config
+        if self.httpd.active:
+            if self.httpd.waitress.url_scheme not in ("http", "https"):
+                self.fatal("HTTP URL scheme must be either 'http' or 'https'")
+            if type(self.httpd.waitress.port) != int or not(1024 <= self.httpd.waitress.port < 65536):
+                self.fatal("HTTP port must be a 16 bit number >= 1024")
 
         # Validate jobs
         for name, params in self.jobs.items():
@@ -130,6 +151,35 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 self.sched.add_cron_job(params.handler.run, **params.schedule)
 
 
+    def _init_wsgi_server(self):
+        """ Set up WSGI HTTP server.
+        """
+        self.wsgi_server = None
+
+        if self.httpd.active:
+            # Only import dependencies when server is active
+            from waitress.server import WSGIServer
+            from pyrocore.daemon import webapp
+
+            # Set up WSGI stack
+            wsgi_app = webapp.monitoring
+#            try:
+#                import wsgilog
+#            except ImportError:
+#                self.LOG.info("'wsgilog' middleware not installed")
+#            else:
+#                wsgi_app = wsgilog.WsgiLog(wsgi_app, **self.httpd.wsgilog)
+
+            ##logging.getLogger('waitress').setLevel(logging.DEBUG)
+            self.LOG.debug("Waitress config: %r" % self.httpd.waitress)
+            self.wsgi_server = WSGIServer(wsgi_app, **self.httpd.waitress)
+            self.LOG.info("Started web server at %s://%s:%d/" % (
+                self.httpd.waitress.url_scheme,
+                self.wsgi_server.get_server_name(self.wsgi_server.effective_host), 
+                self.wsgi_server.effective_port,
+            ))
+
+
     def _run_forever(self):
         """ Run configured jobs until termination request.
         """
@@ -137,13 +187,19 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             try:
                 tick = time.time()
 
-                asyncore.loop(timeout=1, use_poll=True)
+                asyncore.loop(timeout=self.POLL_TIMEOUT, use_poll=True)
 
-                tick += 1.0 - time.time()
+                # Sleep for remaining poll cycle time
+                tick += self.POLL_TIMEOUT - time.time()
                 if tick > 0:
-                    time.sleep(tick)
+                    # wait POLL_TIMEOUT at most (robust against time shifts)
+                    time.sleep(min(tick, self.POLL_TIMEOUT))
             except KeyboardInterrupt, exc:
                 self.LOG.info("Termination request received (%s)" % exc)
+                break
+            except SystemExit, exc:
+                self.return_code = exc.code or 0
+                self.LOG.info("System exit (RC=%r)" % self.return_code)
                 break
             else:
                 # Idle work
@@ -215,11 +271,13 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             time.sleep(.05) # let things settle a little
         signal.signal(signal.SIGTERM, _raise_interrupt)
 
-        # Set up scheduler
+        # Set up services
         from apscheduler.scheduler import Scheduler
         self.sched = Scheduler(config.torque)
 
-        # Run scheduler
+        self._init_wsgi_server()
+
+        # Run services
         self.sched.start()
         try:
             self._add_jobs()
@@ -227,6 +285,9 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             self._run_forever()
         finally:
             self.sched.shutdown()
+            if self.wsgi_server:
+                self.wsgi_server.task_dispatcher.shutdown()
+                self.wsgi_server = None
 
             if self.options.pid_file:
                 try:

@@ -29,8 +29,8 @@ from pyrocore.util import fmt
 
 LOG = logging.getLogger(__name__)
 
-TRUE = ["true", "t", "yes", "y", "1", "+",]
-FALSE = ["false", "f", "no", "n", "0", "-",]
+TRUE = set(("true", "t", "yes", "y", "1", "+",))
+FALSE = set(("false", "f", "no", "n", "0", "-",))
 
 
 def truth(val, context):
