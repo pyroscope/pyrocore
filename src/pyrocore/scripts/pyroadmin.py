@@ -20,11 +20,14 @@ from __future__ import with_statement
 import sys
 import shutil
 import pprint
+import urllib2
+from zipfile import ZipFile
+from StringIO import StringIO
 from contextlib import closing
 
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore import config
-from pyrocore.util import os, load_config, metafile
+from pyrocore.util import os, load_config, metafile, matching
 
 
 class AdminTool(ScriptBaseWithConfig):
@@ -35,7 +38,10 @@ class AdminTool(ScriptBaseWithConfig):
     ARGS_HELP = ""
 
     # directories that should be created
-    CONFIG_DIRS = ["log", "data", "run"]
+    CONFIG_DIRS = ["log", "data", "run", "htdocs"]
+                
+    OPTIONAL_CFG_FILES = ["torque.ini"]
+
                 
     def add_options(self):
         """ Add program options.
@@ -56,6 +62,29 @@ class AdminTool(ScriptBaseWithConfig):
             help="create screenlet stub")
 
 
+    def download_resource(self, download_url, target, guard):
+        """ Helper to download and install external resources.
+        """
+        if not os.path.isabs(target):
+            target = os.path.join(config.config_dir, target)
+
+        if os.path.exists(os.path.join(target, guard)):
+            self.LOG.info("Already have '%s' in '%s'..." % (download_url, target))
+            return
+
+        if not os.path.isdir(target):
+            os.makedirs(target)
+
+        self.LOG.info("Downloading '%s' to '%s'..." % (download_url, target))
+        with closing(urllib2.urlopen(download_url)) as url_handle:
+            if download_url.endswith(".zip"):
+                with closing(ZipFile(StringIO(url_handle.read()))) as zip_handle:
+                    zip_handle.extractall(target)
+            else:
+                with closing(open(os.path.join(target, guard), "wb")) as file_handle:
+                    shutil.copyfileobj(url_handle, file_handle)
+
+
     def mainloop(self):
         """ The main loop.
         """
@@ -70,6 +99,11 @@ class AdminTool(ScriptBaseWithConfig):
                 if not os.path.isdir(dirpath):
                     self.LOG.info("Creating %r..." % (dirpath,))
                     os.mkdir(dirpath)
+
+            # Initialize webserver stuff
+            if matching.truth(getattr(config, "torque", {}).get("httpd.active", "False"), "httpd.active"):
+                self.download_resource(config.torque["httpd.download_url.foundation"], "htdocs/f4", "css/foundation.css")
+                self.download_resource(config.torque["httpd.download_url.smoothie"], "htdocs/js", "smoothie.js")
 
         elif self.options.dump_config or self.options.output:
             # Get public config attributes
