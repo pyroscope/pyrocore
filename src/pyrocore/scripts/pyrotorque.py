@@ -162,7 +162,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             from pyrocore.daemon import webapp
 
             # Set up WSGI stack
-            wsgi_app = webapp.monitoring
+            wsgi_app = webapp.make_app(self.httpd)
 #            try:
 #                import wsgilog
 #            except ImportError:
