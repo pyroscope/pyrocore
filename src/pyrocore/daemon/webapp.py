@@ -43,15 +43,6 @@ HTDOCS_PATHS = [
 ]
 
 
-def guarded(func, *args, **kwargs):
-    """ Call a function, return None on errors.
-    """
-    try:
-        return func(*args, **kwargs)
-    except (EnvironmentError, error.LoggableError, xmlrpc.ERRORS):
-        return None    
-
-
 class StaticFolders(object):
     """ An application that serves up the files in a list of given directories.
 
@@ -92,6 +83,9 @@ class StaticFolders(object):
 class JsonController(object):
     """ Controller for generating JSON data.
     """
+
+    ERRORS_LOGGED = set()
+
     
     def __init__(self, **kwargs):
         self.LOG = pymagic.get_class_logger(self)
@@ -121,6 +115,18 @@ class JsonController(object):
         return resp
 
 
+    def guarded(self, func, *args, **kwargs):
+        """ Call a function, return None on errors.
+        """
+        try:
+            return func(*args, **kwargs)
+        except (EnvironmentError, error.LoggableError, xmlrpc.ERRORS), g_exc:
+            if func.__name__ not in self.ERRORS_LOGGED:
+                self.LOG.warn("While calling '%s': %s" % (func.__name__, g_exc))
+                self.ERRORS_LOGGED.add(func.__name__)
+            return None    
+
+
     def json_engine(self, req):
         """ Return torrent engine data.
         """
@@ -146,22 +152,20 @@ class JsonController(object):
     def json_charts(self, req):
         """ Return charting data.
         """
-        try:
-            disk_usage = psutil.disk_usage(os.path.expanduser(self.cfg.disk_usage_path))
+        disk_usage = self.guarded(psutil.disk_usage, os.path.expanduser(self.cfg.disk_usage_path))
+        if disk_usage:
             disk_usage = (disk_usage.used, disk_usage.total)
-        except EnvironmentError:
-            disk_usage = None
 
         data = dict(
             engine      = self.json_engine(req),
             uptime      = time.time() - psutil.BOOT_TIME,
-            fqdn        = guarded(socket.getfqdn),
-            cpu_usage   = guarded(psutil.cpu_percent, 0),
-            ram_usage   = guarded(psutil.virtual_memory),
-            swap_usage  = guarded(psutil.swap_memory),
+            fqdn        = self.guarded(socket.getfqdn),
+            cpu_usage   = self.guarded(psutil.cpu_percent, 0),
+            ram_usage   = self.guarded(psutil.virtual_memory),
+            swap_usage  = self.guarded(psutil.swap_memory),
             disk_usage  = disk_usage,
-            disk_io     = guarded(psutil.disk_io_counters),
-            net_io      = guarded(psutil.network_io_counters),
+            disk_io     = self.guarded(psutil.disk_io_counters),
+            net_io      = self.guarded(psutil.network_io_counters),
         )
         return data
 
