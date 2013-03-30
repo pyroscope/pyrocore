@@ -416,7 +416,7 @@ class TorrentProxy(object):
     prio = OnDemandField(int, "prio", "priority (0=off, 1=low, 2=normal, 3=high)", matcher=matching.FloatFilter,
         formatter=lambda val: "X- +"[val])
     tracker = ConstantField(str, "tracker", "first in the list of announce URLs", matcher=matching.PatternFilter,
-        accessor=lambda o: o.announce_urls()[0])
+        accessor=lambda o: o.announce_urls(default=[None])[0])
     alias = ConstantField(config.map_announce2alias, "alias", "tracker alias or domain",
         matcher=matching.PatternFilter, accessor=operator.attrgetter("tracker"))
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.PatternFilter)

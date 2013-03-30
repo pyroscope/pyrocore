@@ -170,17 +170,16 @@ class RtorrentItem(engine.TorrentProxy):
             return val
 
 
-    def announce_urls(self):
-        """ Get a list of all announce URLs.
+    def announce_urls(self, default=[]):
+        """ Get a list of all announce URLs. 
+            Returns `default` if no trackers are found at all.
         """
         try:
             response = self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=")
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
-        try:
-            return response[0]
-        except IndexError:   
-            raise error.EngineError("While getting announce URLs for #%s: Malformed response '%r'" % (self._fields["hash"], response))
+
+        return response[0] if response else default
 
 
     def start(self):
