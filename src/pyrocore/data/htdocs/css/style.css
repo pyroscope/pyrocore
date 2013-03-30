@@ -1,5 +1,31 @@
-/* Custom styles on top of Foundation */
+/* Monitoring styles */
+#heartbeat {
+    color: #911;
+	xxwidth: 5em;
+	xxheight: 5em;
+    text-align: center;
+    transition: color 0.25s, font-size 0.25s;
+    -webkit-transition: color 0.25s, font-size 0.25s;
+}
+#heartbeat.on {
+    color: #f33;
+	xxfont-size: 120%;
+}
+.value {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.values {
+	font-size: 70%;
+	text-align: right;
+}
+.transparent {
+	opacity: 0;
+}
 
+
+/* Custom styles on top of Foundation */
 body {
     background: #222;
     color: #ccc;
@@ -24,3 +50,4 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
 .panel p {
     color: #ccc;
 }
+

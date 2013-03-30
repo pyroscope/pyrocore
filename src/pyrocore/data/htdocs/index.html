@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>PyroScope</title>
+    <title>PyroScope Monitoring</title>
 
     <link rel="shortcut icon" href="/static/favicon.ico" />
     <link rel="stylesheet" href="/static/f4/css/normalize.css" />
@@ -16,18 +16,19 @@
 <body>
 
     <!-- Header and Nav -->
+    <a name="top" />
     <nav class="top-bar">
     <img class="left" src="/static/img/pyroscope.png" width="40" height="40" hspace="5" vspace="3" alt="PyroScope" />
     <ul class="title-area">
-      <!-- Title Area -->
-      <li class="name">
-        <h1>
-          <a href="#">
-            Monitoring
-          </a>
-        </h1>
-      </li>
-      <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+        <!-- Title Area -->
+        <li class="name">
+            <h1>
+                <a href="#">
+                    <span id="engine_id">Monitoring</span>
+                </a>
+            </h1>
+        </li>
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
     </ul>
 
     <section class="top-bar-section">
@@ -106,95 +107,129 @@
     <!-- End Header and Nav -->
 
     <!-- Main Grid Section -->
-    <div class="row"><a name="section1" />
-
-    </div>
-
-
-
-    <div class="row"><a name="section2" />
-
+    <div class="row"><a name="status" />
         <div class="large-2 columns">
-          <div class="panel">
-            <h5><small>Disk reads / writes</small></h5>
-            <div class="value" id="diskr">-/-</div>
-            <div class="value" id="diskw">-/-</div>
-          </div>
+            <div class="panel">
+                <h5><small>Status</small> <span class="right" id="heartbeat">♥</span></h5>
+                <p class="values">
+                    <span class="v-left">❢ <span class="value" id="errors">???</span></span> &nbsp;
+                    <span class="v-right">♯ <span class="value" id="calls">???</span></span>
+                    <br />⌚  <span class="v-right value" id="uptime">???</span>
+                    <br /><span class="transparent">⌚</span> <span class="v-right value" id="engine_uptime">???</span>
+                </p>
+            </div>
         </div>
 
         <div class="large-4 columns">
             <div class="panel">
-                <h5><small>Disk read</small> <span class="value right" id="diskrs">-/-</span></h5>
+                <h5><small>CPU</small> <span class="value right" id="cpu_usage">???</span></h5>
                 <div class="graph">
-                    <canvas id="c_diskrs" width="120" height="56"></canvas>
+                    <canvas id="c_cpu_usage" width="210" height="56"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="large-4 columns">
             <div class="panel">
-                <h5><small>Disk write</small> <span class="value right" id="diskws">-/-</span></h5>
+                <h5><small>RAM</small> <span class="value right" id="ram_usage">???</span></h5>
                 <div class="graph">
-                    <canvas id="c_diskws" width="120" height="56"></canvas>
+                    <canvas id="c_ram_usage" width="210" height="56"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="large-2 columns">
-          <div class="panel">
-            <h5><small>Disk used / total</small></h5>
-            <div class="value" id="disku">-/-</div>
-            <div class="value" id="diskt">-/-</div>
-          </div>
+            <div class="panel">
+                <h5><small>Latency</small> <span class="value right" id="latency">???</span></h5>
+                <div class="graph">
+                    <canvas id="c_latency" width="85" height="56"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row"><a name="section3" />
+    <div class="row"><a name="disk" />
+        <div class="large-2 columns">
+            <div class="panel">
+                <h5><small>Disk I/O</small></h5>
+                <p class="values">
+                                    ▲ <span class="value" id="diskr">???</span>
+                    <br />
+                                    ▼ <span class="value" id="diskw">???</span>
+                </p>
+            </div>
+        </div>          
 
-    <div class="large-4 columns">
-      <div class="panel">
-        <p>
-        </p>
-      </div>
-    </div>
-    <div class="large-4 columns">
-      <div class="panel">
-        <p>
-        </p>
-      </div>
-    </div>
-    <div class="large-4 columns">
-      <div class="panel">
-        <p>
-        </p>
-      </div>
-    </div>
+        <div class="large-4 columns">
+            <div class="panel">
+                <h5><small>Disk Reads</small> <span class="value right" id="diskrs">???</span></h5>
+                <div class="graph">
+                    <canvas id="c_diskrs" width="210" height="56"></canvas>
+                </div>
+            </div>
+        </div>
 
-    </div>
+        <div class="large-4 columns">
+            <div class="panel">
+                <h5><small>Disk Writes</small> <span class="value right" id="diskws">???</span></h5>
+                <div class="graph">
+                    <canvas id="c_diskws" width="210" height="56"></canvas>
+                </div>
+            </div>
+        </div>
 
-
-    <div class="row"><a name="section4" />
-
-    <div class="large-6 columns">
-      <div class="panel">
-        <h5>Panel Title</h5>
-        <p>This is a six columns grid panel with an arbitrary height. Bacon ipsum dolor sit amet salami ham hock biltong ball tip drumstick sirloin pancetta meatball short loin.</p>
-      </div>
-    </div>
-    <div class="large-3 columns">
-      <div class="panel">
-        <h5>Panel Title</h5>
-        <p>This is a three columns grid panel with an arbitrary height.</p>
-      </div>
-    </div>
-    <div class="large-3 columns">
-      <div class="panel">
-        <h5>Panel Title</h5>
-        <p>This is a three columns grid panel with an arbitrary height.</p>
-      </div>
+        <div class="large-2 columns">
+            <div class="panel">
+                <h5><small>Disk Size</small> <span class="value right" id="diskp">???</span></h5>
+                <p class="values">
+                                ✇ <span class="value" id="disku">???</span>
+                    <br />
+                                ⅀ <span class="value" id="diskt">???</span>
+                </p>
+            </div>
+        </div>
     </div>
 
+    <div class="row"><a name="network" />
+        <div class="large-2 columns">
+            <div class="panel">
+                <h5><small>Net I/O</small></h5>
+                <p class="values">
+                                    ▲ <span class="value" id="netw">???</span>
+                    <br />
+                                    ▼ <span class="value" id="netr">???</span>
+                </p>
+            </div>
+        </div>          
+
+        <div class="large-4 columns">
+            <div class="panel">
+                <h5><small>Upstream</small> <span class="value right" id="netws">???</span></h5>
+                <div class="graph">
+                    <canvas id="c_netws" width="210" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-4 columns">
+            <div class="panel">
+                <h5><small>Downstream</small> <span class="value right" id="netrs">???</span></h5>
+                <div class="graph">
+                    <canvas id="c_netrs" width="210" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h5><small>Swap</small> <span class="value right" id="swap_usage">???</span></h5>
+                <div class="graph">
+                    <canvas id="c_swap_usage" width="85" height="56"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
+
     <!-- End Grid Section -->
 
 
@@ -208,10 +243,7 @@
         </div>
         <div class="large-6 columns">
           <ul class="inline-list right">
-            <li><a href="#section1">Section 1</a></li>
-            <li><a href="#section2">Section 2</a></li>
-            <li><a href="#section3">Section 3</a></li>
-            <li><a href="#section4">Section 4</a></li>
+            <li><a href="#top">⇧ Top</a></li>
           </ul>
         </div>
       </div>
@@ -243,6 +275,7 @@
     <script src="/static/f4/js/foundation/foundation.tooltips.js"></script>
     <script src="/static/f4/js/foundation/foundation.topbar.js"></script>
     -->
+    <script src="/static/js/smoothie.js"></script>
     <script src="/static/js/charts.js"></script>
     <script>
         $(document).foundation();
