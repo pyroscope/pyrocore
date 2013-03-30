@@ -43,6 +43,15 @@ HTDOCS_PATHS = [
 ]
 
 
+def guarded(func, *args, **kwargs):
+    """ Call a function, return None on errors.
+    """
+    try:
+        return func(*args, **kwargs)
+    except (EnvironmentError, error.LoggableError, xmlrpc.ERRORS):
+        return None    
+
+
 class StaticFolders(object):
     """ An application that serves up the files in a list of given directories.
 
@@ -140,19 +149,19 @@ class JsonController(object):
         try:
             disk_usage = psutil.disk_usage(os.path.expanduser(self.cfg.disk_usage_path))
             disk_usage = (disk_usage.used, disk_usage.total)
-        except OSError:
-            disk_usage = (None, None)
+        except EnvironmentError:
+            disk_usage = None
 
         data = dict(
             engine      = self.json_engine(req),
             uptime      = time.time() - psutil.BOOT_TIME,
-            fqdn        = socket.getfqdn(),
-            cpu_usage   = psutil.cpu_percent(0),
-            ram_usage   = psutil.virtual_memory(),
-            swap_usage  = psutil.swap_memory(),
+            fqdn        = guarded(socket.getfqdn),
+            cpu_usage   = guarded(psutil.cpu_percent, 0),
+            ram_usage   = guarded(psutil.virtual_memory),
+            swap_usage  = guarded(psutil.swap_memory),
             disk_usage  = disk_usage,
-            disk_io     = psutil.disk_io_counters(),
-            net_io      = psutil.network_io_counters(),
+            disk_io     = guarded(psutil.disk_io_counters),
+            net_io      = guarded(psutil.network_io_counters),
         )
         return data
 

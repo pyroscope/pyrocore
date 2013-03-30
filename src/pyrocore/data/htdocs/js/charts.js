@@ -126,7 +126,7 @@
 
 		    // call data handlers
 			for (var i in data)
-				h[i] && h[i](data[i]);
+				h[i] && data[i] != null && h[i](data[i]);
 
 			// compensate for request time while allowing time for
 			// the heartbeat transitions to complete
