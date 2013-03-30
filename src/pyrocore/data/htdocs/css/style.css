@@ -1,0 +1,26 @@
+/* Custom styles on top of Foundation */
+
+body {
+    background: #222;
+    color: #ccc;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #eee;
+}
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+    color: #ddd;
+}
+
+.panel {
+    border-color: #444;
+    background: #333;
+    margin-bottom: .75em;
+    padding: .5em;
+}
+.panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6, .panel p {
+    color: #eee;
+}
+.panel p {
+    color: #ccc;
+}

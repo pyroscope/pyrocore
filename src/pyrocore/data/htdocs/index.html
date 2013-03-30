@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>PyroScope</title>
+
+    <link rel="shortcut icon" href="/static/favicon.ico" />
+    <link rel="stylesheet" href="/static/f4/css/normalize.css" />
+    <link rel="stylesheet" href="/static/f4/css/foundation.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <script src="/static/f4/js/vendor/custom.modernizr.js"></script>
+</head>
+<body>
+
+    <!-- Header and Nav -->
+    <nav class="top-bar">
+    <img class="left" src="/static/img/pyroscope.png" width="40" height="40" hspace="5" vspace="3" alt="PyroScope" />
+    <ul class="title-area">
+      <!-- Title Area -->
+      <li class="name">
+        <h1>
+          <a href="#">
+            Monitoring
+          </a>
+        </h1>
+      </li>
+      <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+    </ul>
+
+    <section class="top-bar-section">
+      <!-- Left Nav Section -->
+      <ul class="left">
+        <li class="divider"></li>
+        <li class="has-dropdown">
+          <a class="active" href="#">Left Menu</a>
+          <ul class="dropdown">
+            <li><label>Section Name</label></li>
+            <li><a href="#" class="">Dropdown Level 1</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li class="divider"></li>
+            <li><label>Section Name</label></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li class="divider"></li>
+            <li><a href="#">See all &rarr;</a></li>
+          </ul>
+        </li>
+        <li class="divider"></li>
+        <li class="has-dropdown">
+          <a href="#">Left Menu 2</a>
+          <ul class="dropdown">
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li class="divider"></li>
+            <li><a href="#">See all &rarr;</a></li>
+          </ul>
+        </li>
+        <li class="divider"></li>
+      </ul>
+
+      <!-- Right Nav Section -->
+      <ul class="right">
+        <li class="divider"></li>
+        <li class="has-dropdown">
+          <a href="#">Right Menu</a>
+          <ul class="dropdown">
+            <li><label>Section Name</label></li>
+            <li class="has-dropdown">
+              <a href="#" class="">Has Dropdown, Level 1</a>
+              <ul class="dropdown">
+                <li><a href="#">Dropdown Options</a></li>
+                <li><a href="#">Dropdown Options</a></li>
+                <li class="has-dropdown">
+                  <a href="#">Has Dropdown, Level 2</a>
+                  <ul class="dropdown test">
+                    <li><a href="#">Subdropdown Option</a></li>
+                    <li><a href="#">Subdropdown Option</a></li>
+                    <li><a href="#">Subdropdown Option</a></li>
+                  </ul>
+                </li>
+                <li><a href="#">Subdropdown Option</a></li>
+                <li><a href="#">Subdropdown Option</a></li>
+                <li><a href="#">Subdropdown Option</a></li>
+              </ul>
+            </li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li class="divider"></li>
+            <li><label>Section Name</label></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li><a href="#">Dropdown Option</a></li>
+            <li class="divider"></li>
+            <li><a href="#">See all &rarr;</a></li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+    </nav>
+    <!-- End Header and Nav -->
+
+    <!-- Main Grid Section -->
+    <div class="row"><a name="section1" />
+
+    </div>
+
+
+
+    <div class="row"><a name="section2" />
+
+        <div class="large-2 columns">
+          <div class="panel">
+            <h5><small>Disk reads / writes</small></h5>
+            <div class="value" id="diskr">-/-</div>
+            <div class="value" id="diskw">-/-</div>
+          </div>
+        </div>
+
+        <div class="large-4 columns">
+            <div class="panel">
+                <h5><small>Disk read</small> <span class="value right" id="diskrs">-/-</span></h5>
+                <div class="graph">
+                    <canvas id="c_diskrs" width="120" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-4 columns">
+            <div class="panel">
+                <h5><small>Disk write</small> <span class="value right" id="diskws">-/-</span></h5>
+                <div class="graph">
+                    <canvas id="c_diskws" width="120" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+          <div class="panel">
+            <h5><small>Disk used / total</small></h5>
+            <div class="value" id="disku">-/-</div>
+            <div class="value" id="diskt">-/-</div>
+          </div>
+        </div>
+    </div>
+
+    <div class="row"><a name="section3" />
+
+    <div class="large-4 columns">
+      <div class="panel">
+        <p>
+        </p>
+      </div>
+    </div>
+    <div class="large-4 columns">
+      <div class="panel">
+        <p>
+        </p>
+      </div>
+    </div>
+    <div class="large-4 columns">
+      <div class="panel">
+        <p>
+        </p>
+      </div>
+    </div>
+
+    </div>
+
+
+    <div class="row"><a name="section4" />
+
+    <div class="large-6 columns">
+      <div class="panel">
+        <h5>Panel Title</h5>
+        <p>This is a six columns grid panel with an arbitrary height. Bacon ipsum dolor sit amet salami ham hock biltong ball tip drumstick sirloin pancetta meatball short loin.</p>
+      </div>
+    </div>
+    <div class="large-3 columns">
+      <div class="panel">
+        <h5>Panel Title</h5>
+        <p>This is a three columns grid panel with an arbitrary height.</p>
+      </div>
+    </div>
+    <div class="large-3 columns">
+      <div class="panel">
+        <h5>Panel Title</h5>
+        <p>This is a three columns grid panel with an arbitrary height.</p>
+      </div>
+    </div>
+
+    </div>
+    <!-- End Grid Section -->
+
+
+    <!-- Footer -->
+    <footer class="row">
+    <div class="large-12 columns">
+      <hr />
+      <div class="row">
+        <div class="large-6 columns">
+          <small>Last updated <span id="last_updated">-/-</span></small>
+        </div>
+        <div class="large-6 columns">
+          <ul class="inline-list right">
+            <li><a href="#section1">Section 1</a></li>
+            <li><a href="#section2">Section 2</a></li>
+            <li><a href="#section3">Section 3</a></li>
+            <li><a href="#section4">Section 4</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    </footer>
+
+
+    <!-- *** FOUNDATION BOOTSTRAP *************************************** -->
+    <script>
+        document.write('<script src=/static/f4/js/vendor/' +
+            ('__proto__' in {} ? 'zepto' : 'jquery') +
+            '.js><\/script>')
+    </script>
+
+    <script src="/static/f4/js/foundation.min.js"></script>
+    <!--
+    <script src="/static/f4/js/foundation/foundation.js"></script>
+    <script src="/static/f4/js/foundation/foundation.alerts.js"></script>
+    <script src="/static/f4/js/foundation/foundation.clearing.js"></script>
+    <script src="/static/f4/js/foundation/foundation.cookie.js"></script>
+    <script src="/static/f4/js/foundation/foundation.dropdown.js"></script>
+    <script src="/static/f4/js/foundation/foundation.forms.js"></script>
+    <script src="/static/f4/js/foundation/foundation.joyride.js"></script>
+    <script src="/static/f4/js/foundation/foundation.magellan.js"></script>
+    <script src="/static/f4/js/foundation/foundation.orbit.js"></script>
+    <script src="/static/f4/js/foundation/foundation.placeholder.js"></script>
+    <script src="/static/f4/js/foundation/foundation.reveal.js"></script>
+    <script src="/static/f4/js/foundation/foundation.section.js"></script>
+    <script src="/static/f4/js/foundation/foundation.tooltips.js"></script>
+    <script src="/static/f4/js/foundation/foundation.topbar.js"></script>
+    -->
+    <script src="/static/js/charts.js"></script>
+    <script>
+        $(document).foundation();
+    </script>
+</body>
+</html>
