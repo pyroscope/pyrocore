@@ -40,7 +40,6 @@
 
     // Handlers
 	h.engine = function(d) {
-		document.title = d.engine_id + ' - PyroScope Monitoring';
 		$('#engine_id').text(d.engine_id);
 		$('#engine_uptime').text(u.seconds(d.uptime));
 	};
@@ -94,6 +93,15 @@
 		$('#swap_usage').prop('title', u.bytes(d[1]));
 		g.swap_usage.t.append(+new Date, d[3]);
 	};
+	function update(d) {
+	    if (d != undefined) {
+    		document.title = d.fqdn + ' - PyroScope Monitoring';
+    	}
+		$('#latency').text(latency + ' ms');
+		g.latency.t.append(+new Date, latency);
+		$('#calls').text(calls);
+		$('#errors').text(errors);
+	}
 
     // Updating
 	var calls = 0, errors = 0;
@@ -112,7 +120,7 @@
 			// the heartbeat transitions to complete
 			var t = latency = new Date - time;
 			++calls;
-			update();
+			update(data);
 
 			if (t <= margin) {
 				setTimeout(heartbeatoff, margin - t);
@@ -125,12 +133,6 @@
 				setTimeout(ping, margin);
 			}
 		});
-	}
-	function update() {
-		$('#latency').text(latency + ' ms');
-		g.latency.t.append(+new Date, latency);
-		$('#calls').text(calls);
-		$('#errors').text(errors);
 	}
 	function heartbeaton() {
 		$('#heartbeat').addClass('on');
