@@ -159,30 +159,29 @@
 		setTimeout(ping, wait); // TODO: incremental back-off
 	}
 	function graph(name, percentage) {
-		var options = percentage ? {
-			millisPerPixel: 1000,
+		var options = {
+			millisPerPixel: wait,
 			grid: {
 				fillStyle: 'rgba(32, 32, 32, 1)',
 				strokeStyle: 'rgba(0, 0, 0, 0)'
 			},
-			minValue: 0,
-			maxValue: 100,
-			labels: { fillStyle: 'rgba(0, 0, 0, 0)' }
-		} : {
-			millisPerPixel: 1000,
-			grid: {
-				fillStyle: 'rgba(32, 32, 32, 1)',
-				strokeStyle: 'rgba(0, 0, 0, 0)'
-			}
 		};
+		
+		if (percentage) {
+			options.minValue = 0;
+			options.maxValue = 100;
+			options.labels = { fillStyle: 'rgba(0, 0, 0, 0)' };
+		}
+
 		var ts_options = {
 			strokeStyle: 'rgba(255, 64, 64, 1)'
 		};
+
 		g[name] = {
-			c: new SmoothieChart(options)
+			c: new SmoothieChart(options),
+			t: new TimeSeries(),
 		};
 		g[name].c.streamTo($('#c_' + name)[0], 1000);
-		g[name].t = new TimeSeries();
 		g[name].c.addTimeSeries(g[name].t, ts_options);
 	}
 	//$.ajaxSetup({
