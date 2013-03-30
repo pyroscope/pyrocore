@@ -107,55 +107,6 @@
     <!-- End Header and Nav -->
 
     <!-- Main Grid Section -->
-    <div class="row"><a name="status" />
-        <div class="large-2 columns">
-            <div class="panel">
-                <h6><small>Status</small> <span class="right" id="heartbeat">♥</span></h6>
-                <p class="values">
-                    <span class="v-left">❢ <span class="value" id="errors">???</span></span> &nbsp;
-                    <span class="v-right">♯ <span class="value" id="calls">???</span></span>
-                    <br />⌚  <span class="v-right value" id="uptime">???</span>
-                </p>
-            </div>
-        </div>
-
-        <div class="large-3 columns">
-            <div class="panel">
-                <h6><small>CPU</small> <span class="value right" id="cpu_usage">???</span></h6>
-                <div class="graph">
-                    <canvas id="c_cpu_usage" width="150" height="56"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="large-3 columns">
-            <div class="panel">
-                <h6><small>RAM</small> <span class="value right" id="ram_usage">???</span></h6>
-                <div class="graph">
-                    <canvas id="c_ram_usage" width="150" height="56"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="large-2 columns">
-            <div class="panel">
-                <h6><small>Swap</small> <span class="value right" id="swap_usage">???</span></h6>
-                <div class="graph">
-                    <canvas id="c_swap_usage" width="85" height="56"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="large-2 columns">
-            <div class="panel">
-                <h6><small>Latency</small> <span class="value right" id="latency">???</span></h6>
-                <div class="graph">
-                    <canvas id="c_latency" width="85" height="56"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row"><a name="engine" />
         <div class="large-2 columns">
             <div class="panel">
@@ -201,6 +152,55 @@
                                     ⊳&nbsp;<span class="value" id="v_started">???</span> &nbsp;
                                     ∎&nbsp;<span class="value" id="v_stopped">???</span> &nbsp;
                 </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row"><a name="host" />
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>Host</small> <span class="right" id="heartbeat">♥</span></h6>
+                <p class="values">
+                                    ❢ <span class="value" id="errors">???</span> &nbsp;
+                                    ♯ <span class="value" id="calls">???</span>
+                    <br />⌚ <span class="v-right value" id="uptime">???</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="large-3 columns">
+            <div class="panel">
+                <h6><small>CPU</small> <span class="value right" id="cpu_usage">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_cpu_usage" width="150" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-3 columns">
+            <div class="panel">
+                <h6><small>RAM</small> <span class="value right" id="ram_usage">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_ram_usage" width="150" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>Swap</small> <span class="value right" id="swap_usage">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_swap_usage" width="85" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>Latency</small> <span class="value right" id="latency">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_latency" width="85" height="56"></canvas>
+                </div>
             </div>
         </div>
     </div>
