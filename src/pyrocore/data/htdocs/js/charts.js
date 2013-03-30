@@ -42,6 +42,18 @@
 	h.engine = function(d) {
 		$('#engine_id').text(d.engine_id);
 		$('#engine_uptime').text(u.seconds(d.uptime));
+		$('#rt_version').text(d.versions[0]);
+		$('#lt_version').text(d.versions[1]);
+
+	    for (var i in d.views)
+    		$('#v_' + i).text(d.views[i]);
+
+		$('#rtrs').text(u.bytes(d.download[0]) + '/s');
+		$('#rtws').text(u.bytes(d.upload[0]) + '/s');
+		if (d.download[1] > 0) $('#rtrs').prop('title', u.percent(100.0 * d.download[0] / d.download[1]));
+		if (d.upload[1] > 0)   $('#rtws').prop('title', u.percent(100.0 * d.upload[0] / d.upload[1]));
+		g.rtrs.t.append(+new Date, d.download[0] / 1048576); // MiB
+		g.rtws.t.append(+new Date, d.upload[0] / 1048576); // MiB
 	};
 	h.uptime = function(d) {
 		$('#uptime').text(u.seconds(d));
@@ -142,9 +154,9 @@
 	}
 	function error() {
 		++errors;
-		$('#uptime').text('OFFLINE');
+		$('#last_updated').text('OFFLINE');
 		update();
-		setTimeout(ping, wait);
+		setTimeout(ping, wait); // TODO: incremental back-off
 	}
 	function graph(name, percentage) {
 		var options = percentage ? {
@@ -186,6 +198,8 @@
 		diskws: 0,
 		netrs: 0,
 		netws: 0,
+		rtrs: 0,
+		rtws: 0,
 	};
 	for (var i in graphlist)
 		graph(i, graphlist[i]);

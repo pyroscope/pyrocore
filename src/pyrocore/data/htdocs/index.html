@@ -31,7 +31,7 @@
         <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
     </ul>
 
-    <section class="top-bar-section">
+    <section class="top-bar-section hidden">
       <!-- Left Nav Section -->
       <ul class="left">
         <li class="divider"></li>
@@ -110,37 +110,45 @@
     <div class="row"><a name="status" />
         <div class="large-2 columns">
             <div class="panel">
-                <h5><small>Status</small> <span class="right" id="heartbeat">♥</span></h5>
+                <h6><small>Status</small> <span class="right" id="heartbeat">♥</span></h6>
                 <p class="values">
                     <span class="v-left">❢ <span class="value" id="errors">???</span></span> &nbsp;
                     <span class="v-right">♯ <span class="value" id="calls">???</span></span>
                     <br />⌚  <span class="v-right value" id="uptime">???</span>
-                    <br /><span class="transparent">⌚</span> <span class="v-right value" id="engine_uptime">???</span>
                 </p>
             </div>
         </div>
 
-        <div class="large-4 columns">
+        <div class="large-3 columns">
             <div class="panel">
-                <h5><small>CPU</small> <span class="value right" id="cpu_usage">???</span></h5>
+                <h6><small>CPU</small> <span class="value right" id="cpu_usage">???</span></h6>
                 <div class="graph">
-                    <canvas id="c_cpu_usage" width="210" height="56"></canvas>
+                    <canvas id="c_cpu_usage" width="150" height="56"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="large-4 columns">
+        <div class="large-3 columns">
             <div class="panel">
-                <h5><small>RAM</small> <span class="value right" id="ram_usage">???</span></h5>
+                <h6><small>RAM</small> <span class="value right" id="ram_usage">???</span></h6>
                 <div class="graph">
-                    <canvas id="c_ram_usage" width="210" height="56"></canvas>
+                    <canvas id="c_ram_usage" width="150" height="56"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="large-2 columns">
             <div class="panel">
-                <h5><small>Latency</small> <span class="value right" id="latency">???</span></h5>
+                <h6><small>Swap</small> <span class="value right" id="swap_usage">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_swap_usage" width="85" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>Latency</small> <span class="value right" id="latency">???</span></h6>
                 <div class="graph">
                     <canvas id="c_latency" width="85" height="56"></canvas>
                 </div>
@@ -148,83 +156,114 @@
         </div>
     </div>
 
-    <div class="row"><a name="disk" />
+    <div class="row"><a name="engine" />
         <div class="large-2 columns">
             <div class="panel">
-                <h5><small>Disk I/O</small></h5>
+                <h6><small>rTorrent</small></h6>
                 <p class="values">
-                                    ▲ <span class="value" id="diskr">???</span>
-                    <br />
-                                    ▼ <span class="value" id="diskw">???</span>
+                    <span class="value" id="rt_version">???</span>
+                    /
+                    <span class="value" id="lt_version">???</span>
+                    <br />⌚ <span class="v-right value" id="engine_uptime">???</span>
                 </p>
             </div>
-        </div>          
+        </div>
 
-        <div class="large-4 columns">
+        <div class="large-3 columns">
             <div class="panel">
-                <h5><small>Disk Reads</small> <span class="value right" id="diskrs">???</span></h5>
+                <h6><small>▲</small> <span class="value right" id="rtws">???</span></h6>
                 <div class="graph">
-                    <canvas id="c_diskrs" width="210" height="56"></canvas>
+                    <canvas id="c_rtws" width="150" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-3 columns">
+            <div class="panel">
+                <h6><small>▼</small> <span class="value right" id="rtrs">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_rtrs" width="150" height="56"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="large-4 columns">
             <div class="panel">
-                <h5><small>Disk Writes</small> <span class="value right" id="diskws">???</span></h5>
-                <div class="graph">
-                    <canvas id="c_diskws" width="210" height="56"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="large-2 columns">
-            <div class="panel">
-                <h5><small>Disk Used</small> <span class="value right" id="diskp">???</span></h5>
+                <h6><small>Views</small></h6>
                 <p class="values">
-                                ✇ <span class="value" id="disku">???</span>
-                    <br />
-                                ⅀ <span class="value" id="diskt">???</span>
+                                    ♯&nbsp;<span class="value" id="v_main">???</span> &nbsp;
+                                    ☢&nbsp;<span class="value" id="v_active">???</span> &nbsp;
+                                    ❢&nbsp;<span class="value" id="v_messages">???</span> &nbsp;
+                                    ☑&nbsp;<span class="value" id="v_complete">???</span> &nbsp;
+                                    ☐&nbsp;<span class="value" id="v_incomplete">???</span> &nbsp;
+                                    ▲&nbsp;<span class="value" id="v_seeding">???</span> &nbsp;
+                                    ▼&nbsp;<span class="value" id="v_leeching">???</span> &nbsp;
+                                    ⊳&nbsp;<span class="value" id="v_started">???</span> &nbsp;
+                                    ∎&nbsp;<span class="value" id="v_stopped">???</span> &nbsp;
                 </p>
             </div>
         </div>
     </div>
 
-    <div class="row"><a name="network" />
+    <div class="row"><a name="io" />
         <div class="large-2 columns">
             <div class="panel">
-                <h5><small>Net I/O</small></h5>
+                <h6><small>Disk</small> <span class="value right" id="diskp">???</span></h6>
                 <p class="values">
-                                    ▲ <span class="value" id="netw">???</span>
+                                    ✇&nbsp;<span class="value" id="disku">???</span>
                     <br />
-                                    ▼ <span class="value" id="netr">???</span>
+                                    ⅀&nbsp;<span class="value" id="diskt">???</span>
+                    <br />
+                                    ▲&nbsp;<span class="value" id="diskr">???</span>
+                    <br />
+                                    ▼&nbsp;<span class="value" id="diskw">???</span>
                 </p>
             </div>
         </div>          
 
-        <div class="large-4 columns">
+        <div class="large-2 columns">
             <div class="panel">
-                <h5><small>Upstream</small> <span class="value right" id="netws">???</span></h5>
+                <h6><small>R</small> <span class="value right" id="diskrs">???</span></h6>
                 <div class="graph">
-                    <canvas id="c_netws" width="210" height="56"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="large-4 columns">
-            <div class="panel">
-                <h5><small>Downstream</small> <span class="value right" id="netrs">???</span></h5>
-                <div class="graph">
-                    <canvas id="c_netrs" width="210" height="56"></canvas>
+                    <canvas id="c_diskrs" width="85" height="56"></canvas>
                 </div>
             </div>
         </div>
 
         <div class="large-2 columns">
             <div class="panel">
-                <h5><small>Swap</small> <span class="value right" id="swap_usage">???</span></h5>
+                <h6><small>W</small> <span class="value right" id="diskws">???</span></h6>
                 <div class="graph">
-                    <canvas id="c_swap_usage" width="85" height="56"></canvas>
+                    <canvas id="c_diskws" width="85" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>Network</small></h6>
+                <p class="values">
+                                    ▲&nbsp;<span class="value" id="netw">???</span>
+                    <br />
+                                    ▼&nbsp;<span class="value" id="netr">???</span>
+                </p>
+            </div>
+        </div>          
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>▲</small> <span class="value right" id="netws">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_netws" width="85" height="56"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="large-2 columns">
+            <div class="panel">
+                <h6><small>▼</small> <span class="value right" id="netrs">???</span></h6>
+                <div class="graph">
+                    <canvas id="c_netrs" width="85" height="56"></canvas>
                 </div>
             </div>
         </div>

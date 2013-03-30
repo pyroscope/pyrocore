@@ -4,8 +4,8 @@
 	xxwidth: 5em;
 	xxheight: 5em;
     text-align: center;
-    transition: color 0.25s, font-size 0.25s;
-    -webkit-transition: color 0.25s, font-size 0.25s;
+    transition: color 0.1s, font-size 0.25s;
+    -webkit-transition: color 0.1s, font-size 0.25s;
 }
 #heartbeat.on {
     color: #f33;
@@ -22,6 +22,9 @@
 }
 .transparent {
 	opacity: 0;
+}
+.hidden {
+	display: none !important;
 }
 
 
