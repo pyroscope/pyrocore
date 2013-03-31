@@ -122,6 +122,8 @@
 		var time = +new Date;
 		heartbeaton();
 		$.get('/json/charts', function(data) {
+			++calls;
+    		$('#error_msg').parent().addClass('hidden');
     		$('#last_updated').text(new Date(data.engine.now * 1000));
 
 		    // call data handlers
@@ -131,7 +133,6 @@
 			// compensate for request time while allowing time for
 			// the heartbeat transitions to complete
 			var t = latency = new Date - time;
-			++calls;
 			update(data);
 
 			if (t <= margin) {
@@ -152,10 +153,18 @@
 	function heartbeatoff() {
 		$('#heartbeat').removeClass('on');
 	}
-	function error() {
+	function error(ev, xhr, settings, exc) {
 		++errors;
-		$('#last_updated').text('OFFLINE');
+		++calls;
+		//$('#last_updated').text('OFFLINE');
+		$('#error_msg').parent().removeClass('hidden');
+		$('#error_msg').text('Cannot access ' + settings.url);
+		console.log("AJAX error: ev = %o", ev);
+		console.log("AJAX error: xhr = %o", xhr);
+		console.log("AJAX error: settings = %o", settings);
+		console.log("AJAX error: exc = %o", exc);
 		update();
+		heartbeatoff();
 		setTimeout(ping, wait); // TODO: incremental back-off
 	}
 	function graph(name, percentage) {
@@ -184,10 +193,12 @@
 		g[name].c.streamTo($('#c_' + name)[0], 1000);
 		g[name].c.addTimeSeries(g[name].t, ts_options);
 	}
+	// jQuery only
 	//$.ajaxSetup({
 	//	timeout: 5000,
 	//  error: error
 	//});
+    $(document).on('ajaxError', error);
 	var graphlist = {
 		latency: 0,
 		cpu_usage: 1,
