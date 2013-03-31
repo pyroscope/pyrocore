@@ -5,7 +5,7 @@
 (function() {
 	var latency = 0; // msec
 	var wait = 2 * 1000; // msec
-	var margin = 250; // msec
+	var margin = 150; // msec
 	var decimal = 0;
 
 	var g = {}; // graphs
@@ -136,6 +136,7 @@
 			update(data);
 
 			if (t <= margin) {
+			    // call was faster than the CSS transition
 				setTimeout(heartbeatoff, margin - t);
 				setTimeout(ping, wait - t);
 			} else if (t <= wait - margin) {

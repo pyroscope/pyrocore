@@ -1,15 +1,12 @@
 /* Monitoring styles */
 #heartbeat {
     color: #911;
-	xxwidth: 5em;
-	xxheight: 5em;
     text-align: center;
-    transition: color 0.1s, font-size 0.25s;
-    -webkit-transition: color 0.1s, font-size 0.25s;
+    transition: color 0.15s;
+    -webkit-transition: color 0.15s;
 }
 #heartbeat.on {
     color: #f33;
-	xxfont-size: 120%;
 }
 .value {
     overflow: hidden;
