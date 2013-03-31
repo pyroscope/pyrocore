@@ -54,3 +54,7 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #ccc;
 }
 
+
+/* Load user styles */
+@import url("custom.css");
+
