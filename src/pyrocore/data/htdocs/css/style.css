@@ -26,12 +26,15 @@
 .hidden {
 	display: none !important;
 }
-
+#error_msg {
+     text-align:center;
+}
 
 /* Custom styles on top of Foundation */
 body {
     background: #222;
     color: #ccc;
+    font-family: Ubuntu,"Lucida Sans","DejaVu Sans",Consolas,Helvetica,Arial,sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
