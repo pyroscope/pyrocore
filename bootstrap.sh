@@ -24,13 +24,14 @@ if test ! -f ../bin/activate; then
     ( cd .. && . ./bootstrap.sh ) || return 1
 fi
 . ../bin/activate || return 1
+test -x ../bin/pip || ../bin/easy_install pip
 
 # essential tools
-test -x ../bin/paver || ../bin/easy_install -U "paver>=1.0.1" || return 1
+test -x ../bin/paver || ../bin/pip -U "paver>=1.0.1" || return 1
 
 # package dependencies
 for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
-    ../bin/easy_install "$pkgreq"
+    ../bin/pip "$pkgreq"
 done
 
 # git dependencies
