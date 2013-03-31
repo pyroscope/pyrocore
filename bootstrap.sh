@@ -36,10 +36,10 @@ done
 
 # git dependencies
 for project in $git_projects; do
-    test ! -d ../$project || ( cd ../$project && $PWD/../bin/paver develop -U)
+    test ! -d ../$project || ( cd ../$project && $PWD/../bin/paver -q develop -U)
 done
 
 # project
-../bin/paver develop -U || return 1
+../bin/paver -q develop -U || return 1
 ../bin/paver bootstrap || return 1
 
