@@ -473,7 +473,7 @@ class Metafile(object):
         totalhashed = 0
 
         # Start a new piece
-        sha1 = hashlib.sha1()
+        sha1sum = hashlib.sha1()
         done = 0
  
         # Hash all files
@@ -494,19 +494,19 @@ class Metafile(object):
                 while fileoffset < filesize:
                     # Read rest of piece or file, whatever is smaller
                     chunk = handle.read(min(filesize - fileoffset, piece_size - done))
-                    sha1.update(chunk)
+                    sha1sum.update(chunk) # bogus pylint: disable=E1101
                     done += len(chunk)
                     fileoffset += len(chunk)
                     totalhashed += len(chunk)
                     
                     # Piece is done
                     if done == piece_size:
-                        pieces.append(sha1.digest())
+                        pieces.append(sha1sum.digest()) # bogus pylint: disable=E1101
                         if piece_callback:
                             piece_callback(filename, pieces[-1])
                         
                         # Start a new piece
-                        sha1 = hashlib.sha1()
+                        sha1sum = hashlib.sha1()
                         done = 0
 
                     # Report progress
@@ -517,7 +517,7 @@ class Metafile(object):
 
         # Add hash of partial last piece
         if done > 0:
-            pieces.append(sha1.digest())
+            pieces.append(sha1sum.digest()) # bogus pylint: disable=E1103
             if piece_callback:
                 piece_callback(filename, pieces[-1])
 

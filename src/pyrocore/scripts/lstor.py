@@ -85,7 +85,7 @@ class MetafileLister(ScriptBase):
                     if not self.options.reveal and "info" in data:
                         # Shorten useless binary piece hashes
                         data["info"]["pieces"] = "<%d piece hashes>" % (
-                            len(data["info"]["pieces"]) / len(hashlib.sha1().digest())
+                            len(data["info"]["pieces"]) / len(hashlib.sha1().digest()) # bogus pylint: disable=E1101 
                         )
 
                     pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 

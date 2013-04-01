@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=E1101 
 """ RTorrent Screenlet.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>

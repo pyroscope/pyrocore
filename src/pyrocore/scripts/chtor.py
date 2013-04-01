@@ -123,7 +123,7 @@ class MetafileChanger(ScriptBaseWithConfig):
             # <scheme>://<netloc>/<path>?<query>
             filter_url_prefix = urlparse.urlsplit(self.options.reannounce, allow_fragments=False)
             filter_url_prefix = urlparse.urlunsplit((
-                filter_url_prefix.scheme, filter_url_prefix.netloc, '/', '', ''
+                filter_url_prefix.scheme, filter_url_prefix.netloc, '/', '', '' # bogus pylint: disable=E1103
             ))
             self.LOG.info("Filtering for metafiles with announce URL prefix %r..." % filter_url_prefix)
 

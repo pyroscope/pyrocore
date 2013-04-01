@@ -55,6 +55,8 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         """ Add program options.
         """
         super(RtorrentQueueManager, self).add_options()
+        self.jobs = None
+        self.httpd = None
 
         # basic options
         self.add_bool_option("-n", "--dry-run",

@@ -36,7 +36,7 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 try: 
     import pyinotify
 except ImportError, exc:
-    pyinotify = Bunch(WatchManager=None, ProcessEvent=object, _import_error=str(exc))
+    pyinotify = Bunch(WatchManager=None, ProcessEvent=object, _import_error=str(exc)) # bogus pylint: disable=C0103
 
 
 class RemoteWatch(object):
@@ -251,7 +251,7 @@ class TreeWatch(object):
         """
         if not pyinotify.WatchManager:
             raise error.UserError("You need to install 'pyinotify' to use %s (%s)!" % (
-                self.__class__.__name__, pyinotify._import_error))
+                self.__class__.__name__, pyinotify._import_error)) # pylint: disable=E1101
 
         self.manager = pyinotify.WatchManager()
         self.handler = TreeWatchHandler(job=self)

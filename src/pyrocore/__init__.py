@@ -27,6 +27,7 @@ def connect(config_dir=None, optional_config_files=None, cron_cfg="cron"):
 
     ScriptBase.setup(cron_cfg=cron_cfg)
     load_config.ConfigLoader(config_dir).load(optional_config_files or [])
-    config.engine.open()
 
+    from pyrocore import config
+    config.engine.open()
     return config.engine
