@@ -260,7 +260,7 @@ class TreeWatch(object):
         if self.LOG.isEnabledFor(logging.DEBUG):
             mask = pyinotify.ALL_EVENTS
         else:
-            mask = pyinotify.IN_CLOSE_WRITE | pyinotify.IN_MOVED_TO
+            mask = pyinotify.IN_CLOSE_WRITE | pyinotify.IN_MOVED_TO # bogus pylint: disable=E1101
 
         # Add all configured base dirs
         for path in self.config.path:
