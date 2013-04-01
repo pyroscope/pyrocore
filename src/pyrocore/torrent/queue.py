@@ -23,12 +23,13 @@ import operator
 
 from pyrocore import error, config
 from pyrocore.util import os, fmt, xmlrpc, pymagic
-from pyrocore.torrent import engine, matching
+from pyrocore.torrent import engine, matching, formatting
 
 
 class QueueManager(object):
     """ rTorrent queue manager implementation.
     """
+    # Special view containing all items that are transferring data, have peers connected, or are incomplete
     VIEWNAME = "pyrotorque"
 
 
@@ -51,6 +52,7 @@ class QueueManager(object):
             "is_active=1 is_complete=0" + (" [ %s ]" % self.config.downloading if "downloading" in self.config else "")
         )
         self.LOG.info("Downloading matcher for '%s' is: [ %s ]" % (self.config.job_name, self.config.downloading))
+        self.sort_key = formatting.validate_sort_fields(self.config.sort_fields) if self.config.sort_fields.strip() else None
 
 
     def _start(self, items):
@@ -119,13 +121,13 @@ class QueueManager(object):
             
             # Get items from 'pyrotorque' view
             items = list(config.engine.items(self.VIEWNAME, cache=False))
-            items.sort(key=operator.attrgetter("loaded", "name"))
+
+            if self.sort_key:
+                items.sort(key=self.sort_key)
+                #self.LOG.debug("Sorted: %r" % [i.name for i in items])
 
             # Handle found items
             self._start(items)
-            
-            # TODO: Add a log message to rTorrent via print= (Started by queue emanager ...)
-
             self.LOG.debug("%s - %s" % (config.engine.engine_id, self.proxy))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             # only debug, let the statistics logger do its job
