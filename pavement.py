@@ -85,6 +85,7 @@ project = Bunch(
     ],
     install_requires = [
         "pyrobase>=0.2",
+        "ProxyTypes>=0.9",
     ],
     extras_require = {
         "templating": ["Tempita>=0.5.1"],

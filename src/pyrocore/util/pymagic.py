@@ -20,6 +20,9 @@
 import logging
 import pkg_resources
 
+from peak.util.proxies import LazyProxy
+
+
 # Create aliases to make pydev / pylint happy
 resource_isdir = pkg_resources.resource_isdir # @UndefinedVariable pylint: disable=E1101
 resource_listdir = pkg_resources.resource_listdir # @UndefinedVariable pylint: disable=E1101
@@ -62,3 +65,13 @@ def get_class_logger(obj):
     """ Get a logger specific for the given object's class.
     """
     return logging.getLogger(obj.__class__.__module__ + '.' + obj.__class__.__name__)
+    
+
+def get_lazy_logger(name):
+    """ Return a logger proxy that is lazily initialized.
+    
+        This avoids the problems associated with module-level loggers being created 
+        early (on import), *before* the logging system is properly initialized.
+    """
+    return LazyProxy(lambda n=name: logging.getLogger(n))
+
