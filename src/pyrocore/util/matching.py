@@ -22,12 +22,11 @@ import time
 import shlex
 import fnmatch
 import operator
-import logging
 
 from pyrocore import error
-from pyrocore.util import fmt
+from pyrocore.util import fmt, pymagic
 
-LOG = logging.getLogger(__name__)
+log = pymagic.get_lazy_logger(__name__)
 
 TRUE = set(("true", "t", "yes", "y", "1", "+",))
 FALSE = set(("false", "f", "no", "n", "0", "-",))
@@ -163,7 +162,7 @@ class EqualsFilter(FieldFilter):
         """ Return True if filter matches item.
         """
         result = self._value == getattr(item, self._name)
-        #logging.getLogger("matching").debug("%r for %r = %r, name %r, item %r" % (
+        #log.debug("%r for %r = %r, name %r, item %r" % (
         #    result, getattr(item, self._name), self._value, self._name, item))
         return result
 
@@ -187,7 +186,7 @@ class PatternFilter(FieldFilter):
         """ Return True if filter matches item.
         """
         val = (getattr(item, self._name) or '').lower()
-        #logging.getLogger("matching").debug("%r for %r ~ %r, name %r, item %r" % (
+        #log.debug("%r for %r ~ %r, name %r, item %r" % (
         #    self._matcher(val), val, self._value, self._name, item))
         return self._matcher(val) 
 
