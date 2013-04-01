@@ -26,7 +26,10 @@ from pyrobase.parts import Bunch
 
 from pyrocore import error, config 
 from pyrocore.torrent import engine 
-from pyrocore.util import os, fmt, algo
+from pyrocore.util import os, fmt, algo, pymagic
+
+
+log = pymagic.get_lazy_logger(__name__)
 
 
 #
@@ -307,7 +310,7 @@ def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
     try:
         fields = [i.strip() for i in fields.replace(',', ' ').split()]
     except AttributeError:
-        # Not a string
+        # Not a string, expecting an iterable
         pass
 
     if name_filter:
@@ -325,3 +328,46 @@ def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
             raise error.UserError("Unknown field name %r" % (name,))
 
     return fields
+
+
+def validate_sort_fields(sort_fields):
+    """ Make sure the fields in the given list exist, and return sorting key.
+    
+        If field names are prefixed with '-', sort order is reversed for that field (descending).
+    """
+    # Allow descending order per field by prefixing with '-'
+    descending = set()
+    def sort_order_filter(name):
+        "Helper to remove flag and memoize sort order"
+        if name.startswith('-'):
+            name = name[1:]
+            descending.add(name)
+        return name
+
+    # Split and validate field list
+    sort_fields = validate_field_list(sort_fields, name_filter=sort_order_filter)
+    log.debug("Sorting order is: %s" % ", ".join([('-' if i in descending else '') + i
+        for i in sort_fields]))
+
+    # No descending fields?
+    if not descending:
+        return operator.attrgetter(*tuple(sort_fields))
+
+    # Need to provide complex key
+    class Key(object):
+        "Complex sort order key"
+        def __init__(self, obj, *args):
+            "Remember object to be compared"
+            self.obj = obj
+        def __lt__(self, other):
+            "Compare to other key"
+            for field in sort_fields:
+                a, b = getattr(self.obj, field), getattr(other.obj, field)
+                #print field in descending, field, a, b
+                if a == b:
+                    continue
+                return b < a if field in descending else a < b
+            return False
+
+    return Key
+

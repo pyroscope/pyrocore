@@ -404,44 +404,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if sort_fields == '*':
             sort_fields = self.get_output_fields()
 
-        # Use default order if none is given
-        if not sort_fields:
-            sort_fields = config.sort_fields
-
-        # Allow descending order per field by prefixing with '-'
-        descending = defaultdict(bool)
-        def sort_order_filter(name):
-            "Helper to remove flag and memoize sort order"
-            if name.startswith('-'):
-                name = name[1:]
-                descending[name] = True
-            return name
-
-        # Split and validate field list
-        sort_fields = formatting.validate_field_list(sort_fields, name_filter=sort_order_filter)
-
-        # No descending fields?
-        if not any(descending.values()):
-            self.LOG.debug("Sorting order is: %s" % ", ".join(sort_fields))
-            return operator.attrgetter(*tuple(sort_fields))
-
-        # Need to provide complex key
-        class Key(object):
-            "Complex sort order key"
-            def __init__(self, obj, *args):
-                "Remember object to be compared"
-                self.obj = obj
-            def __lt__(self, other):
-                "Compare to other key"
-                for field in sort_fields:
-                    a, b = getattr(self.obj, field), getattr(other.obj, field)
-                    #print descending[field], field, a, b
-                    if a == b:
-                        continue
-                    return b < a if descending[field] else a < b
-                return False
-
-        return Key
+        return formatting.validate_sort_fields(sort_fields or config.sort_fields)
 
 
     def show_in_view(self, sourceview, matches, targetname=None):
