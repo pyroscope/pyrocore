@@ -19,7 +19,6 @@ import re
 import sys
 import time
 import logging
-import operator
 from collections import defaultdict
 
 from pyrobase.parts import Bunch, DefaultBunch

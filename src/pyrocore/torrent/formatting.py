@@ -20,6 +20,7 @@
 
 import re
 import sys
+import operator
 
 from pyrobase import templating
 from pyrobase.parts import Bunch

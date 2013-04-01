@@ -19,8 +19,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
-import operator
-
 from pyrocore import error, config
 from pyrocore.util import os, fmt, xmlrpc, pymagic
 from pyrocore.torrent import engine, matching, formatting
