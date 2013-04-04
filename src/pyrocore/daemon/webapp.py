@@ -233,7 +233,7 @@ class Router(object):
 
 
 @wsgify
-def redirect(req, _log=logging.getLogger("redirect")):
+def redirect(req, _log=pymagic.get_lazy_logger("redirect")):
     log = req.environ.get("wsgilog.logger", _log)
     to = req.relative_url(req.urlvars.to)
     log.info("Redirecting '%s' to '%s'" % (req.url, to))
