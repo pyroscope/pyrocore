@@ -17,19 +17,32 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 git_projects="pyrobase auvyon"
-set -e
+set +e
+
+fail() {
+    echo
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo -n >&2 "ERROR: "
+    for i in "$@"; do
+        echo >&2 "$i"
+    done
+    #set +e
+    return 1
+}
 
 # generic bootstrap
 if test ! -f ../bin/activate; then
-    ( cd .. && . ./bootstrap.sh ) || return 1
+    ( cd .. && . ./bootstrap.sh ) || fail "top-level bootstrap failed"
 fi
-. ../bin/activate || return 1
+. ../bin/activate || fail "venv activate failed"
 test -x ../bin/pip || ../bin/easy_install pip
+test -x ../bin/pip || ln -s $(cd ../bin && ls -1 pip-* | tail -n1) ../bin/pip
+test -x ../bin/pip || fail "Installation of pip to ../bin failed somehow" "pwd=$(pwd)"
 
 # essential tools
-test -x ../bin/paver || ../bin/pip install -U "paver>=1.0.1" || return 1
+test -x ../bin/paver || ../bin/pip install -U "paver>=1.0.1" || fail "paver install failed"
 
-# package dependencies
+# package dependencies (optional)
 for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
     ../bin/pip install "$pkgreq"
 done
@@ -40,6 +53,7 @@ for project in $git_projects; do
 done
 
 # project
-../bin/paver -q develop -U || return 1
-../bin/paver bootstrap || return 1
+../bin/paver -q develop -U || fail "installing $(basename $(pwd)) into venv failed"
+../bin/paver bootstrap || fail "bootstrapping $(basename $(pwd)) failed"
 
+set +e
