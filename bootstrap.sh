@@ -1,6 +1,6 @@
 # This script has to be sourced in a shell and is thus NOT executable.
 #
-# Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
+# Copyright (c) 2010-2013 The PyroScope Project <pyroscope.project@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,34 +17,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 git_projects="pyrobase auvyon"
-set +e
-
-fail() {
-    echo
-    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    echo -n >&2 "ERROR: "
-    for i in "$@"; do
-        echo >&2 "$i"
-    done
-    #set +e
-    return 1
-}
+. ../util.sh
 
 # generic bootstrap
-if test ! -f ../bin/activate; then
-    ( cd .. && . ./bootstrap.sh ) || fail "top-level bootstrap failed"
-fi
-. ../bin/activate || fail "venv activate failed"
-test -x ../bin/pip || ../bin/easy_install pip
-test -x ../bin/pip || ln -s $(cd ../bin && ls -1 pip-* | tail -n1) ../bin/pip
-test -x ../bin/pip || fail "Installation of pip to ../bin failed somehow" "pwd=$(pwd)"
+test -f ../bin/activate || ( cd .. && . ./bootstrap.sh ) || abend "top-level bootstrap failed"
+. ../bin/activate || abend "venv activate failed"
 
 # essential tools
-test -x ../bin/paver || ../bin/pip install -U "paver>=1.0.1" || fail "paver install failed"
+test -x ../bin/paver || pip_install -U "paver>=1.0.1"
 
 # package dependencies (optional)
 for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
-    ../bin/pip install "$pkgreq"
+    pip_install_opt "$pkgreq"
 done
 
 # git dependencies
@@ -53,7 +37,6 @@ for project in $git_projects; do
 done
 
 # project
-../bin/paver -q develop -U || fail "installing $(basename $(pwd)) into venv failed"
-../bin/paver bootstrap || fail "bootstrapping $(basename $(pwd)) failed"
+../bin/paver -q develop -U || abend "installing $(basename $(pwd)) into venv failed"
+../bin/paver bootstrap || abend "bootstrapping $(basename $(pwd)) failed"
 
-set +e
