@@ -36,11 +36,35 @@ from pyrocore import config, error
 from pyrocore.util import pymagic, xmlrpc
 
 
-# Default paths to serve static file from
-HTDOCS_PATHS = [
-    os.path.realpath(os.path.join(config.config_dir, "htdocs")),
-    os.path.join(os.path.dirname(config.__file__), "data", "htdocs"),
-]
+def engine_data(engine):
+    """ Get important performance data and metadata from rTorrent.
+    """
+    views = ("main", "started", "stopped", "complete", "incomplete", "seeding", "leeching", "active", "messages")
+    methods = [
+        "get_up_rate", "get_upload_rate",
+        "get_down_rate", "get_download_rate",
+    ]
+
+    # Get data via multicall
+    proxy = engine.open()
+    calls = [dict(methodName=method, params=[]) for method in methods] \
+          + [dict(methodName="view.size", params=['', view]) for view in views]
+    result = proxy.system.multicall(calls, flatten=True)
+
+    # Build result object
+    data = dict(
+        now         = time.time(),
+        engine_id   = engine.engine_id,
+        versions    = engine.versions,
+        uptime      = engine.uptime,
+        upload      = [result[0], result[1]],
+        download    = [result[2], result[3]],
+        views       = dict([(name, result[4+i])
+            for i, name in enumerate(views)
+        ]),
+    )
+
+    return data
 
 
 class StaticFolders(object):
@@ -131,20 +155,7 @@ class JsonController(object):
         """ Return torrent engine data.
         """
         try:
-            proxy = config.engine.open()
-
-            data = dict(
-                now         = time.time(),
-                engine_id   = config.engine.engine_id,
-                versions    = config.engine.versions,
-                uptime      = config.engine.uptime,
-                upload      = [proxy.get_up_rate(), proxy.get_upload_rate()],
-                download    = [proxy.get_down_rate(), proxy.get_download_rate()],
-                views       = dict([(name, proxy.view.size('', name))
-                    for name in ("main", "started", "stopped", "complete", "incomplete", "seeding", "leeching", "active", "messages")
-                ]),
-            )
-            return data
+            return engine_data(config.engine)
         except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
             raise exc.HTTPInternalServerError(str(torrent_exc))
 
@@ -247,14 +258,30 @@ def make_app(httpd_config):
     """ Factory for the monitoring webapp.
     """
     #mimetypes.add_type('image/vnd.microsoft.icon', '.ico')
+
+    # Default paths to serve static file from
+    htdocs_paths = [
+        os.path.realpath(os.path.join(config.config_dir, "htdocs")),
+        os.path.join(os.path.dirname(config.__file__), "data", "htdocs"),
+    ]
     
     return (Router()
-        #.add_route("/", controller=index, **httpd_config.index)
-        #.add_route("/", controller=static.FileApp(os.path.join(HTDOCS_PATHS[0], "index.html")))
         .add_route("/", controller=redirect, to="/static/index.html")
-        #.add_route("/favicon.ico", controller=static.FileApp(os.path.join(HTDOCS_PATHS[-1], "favicon.ico")))
         .add_route("/favicon.ico", controller=redirect, to="/static/favicon.ico")
-        .add_route("/static/{filepath:.+}", controller=StaticFolders(HTDOCS_PATHS))
+        .add_route("/static/{filepath:.+}", controller=StaticFolders(htdocs_paths))
         .add_route("/json/{action}", controller=JsonController(**httpd_config.json))
     )
+
+
+if __name__ == "__main__":
+    import pprint
+    from pyrocore import connect
+
+    try:
+        engine = connect()
+        print("%s - %s" % (engine.engine_id, engine.open()))
+        pprint.pprint(engine_data(engine))
+        print("%s - %s" % (engine.engine_id, engine.open()))
+    except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
+        print("ERROR: %s" % torrent_exc)
 

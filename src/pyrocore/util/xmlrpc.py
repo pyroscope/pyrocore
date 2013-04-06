@@ -63,10 +63,14 @@ class RTorrentMethod(object):
 
     def __call__(self, *args, **kwargs):
         """ Execute the method call.
+        
+            `raw_xml=True` returns the unparsed XML-RPC response.
+            `flatten=True` removes one nesting level in a result list (useful for multicalls).
         """
         self._proxy._requests += 1
         start = time.time()
         raw_xml = kwargs.get("raw_xml", False)
+        flatten = kwargs.get("flatten", False)
         fail_silently = kwargs.get("fail_silently", False)
 
         try:
@@ -112,8 +116,8 @@ class RTorrentMethod(object):
             xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
 
             try:
-                # Return deserialized data
-                return xmlrpclib.loads(xmlresp)[0][0]
+                # Deserialize data
+                result = xmlrpclib.loads(xmlresp)[0][0]
             except (KeyboardInterrupt, SystemExit):
                 # Don't catch these
                 raise
@@ -131,6 +135,8 @@ class RTorrentMethod(object):
                     finally:
                         handle.close()
                 raise                
+            else:
+                return sum(result, []) if flatten else result
         finally:
             # Calculate latency
             self._latency = time.time() - start
