@@ -168,6 +168,10 @@
 		heartbeatoff();
 		setTimeout(ping, wait); // TODO: incremental back-off
 	}
+    $(document).on('ajaxError', error);
+    $('#error_msg').siblings('a.close').on('click', function (e) {
+        $(this).parent().addClass('hidden');
+    });
 	function graph(name, percentage) {
 		var options = {
 			millisPerPixel: wait,
@@ -199,7 +203,6 @@
 	//	timeout: 5000,
 	//  error: error
 	//});
-    $(document).on('ajaxError', error);
 	var graphlist = {
 		latency: 0,
 		cpu_usage: 1,
