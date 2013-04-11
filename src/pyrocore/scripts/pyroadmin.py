@@ -104,6 +104,9 @@ class AdminTool(ScriptBaseWithConfig):
             if matching.truth(getattr(config, "torque", {}).get("httpd.active", "False"), "httpd.active"):
                 self.download_resource(config.torque["httpd.download_url.foundation"], "htdocs/f4", "css/foundation.css")
                 self.download_resource(config.torque["httpd.download_url.smoothie"], "htdocs/js", "smoothie.js")
+                self.download_resource(config.torque["httpd.download_url.d3js"], "htdocs/d3", "d3.v3.js")
+                self.download_resource(config.torque["httpd.download_url.nvd3js"], "htdocs/d3", "nv.d3.min.js")
+                self.download_resource(config.torque["httpd.download_url.cubism"], "htdocs/d3", "cubism.v1.min.js")
 
         elif self.options.dump_config or self.options.output:
             # Get public config attributes
