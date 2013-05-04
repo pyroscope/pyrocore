@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011
+# pylint: disable=I0011,C0103
 """ rTorrent Watch Jobs.
 
     Copyright (c) 2012 The PyroScope Project <pyroscope.project@gmail.com>
@@ -21,15 +21,15 @@ from __future__ import with_statement
 
 # TODO: Re-tie metafiles when they're moved in the tree
 
-import sys
 import time
 import logging
 import asyncore
 
+from pyrobase import logutil
 from pyrobase.parts import Bunch
 from pyrocore import error
 from pyrocore import config as configuration
-from pyrocore.util import os, fmt, xmlrpc, pymagic, metafile
+from pyrocore.util import os, fmt, xmlrpc, pymagic, metafile, traits
 from pyrocore.torrent import matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
@@ -37,6 +37,151 @@ try:
     import pyinotify
 except ImportError, exc:
     pyinotify = Bunch(WatchManager=None, ProcessEvent=object, _import_error=str(exc)) # bogus pylint: disable=C0103
+
+
+class MetafileHandler(object):
+    """ Handler for loading metafiles into rTorrent.
+    """
+
+    def __init__(self, job, pathname):
+        """ Create a metafile handler.
+        """
+        self.job = job
+        self.metadata = None
+        self.ns = Bunch(
+            pathname = pathname,
+            info_hash = None,
+            tracker_alias = None,
+        )
+
+
+    def parse(self):
+        """ Parse metafile and check pre-conditions.
+        """
+        try:
+            if not os.path.getsize(self.ns.pathname):
+                # Ignore 0-byte dummy files (Firefox creates these while downloading)
+                self.job.LOG.warn("Ignoring 0-byte metafile '%s'" % (self.ns.pathname,))
+                return
+            self.metadata = metafile.checked_open(self.ns.pathname)
+        except EnvironmentError, exc:
+            self.job.LOG.error("Can't read metafile '%s' (%s)" % (
+                self.ns.pathname, str(exc).replace(": '%s'" % self.ns.pathname, ""),
+            ))
+            return
+        except ValueError, exc:
+            self.job.LOG.error("Invalid metafile '%s': %s" % (self.ns.pathname, exc))
+            return
+ 
+        self.ns.info_hash = metafile.info_hash(self.metadata)
+        self.ns.info_name = self.metadata["info"]["name"]
+        self.job.LOG.info("Loaded '%s' from metafile '%s'" % (self.ns.info_name, self.ns.pathname))
+        
+        # Check whether item is already loaded
+        try:
+            name = self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)
+        except xmlrpc.ERRORS, exc:
+            if exc.faultString != "Could not find info-hash.":
+                self.job.LOG.error("While checking for #%s: %s" % (self.ns.info_hash, exc))
+                return
+        else:
+            self.job.LOG.warn("Item #%s '%s' already added to client" % (self.ns.info_hash, name))
+            return
+
+        return True
+
+
+    def addinfo(self):
+        """ Add known facts to templating namespace.
+        """
+        # Build indicator flags for target state from filename
+        flags = self.ns.pathname.split(os.sep)
+        flags.extend(flags[-1].split('.'))
+        self.ns.flags = set(i for i in flags if i)
+
+        # Set commands
+        self.ns.commands = []
+        for _, cmd in sorted(self.job.custom_cmds.items()):
+            self.ns.commands.append(cmd)
+
+        # Metafile stuff
+        announce = self.metadata.get("announce", None)
+        if announce:
+            self.ns.tracker_alias = configuration.map_announce2alias(announce)
+
+        main_file = self.ns.info_name
+        if "files" in self.metadata["info"]:
+            main_file = list(sorted((i["length"], i["path"][-1])
+                for i in self.metadata["info"]["files"]))[-1][1]
+        self.ns.filetype = os.path.splitext(main_file)[1]
+
+        # Add name traits
+        kind, info = traits.name_trait(self.ns.info_name, add_info=True)
+        self.ns.traits = Bunch(info)
+        self.ns.traits.kind = kind
+        self.ns.label = '/'.join(traits.detect_traits(
+            name=self.ns.info_name, alias=self.ns.tracker_alias, filetype=self.ns.filetype)).strip('/')
+        
+
+    def load(self):
+        """ Load metafile into client.
+        """
+        if not self.ns.info_hash and not self.parse():
+            return
+
+        self.addinfo()
+
+        # TODO: dry_run
+        try:
+            # TODO: Scrub metafile if requested
+
+            # Determine target state
+            start_it = self.job.config.load_mode in ("start",)
+            queue_it = self.job.config.queued 
+
+            if "start" in self.ns.flags:
+                start_it = True
+            elif "load" in self.ns.flags:
+                start_it = False
+
+            if "queue" in self.ns.flags:
+                queue_it = True
+
+            # Load metafile into client
+            if queue_it:
+                if not start_it:
+                    self.ns.commands.append("d.set_priority=0")
+            elif start_it:
+                self.ns.commands.append("d.start=")
+            self.job.proxy.load_verbose(self.ns.pathname, *tuple(self.ns.commands))
+            time.sleep(.05) # let things settle
+            
+            # Announce new item
+            if not self.job.config.quiet:
+                msg = "%s: Loaded '%s' from '%s/'" % (
+                    self.job.__class__.__name__,
+                    fmt.to_utf8(self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)),
+                    os.path.dirname(self.ns.pathname).rstrip(os.sep),
+                )
+                self.job.proxy.log('', msg)
+
+            # TODO: Evaluate fields and set client values
+            # TODO: Add metadata to tied file if requested
+
+            # TODO: Execute commands AFTER adding the item, with full templating
+            # Example: Labeling - add items to a persistent view, i.e. "postcmd = view.set_visible={{label}}"
+            #   could also be done automatically from the path, see above under "flags" (autolabel = True)
+            #   and add traits to the flags, too, in that case
+
+        except xmlrpc.ERRORS, exc:
+            self.job.LOG.error("While loading #%s: %s" % (self.ns.info_hash, exc))
+
+
+    def handle(self):
+        """ Handle metafile.
+        """
+        if self.parse():
+            self.load()
 
 
 class RemoteWatch(object):
@@ -73,92 +218,6 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         self.job = kw["job"]
         
 
-    def handle_metafile(self, pathname):
-        """ Handle a new metafile.
-        """
-        try:
-            if not os.path.getsize(pathname):
-                # Ignore 0-byte dummy files (Firefox creates these while downloading)
-                self.job.LOG.warn("Ignoring 0-byte metafile '%s'" % (pathname,))
-                return
-            data = metafile.checked_open(pathname)
-        except EnvironmentError, exc:
-            self.job.LOG.error("Can't read metafile '%s' (%s)" % (
-                pathname, str(exc).replace(": '%s'" % pathname, ""),
-            ))
-            return
-        except ValueError, exc:
-            self.job.LOG.error("Invalid metafile '%s': %s" % (pathname, exc))
-            return
- 
-        info_hash = metafile.info_hash(data)
-        self.job.LOG.info("Loaded '%s' from metafile '%s'" % (data["info"]["name"], pathname))
-        
-        # Check whether item is already loaded
-        try:
-            name = self.job.proxy.d.get_name(info_hash, fail_silently=True)
-        except xmlrpc.ERRORS, exc:
-            if exc.faultString != "Could not find info-hash.":
-                self.job.LOG.error("While checking for #%s: %s" % (info_hash, exc))
-                return
-        else:
-            self.job.LOG.warn("Item #%s '%s' already added to client" % (info_hash, name))
-            return
-
-        # TODO: dry_run
-        try:
-            # TODO: Scrub metafile if requested
-
-            # Build indicator flags for target state from filename
-            flags = pathname.split(os.sep)
-            flags.extend(flags[-1].split('.'))
-            flags = set(flags)
-
-            # Determine target state
-            start_it = self.job.config.load_mode in ("start",)
-            queue_it = self.job.config.queued 
-
-            if "start" in flags:
-                start_it = True
-            elif "load" in flags:
-                start_it = False
-
-            if "queue" in flags:
-                queue_it = True
-
-            # Load metafile into client
-            commands = []
-            for _, cmd in sorted(self.job.custom_cmds.items()):
-                commands.append(cmd)
-            if queue_it:
-                if not start_it:
-                    commands.append("d.set_priority=0")
-            elif start_it:
-                commands.append("d.start=")
-            self.job.proxy.load_verbose(pathname, *tuple(commands))
-            time.sleep(.05) # let things settle
-            
-            # Announce new item
-            if not self.job.config.quiet:
-                msg = "%s: Loaded '%s' from '%s/'" % (
-                    self.job.__class__.__name__,
-                    fmt.to_utf8(self.job.proxy.d.get_name(info_hash, fail_silently=True)),
-                    os.path.dirname(pathname).rstrip(os.sep),
-                )
-                self.job.proxy.log('', msg)
-
-            # TODO: Evaluate fields and set client values
-            # TODO: Add metadata to tied file if requested
-
-            # TODO: Execute commands AFTER adding the item, with full templating
-            # Example: Labeling - add items to a persistent view, i.e. "postcmd = view.set_visible={{label}}"
-            #   could also be done automatically from the path, see above under "flags" (autolabel = True)
-            #   and add traits to the flags, too, in that case
-
-        except xmlrpc.ERRORS, exc:
-            self.job.LOG.error("While loading #%s: %s" % (info_hash, exc))
-
-
     def handle_path(self, event):
         """ Handle a path-related event.
         """
@@ -167,9 +226,9 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
             return
         
         if any(event.pathname.endswith(i) for i in self.METAFILE_EXT):
-            self.handle_metafile(event.pathname)
+            MetafileHandler(self.job, event.pathname).handle()
         elif os.path.basename(event.pathname) == "watch.ini":
-            self.job.LOG.info("Reloading watch config for '%s'" % event.path)
+            self.job.LOG.info("NOT YET Reloading watch config for '%s'" % event.path)
             # TODO: Load new metadata
 
 
@@ -285,7 +344,12 @@ class TreeWatch(object):
 
 class TreeWatchCommand(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ Use tree watcher directly from cmd line (python -m pyrocore.torrent.watch <DIR>)
+    """ 
+        Use tree watcher directly from cmd line, call it like this:
+            python -m pyrocore.torrent.watch <DIR>
+    
+        If the argument is a file, the templating namespace for that metafile is 
+        dumped (for testing and debugging purposes).
     """
 
     # log level for user-visible standard logging
@@ -294,17 +358,40 @@ class TreeWatchCommand(ScriptBaseWithConfig):
     # argument description for the usage information
     ARGS_HELP = "<directory>"
 
+    OPTIONAL_CFG_FILES = ["torque.ini"]
+
 
     def mainloop(self):
         """ The main loop.
         """
         # Print usage if not enough args or bad options
         if len(self.args) < 1:
-            self.parser.error("You have to provide the root directory of your watch tree!")
+            self.parser.error("You have to provide the root directory of your watch tree, or a metafile path!")
 
         configuration.engine.load_config()
-        watch = TreeWatch(Bunch(path=self.args[0], active=True, dry_run=True, load_mode=None))
-        asyncore.loop(timeout=~0, use_poll=True)
+
+        pathname = os.path.abspath(self.args[0])
+        if os.path.isdir(pathname):
+            watch = TreeWatch(Bunch(path=pathname, job_name="watch", active=True, dry_run=True, load_mode=None))
+            asyncore.loop(timeout=~0, use_poll=True)
+        else:
+            config = Bunch()
+            config.update(dict((key.split('.', 2)[-1], val)
+                for key, val in configuration.torque.items()
+                if key.startswith("job.treewatch.")
+            ))
+            config.update(dict(path=os.path.dirname(pathname), job_name="treewatch", active=False, dry_run=True))
+            watch = TreeWatch(config)
+            handler = MetafileHandler(watch, pathname)
+
+            ok = handler.parse()
+            self.LOG.debug("Metafile '%s' would've %sbeen loaded" % (pathname, "" if ok else "NOT "))
+
+            handler.addinfo()
+            post_process = str if self.options.verbose else logutil.shorten 
+            self.LOG.info("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, post_process(repr(val))) 
+                for key, val in sorted(handler.ns.items())
+            ))
 
 
     @classmethod
