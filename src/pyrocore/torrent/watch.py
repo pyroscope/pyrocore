@@ -30,7 +30,7 @@ from pyrobase.parts import Bunch
 from pyrocore import error
 from pyrocore import config as configuration
 from pyrocore.util import os, fmt, xmlrpc, pymagic, metafile, traits
-from pyrocore.torrent import matching
+from pyrocore.torrent import matching, formatting
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 try: 
@@ -49,7 +49,7 @@ class MetafileHandler(object):
         self.job = job
         self.metadata = None
         self.ns = Bunch(
-            pathname = pathname,
+            pathname = os.path.abspath(pathname),
             info_hash = None,
             tracker_alias = None,
         )
@@ -94,15 +94,18 @@ class MetafileHandler(object):
     def addinfo(self):
         """ Add known facts to templating namespace.
         """
+        # Basic values
+        self.ns.watch_path = self.job.config.path
+        self.ns.relpath = None
+        for watch in self.job.config.path:
+            if self.ns.pathname.startswith(watch.rstrip('/') + '/'):
+                self.ns.relpath = os.path.dirname(self.ns.pathname)[len(watch.rstrip('/'))+1:]
+                break
+        
         # Build indicator flags for target state from filename
         flags = self.ns.pathname.split(os.sep)
         flags.extend(flags[-1].split('.'))
         self.ns.flags = set(i for i in flags if i)
-
-        # Set commands
-        self.ns.commands = []
-        for _, cmd in sorted(self.job.custom_cmds.items()):
-            self.ns.commands.append(cmd)
 
         # Metafile stuff
         announce = self.metadata.get("announce", None)
@@ -121,6 +124,14 @@ class MetafileHandler(object):
         self.ns.traits.kind = kind
         self.ns.label = '/'.join(traits.detect_traits(
             name=self.ns.info_name, alias=self.ns.tracker_alias, filetype=self.ns.filetype)).strip('/')
+
+        # Finally, expand commands from templates
+        self.ns.commands = []
+        for key, cmd in sorted(self.job.custom_cmds.items()):
+            try:
+                self.ns.commands.append(formatting.expand_template(cmd, self.ns))
+            except error.LoggableError, exc:
+                self.job.LOG.error("While expanding '%s' custom command: %s" % (key, exc))
         
 
     def load(self):
@@ -292,7 +303,7 @@ class TreeWatch(object):
                 if key in self.custom_cmds:
                     raise error.UserError("Duplicate custom command definition '%s'"
                         " (%r already registered, you also added %r)!" % (key, self.custom_cmds[key], val))
-                self.custom_cmds[key] = val
+                self.custom_cmds[key] = formatting.preparse(val)
         self.LOG.debug("custom commands = %r" % self.custom_cmds)
 
         # Get client proxy
@@ -380,7 +391,7 @@ class TreeWatchCommand(ScriptBaseWithConfig):
                 for key, val in configuration.torque.items()
                 if key.startswith("job.treewatch.")
             ))
-            config.update(dict(path=os.path.dirname(pathname), job_name="treewatch", active=False, dry_run=True))
+            config.update(dict(path=os.path.dirname(os.path.dirname(pathname)), job_name="treewatch", active=False, dry_run=True))
             watch = TreeWatch(config)
             handler = MetafileHandler(watch, pathname)
 
