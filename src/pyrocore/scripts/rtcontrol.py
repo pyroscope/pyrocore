@@ -149,6 +149,9 @@ class RtorrentControl(ScriptBaseWithConfig):
     # choices for --ignore
     IGNORE_OPTIONS = ('0', '1')
 
+    # choices for --prio
+    PRIO_OPTIONS = ('0', '1', '2', '3')
+
     # action options that perform some change on selected items
     ACTION_MODES = ( 
         Bunch(name="start", options=("--start",), help="start torrent"), 
@@ -263,6 +266,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_value_option("--ignore", "|".join(self.IGNORE_OPTIONS),
             type="choice", choices=self.IGNORE_OPTIONS,
             help="set 'ignore commands' status on torrent")
+        self.add_value_option("--prio", "|".join(self.PRIO_OPTIONS),
+            type="choice", choices=self.PRIO_OPTIONS,
+            help="set priority of torrent")
         self.add_bool_option("-F", "--flush", help="flush changes immediately (save session data)")
 
 
@@ -434,6 +440,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.ignore:
             actions.append(Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED", 
                 help="commands on torrent", interactive=False, args=(self.options.ignore,)))
+        if self.options.prio:
+            actions.append(Bunch(name="prio", method="prio", label="PRIO" + str(self.options.prio), 
+                help="for torrent", interactive=False, args=(self.options.prio,)))
 
         # Check standard action options
         # TODO: Allow certain combinations of actions (like --tag foo --stop etc.)
