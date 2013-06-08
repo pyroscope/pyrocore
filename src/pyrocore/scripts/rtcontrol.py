@@ -441,7 +441,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             actions.append(Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED", 
                 help="commands on torrent", interactive=False, args=(self.options.ignore,)))
         if self.options.prio:
-            actions.append(Bunch(name="prio", method="prio", label="PRIO" + str(self.options.prio), 
+            actions.append(Bunch(name="prio", method="set_prio", label="PRIO" + str(self.options.prio), 
                 help="for torrent", interactive=False, args=(self.options.prio,)))
 
         # Check standard action options

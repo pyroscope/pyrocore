@@ -200,7 +200,7 @@ class RtorrentItem(engine.TorrentProxy):
         self._make_it_so("setting ignore status for", ["set_ignore_commands"], int(flag))
 
 
-    def prio(self, prio):
+    def set_prio(self, prio):
         """ Set priority (0-3).
         """
         self._make_it_so("setting priority for", ["set_priority"], max(0, min(int(prio), 3)))
