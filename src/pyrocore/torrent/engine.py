@@ -490,9 +490,8 @@ class TorrentProxy(object):
         formatter=_fmt_duration)
     active = DynamicField(long, "active", "last time a peer was connected", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
-    stopped = DynamicField(long, "stopped", "time download was last stopped or paused", matcher=matching.DurationFilter,
-        accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1],
-        formatter=_fmt_duration)
+    stopped = DynamicField(long, "stopped", "time download was last stopped or paused", matcher=matching.TimeFilter,
+        accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1], formatter=fmt.iso_datetime_optional)
 
     # Classification
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
