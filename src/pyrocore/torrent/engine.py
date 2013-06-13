@@ -60,14 +60,10 @@ def _duration(start, end):
         return None
 
 
-def _interval_sum(interval, start=None, end=None, context=None, event_re=re.compile("[A-Z][0-9]+")):
-    """ Return sum of intervals between "R"esume and "P"aused events
-        in C{interval}, optionally limited by a time window defined 
-        by C{start} and C{end}. Return None if there's no sensible
-        information.
-    
-        C{interval} is a series of event types and timestamps, 
-        e.g. "R1283008245P1283008268".
+def _interval_split(interval, only=None, context=None, event_re=re.compile("[A-Z][0-9]+")):
+    """ Split C{interval} into a series of event type and timestamp tuples.
+        An exaple of the input is "R1283008245P1283008268". 
+        Returns events in reversed order (latest first).
     """
     def split_event(event):
         "Helper to parse events."
@@ -77,12 +73,27 @@ def _interval_sum(interval, start=None, end=None, context=None, event_re=re.comp
         except (TypeError, ValueError):
             return None, 0
 
+    if hasattr(interval, "fetch"):
+        interval = interval.fetch("custom_activations")
+
+    return list(reversed([split_event(i) for i in event_re.findall(interval) if not only or i.startswith(only)]))
+
+
+def _interval_sum(interval, start=None, end=None, context=None):
+    """ Return sum of intervals between "R"esume and "P"aused events
+        in C{interval}, optionally limited by a time window defined 
+        by C{start} and C{end}. Return empty list if there's no sensible
+        information.
+    
+        C{interval} is a series of event types and timestamps, 
+        e.g. "R1283008245P1283008268".
+    """
     end = end and float(end) or time.time()
-    events = list(reversed(event_re.findall(interval)))
+    events = _interval_split(interval, context)
     result = []
 
     while events:
-        event, resumed = split_event(events.pop())
+        event, resumed = events.pop()
         ##print "~~~~~~~~~~", context, event, resumed
 
         if event != "R":
@@ -91,9 +102,9 @@ def _interval_sum(interval, start=None, end=None, context=None, event_re=re.comp
         resumed = max(resumed, start or resumed)
 
         if events: # Further events?
-            if not events[-1].startswith("P"):
+            if not events[-1][0] == "P":
                 continue # If not followed by "P", it's not a valid interval
-            _, paused = split_event(events.pop())
+            _, paused = events.pop()
             paused = min(paused, end)
         else:
             # Currently active, ends at time window
@@ -468,17 +479,20 @@ class TorrentProxy(object):
     started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime_optional)
     leechtime = DynamicField(untyped, "leechtime", "time taken from start to completion", matcher=matching.DurationFilter,
-        accessor=lambda o: _interval_sum(o.fetch("custom_activations"), end=o.completed, context=o.name)
+        accessor=lambda o: _interval_sum(o, end=o.completed, context=o.name)
                         or _duration(o.started, o.completed),
         formatter=_fmt_duration)
     completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime_optional)
     seedtime = DynamicField(untyped, "seedtime", "total seeding time after completion", matcher=matching.DurationFilter,
-        accessor=lambda o: _interval_sum(o.fetch("custom_activations"), start=o.completed, context=o.name)
+        accessor=lambda o: _interval_sum(o, start=o.completed, context=o.name)
                            if o.is_complete else None,
         formatter=_fmt_duration)
     active = DynamicField(long, "active", "last time a peer was connected", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
+    stopped = DynamicField(long, "stopped", "time download was last stopped or paused", matcher=matching.DurationFilter,
+        accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1],
+        formatter=_fmt_duration)
 
     # Classification
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
