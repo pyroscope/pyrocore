@@ -539,6 +539,19 @@ class RtorrentControl(ScriptBaseWithConfig):
                     for item in matches:
                         summary.add(field, getattr(item, field))
 
+        def output_formatter(templ, ns=None):
+            "Output formatting helper"
+            full_ns = dict(
+                version = self.version, 
+                proxy = config.engine.open(),
+                view = view, 
+                query = matcher, 
+                matches = matches, 
+                summary = summary
+            )
+            full_ns.update(ns or {})
+            return formatting.expand_template(templ, full_ns)
+
         # Execute action?
         if actions:
             action = actions[0] # TODO: loop over it
@@ -552,13 +565,20 @@ class RtorrentControl(ScriptBaseWithConfig):
                 self.emit(None, stencil=stencil)
 
             # Perform chosen action on matches
+            template_args = [formatting.preparse("{{#tempita}}" + i if "{{" in i else i) for i in action.args]
             for item in matches:
                 if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
                     continue
                 if self.options.output_format and str(self.options.output_format) != "-":
                     self.emit(item, defaults, to_log=self.options.cron)
-                if not self.options.dry_run:
-                    getattr(item, action.method)(*action.args)
+
+                args = tuple([output_formatter(i, ns=dict(item=item)) for i in template_args])
+
+                if self.options.dry_run:
+                    if self.options.debug:
+                        self.LOG.debug("Would call action %s(*%r)" % (action.method, args))
+                else:
+                    getattr(item, action.method)(*args)
                     if self.options.flush:
                         item.flush()
 
@@ -572,14 +592,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             if not output_template.startswith("file:"):
                 output_template = "file:" + output_template
 
-            sys.stdout.write(formatting.expand_template(output_template, dict(
-                version = self.version, 
-                proxy = config.engine.open(),
-                view = view, 
-                query = matcher, 
-                matches = matches, 
-                summary = summary
-            )))
+            sys.stdout.write(output_formatter(output_template))
             sys.stdout.flush()
 
         # Show on console?
