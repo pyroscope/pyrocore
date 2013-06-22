@@ -163,12 +163,13 @@ class JsonController(object):
     def json_charts(self, req):
         """ Return charting data.
         """
-        disk_used, disk_total = 0, 0
+        disk_used, disk_total, disk_detail = 0, 0, []
         for disk_usage_path in self.cfg.disk_usage_path.split(os.pathsep):
             disk_usage = self.guarded(psutil.disk_usage, os.path.expanduser(disk_usage_path.strip()))
             if disk_usage:
                 disk_used += disk_usage.used
                 disk_total += disk_usage.total
+                disk_detail.append((disk_usage.used, disk_usage.total))
 
         data = dict(
             engine      = self.json_engine(req),
@@ -177,7 +178,7 @@ class JsonController(object):
             cpu_usage   = self.guarded(psutil.cpu_percent, 0),
             ram_usage   = self.guarded(psutil.virtual_memory),
             swap_usage  = self.guarded(psutil.swap_memory),
-            disk_usage  = (disk_used, disk_total) if disk_total else None,
+            disk_usage  = (disk_used, disk_total, disk_detail) if disk_total else None,
             disk_io     = self.guarded(psutil.disk_io_counters),
             net_io      = self.guarded(psutil.network_io_counters),
         )

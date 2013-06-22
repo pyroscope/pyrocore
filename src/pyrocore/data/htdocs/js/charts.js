@@ -58,10 +58,17 @@
 	h.uptime = function(d) {
 		$('#uptime').text(u.seconds(d));
 	};
-	h.disk_usage = function(d) {
-        $('#disku').text(u.bytes(d[0]));
-        $('#diskt').text(u.bytes(d[1]));
-        $('#diskp').text(u.percent(100.0 * d[0] / d[1]));
+	h.disk_usage = function(du) {
+	    var disku = [], diskt = [], diskp = [];
+	    for (var i = 0; i < du[2].length; i++) {
+	        var d = du[2][i];
+            disku.push('<span class="value">' + u.bytes(d[0]) + '</span>');
+            diskt.push('<span class="value">' + u.bytes(d[1]) + '</span>');
+            diskp.push('<span class="value">' + u.percent(100.0 * d[0] / d[1]) + '</span>');
+        }
+        $('#disku').html(disku.join(" /&nbsp;"));
+        $('#diskt').html(diskt.join(" /&nbsp;"));
+        $('#diskp').html(diskp.join(" /&nbsp;"));
     };
 	h.disk_io = function(d) {
 		$('#diskr').text(u.bytes(d[2]));
