@@ -71,32 +71,40 @@
         $('#diskp').html(diskp.join(" /&nbsp;"));
     };
 	h.disk_io = function(d) {
+	    var now = new Date();
+        var interval = (now.getTime() - (h.disk_io.lasttm || 0)) / 1000.0;
+		
 		$('#diskr').text(u.bytes(d[2]));
 		$('#diskw').text(u.bytes(d[3]));
 		if (h.disk_io.lastr != undefined) {
-			var rs = d[2] - (h.disk_io.lastr || 0);
-			var ws = d[3] - (h.disk_io.lastw || 0);
+			var rs = (d[2] - (h.disk_io.lastr || 0)) / interval;
+			var ws = (d[3] - (h.disk_io.lastw || 0)) / interval;
 			$('#diskrs').text(u.bytes(rs) + '/s');
 			$('#diskws').text(u.bytes(ws) + '/s');
-			g.diskrs.t.append(+new Date, rs / 1048576); // MiB
-			g.diskws.t.append(+new Date, ws / 1048576); // MiB
+			g.diskrs.t.append(+now, rs / 1048576); // MiB
+			g.diskws.t.append(+now, ws / 1048576); // MiB
 		}
 		h.disk_io.lastr = d[2];
 		h.disk_io.lastw = d[3];
+		h.disk_io.lasttm = now.getTime();
 	};
 	h.net_io = function(d) {
+	    var now = new Date();
+        var interval = (now.getTime() - (h.net_io.lasttm || 0)) / 1000.0;
+
 		$('#netr').text(u.bytes(d[1]));
 		$('#netw').text(u.bytes(d[0]));
 		if (h.net_io.lastr != undefined) {
-			var rs = d[1] - (h.net_io.lastr || 0);
-			var ws = d[0] - (h.net_io.lastw || 0);
+			var rs = (d[1] - (h.net_io.lastr || 0)) / interval;
+			var ws = (d[0] - (h.net_io.lastw || 0)) / interval;
 			$('#netrs').text(u.bytes(rs) + '/s');
 			$('#netws').text(u.bytes(ws) + '/s');
-			g.netrs.t.append(+new Date, rs / 1048576); // MiB
-			g.netws.t.append(+new Date, ws / 1048576); // MiB
+			g.netrs.t.append(+now, rs / 1048576); // MiB
+			g.netws.t.append(+now, ws / 1048576); // MiB
 		}
 		h.net_io.lastr = d[1];
 		h.net_io.lastw = d[0];
+		h.net_io.lasttm = now.getTime();
 	};
 	h.cpu_usage = function(d) {
 		$('#cpu_usage').text(u.percent(d));
