@@ -75,6 +75,7 @@ def _interval_split(interval, only=None, context=None, event_re=re.compile("[A-Z
 
     if hasattr(interval, "fetch"):
         interval = interval.fetch("custom_activations")
+    ##import sys; print >>sys.stderr, "!!!!!isplit", interval, event_re.findall(interval)
 
     return list(reversed([split_event(i) for i in event_re.findall(interval) if not only or i.startswith(only)]))
 
@@ -89,8 +90,9 @@ def _interval_sum(interval, start=None, end=None, context=None):
         e.g. "R1283008245P1283008268".
     """
     end = end and float(end) or time.time()
-    events = _interval_split(interval, context)
+    events = _interval_split(interval, context=context)
     result = []
+    ##import sys; print >>sys.stderr, "!!!!!isum", interval.fetch("custom_activations"), events, start, end
 
     while events:
         event, resumed = events.pop()

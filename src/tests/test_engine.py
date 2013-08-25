@@ -25,6 +25,21 @@ log = logging.getLogger(__name__)
 log.trace("module loaded")
 
 
+class IntervalTest(unittest.TestCase):
+    
+    INTERVAL_DATA = [
+        ("R1377390013R1377390082", dict(end=1377390084), 2),
+        ("R1353618135P1353618151", dict(start=1353618141), 10),
+    ]
+
+    def test_interval_sum(self):
+        for context in (None, "unittest"):
+            for interval, kwargs, expected in self.INTERVAL_DATA:
+                kwargs["context"] = context
+                result = engine._interval_sum(interval, **kwargs)
+                self.assertEqual(expected, result, "for interval=%r kw=%r" % (interval, kwargs))
+
+
 class EngineTest(unittest.TestCase):
 
     def test_engine(self):
