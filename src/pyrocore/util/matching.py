@@ -450,7 +450,7 @@ class MagicFilter(FieldFilter):
             pass
         elif val.replace('.', '0').isdigit(): 
             matcher = FloatFilter
-        elif self._condition in (TRUE + FALSE): 
+        elif self._condition in (TRUE | FALSE): 
             matcher = BoolFilter
         elif any(val.endswith(i) for i in ByteSizeFilter.UNITS) and val[:-1].isdigit():
             matcher = ByteSizeFilter
