@@ -33,7 +33,7 @@ from pyrocore.util import os, fmt, xmlrpc, pymagic, metafile, traits
 from pyrocore.torrent import matching, formatting
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
-try: 
+try:
     import pyinotify
 except ImportError, exc:
     pyinotify = Bunch(WatchManager=None, ProcessEvent=object, _import_error=str(exc)) # bogus pylint: disable=C0103
@@ -72,11 +72,11 @@ class MetafileHandler(object):
         except ValueError, exc:
             self.job.LOG.error("Invalid metafile '%s': %s" % (self.ns.pathname, exc))
             return
- 
+
         self.ns.info_hash = metafile.info_hash(self.metadata)
         self.ns.info_name = self.metadata["info"]["name"]
         self.job.LOG.info("Loaded '%s' from metafile '%s'" % (self.ns.info_name, self.ns.pathname))
-        
+
         # Check whether item is already loaded
         try:
             name = self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)
@@ -101,7 +101,7 @@ class MetafileHandler(object):
             if self.ns.pathname.startswith(watch.rstrip('/') + '/'):
                 self.ns.relpath = os.path.dirname(self.ns.pathname)[len(watch.rstrip('/'))+1:]
                 break
-        
+
         # Build indicator flags for target state from filename
         flags = self.ns.pathname.split(os.sep)
         flags.extend(flags[-1].split('.'))
@@ -132,7 +132,7 @@ class MetafileHandler(object):
                 self.ns.commands.append(formatting.expand_template(cmd, self.ns))
             except error.LoggableError, exc:
                 self.job.LOG.error("While expanding '%s' custom command: %s" % (key, exc))
-        
+
 
     def load(self):
         """ Load metafile into client.
@@ -148,7 +148,7 @@ class MetafileHandler(object):
 
             # Determine target state
             start_it = self.job.config.load_mode in ("start",)
-            queue_it = self.job.config.queued 
+            queue_it = self.job.config.queued
 
             if "start" in self.ns.flags:
                 start_it = True
@@ -164,15 +164,22 @@ class MetafileHandler(object):
                     self.ns.commands.append("d.set_priority=0")
             elif start_it:
                 self.ns.commands.append("d.start=")
+
+            self.job.LOG.debug("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, repr(val))
+                for key, val in sorted(self.ns.items())
+            ))
+
             self.job.proxy.load_verbose(self.ns.pathname, *tuple(self.ns.commands))
             time.sleep(.05) # let things settle
-            
+
             # Announce new item
             if not self.job.config.quiet:
-                msg = "%s: Loaded '%s' from '%s/'" % (
+                msg = "%s: Loaded '%s' from '%s/'%s%s" % (
                     self.job.__class__.__name__,
                     fmt.to_utf8(self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)),
                     os.path.dirname(self.ns.pathname).rstrip(os.sep),
+                    " [queued]" if queue_it else "",
+                    (" [startable]"  if queue_it else " [started]") if start_it else " [normal]",
                 )
                 self.job.proxy.log('', msg)
 
@@ -211,23 +218,23 @@ class RemoteWatch(object):
         """ Check remote watch target.
         """
         # TODO: ftp. ssh, and remote rTorrent instance (extra view?) as sources!
-        # config: 
+        # config:
         #   local_dir   storage path (default local sessiondir + '/remote-watch-' + jobname
         #   target      URL of target to watch
 
 
 class TreeWatchHandler(pyinotify.ProcessEvent):
     """ inotify event handler for rTorrent folder tree watch.
-    
+
         See https://github.com/seb-m/pyinotify/.
     """
-    
+
     METAFILE_EXT = (".torrent", ".load", ".start", ".queue")
-    
+
 
     def my_init(self, **kw):
         self.job = kw["job"]
-        
+
 
     def handle_path(self, event):
         """ Handle a path-related event.
@@ -235,7 +242,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         self.job.LOG.debug("Notification %r" % event)
         if event.dir:
             return
-        
+
         if any(event.pathname.endswith(i) for i in self.METAFILE_EXT):
             MetafileHandler(self.job, event.pathname).handle()
         elif os.path.basename(event.pathname) == "watch.ini":
@@ -262,7 +269,8 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
         """
         if self.job.LOG.isEnabledFor(logging.DEBUG):
             # On debug level, we subscribe to ALL events, so they're expected in that case ;)
-            self.job.LOG.debug("Ignored inotify event:\n    %r" % event)
+            if self.job.config.trace_inotify:
+                self.job.LOG.debug("Ignored inotify event:\n    %r" % event)
         else:
             self.job.LOG.warning("Unexpected inotify event %r" % event)
 
@@ -287,6 +295,7 @@ class TreeWatch(object):
 
         self.config.quiet = bool_param("quiet", False)
         self.config.queued = bool_param("queued", False)
+        self.config.trace_inotify = bool_param("trace_inotify", False)
 
         self.config.path = set([os.path.abspath(os.path.expanduser(path.strip()).rstrip(os.sep))
             for path in self.config.path.split(os.pathsep)
@@ -309,14 +318,14 @@ class TreeWatch(object):
         # Get client proxy
         self.proxy = xmlrpc.RTorrentProxy(configuration.scgi_url)
         self.proxy._set_mappings()
-        
+
         if self.config.active:
             self.setup()
 
-        
+
     def setup(self):
         """ Set up inotify manager.
-        
+
             See https://github.com/seb-m/pyinotify/.
         """
         if not pyinotify.WatchManager:
@@ -355,11 +364,11 @@ class TreeWatch(object):
 
 class TreeWatchCommand(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ 
+    """
         Use tree watcher directly from cmd line, call it like this:
             python -m pyrocore.torrent.watch <DIR>
-    
-        If the argument is a file, the templating namespace for that metafile is 
+
+        If the argument is a file, the templating namespace for that metafile is
         dumped (for testing and debugging purposes).
     """
 
@@ -399,8 +408,8 @@ class TreeWatchCommand(ScriptBaseWithConfig):
             self.LOG.debug("Metafile '%s' would've %sbeen loaded" % (pathname, "" if ok else "NOT "))
 
             handler.addinfo()
-            post_process = str if self.options.verbose else logutil.shorten 
-            self.LOG.info("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, post_process(repr(val))) 
+            post_process = str if self.options.verbose else logutil.shorten
+            self.LOG.info("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, post_process(repr(val)))
                 for key, val in sorted(handler.ns.items())
             ))
 
@@ -415,4 +424,3 @@ class TreeWatchCommand(ScriptBaseWithConfig):
 
 if __name__ == "__main__":
     TreeWatchCommand.main()
-
