@@ -147,7 +147,7 @@ class MetafileHandler(object):
             # TODO: Scrub metafile if requested
 
             # Determine target state
-            start_it = self.job.config.load_mode in ("start",)
+            start_it = self.job.config.load_mode.lower() in ("start", "started")
             queue_it = self.job.config.queued
 
             if "start" in self.ns.flags:
@@ -159,17 +159,18 @@ class MetafileHandler(object):
                 queue_it = True
 
             # Load metafile into client
+            load_cmd = self.job.proxy.load_verbose
             if queue_it:
                 if not start_it:
                     self.ns.commands.append("d.set_priority=0")
             elif start_it:
-                self.ns.commands.append("d.start=")
+                load_cmd = self.job.proxy.load_start_verbose
 
             self.job.LOG.debug("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, repr(val))
                 for key, val in sorted(self.ns.items())
             ))
 
-            self.job.proxy.load_verbose(self.ns.pathname, *tuple(self.ns.commands))
+            load_cmd(self.ns.pathname, *tuple(self.ns.commands))
             time.sleep(.05) # let things settle
 
             # Announce new item
