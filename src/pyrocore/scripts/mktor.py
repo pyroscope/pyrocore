@@ -24,10 +24,10 @@ from pyrocore.util import metafile, os
 
 
 class MetafileCreator(ScriptBaseWithConfig):
-    """ 
+    """
         Create a bittorrent metafile.
 
-        If passed a magnet URI as the only argument, a metafile is created 
+        If passed a magnet URI as the only argument, a metafile is created
         in the directory specified via the configuration value 'magnet_watch',
         loadable by rTorrent. Which means you can register 'mktor' as a magnet:
         URL handler in Firefox.
@@ -79,7 +79,7 @@ class MetafileCreator(ScriptBaseWithConfig):
         import cgi, re, hashlib
 
         if magnet_uri.startswith("magnet:"):
-            magnet_uri = magnet_uri[7:] 
+            magnet_uri = magnet_uri[7:]
         meta = {"magnet-uri": "magnet:" + magnet_uri}
         magnet_params = cgi.parse_qs(magnet_uri.lstrip('?'))
 
@@ -87,7 +87,9 @@ class MetafileCreator(ScriptBaseWithConfig):
         if "dn" in magnet_params:
             meta_name = "%s-%s" % (magnet_params["dn"][0], meta_name)
         meta_name = re.sub(r"[^-_,a-zA-Z0-9]+", '.', meta_name).strip('.').replace("urn.btih.", "")
-        
+
+        if not config.magnet_watch:
+            self.fatal("You MUST set the 'magnet_watch' config option!")
         meta_path = os.path.join(config.magnet_watch, "magnet-%s.torrent" % meta_name)
         self.LOG.debug("Writing magnet-uri metafile %r..." % (meta_path,))
 
@@ -135,7 +137,7 @@ class MetafileCreator(ScriptBaseWithConfig):
             metafile.assign_fields(meta, self.options.set)
 
         # Create and write the metafile(s)
-        meta = torrent.create(datapath, self.args[1:], 
+        meta = torrent.create(datapath, self.args[1:],
             progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
             comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
@@ -167,4 +169,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-
