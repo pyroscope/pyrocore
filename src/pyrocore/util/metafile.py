@@ -302,9 +302,9 @@ def add_fast_resume(meta, datapath):
 
     for fileinfo in files:
         # Get the path into the filesystem
-        filepath = os.sep.join(fileinfo["path"]).strip(os.sep)
+        filepath = os.sep.join(fileinfo["path"])
         if not single:
-            filepath = os.path.join(datapath, filepath)
+            filepath = os.path.join(datapath, filepath.strip(os.sep))
 
         # Check file size
         if os.path.getsize(filepath) != fileinfo["length"]:
