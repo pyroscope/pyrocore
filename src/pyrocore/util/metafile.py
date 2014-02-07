@@ -82,7 +82,7 @@ def console_progress():
         return progress if sys.stdout.isatty() else None
     except AttributeError:
         return None
-        
+
 
 def mask_keys(announce_url):
     """ Mask any passkeys (hex sequences) in an announce URL.
@@ -106,7 +106,7 @@ class MaskingPrettyPrinter(pprint.PrettyPrinter):
 
 def check_info(info):
     """ Validate info dict.
-    
+
         Raise ValueError if validation fails.
     """
     if not isinstance(info, dict):
@@ -153,7 +153,7 @@ def check_info(info):
             for part in path:
                 if not isinstance(part, basestring):
                     raise ValueError("bad metainfo - bad path dir")
-                if not ALLOWED_NAME.match(part):
+                if part and not ALLOWED_NAME.match(part):
                     raise ValueError("path %s disallowed for security reasons" % part)
 
         file_paths = [os.sep.join(item["path"]) for item in files]
@@ -165,7 +165,7 @@ def check_info(info):
 
 def check_meta(meta):
     """ Validate meta dict.
-    
+
         Raise ValueError if validation fails.
     """
     if not isinstance(meta, dict):
@@ -179,8 +179,8 @@ def check_meta(meta):
 
 def clean_meta(meta, including_info=False, logger=None):
     """ Clean meta dict. Optionally log changes using the given logger.
-    
-        @param logger: If given, a callable accepting a string message. 
+
+        @param logger: If given, a callable accepting a string message.
         @return: Set of keys removed from C{meta}.
     """
     modified = set()
@@ -195,7 +195,7 @@ def clean_meta(meta, including_info=False, logger=None):
     if including_info:
         for key in meta["info"].keys():
             if ["info", key] not in METAFILE_STD_KEYS:
-                if logger: 
+                if logger:
                     logger("Removing key %r..." % ("info." + key,))
                 del meta["info"][key]
                 modified.add("info." + key)
@@ -203,7 +203,7 @@ def clean_meta(meta, including_info=False, logger=None):
         for idx, entry in enumerate(meta["info"].get("files", [])):
             for key in entry.keys():
                 if ["info", "files", key] not in METAFILE_STD_KEYS:
-                    if logger: 
+                    if logger:
                         logger("Removing key %r from file #%d..." % (key, idx + 1))
                     del entry[key]
                     modified.add("info.files." + key)
@@ -228,14 +228,14 @@ def sanitize(meta):
         else:
             # Broken beyond anything reasonable
             return unicode(text, 'utf-8', 'replace').replace(u'\ufffd', '_').encode("utf-8")
-    
+
     # Go through all string fields and check them
     for field in ("comment", "created by"):
         if field in meta:
             meta[field] = sane_encoding(meta[field])
 
     meta["info"]["name"] = sane_encoding(meta["info"]["name"])
-    
+
     for entry in meta["info"].get("files", []):
         entry["path"] = [sane_encoding(i) for i in entry["path"]]
 
@@ -243,13 +243,13 @@ def sanitize(meta):
 
 
 def assign_fields(meta, assignments):
-    """ Takes a list of C{key=value} strings and assigns them to the 
+    """ Takes a list of C{key=value} strings and assigns them to the
         given metafile. If you want to set nested keys (e.g. "info.source"),
-        you have to use a dot as a separator. For exotic keys *containing* 
+        you have to use a dot as a separator. For exotic keys *containing*
         a dot, double that dot ("dotted..key").
-        
+
         Numeric values starting with "+" or "-" are converted to integers.
-        
+
         If just a key name is given (no '='), the field is removed.
     """
     for assignment in assignments:
@@ -258,7 +258,7 @@ def assign_fields(meta, assignments):
                 field, val = assignment.split('=', 1)
             else:
                 field, val = assignment, None
-            
+
             if val and val[0] in "+-" and val[1:].isdigit():
                 val = int(val, 10)
 
@@ -341,7 +341,7 @@ def data_size(metadata):
     else:
         # Directory structure
         total_size = sum([f['length'] for f in info['files']])
-    
+
     return total_size
 
 
@@ -420,7 +420,7 @@ class Metafile(object):
             if self._fifo > 1:
                 raise RuntimeError("INTERNAL ERROR: FIFO read twice!")
             self._fifo += 1
-                
+
             # Read paths relative to directory containing the FIFO
             with closing(open(self.datapath, "r")) as fifo:
                 while True:
@@ -431,7 +431,7 @@ class Metafile(object):
                     yield os.path.join(os.path.dirname(self.datapath), relpath)
 
             self.LOG.debug("FIFO %r closed!" % (self.datapath,))
-                
+
         # Directory?
         elif os.path.isdir(self.datapath):
             # Walk the directory tree
@@ -475,18 +475,18 @@ class Metafile(object):
         # Start a new piece
         sha1sum = hashlib.sha1()
         done = 0
- 
+
         # Hash all files
         for filename in walker:
             # Assemble file info
             filesize = os.path.getsize(filename)
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
             file_list.append({
-                "length": filesize, 
+                "length": filesize,
                 "path": filepath.replace(os.sep, '/').split('/'),
             })
             self.LOG.debug("Hashing %r, size %d..." % (filename, filesize))
-            
+
             # Open file and hash it
             fileoffset = 0
             handle = open(filename, "rb")
@@ -498,13 +498,13 @@ class Metafile(object):
                     done += len(chunk)
                     fileoffset += len(chunk)
                     totalhashed += len(chunk)
-                    
+
                     # Piece is done
                     if done == piece_size:
                         pieces.append(sha1sum.digest()) # bogus pylint: disable=E1101
                         if piece_callback:
                             piece_callback(filename, pieces[-1])
-                        
+
                         # Start a new piece
                         sha1sum = hashlib.sha1()
                         done = 0
@@ -524,11 +524,11 @@ class Metafile(object):
         # Build the meta dict
         metainfo = {
             "pieces": "".join(pieces),
-            "piece length": piece_size, 
+            "piece length": piece_size,
             "name": os.path.basename(self.datapath),
         }
 
-        # Handle directory/FIFO vs. single file        
+        # Handle directory/FIFO vs. single file
         if self._fifo or os.path.isdir(self.datapath):
             metainfo["files"] = file_list
         else:
@@ -545,7 +545,7 @@ class Metafile(object):
         if self._fifo:
             # TODO we need to add a (command line) param, probably for total data size
             # for now, always 1MB
-            piece_size_exp = 20 
+            piece_size_exp = 20
         else:
             total_size = self._calc_size()
             if total_size:
@@ -572,8 +572,8 @@ class Metafile(object):
 
         # Torrent metadata
         meta = {
-            "info": info, 
-            "announce": tracker_url.strip(), 
+            "info": info,
+            "announce": tracker_url.strip(),
         }
 
         #XXX meta["encoding"] = "UTF-8"
@@ -582,10 +582,10 @@ class Metafile(object):
         return check_meta(meta)
 
 
-    def create(self, datapath, tracker_urls, comment=None, root_name=None, 
+    def create(self, datapath, tracker_urls, comment=None, root_name=None,
                      created_by=None, private=False, no_date=False, progress=None,
                      callback=None):
-        """ Create a metafile with the path given on object creation. 
+        """ Create a metafile with the path given on object creation.
             Returns the last metafile dict that was written (as an object, not bencoded).
         """
         if datapath:
@@ -609,7 +609,7 @@ class Metafile(object):
                     tracker_url = tracker_url[0]
             except (KeyError, IndexError):
                 raise error.UserError("Bad tracker URL %r, or unknown alias!" % (tracker_url,))
-        
+
             # Determine metafile name
             output_name = self.filename
             if multi_mode:
@@ -657,8 +657,8 @@ class Metafile(object):
                 self.LOG.warn("Piece #%d: Hashes differ in file %r" % (check_piece.piece_index//20, filename))
             check_piece.piece_index += 20
         check_piece.piece_index = 0
-            
-        datameta = self._make_info(int(metainfo["info"]["piece length"]), progress, 
+
+        datameta = self._make_info(int(metainfo["info"]["piece length"]), progress,
             [datapath] if "length" in metainfo["info"] else
             (os.path.join(*([datapath] + i["path"])) for i in metainfo["info"]["files"]),
             piece_callback=check_piece
@@ -695,11 +695,11 @@ class Metafile(object):
                 time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo["creation date"]))
             ),
         ]
-        
+
         for label, key in (("BY  ", "created by"), ("REM ", "comment")):
             if key in metainfo:
                 result.append("%s %s" % (label, metainfo.get(key, "N/A")))
-                
+
         result.extend([
             "",
             "FILE LISTING%s" % ("" if info.has_key('length') else " [%d file(s)]" % len(info['files']),),
@@ -728,4 +728,3 @@ class Metafile(object):
                 ))
 
         return result
-
