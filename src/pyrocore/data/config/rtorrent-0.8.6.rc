@@ -3,13 +3,13 @@
 #
 # Include this into your main "~/.rtorrent.rc" for 0.8.6 by adding...
 #   system.method.insert = pyro.extended, value|const, 0
-#   system.method.insert = pyro.bin_dir, string|const, 
+#   system.method.insert = pyro.bin_dir, string|const,
 #   system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$system.client_version=\",.rc.default"
 #   import = $pyro.rtorrent_rc=
 #
 # For 0.8.8 and up, use "method.insert" instead.
 #
-# Remove the ".default" if you want to change something (else your 
+# Remove the ".default" if you want to change something (else your
 # changes get over-written on update).
 #
 # Set "pyro.extended" to 1 to activate rTorrent-PS features, but ONLY if
@@ -40,7 +40,7 @@ system.method.set_key = event.download.paused,activations,"pyro.activations.appe
 system.method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
 
 # SCHEDULE: Set "last_active" custom field for items that have peers
-system.method.insert = d.last_active, simple|value, "if=$d.peers_connected=,$system.time=,$d.custom=last_active"
+system.method.insert = d.last_active, simple|value, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
 schedule = update_last_active,24,42,"d.multicall=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
 system.method.insert = d.last_active.print, simple|private, "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
 
@@ -99,4 +99,3 @@ branch=pyro.extended=,"schedule = bind_pyrotorque,0,0,\"ui.bind_key=download_lis
 
 # TORQUE: Daemon watchdog
 system.method.insert = pyro.watchdog,simple|private,"execute_nothrow=bash,-c,\"$cat=\\\"test ! -f \\\",$argument.0=,\\\"/run/pyrotorque || \\\",$pyro.bin_dir=,\\\"pyrotorque --cron \\\",$argument.1=\""
-
