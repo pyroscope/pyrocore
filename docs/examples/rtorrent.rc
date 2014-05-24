@@ -1,0 +1,138 @@
+### rtorrent settings #######################################################
+#
+# This is the standard configuration that supports both PyroScope and
+# (optionally) rTorrent-PS features. This file is configured for a
+# rTorrent instance located in
+#
+#       RT_HOME
+#
+# If you run rTorrent-PS, see below on how to unlock additional support.
+#
+#############################################################################
+
+#
+# Environment & personal preferences (check & adapt these)
+#
+
+# general
+upload_rate = 12000
+download_rate = 12000
+max_uploads = 100
+max_uploads_global = 250
+tracker_numwant = 80
+max_open_http = 99
+max_open_files = 600
+max_open_sockets = 300
+encryption = allow_incoming,try_outgoing,enable_retry
+umask = 0027
+key_layout = qwertz
+check_hash = no
+
+# rTorrent 0.8.9 and older only
+# default is 2 ms and 5 tries
+#hash_interval = 50
+#hash_max_tries = 2
+
+# range for listening port
+port_range = 64000-64042
+port_random = no
+
+# tracker-less torrent support
+dht = disable
+peer_exchange = no
+use_udp_trackers = no
+
+# peer settings
+min_peers = 20
+max_peers = 60
+min_peers_seed = 30
+max_peers_seed = 80
+
+# resource usage
+max_memory_usage = 1800M
+xmlrpc_size_limit = 2M
+
+
+#
+# CORE settings (mostly keep these, but still check them)
+#
+http_capath = /etc/ssl/certs
+encoding_list = utf8
+
+directory = RT_HOME/work
+session = RT_HOME/.session
+scgi_local = RT_HOME/.scgi_local
+##scgi_port = localhost:5099
+log.execute = RT_HOME/log/execute.log
+
+# SCHEDULE: Make SCGI socket group-writable
+schedule = scgi_permission,0,0,"execute_nothrow=chmod,g+w,RT_HOME/.scgi_local"
+
+# SCHEDULE: Watch directories (if you use "pyrotorque", you can/should comment out the watches)
+schedule = watch_start_directory,10,10,load_start=RT_HOME/watch/start/*.torrent
+schedule = watch_load_directory,15,20,load=RT_HOME/watch/load/*.torrent
+
+# SCHEDULE: Watch disk space
+schedule = low_diskspace,15,60,close_low_diskspace=1000M
+
+# EVENTS: Logging (don't log "opened", or you get swamped at startup)
+system.method.set_key = event.download.inserted_new,log,"print=\"LOADED \",$d.get_name=,\" [\",$to_date=$system.time=,\"]\""
+system.method.set_key = event.download.finished,log,"print=\"COMPLETED \",$d.get_name=,\" [R=\",$d.get_ratio=,\", \",$to_date=$system.time=,\"]\""
+system.method.set_key = event.download.closed,log,"print=\"CLOSED \",$d.get_name=,\" [R=\",$d.get_ratio=,\", \",$to_date=$system.time=,\"]\""
+
+# UI/VIEW: Sort "seeding" by ratio
+view_sort_current = seeding,greater=d.get_ratio=
+
+
+#
+# PyroScope SETTINGS
+#
+
+# Set "pyro.extended" to 1 to activate rTorrent-PS features!
+system.method.insert = pyro.extended, value|const, 0
+
+# Set "pyro.bin_dir" to the "bin" directory where you installed the pyrocore tools!
+# Make sure you end it with a "/"; if this is left empty, then the shell's path is searched.
+system.method.insert = pyro.bin_dir, string|const, ~/bin/
+
+# Remove the ".default" if you want to change something (else your
+# changes get over-written on update).
+system.method.insert = pyro.rc_dialect, string|const|simple, "execute_capture=bash,-c,\"test $1 = 0.8.6 && echo -n 0.8.6 || echo -n 0.8.9\",dialect,$system.client_version="
+system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$pyro.rc_dialect=\",.rc.default"
+import = $pyro.rtorrent_rc=
+
+# TORQUE: Daemon watchdog schedule
+# Must be activated by touching the "~/.pyroscope/run/pyrotorque" file!
+# Set the second argument to "-v" or "-q" to change log verbosity.
+schedule = pyro_watchdog,30,300,"pyro.watchdog=~/.pyroscope,"
+
+# CURL options
+branch=pyro.extended=,"network.http.ssl_verify_peer.set=0"
+branch=pyro.extended=,"network.http.dns_cache_timeout.set=25"
+
+# The following view changes rely on additional fields available with PyroScope added,
+# but are a matter of preference, so you may comment them out
+
+# UI/VIEW: Sort incomplete by date added
+view_sort_current = incomplete,greater=d.get_custom=tm_loaded
+view_sort_new     = incomplete,greater=d.get_custom=tm_loaded
+
+# UI/VIEW: Show recently completed top-most in "main"
+view_sort_current = main,greater=d.get_custom=tm_completed
+view_filter_on = main,event.download.finished
+
+# UI/VIEW: Show active and incomplete torrents (in view #0) and update every 20 seconds
+#   Items are grouped into complete, incomplete, and queued, in that order (rT-PS only).
+#   Within each group, they're sorted by download and then upload speed.
+branch=pyro.extended=,false=,"view_sort_current = active,greater=d.get_up_rate="
+branch=pyro.extended=,"view_sort_current = active,\"compare=----,d.is_open=,d.get_complete=,d.get_down_rate=,d.get_up_rate=\""
+schedule = filter_active,12,20,"view_filter = active,\"or={d.get_up_rate=,d.get_down_rate=,not=$d.get_complete=}\" ;view_sort=active"
+
+
+#
+# LOCAL settings
+#
+
+# Add anything of your own here...
+
+### END rtorrent.rc #########################################################
