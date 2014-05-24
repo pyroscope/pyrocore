@@ -76,7 +76,7 @@ project = Bunch(
     zip_safe = False,
     data_files = [
         ("EGG-INFO", [
-            "README", "LICENSE", "debian/changelog", 
+            "README", "LICENSE", "debian/changelog",
         ]),
     ],
 
@@ -142,7 +142,7 @@ def bootstrap():
     # Link files shared by subprojects
     debian = path("debian")
     debian.exists() or debian.makedirs()
-    
+
     for shared in ("debian/changelog", "LICENSE"):
         path(shared).exists() or (path("..") / shared).link(shared)
 
@@ -156,7 +156,7 @@ def build():
     rtrc_089 = path(str(rtrc_086).replace("0.8.6", "0.8.9"))
     if not rtrc_089.exists() or rtrc_086.mtime > rtrc_089.mtime:
         rtrc_089.write_bytes(rtrc_086.text().replace("#087#", ""))
-        sh("./docs/rtorrent-extended/migrate_rtorrent_rc.sh %s >/dev/null" % rtrc_089)
+        sh("./src/scripts/migrate_rtorrent_rc.sh %s >/dev/null" % rtrc_089)
         sh("bash -c 'rm %s{?0.8.6,-????-??-??-??-??-??}'" % rtrc_089)
 
     call_task("setuptools.command.build")
@@ -176,7 +176,7 @@ def wiki():
         "The help output presented here applies to version `%s` of the tools." % sh("pyroadmin --version", capture=True).split()[1],
         "",
     ]
-    
+
     for tool in sorted(project.entry_points["console_scripts"]):
         tool, _ = tool.split(None, 1)
         content.extend([
@@ -271,4 +271,3 @@ def release():
     print "Created", " ".join([str(i) for i in path("dist").listdir()])
     print "Use 'paver sdist bdist_egg upload' to upload to PyPI"
     print "Use 'paver dist_docs' to prepare an API documentation upload"
-
