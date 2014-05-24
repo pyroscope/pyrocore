@@ -144,7 +144,6 @@ view_add = indemand
 view_sort_current = indemand,greater=d.last_active=
 schedule = sort_indemand,22,33,"view_sort=indemand"
 branch=pyro.extended=,"schedule = bind_indemand,0,0,\"ui.bind_key=download_list,?,ui.current_view.set=indemand\""
-branch=pyro.extended=,"view.collapsed.toggle=indemand"
 
 # UI/VIEW: Set default "collapsed" states
 branch=pyro.extended=,"view.collapsed.toggle=main"
