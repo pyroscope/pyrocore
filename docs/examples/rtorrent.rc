@@ -65,6 +65,10 @@ scgi_local = RT_HOME/.scgi_local
 ##scgi_port = localhost:5099
 log.execute = RT_HOME/log/execute.log
 
+# This was broken in some rTorrent versions, so always set it explicitely
+# (also allows you to use something else than the hostname to id the instance)
+session.name.set = "$cat=$system.hostname=,:,$system.pid="
+
 # SCHEDULE: Make SCGI socket group-writable
 schedule = scgi_permission,0,0,"execute_nothrow=chmod,g+w,RT_HOME/.scgi_local"
 
@@ -101,6 +105,13 @@ system.method.insert = pyro.rc_dialect, string|const|simple, "execute_capture=ba
 system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$pyro.rc_dialect=\",.rc.default"
 import = $pyro.rtorrent_rc=
 
+# UI: Show traffic of the last hour
+branch=pyro.extended=,"network.history.depth.set=112"
+branch=pyro.extended=,"schedule = network_history_sampling,1,32,network.history.sample="
+method.insert = network.history.auto_scale.toggle, simple|private, "branch=network.history.auto_scale=,\"network.history.auto_scale.set=0\",\"network.history.auto_scale.set=1\""
+method.insert = network.history.auto_scale.ui_toggle, simple|private, "network.history.auto_scale.toggle= ;network.history.refresh="
+branch=pyro.extended=,"schedule = bind_auto_scale,0,0,\"ui.bind_key=download_list,=,network.history.auto_scale.ui_toggle=\""
+
 # TORQUE: Daemon watchdog schedule
 # Must be activated by touching the "~/.pyroscope/run/pyrotorque" file!
 # Set the second argument to "-v" or "-q" to change log verbosity.
@@ -128,11 +139,31 @@ branch=pyro.extended=,false=,"view_sort_current = active,greater=d.get_up_rate="
 branch=pyro.extended=,"view_sort_current = active,\"compare=----,d.is_open=,d.get_complete=,d.get_down_rate=,d.get_up_rate=\""
 schedule = filter_active,12,20,"view_filter = active,\"or={d.get_up_rate=,d.get_down_rate=,not=$d.get_complete=}\" ;view_sort=active"
 
+# UI/VIEW: Show items sorted by activity on "indemand"
+view_add = indemand
+view_sort_current = indemand,greater=d.last_active=
+schedule = sort_indemand,22,33,"view_sort=indemand"
+branch=pyro.extended=,"schedule = bind_indemand,0,0,\"ui.bind_key=download_list,?,ui.current_view.set=indemand\""
+branch=pyro.extended=,"view.collapsed.toggle=indemand"
+
+# UI/VIEW: Set default "collapsed" states
+branch=pyro.extended=,"view.collapsed.toggle=main"
+branch=pyro.extended=,"view.collapsed.toggle=name"
+branch=pyro.extended=,"view.collapsed.toggle=stopped"
+branch=pyro.extended=,"view.collapsed.toggle=started"
+branch=pyro.extended=,"view.collapsed.toggle=active"
+branch=pyro.extended=,"view.collapsed.toggle=messages"
+branch=pyro.extended=,"view.collapsed.toggle=rtcontrol"
+branch=pyro.extended=,"view.collapsed.toggle=indemand"
+
 
 #
-# LOCAL settings
+# LOCAL Settings
 #
 
 # Add anything of your own here...
+
+# NETWORK: Unwanted peers
+##ipv4_filter.add_address = 1.2.3.666, unwanted
 
 ### END rtorrent.rc #########################################################
