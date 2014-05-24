@@ -137,6 +137,7 @@ class MetafileCreator(ScriptBaseWithConfig):
             metafile.assign_fields(meta, self.options.set)
 
         # Create and write the metafile(s)
+        # TODO: make it work better with multiple trackers (hash only once), also create fast-resume file for each tracker
         meta = torrent.create(datapath, self.args[1:],
             progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
