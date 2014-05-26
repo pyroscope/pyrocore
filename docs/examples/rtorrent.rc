@@ -141,8 +141,10 @@ schedule = filter_active,12,20,"view_filter = active,\"or={d.get_up_rate=,d.get_
 
 # UI/VIEW: Show items sorted by activity on "indemand"
 view_add = indemand
+view_filter = indemand,d.is_open=
+view_filter_on = indemand,event.download.closed,event.download.opened
 view_sort_current = indemand,greater=d.last_active=
-schedule = sort_indemand,22,33,"view_sort=indemand"
+schedule = sort_indemand,22,33,"view_filter = indemand,d.is_open= ;view_sort=indemand"
 branch=pyro.extended=,"schedule = bind_indemand,0,0,\"ui.bind_key=download_list,?,ui.current_view.set=indemand\""
 
 # UI/VIEW: Set default "collapsed" states
