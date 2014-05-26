@@ -8,7 +8,7 @@ include paver-minilib.zip
 include LICENSE
 
 recursive-include debian changelog
-recursive-include src/scripts
+recursive-include src/scripts *.sh
 recursive-include src/pyrocore/data/config rtorrent-*.rc
 
 #recursive-include examples *.txt *.py
