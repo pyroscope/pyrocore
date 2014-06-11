@@ -21,8 +21,8 @@ import re
 import time
 import operator
 
-from pyrocore import config, error 
-from pyrocore.util import os, pymagic, fmt, traits, matching 
+from pyrocore import config, error
+from pyrocore.util import os, pymagic, fmt, traits, matching
 
 
 #
@@ -62,7 +62,7 @@ def _duration(start, end):
 
 def _interval_split(interval, only=None, context=None, event_re=re.compile("[A-Z][0-9]+")):
     """ Split C{interval} into a series of event type and timestamp tuples.
-        An exaple of the input is "R1283008245P1283008268". 
+        An exaple of the input is "R1283008245P1283008268".
         Returns events in reversed order (latest first).
     """
     def split_event(event):
@@ -82,11 +82,11 @@ def _interval_split(interval, only=None, context=None, event_re=re.compile("[A-Z
 
 def _interval_sum(interval, start=None, end=None, context=None):
     """ Return sum of intervals between "R"esume and "P"aused events
-        in C{interval}, optionally limited by a time window defined 
+        in C{interval}, optionally limited by a time window defined
         by C{start} and C{end}. Return empty list if there's no sensible
         information.
-    
-        C{interval} is a series of event types and timestamps, 
+
+        C{interval} is a series of event types and timestamps,
         e.g. "R1283008245P1283008268".
     """
     end = end and float(end) or time.time()
@@ -161,13 +161,13 @@ def _fmt_files(filelist):
             while indent > common:
                 indent -= 1
                 result.append("%s%s/" % (base_indent, ' ' * indent))
-            
+
             for dirname in path[common:]:
                 if dirname == u'\uFFFE':
                     break
                 result.append("%s%s\\ %s" % (base_indent, ' ' * indent, dirname))
                 indent += 1
-        
+
         ##result.append("!!%r %r" % (path, name))
         result.append("  %s %s %s %s| %s" % (
             {0: "off ", 1: "    ", 2: "high"}.get(fileinfo.prio, "????"),
@@ -189,7 +189,7 @@ def _fmt_files(filelist):
 def detect_traits(item):
     """ Build traits list from attributes of the passed item. Currently,
         "kind_51", "name" and "alias" are considered.
-    
+
         See pyrocore.util.traits:dectect_traits for more details.
     """
     return traits.detect_traits(
@@ -209,7 +209,7 @@ class FieldDefinition(object):
     @classmethod
     def lookup(cls, name):
         """ Try to find field C{name}.
-        
+
             @return: Field descriptions, see C{matching.ConditionParser} for details.
         """
         try:
@@ -240,7 +240,7 @@ class FieldDefinition(object):
         """
         return "<%s(%r, %r, %r)>" % (self.__class__.__name__, self.valtype, self.name, self.__doc__)
 
-    
+
     def __get__(self, obj, cls=None):
         if obj is None:
             return self
@@ -295,18 +295,18 @@ class MutableField(FieldDefinition):
 class TorrentProxy(object):
     """ A single download item.
     """
-    
+
     @classmethod
     def add_manifold_attribute(cls, name):
         """ Register a manifold engine attribute.
-        
+
             @return: field definition object, or None if "name" isn't a manifold attribute.
         """
         if name.startswith("custom_"):
             try:
                 return FieldDefinition.FIELDS[name]
             except KeyError:
-                field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1], 
+                field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1],
                     matcher=matching.PatternFilter)
                 setattr(cls, name, field) # add field to all proxy objects
 
@@ -318,9 +318,9 @@ class TorrentProxy(object):
                 limit = int(name[5:].lstrip('0') or '0', 10)
                 if limit > 100:
                     raise error.UserError("kind_N: N > 100 in %r" % name)
-                field = OnDemandField(set, name, 
-                    "kinds of files that make up more than %d%% of this item's size" % limit, 
-                    matcher=matching.TaggedAsFilter, formatter=_fmt_tags, 
+                field = OnDemandField(set, name,
+                    "kinds of files that make up more than %d%% of this item's size" % limit,
+                    matcher=matching.TaggedAsFilter, formatter=_fmt_tags,
                     engine_name="kind_%d" % limit)
                 setattr(cls, name, field)
 
@@ -356,7 +356,7 @@ class TorrentProxy(object):
 
     def fetch(self, name, engine_name=None):
         """ Get a field on demand.
-        
+
             "engine_name" is the internal name of the client engine.
         """
         raise NotImplementedError()
@@ -435,7 +435,7 @@ class TorrentProxy(object):
     message = OnDemandField(str, "message", "current tracker message", matcher=matching.PatternFilter)
 
     # State
-    is_private = ConstantField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter, 
+    is_private = ConstantField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter,
         formatter=lambda val: "PRV" if val else "PUB")
     is_open = DynamicField(bool, "is_open", "download open?", matcher=matching.BoolFilter,
         formatter=lambda val: "OPN" if val else "CLS")
@@ -459,14 +459,14 @@ class TorrentProxy(object):
         accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")) if o._fields["path"] else "")
     metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
-    files = OnDemandField(list, "files", "list of files in this item", 
+    files = OnDemandField(list, "files", "list of files in this item",
         matcher=matching.FilesFilter, formatter=_fmt_files)
     fno = OnDemandField(int, "fno", "number of files in this item", matcher=matching.FloatFilter, engine_name="size_files")
-    
+
     # Bandwidth & Data Transfer
     done = OnDemandField(percent, "done", "completion in percent", matcher=matching.FloatFilter)
     ratio = DynamicField(ratio_float, "ratio", "normalized ratio (1:1 = 1.0)", matcher=matching.FloatFilter)
-    uploaded = OnDemandField(int, "uploaded", "amount of uploaded data", 
+    uploaded = OnDemandField(int, "uploaded", "amount of uploaded data",
         matcher=matching.ByteSizeFilter, engine_name="up_total")
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
         accessor=lambda o: o.fetch("up") + o.fetch("down"))
@@ -476,15 +476,15 @@ class TorrentProxy(object):
         accessor=lambda o: o._fields["throttle"] or "NONE")
 
     # Lifecyle
-    loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilter,
+    loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilterNotNull,
         accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime_optional)
-    started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilter,
+    started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilterNotNull,
         accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime_optional)
     leechtime = DynamicField(untyped, "leechtime", "time taken from start to completion", matcher=matching.DurationFilter,
         accessor=lambda o: _interval_sum(o, end=o.completed, context=o.name)
                         or _duration(o.started, o.completed),
         formatter=_fmt_duration)
-    completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilter,
+    completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilterNotNull,
         accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime_optional)
     seedtime = DynamicField(untyped, "seedtime", "total seeding time after completion", matcher=matching.DurationFilter,
         accessor=lambda o: _interval_sum(o, start=o.completed, context=o.name)
@@ -492,18 +492,18 @@ class TorrentProxy(object):
         formatter=_fmt_duration)
     active = DynamicField(long, "active", "last time a peer was connected", matcher=matching.TimeFilter,
         accessor=lambda o: long(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
-    stopped = DynamicField(long, "stopped", "time download was last stopped or paused", matcher=matching.TimeFilter,
+    stopped = DynamicField(long, "stopped", "time download was last stopped or paused", matcher=matching.TimeFilterNotNull,
         accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1], formatter=fmt.iso_datetime_optional)
 
     # Classification
     tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
         accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
-    views = OnDemandField(set, "views", "views this item is attached to", 
+    views = OnDemandField(set, "views", "views this item is attached to",
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
-    kind = DynamicField(set, "kind", "ALL kinds of files in this item (the same as kind_0)", 
+    kind = DynamicField(set, "kind", "ALL kinds of files in this item (the same as kind_0)",
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, accessor=lambda o: o.fetch("kind_0"))
-    traits = DynamicField(list, "traits", "automatic classification of this item (audio, video, tv, movie, etc.)", 
-        matcher=matching.TaggedAsFilter, formatter=lambda v: '/'.join(v or ["misc", "other"]), 
+    traits = DynamicField(list, "traits", "automatic classification of this item (audio, video, tv, movie, etc.)",
+        matcher=matching.TaggedAsFilter, formatter=lambda v: '/'.join(v or ["misc", "other"]),
         accessor=lambda o: detect_traits(o))
     # = DynamicField(, "", "")
 
@@ -515,7 +515,7 @@ class TorrentProxy(object):
     # clear purge date for known hashes (unloaded and then reloaded torrents)
     # store a version marker and other global metadata in cache under key = None, so it can be upgraded
     # add option to pyroadmin to inspect the cache, mainly for debugging
-    
+
     # TODO: created (metafile creation date, i.e. the bencoded field; same as downloaded if missing; cached by hash)
     # add .age formatter (age = " 1y 6m", " 2w 6d", "12h30m", etc.)
 
@@ -524,7 +524,7 @@ class TorrentProxy(object):
 class TorrentView(object):
     """ A view on a subset of torrent items.
     """
-  
+
     def __init__(self, engine, viewname, matcher=None):
         """ Initialize view on torrent items.
         """
@@ -538,7 +538,7 @@ class TorrentView(object):
         """ Fetch to attribute.
         """
         if self._items is None:
-            self._items = list(self.engine.items(self)) 
+            self._items = list(self.engine.items(self))
 
         return self._items
 
@@ -607,4 +607,3 @@ class TorrentEngine(object):
         """ Visualize a set of items (search result), and return the view name.
         """
         raise NotImplementedError()
-
