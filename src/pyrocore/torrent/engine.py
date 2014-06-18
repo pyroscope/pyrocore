@@ -452,6 +452,34 @@ class TorrentProxy(object):
         formatter=lambda val: "GHST" if val else "DATA")
 
     # Paths
+    """ Shining a light on the naming and paths mess:
+
+        hash=xxx
+        for i in d.name d.base_filename d.base_path d.directory d.directory_base d.is_multi_file; do \
+            echo -n "$(printf '%20.20s ' $i)"; rtxmlrpc $i $hash
+        done
+
+        Basics:
+            * d.base_filename is always the basename of d.base_path
+            * d.directory_base and d.directory are always the same
+            * d.base_filename and d.base_path are empty on closed items, after a restart, i.e. not too useful (since 0.9.1 or so)
+
+        Behaviour of d.directory.set + d.directory_base.set (tested with 0.9.4):
+            * d.base_path always remains unchanged, and item gets closed
+            * d.start sets d.base_path if resume data ok
+            * single:
+                * d.directory[_base].set → d.name NEVER appended (only in d.base_path)
+                * after start, d.base_path := d.directory/d.name
+            * multi:
+                * d.directory.set → d.name is appended
+                * d.directory_base.set → d.name is NOT appended (i.e. item renamed to last path part)
+                * after start, d.base_path := d.directory
+
+        Making sense of it (trying to at least):
+            * d.directory is *always* a directory (thus, single items auto-append d.name in d.base_path and cannot be renamed)
+            * d.directory_base.set means set path PLUS basename together for a multi item (thus allowing a rename)
+            * only d.directory.set behaves consistently for single+multi, regarding the end result in d.base_path
+    """
     directory = OnDemandField(fmt.to_unicode, "directory", "directory containing download data", matcher=matching.PatternFilter)
     path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])) if o._fields["path"] else "")
