@@ -36,7 +36,8 @@ from pyrocore.util import os, fmt, pymagic
 
 
 # Allowed characters in a metafile filename or path
-ALLOWED_NAME = re.compile(r"^(?:~\d+)?[^/\\.~][^/\\]*$")
+ALLOWED_ROOT_NAME = re.compile(r"^[^/\\.~][^/\\]*$") # cannot be absolute or ~user, and cannot have part parts
+ALLOWED_PATH_NAME = re.compile(r"^(?:~\d+)?[^/\\~][^/\\]*$")
 
 # Character sequences considered secret (roughly, any path part or query parameter
 # that looks like an alphanumeric sequence or url-safe base64 string)
@@ -123,7 +124,7 @@ def check_info(info):
     name = info.get("name")
     if not isinstance(name, basestring):
         raise ValueError("bad metainfo - bad name (type is %r)" % type(name).__name__)
-    if not ALLOWED_NAME.match(name):
+    if not ALLOWED_ROOT_NAME.match(name):
         raise ValueError("name %s disallowed for security reasons" % name)
 
     if info.has_key("files") == info.has_key("length"):
@@ -153,7 +154,7 @@ def check_info(info):
             for part in path:
                 if not isinstance(part, basestring):
                     raise ValueError("bad metainfo - bad path dir")
-                if part and not ALLOWED_NAME.match(part):
+                if part and not ALLOWED_PATH_NAME.match(part):
                     raise ValueError("path %s disallowed for security reasons" % part)
 
         file_paths = [os.sep.join(item["path"]) for item in files]
@@ -682,11 +683,15 @@ class Metafile(object):
         # Build result
         result = [
             "NAME %s" % (os.path.basename(self.filename)),
-            "SIZE %s (%i * %s + %s; metafile=%s)" % (
+            "SIZE %s (%i * %s + %s)" % (
                 fmt.human_size(total_size).strip(),
                 piece_number, fmt.human_size(piece_length).strip(),
                 fmt.human_size(last_piece_length).strip(),
+            ),
+            "META %s (pieces %s %.1f%%)" % (
                 fmt.human_size(os.path.getsize(self.filename)).strip(),
+                fmt.human_size(len(info["pieces"])).strip(),
+                100.0 * len(info["pieces"]) / os.path.getsize(self.filename),
             ),
             "HASH %s" % (info_hash.hexdigest().upper()),
             "URL  %s" % (mask_keys if masked else str)(announce),
