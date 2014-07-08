@@ -47,7 +47,7 @@ class ScriptBase(object):
 
     # additonal stuff appended after the command handler's docstring
     ADDITIONAL_HELP = []
-    
+
     # Can be empty or None in derived classes
     COPYRIGHT = "Copyright (c) 2009, 2010, 2011, 2012 Pyroscope Project"
 
@@ -110,9 +110,9 @@ class ScriptBase(object):
                         self.LOG.warn("Software version cannot be determined!")
                 except IOError:
                     self.LOG.warn("Software version cannot be determined!")
-                    
-            pkg_info = dict(line.split(": ", 1) 
-                for line in pkg_info.splitlines() 
+
+            pkg_info = dict(line.split(": ", 1)
+                for line in pkg_info.splitlines()
                 if ": " in line
             )
             self.version = pkg_info.get("Version", "DEV")
@@ -220,11 +220,13 @@ class ScriptBase(object):
         else:
             self.LOG.fatal(msg)
         sys.exit(error.EX_SOFTWARE)
-    
-        
+
+
     def run(self):
         """ The main program skeleton.
         """
+        log_total = True
+
         try:
             try:
                 # Preparation steps
@@ -263,15 +265,20 @@ class ScriptBase(object):
                         pass
                     else:
                         for handler in handlers:
-                            handler.flush = lambda *_: None
+                            try:
+                                handler.flush = lambda *_: None
+                            except AttributeError:
+                                pass # skip special handlers
 
+                    log_total = False
                     sys.exit(error.EX_IOERR)
                 else:
                     raise
         finally:
             # Shut down
-            running_time = time.time() - self.startup
-            self.LOG.log(self.STD_LOG_LEVEL, "Total time: %.3f seconds." % running_time)
+            if log_total:
+                running_time = time.time() - self.startup
+                self.LOG.log(self.STD_LOG_LEVEL, "Total time: %.3f seconds." % running_time)
             logging.shutdown()
 
         # Special exit code?
@@ -308,7 +315,7 @@ class ScriptBaseWithConfig(ScriptBase):
             action="append", default=[],
             help="additional config file(s) to read")
         self.add_value_option("-D", "--define", "KEY=VAL [-D ...]",
-            default=[], action="append", dest="defines", 
+            default=[], action="append", dest="defines",
             help="override configuration attributes")
 
 
