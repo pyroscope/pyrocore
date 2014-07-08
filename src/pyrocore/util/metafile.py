@@ -36,7 +36,7 @@ from pyrocore.util import os, fmt, pymagic
 
 
 # Allowed characters in a metafile filename or path
-ALLOWED_ROOT_NAME = re.compile(r"^[^/\\.~][^/\\]*$") # cannot be absolute or ~user, and cannot have part parts
+ALLOWED_ROOT_NAME = re.compile(r"^[^/\\.~][^/\\]*$") # cannot be absolute or ~user, and cannot have path parts
 ALLOWED_PATH_NAME = re.compile(r"^(?:~\d+)?[^/\\~][^/\\]*$")
 
 # Character sequences considered secret (roughly, any path part or query parameter
