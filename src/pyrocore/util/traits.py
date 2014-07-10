@@ -50,7 +50,7 @@ _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
 
 TV_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
     ( "Normal TV Episodes",
-        r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})[xE](?P<episode>\d{2}(?:E\d{2})?)"
+        r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})[xE](?P<episode>\d{2}(?:-?E\d{2})?)"
         r"(?:[._ ](?P<title>.+?[a-zA-Z]{1,2}.+?))?"
         + _TV_TRAIL
     ),
@@ -111,7 +111,7 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
 )]
 
 BAD_TITLE_WORDS = set((
-    "bdrip", "brrip", "hdrip", "dvdrip", "ntsc", 
+    "bdrip", "brrip", "hdrip", "dvdrip", "ntsc",
     "hdtv", "dvd-r", "dvdr", "dvd5", "dvd9", "blu-ray", "bluray", "web-dl",
     "720p", "1080p",
     "mp3", "ac3", "dts",
@@ -121,9 +121,9 @@ del k, i
 
 
 def get_filetypes(filelist, path=None, size=os.path.getsize):
-    """ Get a sorted list of file types and their weight in percent 
+    """ Get a sorted list of file types and their weight in percent
         from an iterable of file names.
-        
+
         @return: List of weighted file extensions (no '.'), sorted in descending order
         @rtype: list of (weight, filetype)
     """
@@ -178,7 +178,7 @@ def name_trait(name, add_info=False):
 
             if matched:
                 info["pattern"] = patname
-                
+
                 # Fold auxiliary groups into main one
                 for key, val in list(info.items()):
                     if key[-1].isdigit():
@@ -198,8 +198,8 @@ def name_trait(name, add_info=False):
 
 def detect_traits(name=None, alias=None, filetype=None):
     """ Build traits list from passed attributes.
-    
-        The result is a list of hierarchical classifiers, the top-level 
+
+        The result is a list of hierarchical classifiers, the top-level
         consisting of "audio", "movie", "tv", "video", "document", etc.
         It can be used as a part of completion paths to build directory
         structures.
@@ -234,4 +234,3 @@ def detect_traits(name=None, alias=None, filetype=None):
             result = [contents, filetype]
 
     return result
-
