@@ -1,6 +1,6 @@
 # pip requirements for "pyrotorque" dependencies
 
-APScheduler>=2.0.2
+APScheduler==2.1.0
 pyinotify>=0.9.3
 waitress>=0.8.2
 WebOb>=1.2.3
