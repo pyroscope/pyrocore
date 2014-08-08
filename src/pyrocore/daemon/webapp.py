@@ -22,8 +22,7 @@ import re
 import json
 import time
 import socket
-import logging
-import mimetypes
+#import mimetypes
 
 import psutil
 
@@ -33,38 +32,7 @@ from webob.dec import wsgify
 
 from pyrobase.parts import Bunch
 from pyrocore import config, error
-from pyrocore.util import pymagic, xmlrpc
-
-
-def engine_data(engine):
-    """ Get important performance data and metadata from rTorrent.
-    """
-    views = ("main", "started", "stopped", "complete", "incomplete", "seeding", "leeching", "active", "messages")
-    methods = [
-        "get_up_rate", "get_upload_rate",
-        "get_down_rate", "get_download_rate",
-    ]
-
-    # Get data via multicall
-    proxy = engine.open()
-    calls = [dict(methodName=method, params=[]) for method in methods] \
-          + [dict(methodName="view.size", params=['', view]) for view in views]
-    result = proxy.system.multicall(calls, flatten=True)
-
-    # Build result object
-    data = dict(
-        now         = time.time(),
-        engine_id   = engine.engine_id,
-        versions    = engine.versions,
-        uptime      = engine.uptime,
-        upload      = [result[0], result[1]],
-        download    = [result[2], result[3]],
-        views       = dict([(name, result[4+i])
-            for i, name in enumerate(views)
-        ]),
-    )
-
-    return data
+from pyrocore.util import pymagic, xmlrpc, stats
 
 
 class StaticFolders(object):
@@ -79,7 +47,7 @@ class StaticFolders(object):
         self.paths = []
         self.fileapp = fileapp or static.FileApp
         self.fileapp_kw = kw
-        
+
         for path in paths:
             path = os.path.abspath(path).rstrip(os.path.sep) + os.path.sep
             if os.path.isdir(path):
@@ -91,7 +59,7 @@ class StaticFolders(object):
     @wsgify
     def __call__(self, req):
         urlpath = req.urlvars.filepath.strip('/').replace("..", "!FORBIDDEN!")
-    
+
         for basepath in self.paths:
             path = os.path.abspath(os.path.realpath(os.path.join(basepath, urlpath)))
             if not os.path.isfile(path):
@@ -110,7 +78,7 @@ class JsonController(object):
 
     ERRORS_LOGGED = set()
 
-    
+
     def __init__(self, **kwargs):
         self.LOG = pymagic.get_class_logger(self)
         self.cfg = Bunch(kwargs)
@@ -148,14 +116,14 @@ class JsonController(object):
             if func.__name__ not in self.ERRORS_LOGGED:
                 self.LOG.warn("While calling '%s': %s" % (func.__name__, g_exc))
                 self.ERRORS_LOGGED.add(func.__name__)
-            return None    
+            return None
 
 
-    def json_engine(self, req):
+    def json_engine(self, req): # pylint: disable=R0201,W0613
         """ Return torrent engine data.
         """
         try:
-            return engine_data(config.engine)
+            return stats.engine_data(config.engine)
         except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
             raise exc.HTTPInternalServerError(str(torrent_exc))
 
@@ -187,7 +155,7 @@ class JsonController(object):
 
 class Router(object):
     """ URL router middleware.
-    
+
         See http://docs.webob.org/en/latest/do-it-yourself.html
     """
 
@@ -201,6 +169,8 @@ class Router(object):
 
     @classmethod
     def parse_route(cls, template):
+        """ Parse a route definition, and return the compiled regex that matches it.
+        """
         regex = ''
         last_pos = 0
 
@@ -222,8 +192,13 @@ class Router(object):
         self.LOG = pymagic.get_class_logger(self)
         self.routes = []
 
- 
+
     def add_route(self, template, controller, **kwargs):
+        """ Add a route definition
+
+            `controller` can be either a controller instance,
+            or the name of a callable that will be imported.
+        """
         if isinstance(controller, basestring):
             controller = pymagic.import_name(controller)
 
@@ -249,10 +224,12 @@ class Router(object):
 
 @wsgify
 def redirect(req, _log=pymagic.get_lazy_logger("redirect")):
+    """ Redirect controller to emit a HTTP 301.
+    """
     log = req.environ.get("wsgilog.logger", _log)
-    to = req.relative_url(req.urlvars.to)
-    log.info("Redirecting '%s' to '%s'" % (req.url, to))
-    return exc.HTTPMovedPermanently(location=to)
+    target = req.relative_url(req.urlvars.to)
+    log.info("Redirecting '%s' to '%s'" % (req.url, target))
+    return exc.HTTPMovedPermanently(location=target)
 
 
 def make_app(httpd_config):
@@ -265,7 +242,7 @@ def make_app(httpd_config):
         os.path.realpath(os.path.join(config.config_dir, "htdocs")),
         os.path.join(os.path.dirname(config.__file__), "data", "htdocs"),
     ]
-    
+
     return (Router()
         .add_route("/", controller=redirect, to="/static/index.html")
         .add_route("/favicon.ico", controller=redirect, to="/static/favicon.ico")
@@ -274,15 +251,22 @@ def make_app(httpd_config):
     )
 
 
-if __name__ == "__main__":
+def module_test():
+    """ Quick test using…
+
+            python -m pyrocore.daemon.webapp
+    """
     import pprint
     from pyrocore import connect
 
     try:
         engine = connect()
         print("%s - %s" % (engine.engine_id, engine.open()))
-        pprint.pprint(engine_data(engine))
+        pprint.pprint(stats.engine_data(engine))
         print("%s - %s" % (engine.engine_id, engine.open()))
     except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
         print("ERROR: %s" % torrent_exc)
 
+
+if __name__ == "__main__":
+    module_test()
