@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011
+# pylint: disable=I0011,C0103
 """ Python Utility Functions.
 
     Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -52,8 +52,8 @@ def import_name(module_spec, name=None):
         module = __import__(module_name, globals(), {}, [name])
     except ImportError, exc:
         raise ImportError("Bad module name in %r (%s)" % (module_spec, exc))
-    
-    # Resolve the requested name 
+
+    # Resolve the requested name
     result = module
     for attr in name.split('.'):
         result = getattr(result, attr)
@@ -65,13 +65,12 @@ def get_class_logger(obj):
     """ Get a logger specific for the given object's class.
     """
     return logging.getLogger(obj.__class__.__module__ + '.' + obj.__class__.__name__)
-    
+
 
 def get_lazy_logger(name):
     """ Return a logger proxy that is lazily initialized.
-    
-        This avoids the problems associated with module-level loggers being created 
+
+        This avoids the problems associated with module-level loggers being created
         early (on import), *before* the logging system is properly initialized.
     """
     return LazyProxy(lambda n=name: logging.getLogger(n))
-
