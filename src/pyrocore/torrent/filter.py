@@ -18,7 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from pyrocore import error, config
+from pyrocore import error
 from pyrocore.util import xmlrpc, pymagic
 
 
@@ -37,8 +37,10 @@ class FilterJobBase(object):
     def run(self):
         """ Filter job callback.
         """
+        from pyrocore import config
+
         try:
-            proxy = config.engine.open()
+            config.engine.open()
             # TODO: select view into items
             items = []
             self.run_filter(items)
@@ -73,5 +75,3 @@ class TorrentMirror(FilterJobBase):
         # create clones of item's metafile, write to watch_dir, and upload
         # to tracker_upload (support file: at first, for a local bttrack);
         # also, already mirrored items have to be marked somehow
-
-

@@ -234,7 +234,7 @@ class TreeWatchHandler(pyinotify.ProcessEvent):
 
 
     def my_init(self, **kw):
-        self.job = kw["job"]
+        self.job = kw["job"] # pylint: disable=W0201
 
 
     def handle_path(self, event):
@@ -318,7 +318,7 @@ class TreeWatch(object):
 
         # Get client proxy
         self.proxy = xmlrpc.RTorrentProxy(configuration.scgi_url)
-        self.proxy._set_mappings()
+        self.proxy._set_mappings() # pylint: disable=W0212
 
         if self.config.active:
             self.setup()
@@ -331,7 +331,7 @@ class TreeWatch(object):
         """
         if not pyinotify.WatchManager:
             raise error.UserError("You need to install 'pyinotify' to use %s (%s)!" % (
-                self.__class__.__name__, pyinotify._import_error)) # pylint: disable=E1101
+                self.__class__.__name__, pyinotify._import_error)) # pylint: disable=E1101, W0212
 
         self.manager = pyinotify.WatchManager()
         self.handler = TreeWatchHandler(job=self)
