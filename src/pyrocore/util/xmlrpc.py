@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=I0011,W0212
 """ RTorrent client proxy.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -54,8 +56,8 @@ class RTorrentMethod(object):
         """ Return statistics for this call.
         """
         return "out %s, in %s, took %.3fms/%.3fms" % (
-            fmt.human_size(self._outbound).strip(), 
-            fmt.human_size(self._inbound).strip(), 
+            fmt.human_size(self._outbound).strip(),
+            fmt.human_size(self._inbound).strip(),
             self._net_latency * 1000.0,
             self._latency * 1000.0,
         )
@@ -63,7 +65,7 @@ class RTorrentMethod(object):
 
     def __call__(self, *args, **kwargs):
         """ Execute the method call.
-        
+
             `raw_xml=True` returns the unparsed XML-RPC response.
             `flatten=True` removes one nesting level in a result list (useful for multicalls).
         """
@@ -96,21 +98,21 @@ class RTorrentMethod(object):
             ##xmlreq = xmlreq.replace('\n', '')
             self._outbound = len(xmlreq)
             self._proxy._outbound += self._outbound
-            self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound) 
+            self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound)
 
             # Send it
             scgi_req = xmlrpc2scgi.SCGIRequest(self._proxy._transport)
             xmlresp = scgi_req.send(xmlreq)
             self._inbound = len(xmlresp)
             self._proxy._inbound += self._inbound
-            self._proxy._inbound_max = max(self._proxy._inbound_max, self._inbound) 
+            self._proxy._inbound_max = max(self._proxy._inbound_max, self._inbound)
             self._net_latency = scgi_req.latency
             self._proxy._net_latency += self._net_latency
 
             # Return raw XML response?
             if raw_xml:
                 return xmlresp
-            
+
             # This fixes a bug with the Python xmlrpclib module
             # (has no handler for <i8> in some versions)
             xmlresp = xmlresp.replace("<i8>", "<i4>").replace("</i8>", "</i4>")
@@ -134,18 +136,18 @@ class RTorrentMethod(object):
                         print >>sys.stderr, "INFO: Bad data packets written to %r" % filename
                     finally:
                         handle.close()
-                raise                
+                raise
             else:
                 return sum(result, []) if flatten else result
         finally:
             # Calculate latency
             self._latency = time.time() - start
             self._proxy._latency += self._latency
-            
+
             if config.debug:
                 self._proxy.LOG.debug("%s(%s) took %.3f secs" % (
-                    self._method_name, 
-                    ", ".join(repr(i) for i in args), 
+                    self._method_name,
+                    ", ".join(repr(i) for i in args),
                     self._latency
                 ))
 
@@ -156,7 +158,7 @@ class RTorrentProxy(object):
         Method calls are built from attribute accesses, i.e. you can do
         something like C{proxy.system.client_version()}.
     """
-    
+
     def __init__(self, url, mapping=None):
         self.LOG = pymagic.get_class_logger(self)
         self._url = url
@@ -176,16 +178,16 @@ class RTorrentProxy(object):
         self._latency = 0.0
         self._net_latency = 0.0
 
-    
+
     def __str__(self):
         """ Return statistics.
         """
         return "%d req, out %s [%s max], in %s [%s max], %.3fms/%.3fms avg latency" % (
-            self._requests, 
-            fmt.human_size(self._outbound).strip(), 
-            fmt.human_size(self._outbound_max).strip(), 
-            fmt.human_size(self._inbound).strip(), 
-            fmt.human_size(self._inbound_max).strip(), 
+            self._requests,
+            fmt.human_size(self._outbound).strip(),
+            fmt.human_size(self._outbound_max).strip(),
+            fmt.human_size(self._inbound).strip(),
+            fmt.human_size(self._inbound_max).strip(),
             self._net_latency * 1000.0 / self._requests,
             self._latency * 1000.0 / self._requests,
         )
@@ -229,7 +231,7 @@ class RTorrentProxy(object):
         if config.debug and cmd != self._mapping.get(cmd, cmd):
             self.LOG.debug("MAP %s ==> %s" % (cmd, self._mapping[cmd]))
         cmd = self._mapping.get(cmd, cmd)
-        
+
         # These we do by code, to avoid lengthy lists in the config
         if not self._use_deprecated and any(cmd.startswith(i) for i in ("d.get_", "f.get_", "p.get_", "t.get_")):
             cmd = cmd[:2] + cmd[6:]
@@ -247,4 +249,3 @@ class RTorrentProxy(object):
         """ Return info & statistics.
         """
         return "%s(%r) [%s]" % (self.__class__.__name__, self._url, self)
-
