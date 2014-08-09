@@ -18,8 +18,40 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from pyrocore import error, config
-from pyrocore.util import fmt, xmlrpc, pymagic
+import time
+
+try:
+    import json
+except ImportError:
+    import simplejson as json # pylint: disable=F0401
+
+import requests
+from requests.exceptions import RequestException
+
+from pyrobase.parts import Bunch
+from pyrocore import error
+from pyrocore.util import fmt, xmlrpc, pymagic, stats
+
+
+def _flux_engine_data(engine):
+    """ Return rTorrent data set for pushing to InfluxDB.
+    """
+    data = stats.engine_data(engine)
+
+    # Make it flat
+    data["up_rate"] = data["upload"][0]
+    data["up_limit"] = data["upload"][1]
+    data["down_rate"] = data["download"][0]
+    data["down_limit"] = data["download"][1]
+    data["version"] = data["versions"][0]
+    views = data["views"]
+
+    del data["upload"]
+    del data["download"]
+    del data["versions"]
+    del data["views"]
+
+    return data, views
 
 
 class EngineStats(object):
@@ -29,7 +61,7 @@ class EngineStats(object):
     def __init__(self, config=None):
         """ Set up statistics logger.
         """
-        self.config = config or {}
+        self.config = config or Bunch()
         self.LOG = pymagic.get_class_logger(self)
         self.LOG.debug("Statistics logger created with config %r" % self.config)
 
@@ -37,13 +69,119 @@ class EngineStats(object):
     def run(self):
         """ Statistics logger job callback.
         """
+        from pyrocore import config
+
         try:
             proxy = config.engine.open()
             self.LOG.info("Stats for %s - up %s, %s" % (
-                config.engine.engine_id, 
-                fmt.human_duration(proxy.system.time() - config.engine.startup, 0, 2, True).strip(), 
+                config.engine.engine_id,
+                fmt.human_duration(proxy.system.time() - config.engine.startup, 0, 2, True).strip(),
                 proxy
             ))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             self.LOG.warn(str(exc))
 
+
+class InfluxDBStats(object):
+    """ Push rTorrent and host statistics to InfluxDB.
+    """
+
+    def __init__(self, config=None):
+        """ Set up statistics logger.
+        """
+        self.config = config or Bunch()
+        self.LOG = pymagic.get_class_logger(self)
+        self.LOG.debug("InfluxDB statistics feed created with config %r" % self.config)
+
+
+    def _influxdb_url(self):
+        """ Return REST API URL to access time series.
+        """
+        url = "{0}/db/{1}/series".format(self.config.url.rstrip('/'), self.config.dbname)
+
+        if self.config.user and self.config.password:
+            url += "?u={0}&p={1}".format(self.config.user, self.config.password)
+
+        return url
+
+
+    def _push_data(self):
+        """ Push stats data to InfluxDB.
+        """
+        # Assemble data
+        fluxdata = []
+
+        if self.config.series:
+            from pyrocore import config
+
+            try:
+                config.engine.open()
+                data, views = _flux_engine_data(config.engine)
+                fluxdata.append(dict(
+                    name = self.config.series,
+                    columns = data.keys(),
+                    points = [data.values()]
+                ))
+                fluxdata.append(dict(
+                    name = self.config.series + '_views',
+                    columns = views.keys(),
+                    points = [views.values()]
+                ))
+            except (error.LoggableError, xmlrpc.ERRORS), exc:
+                self.LOG.warn(str(exc))
+
+#        if self.config.series_host:
+#            fluxdata.append(dict(
+#                name = self.config.series_host,
+#                columns = .keys(),
+#                points = [.values()]
+#            ))
+
+        if not fluxdata:
+            self.LOG.info("Misconfigured InfluxDB job, neither 'series' nor 'series_host' is set!")
+            return
+
+        # Encode into InfluxDB data packet
+        fluxurl = self._influxdb_url()
+        fluxjson = json.dumps(fluxdata)
+        self.LOG.debug("POST to {0} with {1}".format(fluxurl.split('?')[0], fluxjson))
+
+        # Push it!
+        try:
+            # TODO: Use a session
+            requests.post(fluxurl, data=fluxjson, timeout=float(self.config.timeout or '0.150'))
+        except RequestException, exc:
+            self.LOG.info("InfluxDB POST error: {0}".format(exc))
+
+
+    def run(self):
+        """ Statistics feed job callback.
+        """
+        self._push_data()
+
+
+def module_test():
+    """ Quick test using…
+
+            python -m pyrocore.daemon.webapp
+    """
+    import pprint
+    from pyrocore import connect
+
+    try:
+        engine = connect()
+        print("%s - %s" % (engine.engine_id, engine.open()))
+
+        data, views = _flux_engine_data(engine)
+        print "data = ",
+        pprint.pprint(data)
+        print "views = ",
+        pprint.pprint(views)
+
+        print("%s - %s" % (engine.engine_id, engine.open()))
+    except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
+        print("ERROR: %s" % torrent_exc)
+
+
+if __name__ == "__main__":
+    module_test()
