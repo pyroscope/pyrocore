@@ -30,6 +30,7 @@ from requests.exceptions import RequestException
 
 from pyrobase.parts import Bunch
 from pyrocore import error
+from pyrocore import config as config_ini
 from pyrocore.util import fmt, xmlrpc, pymagic, stats
 
 
@@ -69,13 +70,11 @@ class EngineStats(object):
     def run(self):
         """ Statistics logger job callback.
         """
-        from pyrocore import config
-
         try:
-            proxy = config.engine.open()
+            proxy = config_ini.engine.open()
             self.LOG.info("Stats for %s - up %s, %s" % (
-                config.engine.engine_id,
-                fmt.human_duration(proxy.system.time() - config.engine.startup, 0, 2, True).strip(),
+                config_ini.engine.engine_id,
+                fmt.human_duration(proxy.system.time() - config_ini.engine.startup, 0, 2, True).strip(),
                 proxy
             ))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
@@ -90,6 +89,9 @@ class InfluxDBStats(object):
         """ Set up statistics logger.
         """
         self.config = config or Bunch()
+        self.influxdb = Bunch(config_ini.influxdb)
+        self.influxdb.timeout = float(self.influxdb.timeout or '0.250')
+
         self.LOG = pymagic.get_class_logger(self)
         self.LOG.debug("InfluxDB statistics feed created with config %r" % self.config)
 
@@ -97,10 +99,10 @@ class InfluxDBStats(object):
     def _influxdb_url(self):
         """ Return REST API URL to access time series.
         """
-        url = "{0}/db/{1}/series".format(self.config.url.rstrip('/'), self.config.dbname)
+        url = "{0}/db/{1}/series".format(self.influxdb.url.rstrip('/'), self.config.dbname)
 
-        if self.config.user and self.config.password:
-            url += "?u={0}&p={1}".format(self.config.user, self.config.password)
+        if self.influxdb.user and self.influxdb.password:
+            url += "?u={0}&p={1}".format(self.influxdb.user, self.influxdb.password)
 
         return url
 
@@ -108,15 +110,17 @@ class InfluxDBStats(object):
     def _push_data(self):
         """ Push stats data to InfluxDB.
         """
+        if not (self.config.series or self.config.series_host):
+            self.LOG.info("Misconfigured InfluxDB job, neither 'series' nor 'series_host' is set!")
+            return
+
         # Assemble data
         fluxdata = []
 
         if self.config.series:
-            from pyrocore import config
-
             try:
-                config.engine.open()
-                data, views = _flux_engine_data(config.engine)
+                config_ini.engine.open()
+                data, views = _flux_engine_data(config_ini.engine)
                 fluxdata.append(dict(
                     name = self.config.series,
                     columns = data.keys(),
@@ -128,7 +132,7 @@ class InfluxDBStats(object):
                     points = [views.values()]
                 ))
             except (error.LoggableError, xmlrpc.ERRORS), exc:
-                self.LOG.warn(str(exc))
+                self.LOG.warn("InfluxDB stats: {0}".format(exc))
 
 #        if self.config.series_host:
 #            fluxdata.append(dict(
@@ -138,7 +142,7 @@ class InfluxDBStats(object):
 #            ))
 
         if not fluxdata:
-            self.LOG.info("Misconfigured InfluxDB job, neither 'series' nor 'series_host' is set!")
+            self.LOG.debug("InfluxDB stats: no data (previous errors?)")
             return
 
         # Encode into InfluxDB data packet
@@ -149,7 +153,7 @@ class InfluxDBStats(object):
         # Push it!
         try:
             # TODO: Use a session
-            requests.post(fluxurl, data=fluxjson, timeout=float(self.config.timeout or '0.150'))
+            requests.post(fluxurl, data=fluxjson, timeout=self.influxdb.timeout)
         except RequestException, exc:
             self.LOG.info("InfluxDB POST error: {0}".format(exc))
 
