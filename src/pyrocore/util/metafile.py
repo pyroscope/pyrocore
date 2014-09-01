@@ -154,6 +154,8 @@ def check_info(info):
             for part in path:
                 if not isinstance(part, basestring):
                     raise ValueError("bad metainfo - bad path dir")
+                if part == '..':
+                    raise ValueError("relative path in %s disallowed for security reasons" % '/'.join(path))
                 if part and not ALLOWED_PATH_NAME.match(part):
                     raise ValueError("path %s disallowed for security reasons" % part)
 
