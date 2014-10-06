@@ -432,7 +432,7 @@ class TorrentProxy(object):
         accessor=lambda o: o.announce_urls(default=[None])[0])
     alias = ConstantField(config.map_announce2alias, "alias", "tracker alias or domain",
         matcher=matching.PatternFilter, accessor=operator.attrgetter("tracker"))
-    message = OnDemandField(str, "message", "current tracker message", matcher=matching.PatternFilter)
+    message = OnDemandField(fmt.to_unicode, "message", "current tracker message", matcher=matching.PatternFilter)
 
     # State
     is_private = ConstantField(bool, "is_private", "private flag set (no DHT/PEX)?", matcher=matching.BoolFilter,
