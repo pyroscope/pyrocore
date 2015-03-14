@@ -18,17 +18,38 @@ and especially the rTorrent client. This includes:
 
 See the
 [ScreenShotGallery](https://github.com/pyroscope/pyroscope/blob/wiki/ScreenShotGallery.md)
-if you want to get a first impression
-without [installing the software](https://github.com/pyroscope/pyroscope/blob/wiki/QuickStartGuide.md).
+if you want to get a first impression without installing the software.
 
-To get started right away, see the
-[QuickStartGuide](https://github.com/pyroscope/pyroscope/blob/wiki/QuickStartGuide.md).
-It's also very easy to
-[WriteYourOwnScripts](https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md)
-to automate anything that the standard commands can't do.
 To get in contact and share your experiences with other users of PyroScope,
 join the [pyroscope-users](http://groups.google.com/group/pyroscope-users) mailing list
 or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
+
+
+## Installation
+
+To install the software, use the following commands:
+
+```sh
+# To be executed in a shell with your normal user account!
+mkdir -p ~/bin ~/lib
+git clone "https://github.com/pyroscope/pyrocore.git" ~/lib/pyroscope
+
+# pass "/usr/bin/python2" or whatever to the script,
+# if "/usr/bin/python" is not a suitable version
+~/lib/pyroscope/update-to-head.sh
+
+# Check success
+rtcontrol --version
+```
+
+You can choose a different install directory, just change the paths accordingly.
+
+
+## Customization
+
+It's very easy to
+[WriteYourOwnScripts](https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md)
+to automate anything that the standard commands can't do.
 
 
 ## News
