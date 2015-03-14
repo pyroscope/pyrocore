@@ -44,7 +44,7 @@ rtcontrol --version
 
 You can choose a different install directory, just change the paths accordingly.
 
-:loudspeaker: | If you want to switch over from an old installation based on subversion source (from Google code), then _move that old directory away_, before installation! Like this:
+:loudspeaker: | If you want to switch over from an old installation based on subversion source (from [Google code](https://code.google.com/p/pyroscope/)), then _move that old directory away_, before installation! Like this:
 ---- | :----
 :computer: | ``( cd ~/lib && mv pyroscope pyroscope-$(date +'%Y-%m-%d').bak )``
 
