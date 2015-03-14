@@ -34,7 +34,7 @@ To install the software, use the following commands:
 mkdir -p ~/bin ~/lib
 git clone "https://github.com/pyroscope/pyrocore.git" ~/lib/pyroscope
 
-# pass "/usr/bin/python2" or whatever to the script,
+# Pass "/usr/bin/python2" or whatever to the script,
 # if "/usr/bin/python" is not a suitable version
 ~/lib/pyroscope/update-to-head.sh
 
