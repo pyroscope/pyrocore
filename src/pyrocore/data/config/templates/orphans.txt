@@ -1,0 +1,21 @@
+{{# This template lists all paths in the download directory NOT loaded into the client.
+
+    Use it like this:
+        rtcontrol -qO orphans.txt \*
+}}{{py:
+global os, download_dir, entries
+from pyrocore.util import os
+
+download_dir = proxy.get_directory().rstrip(os.sep) + os.sep
+
+# List all non-symlinked entries in the download directory
+entries = set(i 
+    for i in os.listdir(download_dir)
+    if not os.path.islink(os.path.join(download_dir, i)))
+
+# From that list, remove anything loaded in the client
+entries -= set(os.path.basename(d.path)
+    for d in matches 
+    if os.path.samefile(os.path.dirname(d.path or d.directory), download_dir))
+}}{{for i in sorted(entries)}}{{i}}
+{{endfor}}

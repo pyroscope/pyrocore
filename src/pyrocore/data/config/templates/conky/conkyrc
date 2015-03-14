@@ -1,0 +1,36 @@
+# Sample conky Configuration
+#
+# The settings below are just for demo purposes
+# Integrate the TEXT portion into your normal ~/.conkyrc
+#
+# Call it like so to see what it looks like:
+#   pyroadmin --create-config
+#   conky -c ~/.pyroscope/templates/conky/conkyrc
+
+update_interval 5.0
+own_window yes
+own_window_transparent yes
+own_window_hints undecorated,below,skip_taskbar,skip_pager
+maximum_width 320
+minimum_size 320 600
+alignment top_right
+
+default_shade_color 999999
+default_outline_color 222222
+draw_outline yes
+draw_shades yes
+
+use_xft yes
+xftfont Lucida Sans Typewriter:size=8
+#xftfont Bitstream Vera Sans Mono:size=8
+xftalpha 0.8
+
+background yes
+double_buffer yes
+total_run_times 0
+override_utf8_locale yes
+text_buffer_size 16768
+
+TEXT
+${execpi 5 ~/bin/rtcontrol -qO conky/rtorstat.txt --from-view incomplete is_open=yes is_ignored=no}
+

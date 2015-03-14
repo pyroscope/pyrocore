@@ -1,0 +1,130 @@
+# bash completion for PyroScope commands
+#
+# Source this in your ~/.bash_completion or ~/.bashrc, 
+# or copy it to /etc/bash_completion.d/pyrocore
+#
+_pyrocore_base() {
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    case "${prev}" in 
+        --config-dir)
+            COMPREPLY=( $(compgen -A directory -- "${cur}") )
+            return 0
+            ;;
+    esac
+}
+
+_pyrocore_generic() {
+    local cur prev choices
+    _pyrocore_base 
+    test -z "$COMPREPLY" || return 0
+
+    case "${cur}" in 
+        -*)
+            choices="$(${COMP_WORDS[0]} --help-completion-options)"
+            COMPREPLY=( $(compgen -W "${choices}" -- ${cur}) )
+            return 0
+            ;;
+    esac
+}
+
+_rtxmlrpc() {
+    local cur prev choices
+    _pyrocore_base 
+    test -z "$COMPREPLY" || return 0
+
+    case "${cur}" in 
+        -*)
+            choices="$(rtxmlrpc --help-completion-options)"
+            COMPREPLY=( $(compgen -W "${choices}" -- ${cur}) )
+            return 0
+            ;;
+        [a-z]*)
+            choices="$(rtxmlrpc system.listMethods)"
+            COMPREPLY=( $(compgen -W "${choices}" -- ${cur}) )
+            return 0
+            ;;
+    esac
+}
+
+_rtcontrol() {
+    local cur prev choices
+    _pyrocore_base 
+    test -z "$COMPREPLY" || return 0
+
+    case "${prev}" in 
+        #--custom=KEY=VALUE"
+        #--define=KEY=VAL [-D ...]"
+
+        --from-view | --to-view)
+            choices="$(rtxmlrpc view_list)"
+            COMPREPLY=( $(compgen -W "${choices}" -- "${cur##*=}") )
+            return 0
+            ;;
+
+        --ignore)
+            COMPREPLY=( $(compgen -W "0 1" -- "${cur}") )
+            return 0
+            ;;
+        
+        -O | --output-template)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+            ;;
+
+        -o | --output-format | -s | --sort-fields)
+            choices="$(rtcontrol --help-completion-fields | cut -f1 -d=)"
+            if test "${cur}" == "${cur##*,}"; then
+                COMPREPLY=( $(compgen -S, -W "${choices}" -- "${cur}") )
+            else
+                COMPREPLY=( $(compgen -P "${cur%,*}," -S, -W "${choices}" -- "${cur##*,}") )
+            fi
+            return 0
+            ;;
+
+        #--tag="TAG +TAG -TAG...""
+        #-T | --throttle=NAME"
+    esac
+
+    case "${cur}" in 
+        -*)
+            choices="$(rtcontrol --help-completion-options)"
+            COMPREPLY=( $(compgen -W "${choices}" -- ${cur}) )
+            return 0
+            ;;
+        or | O)
+            COMPREPLY=( OR )
+            return 0
+            ;;
+        alias=*)
+            choices="$(rtcontrol -qo alias -s* \* | tr A-Z a-z | uniq)"
+            if test "${cur}" == "${cur##*,}"; then
+                COMPREPLY=( $(compgen -S, -W "${choices}" -- "${cur##*=}") )
+            else
+                prev="${cur##*=}"
+                prev="${prev%,*}"
+                COMPREPLY=( $(compgen -P "${prev}," -S, -W "${choices}" -- "${cur##*,}") )
+            fi
+            return 0
+            ;;
+        [a-z]*=*)
+            choices="$(rtcontrol --help-completion-fields | egrep ^${cur}. | cut -f2 -d=)"
+            COMPREPLY=( $(compgen -W "${choices}" -- "${cur##*=*}") )
+            return 0
+            ;;
+        [a-z]*)
+            choices="$(rtcontrol --help-completion-fields)"
+            COMPREPLY=( $(compgen -W "${choices}" -- "${cur}") )
+            return 0
+            ;;
+    esac
+}
+
+complete -F _rtxmlrpc  rtxmlrpc
+complete -F _rtcontrol rtcontrol
+complete -F _pyrocore_generic pyroadmin
+complete -F _pyrocore_generic -f chtor lstor
+complete -F _pyrocore_generic -o default hashcheck mktor rtevent rtmv 
+

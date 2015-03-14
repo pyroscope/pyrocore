@@ -1,0 +1,73 @@
+{{# Template example for conky that is similar to the rtorstat output.
+
+    See the conkyrc file, and http://www.codetrax.org/projects/rtorstat
+}}{{py: 
+global os, time, subprocess, incomplete, active, max_entries, viewdef, df
+import time
+import subprocess
+from pyrocore.util import os
+
+viewdef = [i.split() for i in (
+    "i main",
+    "< stopped",
+    "6 incomplete",
+    "5 active",
+)]
+
+df = os.statvfs(proxy.get_directory())
+df = df.f_bavail * df.f_bsize
+
+max_entries = 4
+incomplete = [i for i in matches if not i.is_complete]
+active = [] #[i for i in matches if i.is_complete]
+}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def color(c, s)}}${color {{c}}}{{s}}${color }{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def header(s)}}{{color('#9bf', s)}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def label(s)}}{{color('#66d', s)}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def pc_col(f)}}${color #{{('f00','f33','f63','3c9','3fc')[min(4, int(f/25))]}}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{def show(loop, d)}}{{#
+}}{{"%2d." % loop.number|label}} {{d.name}} {{'['|label}}{{d.alias}}{{']'|label}}
+    {{'S'|label}} {{d.size|sz}} {{'U'|label}} {{d.uploaded|sz}} {{'R'|label}} {{pc_col(d.ratio*100.0)}}{{d.ratio|pc}}%${color }{{#
+}}{{enddef}}{{#
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+}}{{'rTorrent'|header}}      {{'VERSION  %CPU %MEM UPTIME'|label}}
+{{"%-13.13s" % proxy.get_name()}} {{"%-8s" % proxy.system.client_version()}}{{#
+           }} {{subprocess.Popen(["ps", "h", "-o", "%cpu,%mem,etime", "-p", str(proxy.system.pid())], stdout=subprocess.PIPE).communicate()[0].rstrip()}}
+
+{{'Views   '|header}}      {{for title, name in viewdef}}   {{str(proxy.view.size('', name)).ljust(5)}} {{endfor}}
+${voffset -14}              ${font Webdings:size=12}{{for title, name in viewdef}}{{title|label}}     {{endfor}}${font }
+${voffset 4}{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}}   {{'D'|label}}{{proxy.get_down_total()|sz}}{{#
+}}   {{'F'|label}}{{df|sz}}
+{{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}% {{#
+    }}${color #0d6}${execgraph echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
+${voffset -20} {{proxy.get_up_rate()|sz}}/s
+             {{pc_col(100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}} ${execbar echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
+{{'Download'|label}} {{"%3.0f" % (100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}% {{#
+    }}${color #d06}${execgraph echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}${color }
+${voffset -20} {{proxy.get_down_rate()|sz}}/s 
+             {{pc_col(100.0 * proxy.get_down_rate() / proxy.get_download_rate())}} ${execbar echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}${color }
+{{if incomplete}}
+
+{{'Incomplete'|header}} {{'['|label}}{{len(incomplete)}}{{']'|label}}
+{{for loop, d in looper(incomplete[:max_entries])}}
+{{show(loop, d)}} {{'D'|label}} {{d.down|sz}}/s
+      {{pc_col(d.done)}}{{"%5.1f" % d.done}}% ${execbar echo {{d.done}}}${color }
+{{endfor}}
+{{endif}}
+{{for i in range(3*len(incomplete), 3*max_entries)}}
+{{' ' * 53}}
+{{endfor}}
+{{if active}}
+
+{{'Active'|header}} {{'['|label}}{{len(active)}}{{']'|label}}
+{{for loop, d in looper(active[:max_entries])}}
+{{show(loop, d)}}
+{{endfor}}
+{{endif}}
+${font Verdana:slant=italic:size=6}${color #666}PyroScope {{version}} at {{time.time() | iso}}   ${color }${font }
+{{#EOF}}

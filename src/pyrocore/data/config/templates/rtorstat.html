@@ -1,0 +1,92 @@
+{{# Template example that is similar to the rtorstat output.
+
+    See http://www.codetrax.org/projects/rtorstat
+    
+    Use it in a cronjob like this:
+        rtcontrol -qO rtorstat.html done=-100 OR xfer=+0 -sdone >/var/www/cron/rtorrent.html
+}}{{py: 
+import time
+}}{{def title}}
+rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}} 
+- {{proxy.get_name()}}
+- up {{(time.time() - proxy.startup_time()) | duration}}
+{{enddef}}{{def show(loop, d)}}
+<div class="torrent">
+    {{loop.number}}. <strong>{{d.name}}</strong> (<em>{{d.alias}}</em>)
+    <div class="downloaded">
+        <div class="status" style="width:{{d.done|int}}%;">{{"%.1f" % d.done}}%</div>
+    </div>
+    size: {{d.size|sz}} - uploaded: {{d.uploaded|sz}} - ratio: {{d.ratio|pc}}%
+</div>
+{{enddef}}
+<html>
+<head>
+<META NAME="GOOGLEBOT" CONTENT="NOARCHIVE">
+<META NAME="ROBOTS" CONTENT="NOINDEX,NOFOLLOW">
+<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<title>{{title}}</title>
+</head>
+<style type="text/css"><!--
+html {
+    background-color: white;
+    color: black;
+    font-family: Verdana, Arial, "DejaVu Sans", "Liberation Sans", Helvetica, sans-serif;
+    font-size: 1em;
+}
+body {
+    font-size: 0.8125em;
+    line-height: 1.25em;
+    margin: 2em 4em;
+    padding: 2em;
+}
+h2 {
+    margin-top: 30px;
+}
+.torrent {
+    margin: 15px 0;
+    padding: 0 10px;
+}
+.downloaded {
+    background: red;
+    color: red;
+    font-size: 1em;
+    width: 400px;
+    margin: 1pt;
+    padding: 0;
+}
+.status {
+    --float: left;
+    background: green;
+    color: white;
+    font-size: 1em;
+    text-align: right;
+    margin: 0;
+    --margin-top: -1.25em;
+    padding: 0;
+    
+}
+--></style>
+</head>
+<body>
+<h1>{{title}}</h1>
+
+<h2>Query</h2>
+Selected {{len(matches)}} out of {{view.size()}} items using "<tt>{{query}}</tt>".
+
+<h2>Incomplete</h2>
+{{for loop, d in looper(i for i in matches if not i.is_complete)}}
+    {{show(loop, d)}}
+{{endfor}}
+
+<h2>Active</h2>
+{{for loop, d in looper(i for i in matches if i.is_complete)}}
+    {{show(loop, d)}}
+{{endfor}}
+
+<div>
+    <em><small>Created by PyroScope {{version}} at {{time.time() | iso}}</small></em>
+</div>
+
+</body>
+</html>

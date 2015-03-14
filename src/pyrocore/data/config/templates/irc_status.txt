@@ -1,0 +1,9 @@
+{{# Template example that generates a short status display suitable for the shell or IRC.
+
+    Use it like this:
+        rtcontrol -qO irc_status.txt //
+
+}}{{py:
+import time
+}}rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}} - {{#
+}}up {{(time.time() - proxy.startup_time()) | duration}} - {{view.size()}} items

@@ -1,0 +1,56 @@
+/* Monitoring styles */
+#heartbeat {
+    color: #911;
+    text-align: center;
+    transition: color 0.15s;
+    -webkit-transition: color 0.15s;
+}
+#heartbeat.on {
+    color: #f33;
+}
+.value {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.values {
+	font-size: 70%;
+	text-align: right;
+}
+.transparent {
+	opacity: 0;
+}
+.hidden {
+	display: none !important;
+}
+#error_msg {
+    text-align: center;
+}
+
+/* Custom styles on top of Foundation */
+body {
+    background: #222;
+    color: #ccc;
+    font-family: Ubuntu,"Lucida Sans","DejaVu Sans",Consolas,Helvetica,Arial,sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #eee;
+}
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+    color: #ddd;
+}
+
+.panel {
+    border-color: #444;
+    background: #333;
+    margin-bottom: .75em;
+    padding: .5em;
+}
+.panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6, .panel p {
+    color: #eee;
+}
+.panel p {
+    color: #ccc;
+}
+

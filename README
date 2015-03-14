@@ -1,0 +1,23 @@
+WHAT IS IT?
+
+PyroScope is a collection of tools for the BitTorrent protocol and especially the rTorrent client.
+
+This is the core package and basic command line tools subproject.
+
+
+INSTALLATION
+
+On Ubuntu, do this (tested on Hardy 8.04 LTS):
+
+    sudo aptitude install python-setuptools
+    sudo easy_install-2.5 --prefix /usr/local --record /dev/stdout pyrocore
+
+After that, the command line utilities should be available in your path.
+
+See the http://code.google.com/p/pyroscope/wiki/QuickStartGuide for more installation options and configuration instructions.
+
+
+ACKNOWLEDGEMENTS
+
+xmlrpc2scgi module by Glenn Washburn (GPLv2 licensed)
+
