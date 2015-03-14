@@ -14,7 +14,7 @@ builtin cd $(dirname "$0")
 rtfm="DO read http://code.google.com/p/pyroscope/wiki/InstallFromSource."
 
 # Fix Generation YouTube's reading disability
-for cmd in $PYTHON svn git; do
+for cmd in $PYTHON git; do
     which $cmd >/dev/null 2>&1 || { echo >&2 "You need a working '$cmd' on your PATH. $rtfm"; exit 1; }
 done
 
