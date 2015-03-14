@@ -56,6 +56,17 @@ It's very easy to
 to automate anything that the standard commands can't do.
 
 
+## External Links
+
+ * [User Mailing List](http://groups.google.com/group/pyroscope-users)
+ * [rTorrent Homepage](http://libtorrent.rakshasa.no/)
+ * [rTorrent Community Wiki](http://community.rutorrent.org/PyroScope)
+ * [Open HUB](https://www.openhub.net/p/pyroscope/)
+ * [free(code)](http://freecode.com/projects/pyrocore)
+ * [Bintray](https://bintray.com/pkg/show/general/pyroscope/rtorrent-ps/rtorrent-ps)
+ * [pyrobase](https://github.com/pyroscope/pyrobase/wiki)
+
+
 ## News
 
 Date     | Description
