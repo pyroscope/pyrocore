@@ -1,0 +1,231 @@
+pyrocore (0.4.3) jaunty; urgency=low
+
+  * rtcontrol: added '--shell' option
+  * rtcontrol: added '--prio' action
+  * chtor: added '--regex' option
+  * chtor: replacing {} with the torrent name in --hashed path
+  * Fix for rT-PS build script failing the xmlrpc-c configure tests
+    on current Wheezy et al, courtesy of mittens @ freenode.net
+
+ -- pyroscope <pyroscope.project@gmail.com>  Fri, 11 Oct 2013 22:20:24 +0200
+
+pyrocore (0.4.2) jaunty; urgency=low
+
+  * Build script and patches for an extended distribution of
+    rTorrent (rTorrent-PS); for details see the wiki at
+    http://code.google.com/p/pyroscope/wiki/RtorrentExtended
+  * Added rtorrent.rc include with standard PyroScope additions
+    to make configuration easier
+  * mktor/chtor: --set can now create new namespaces, e.g. you
+    can do "chtor -s rtorrent.custom.foo=bar baz.torrent"
+  * rtxmlrpc: Fixed unicode problem when redirecting output
+  * conky/rtorstat: Show free disk space on download dir's volume
+  * Support for rTorrent 0.8.8 (not intensively tested)
+  * Script to migrate a 0.8.6 syntax .rtorrent.rc to 0.8.8 syntax;
+    see http://code.google.com/p/pyroscope/wiki/RtXmlRpcReference
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 05 Jun 2011 17:00:11 +0200
+
+pyrocore (0.4.1) jaunty; urgency=high
+
+  * Added bash completion for rtcontrol and rtxmlrpc, and generic option
+    completion to the rest
+  * rtcontrol: Removed short options from actions that are non-interactive
+    by default, i.e. -S(top) and -C(lose); update your scripts accordingly
+  * rtcontrol: "-s*" sorts according to the given output format
+  * rtcontrol: "--stats" and "--summary" to print a statistical summary;
+    note that for some fields (e.g. dates) and some kinds of formatting the
+    summary values might not make sense
+  * rtcontrol: Added "--detach", so you can call rtcontrol directly from
+    rtorrent methods and event handlers
+  * rtcontrol: Added "field=/regex/" pattern filter
+  * rtcontrol: Added Tempita output templates, they have to start with
+    '{{' to be recognized, use '{{#}}' if you don't start with a field;
+    this allows "if" and "for" loops, for more on the syntax, see
+    http://pythonpaste.org/tempita/
+  * rtcontrol: Added "--output-template" to pass output control to a
+    Tempita template.
+  * rtcontrol: Output formats can now be file: URLs that get resolved
+    automatically; paths can be absolute, relative to "templates" in the
+    configuration directory or start with "~" for paths in the user's
+    home. Note that the file content is stripped at the end (i.e. trailing
+    spaces and newlines are removed).
+  * chtor: "-s field" now deletes the field (assignment without any value)
+  * chtor: "-no-ssl" forces announce URLs to be 'http'
+  * mktor: the chtor "--set" option now also works with mktor
+  * lstor: Added virtual "__size__" field
+  * Bugfix: Conditions nested 2 or more levels didn't work
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 17 Apr 2011 18:00:36 +0200
+
+pyrocore (0.3.10) hardy; urgency=low
+
+  * New "hashcheck" tool to check data against existing torrent file
+  * rtcontrol: New option "--tee-view" to ADDITIONALLY show search
+    results in ncurses view (modifies -V and --to-view behaviour)
+  * rtcontrol: New options "--purge" and "--cull" for data deletion
+  * rtcontrol: Prefix "--sort-fields" names with a '-' to get
+    descending order for that field only
+  * lstor: new option --skip-validation to show the contents of
+    broken metafiles (validation errors just result in warnings)
+
+ -- pyroscope <pyroscope.project@gmail.com>  Wed, 02 Mar 2011 01:11:58 +0100
+
+pyrocore (0.3.9) hardy; urgency=low
+
+  * Some internal fixes, mostly better error reporting
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 12 Sep 2010 14:04:09 +0200
+
+pyrocore (0.3.8) hardy; urgency=low
+
+  * rtxmlrpc: Added --xml option
+  * chtor: Added --set and --clean-xseed options
+  * pyroadmin: Added --output option
+  * Some API changes
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 12 Sep 2010 13:36:36 +0200
+
+pyrocore (0.3.7) hardy; urgency=low
+
+  * rtmv: Added symlinked moving
+  * Added grouping of conditions by [ ... ] (note the spaces)
+  * Added field "uploaded" (which is actually referenced in 0.3.6's
+    "short" output format, oops)
+  * Added field "fno" (number of files in an item)
+  * Added field "traits" (hierarchical classifier, great for use in
+    completion paths)
+  * rtcontrol: Renamed option "--view" into "--to-view"
+  * rtcontrol: Added option "--from-view" (default is still "main")
+  * rtcontrol: Exit with return code 44 when the selection is empty
+    (think "404 NOT FOUND", but then exit codes should be < 256)
+  * Added common --cron option that activates logging into the file
+    ./log/cron.log in the configuration directory
+  * Moved default output formats to [FORMATS] section of "config.ini"
+  * mktor: Added --cross-seed option
+  * mktor: Added --fast-resume option to add libtorrent completion
+    information
+  * chtor: Added --output-directory and "--fast-resume PATH" option
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 05 Sep 2010 10:00:18 +0200
+
+pyrocore (0.3.6) hardy; urgency=low
+
+  * lstor: Added "-o" option to select output fields
+  * rtcontrol: Print XMLRPC statistics when in verbose mode
+  * rtcontrol: Added --view-only and --view=NAME options
+  * rtcontrol: Added --custom KEY=VALUE option (set custom_KEY field)
+  * rtcontrol: Added field "started" (time of first start)
+  * rtcontrol: Added field "leechtime" (completed-started, if applicable)
+  * rtcontrol: Added field "seedtime" (seedtime after completion)
+  * rtcontrol: Added field "kind" as a taglist
+  * rtcontrol: Added field "files" with a glob filter that matches any
+    path in the filelist
+  * rtcontrol: Added default output format "files"
+  * rtcontrol: --help-fields now also lists format specifiers
+  * rtxmlrpc: Added --repr option
+  * Added "OR" to allow multiple alternative top-level condition sets
+    on one command line (note it must actually be uppercase)
+  * Tagged filters now allow exact matching by adding a leading '=',
+    e.g. kind==mkv (only "mkv", nothing else)
+  * File extension percentages are cached into the field "custom_kind"
+  * New format specifiers:
+      mtime         Modification time of a path.
+      pathbase      Base name of a path.
+      pathdir       Directory containing the given path.
+      pathext       Extension of a path (including the '.').
+      pathname      Base name of a path, without its extension.
+  * Support for custom_1 to custom_5 (these are special in rTorrent)
+  * Added [XMLRPC] section to "config.ini" so that any method name used
+    internally can be mapped to ones different from rTorrent 0.8.6
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 29 Aug 2010 13:40:20 +0200
+
+pyrocore (0.3.5) hardy; urgency=low
+
+  * rtcontrol: Added "tagged" field and "--tag" option to set them
+  * rtcontrol: Added "views" field that uses the TaggedAsFilter for selection
+  * rtcontrol: All named custom attributes are available as "custom_NAME"
+  * rtcontrol: Added --column-headers option
+  * Configurable output formats added ("rtcontrol -o format_name")
+  * Added "--define KEY=VAL" to override configuration attributes, e.g.
+    to connect to another rtorrent instance via "-D rtorrent_rc=..."
+  * Output formatting: system field "now" and format spec ".iso" for dates
+  * xmlrpc-c is now checked for 64 bit support when connecting
+
+ -- pyroscope <pyroscope.project@gmail.com>  Fri, 20 Aug 2010 20:56:49 +0200
+
+pyrocore (0.3.4) hardy; urgency=low
+
+  * Note that some new features need special entries in .rtorrent.rc, so read
+    http://code.google.com/p/pyroscope/wiki/UserConfiguration before updating
+  * chtor: --comment, --bump-date, and --no-date added
+  * chtor: dropped --force, and replaced it by --reannounce-all
+  * chtor: takes alias names for announe URLs now
+  * rtcontrol: added machinery to allow custom field definitions
+  * rtcontrol: --help-fields added
+  * rtcontrol: interactive mode added (-i, --yes)
+  * rtcontrol: --ignore=0|1 added (to set 'ignore commands' flag)
+  * rtcontrol: added fields "is_ignored" and "is_active"
+  * rtcontrol: added field "directory" (which unlike "path" won't be empty)
+  * rtcontrol: --flush added
+  * rtcontrol: --delete added
+  * rtcontrol: --throttle=NAME and "throttle" field added
+  * rtcontrol: added fields "loaded" and "completed"
+  * rtcontrol: added timestamp filtering, see RtControlExamples wiki page for details
+  * Added support for XMLRPC TCP connections (scgi_port)
+  * Added "rtxmlrpc" command
+
+ -- pyroscope <pyroscope.project@gmail.com>  Mon, 16 Aug 2010 00:29:51 +0200
+
+pyrocore (0.3.3) hardy; urgency=low
+
+  * rtcontrol: --nul option added (for use with "xargs")
+  * rtcontrol: --hash-check action added (use with care!)
+  * lstor: --raw option added
+  * chtor: options --no-skip, --force, --clean, --clean-all,
+    --clean-rtorrent, --make-private, --make-public, and
+    --no-cross-seed added
+  * "done", "prio", "is_ghost" fields added
+  * rtmv: tool added (not yet implemented)
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sat, 20 Mar 2010 03:27:08 +0100
+
+pyrocore (0.3.2) hardy; urgency=low
+
+  * rtcontrol: Implemented --start, --close, and --dry-run
+  * Fixed encoding issues when printing to a pipe (i.e. not to a tty)
+  * Renamed "tracker_alias" to "alias" (adapt your "config.ini")
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 14 Mar 2010 22:17:11 +0100
+
+pyrocore (0.3.1) hardy; urgency=low
+
+  * rtcontrol: Added filtering, sorting and output formatting
+  * Added logging configuration
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sat, 13 Mar 2010 23:26:58 +0100
+
+pyrocore (0.2.1) hardy; urgency=low
+
+  * New command line tools "chtor" and "pyroadmin"
+  * New option "--debug" for all comannds
+  * Configuration system finished, new option "--config-dir" for some tools,
+    see http://code.google.com/p/pyroscope/wiki/UserConfiguration
+  * New option "--no-date" for "mktor"
+  * "mktor" now takes a list of announce URLs (not just one), and creates
+    a unique metafile for each tracker in the list
+  * Alias names for announce URLs can be configured and given to "mktor"
+  * "lstor" now masks sensitive data (passkeys) in announce URLs by default
+  * New option "--reveal" for "lstor" to show announce URLs unmasked
+  * Concurrent hashing support using named pipes for "mktor", for details
+    see http://code.google.com/p/pyroscope/wiki/CommandLineTools#mktor
+  * lstor: a missing "creation date" field is now handled correctly
+
+ -- pyroscope <pyroscope.project@gmail.com>  Mon, 08 Mar 2010 01:45:09 +0100
+
+pyrocore (0.1.1) hardy; urgency=low
+
+  * First release of "pyrocore", containing the "lstor" and "mktor" utilities.
+
+ -- pyroscope <pyroscope.project@gmail.com>  Fri, 19 Feb 2010 22:57:27 +0100
