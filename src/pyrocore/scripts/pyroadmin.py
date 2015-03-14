@@ -39,10 +39,10 @@ class AdminTool(ScriptBaseWithConfig):
 
     # directories that should be created
     CONFIG_DIRS = ["log", "data", "run", "htdocs"]
-                
+
     OPTIONAL_CFG_FILES = ["torque.ini"]
 
-                
+
     def add_options(self):
         """ Add program options.
         """
@@ -65,6 +65,7 @@ class AdminTool(ScriptBaseWithConfig):
     def download_resource(self, download_url, target, guard):
         """ Helper to download and install external resources.
         """
+        download_url = download_url.strip()
         if not os.path.isabs(target):
             target = os.path.join(config.config_dir, target)
 
@@ -102,11 +103,7 @@ class AdminTool(ScriptBaseWithConfig):
 
             # Initialize webserver stuff
             if matching.truth(getattr(config, "torque", {}).get("httpd.active", "False"), "httpd.active"):
-                self.download_resource(config.torque["httpd.download_url.foundation"], "htdocs/f4", "css/foundation.css")
                 self.download_resource(config.torque["httpd.download_url.smoothie"], "htdocs/js", "smoothie.js")
-                self.download_resource(config.torque["httpd.download_url.d3js"], "htdocs/d3", "d3.v3.js")
-                self.download_resource(config.torque["httpd.download_url.nvd3js"], "htdocs/d3", "nv.d3.min.js")
-                self.download_resource(config.torque["httpd.download_url.cubism"], "htdocs/d3", "cubism.v1.min.js")
 
         elif self.options.dump_config or self.options.output:
             # Get public config attributes
@@ -119,7 +116,7 @@ class AdminTool(ScriptBaseWithConfig):
 
             if self.options.dump_config:
                 # Dump configuration
-                pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
+                pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)()
                 pprinter.pprint(public)
             else:
                 def splitter(fields):
@@ -176,7 +173,7 @@ class AdminTool(ScriptBaseWithConfig):
                     "",
                 ]))
             os.chmod(py_stub, 0755)
-            
+
         else:
             # Print usage
             self.parser.print_help()
@@ -192,4 +189,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-
