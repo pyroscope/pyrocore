@@ -44,6 +44,9 @@ rtcontrol --version
 
 You can choose a different install directory, just change the paths accordingly.
 
+:warning: | If you want to switch over from an old installation based on subversion source (from Google code), then _move that old directory away_, before installation! Like this: ``( cd ~/lib && my pyroscope pyroscope-$(date +'%Y-%m-%d').bak )``
+---- | :----
+
 
 ## Customization
 
