@@ -2,6 +2,9 @@
 
 A collection of tools for the BitTorrent protocol and especially the rTorrent client.
 
+![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
+
+
 ## Introduction
 
 ``pyrocore`` is part of the
