@@ -16,15 +16,41 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+export DEBFULLNAME=pyroscope
+export DEBEMAIL=pyroscope.project@gmail.com
+
 git_projects="pyrobase auvyon"
-. ../util.sh
+. ./util.sh # load funcs
 
 # generic bootstrap
-test -f ../bin/activate || ( cd .. && . ./bootstrap.sh ) || abend "top-level bootstrap failed"
-. ../bin/activate || abend "venv activate failed"
+test -f ./bin/activate || install_venv --no-site-packages
+. ./bin/activate || abend "venv activate failed"
+
+grep DEBFULLNAME bin/activate >/dev/null || cat >>bin/activate <<EOF
+export DEBFULLNAME=$DEBFULLNAME
+export DEBEMAIL=$DEBEMAIL
+EOF
+
+# tools
+pip_install -U "setuptools>=0.6c11"
+pip_install -U "paver>=1.0.5"
+##pip_install -U "nose>=1.0"
+##pip_install -U "coverage>=3.4"
+pip_install -U "yolk3k"
+##pip_install -U "PasteScript>=1.7.3"
+
+# Harmless options (just install them, but ignore errors)
+pip_install_opt -U "Tempita>=0.5.1"
+pip_install_opt -U "APScheduler>=2.0.2"
+pip_install_opt -U "waitress>=0.8.2"
+pip_install_opt -U "WebOb>=1.2.3"
+##pip_install_opt -U "psutil>=0.6.1"
+
+# pyrobase
+test ! -d pyrobase || ( builtin cd pyrobase && ../bin/paver -q develop -U)
 
 # essential tools
-test -x ../bin/paver || pip_install -U "paver>=1.0.1"
+test -x ./bin/paver || pip_install -U "paver>=1.0.1"
 
 # package dependencies (optional)
 for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
@@ -33,10 +59,9 @@ done
 
 # git dependencies
 for project in $git_projects; do
-    test ! -d ../$project || ( cd ../$project && $PWD/../bin/paver -q develop -U)
+    test ! -d ../$project || ( builtin cd ../$project && $PWD/bin/paver -q develop -U)
 done
 
 # project
-../bin/paver -q develop -U || abend "installing $(basename $(pwd)) into venv failed"
-../bin/paver bootstrap || abend "bootstrapping $(basename $(pwd)) failed"
-
+./bin/paver -q develop -U || abend "installing $(basename $(pwd)) into venv failed"
+./bin/paver bootstrap || abend "bootstrapping $(basename $(pwd)) failed"

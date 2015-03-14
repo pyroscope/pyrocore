@@ -52,3 +52,14 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Subprojects
+auvyon/
+pyrobase/
+
+# virtualenv
+bin/
+include/
+local/
+pip-selfcheck.json
+src/pyrocore/data/config/rtorrent-0.8.9.rc
