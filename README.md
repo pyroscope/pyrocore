@@ -72,6 +72,7 @@ to automate anything that the standard commands can't do.
 
 Date     | Description
 :-------------------: | :----
+*14–Mar–2015* | Moved from [Google Code](https://code.google.com/p/pyroscope/ ) to [GitHub](https://github.com/pyroscope/pyroscope).
 *05–Jun–2011* | [pyrocore 0.4.2](http://freshmeat.net/projects/pyrocore/releases/332769) released.
 *17–Apr–2011* | [pyrocore 0.4.1](http://freshmeat.net/projects/pyrocore/releases/331021) released.
 *05–Mar–2011* | [pyrocore 0.3.10](http://freshmeat.net/projects/pyrocore/releases/329060) released.
