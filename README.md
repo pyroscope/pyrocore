@@ -15,6 +15,7 @@ and especially the rTorrent client. This includes:
 
  * [CommandLineTools](https://github.com/pyroscope/pyroscope/blob/wiki/CommandLineTools.md) for automation of common tasks, like metafile creation, and [filtering and mass-changing your loaded torrents](https://github.com/pyroscope/pyroscope/blob/wiki/RtControlExamples.md).
  * rTorrent extensions like a [QueueManager](https://github.com/pyroscope/pyroscope/blob/wiki/QueueManager.md) and statistics (_work in progress_).
+ * All this is based on the `pyrocore` Python package, that you can use to [write your own scripts](https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md) for any special needs that aren't covered by the standard tools.
 
 See the
 [ScreenShotGallery](https://github.com/pyroscope/pyroscope/blob/wiki/ScreenShotGallery.md)
