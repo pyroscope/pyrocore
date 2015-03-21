@@ -4,6 +4,13 @@ A collection of tools for the BitTorrent protocol and especially the rTorrent cl
 
 ![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
 
+The `PyroScope` command line utilities are *not* the same as 
+[rTorrent-PS](https://github.com/pyroscope/rtorrent-ps),
+and they work perfectly fine without it;
+the same is true the other way 'round.
+It's just that both unsurprisingly have synergies if used together,
+and some features *do* only work when both are present.
+
 
 ## Introduction
 
