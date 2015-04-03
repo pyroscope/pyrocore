@@ -472,6 +472,7 @@ class Metafile(object):
         pieces = []
 
         # Initialize progress state
+        hashing_secs = time.time()
         totalsize = -1 if self._fifo else self._calc_size()
         totalhashed = 0
 
@@ -537,8 +538,13 @@ class Metafile(object):
         else:
             metainfo["length"] = totalhashed
 
+        hashing_secs = time.time() - hashing_secs
+        self.LOG.info("Hashing of %s took %.1f secs (%s/s)" % (
+            fmt.human_size(totalhashed).strip(), hashing_secs, fmt.human_size(totalhashed / hashing_secs).strip(),
+        ))
+
         # Return validated info dict
-        return check_info(metainfo)
+        return check_info(metainfo), totalhashed
 
 
     def _make_meta(self, tracker_url, root_name, private, progress):
@@ -560,7 +566,7 @@ class Metafile(object):
         piece_size = 2 ** piece_size_exp
 
         # Build info hash
-        info = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
+        info, totalhashed = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
 
         # Enforce unique hash per tracker
         info["x_cross_seed"] = hashlib.md5(tracker_url).hexdigest()
@@ -582,7 +588,7 @@ class Metafile(object):
         #XXX meta["encoding"] = "UTF-8"
 
         # Return validated meta dict
-        return check_meta(meta)
+        return check_meta(meta), totalhashed
 
 
     def create(self, datapath, tracker_urls, comment=None, root_name=None,
@@ -629,7 +635,7 @@ class Metafile(object):
             self.LOG.info("Creating %r for %s %r..." % (
                 output_name, "filenames read from" if self._fifo else "data in", self.datapath,
             ))
-            meta = self._make_meta(tracker_url, root_name, private, progress)
+            meta, totalhashed = self._make_meta(tracker_url, root_name, private, progress)
 
             # Add optional fields
             if comment:
@@ -661,7 +667,7 @@ class Metafile(object):
             check_piece.piece_index += 20
         check_piece.piece_index = 0
 
-        datameta = self._make_info(int(metainfo["info"]["piece length"]), progress,
+        datameta, totalhashed = self._make_info(int(metainfo["info"]["piece length"]), progress,
             [datapath] if "length" in metainfo["info"] else
             (os.path.join(*([datapath] + i["path"])) for i in metainfo["info"]["files"]),
             piece_callback=check_piece
