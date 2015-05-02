@@ -25,11 +25,11 @@ test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
 
 git_projects="pyrobase auvyon"
-. ./util.sh # load funcs
+. ./util.sh || return 1 # load funcs
 
 # generic bootstrap
 test -f ./bin/activate || install_venv --no-site-packages
-. ./bin/activate || abend "venv activate failed"
+. ./bin/activate || abend "venv activate failed" || return 1
 
 grep DEBFULLNAME bin/activate >/dev/null || cat >>bin/activate <<EOF
 export DEBFULLNAME=$DEBFULLNAME
@@ -63,8 +63,14 @@ for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
 done
 
 # git dependencies
+this_paver="$PWD/bin/paver"
 for project in $git_projects; do
-    test ! -d ../$project || ( builtin cd ../$project && $PWD/bin/paver -q develop -U)
+    if test -f ../$project/setup.py; then
+        ( builtin cd ../$project && $this_paver -q develop -U)
+    else
+        abend "Project '$project' is not initialized!"
+        return 1
+    fi
 done
 
 # project
