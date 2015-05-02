@@ -42,11 +42,12 @@ Quick Start Guide
   * Configuration
   * Using
 
+Consult the :doc:`troubleshooting` if anything goes wrong.
+
 
 Customization
 -------------
 
-  * **TODO** Custom fields
-  * It's very easy to
-    `WriteYourOwnScripts <https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md>`_
-    to automate anything that the standard commands can't do.
+  * :ref:`CustomFields` allows you to add user-defined fields,
+    available in ``rtcontrol`` just like built-in ones.
+  * :doc:`scripts` is an easy way to automate anything that the standard commands can't do.
