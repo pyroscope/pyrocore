@@ -8,7 +8,7 @@
 Welcome to pyrocore's documentation!
 ====================================
 
-``pyrocore`` is a collection of tools for the BitTorrent protocol
+*pyrocore* is a collection of tools for the BitTorrent protocol
 and especially the rTorrent client.
 
 The *PyroScope* command line utilities are *not* the same as
@@ -24,19 +24,7 @@ mailing list or the inofficial ``##rtorrent`` channel on
 ``irc.freenode.net``.
 
 
-External Links
---------------
-
-* `User Mailing List <http://groups.google.com/group/pyroscope-users>`_
-* `rTorrent Homepage <http://libtorrent.rakshasa.no/>`_
-* `rTorrent Community Wiki <http://community.rutorrent.org/PyroScope>`_
-* `Open HUB <https://www.openhub.net/p/pyroscope/>`_
-* `free(code) <http://freecode.com/projects/pyrocore>`_
-* `Bintray <https://bintray.com/pkg/show/general/pyroscope/rtorrent-ps/rtorrent-ps>`_
-* `pyrobase <https://github.com/pyroscope/pyrobase/wiki>`_
-
-
-Contents of this manual
+Contents of This Manual
 -----------------------
 
 ..  toctree::
@@ -44,6 +32,10 @@ Contents of this manual
 
     overview
     installation
+    setup
+    usage
+    advanced
+    references
     api
     license
 

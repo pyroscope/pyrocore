@@ -2,6 +2,7 @@ Installation Guide
 ==================
 
 **TODO**
+– see `the old docs <https://code.google.com/p/pyroscope/wiki/WikiSideBar>`_ for anything not yet moved.
 
 *    Official release
 *    Virtual environment
