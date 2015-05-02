@@ -1,20 +1,38 @@
-Installing the Software
-=======================
+Installation Guide
+==================
 
-To install this software, use the following commands:
+**TODO**
+
+*    Official release
+*    Virtual environment
+*    Linux setup from scratch
+*    TroubleShooting
+*    Updating Guide
+
+.. note::
+
+    Unless otherwise indicated by using ``sudo`` or mentioning it in the text,
+    installation commands should *not* be run as ``root``, but in your normal
+    user account, or else one you specifically created for installing *rTorrent*
+    and ``pyrocore``.
+
+
+Installing From Source
+----------------------
+
+To install this software from its GitHub repository, use the following commands:
 
 .. code-block:: shell
 
-    # To be executed in a shell with your normal user account!
     mkdir -p ~/bin ~/lib
     git clone "https://github.com/pyroscope/pyrocore.git" ~/lib/pyroscope
 
-    # Pass "/usr/bin/python2" or whatever to the script,
-    # if "/usr/bin/python" is not a suitable version
+    # Pass "/usr/bin/python2", or whatever else fits, to the script,
+    # if "/usr/bin/python" is not a suitable version (e.g. Python 3)
     ~/lib/pyroscope/update-to-head.sh
 
     # Check success
-    rtcontrol --version
+    pyroadmin --version
 
 You can choose a different install directory, just change the paths
 accordingly.
