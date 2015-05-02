@@ -1,10 +1,18 @@
 References
 ==========
 
+.. _RtXmlRpcReference:
+
+rTorrent XMLRPC
+---------------
+
 **TODO**
 
-* rTorrent XMLRPC
-* XMLRPC Migration
+
+XMLRPC Migration
+----------------
+
+**TODO**
 
 
 External Links

@@ -29,6 +29,7 @@ git_projects="pyrobase auvyon"
 
 # generic bootstrap
 test -f ./bin/activate || install_venv --no-site-packages
+ln -nfs python ./bin/python-pyrocore
 . ./bin/activate || abend "venv activate failed" || return 1
 
 grep DEBFULLNAME bin/activate >/dev/null || cat >>bin/activate <<EOF

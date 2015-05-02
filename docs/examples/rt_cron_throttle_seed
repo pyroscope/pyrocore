@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python-pyrocore
 import logging
 
 from pyrocore import config
@@ -8,7 +8,7 @@ from pyrocore.scripts import base
 
 
 class SeedThrottle(base.ScriptBaseWithConfig):
-    """ 
+    """
         Throttle seeding throttle group when other items are active.
         All bandwidth values are in KiB/s.
     """
@@ -44,12 +44,12 @@ class SeedThrottle(base.ScriptBaseWithConfig):
             throttle_name, full_rate, nice_rate = self.args
         except ValueError:
             self.parser.error("Exactly three arguments expected")
-        
+
         if throttle_name not in config.throttle_names:
             self.parser.error("Unknown throttle %r (expected one of %s)" % (
                 throttle_name, ", ".join(config.throttle_names),
             ))
-        
+
         try:
             full_rate = int(full_rate, 10) * 1024
         except (TypeError, ValueError), exc:
@@ -59,7 +59,7 @@ class SeedThrottle(base.ScriptBaseWithConfig):
             nice_rate = int(nice_rate, 10) * 1024
         except (TypeError, ValueError), exc:
             self.parser.error("Bad nice rate %r (%s)" % (nice_rate, exc))
-        
+
         # Check for manually changed seed rate
         current_rate = proxy.get_throttle_up_max(throttle_name)
         self.LOG.debug("Current '%s' rate is %s/s" % (
@@ -85,11 +85,10 @@ class SeedThrottle(base.ScriptBaseWithConfig):
                 fmt.human_size(proxy.get_throttle_up_max(throttle_name)).strip(),
                 len(prioritized),
             ))
-            
+
         self.LOG.debug("XMLRPC stats: %s" % proxy)
 
 
 if __name__ == "__main__":
     base.ScriptBase.setup()
     SeedThrottle().run()
-
