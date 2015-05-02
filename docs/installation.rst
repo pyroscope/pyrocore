@@ -7,8 +7,6 @@ Installation Guide
 *    Official release
 *    Virtual environment
 *    Linux setup from scratch
-*    TroubleShooting
-*    Updating Guide
 
 .. note::
 
