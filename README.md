@@ -22,7 +22,7 @@ Further information can be found in the
 
 ## News
 
-   Date    | Description
+  Date   | Description
 :-------------------: | :----
 ``02–May–2015`` | Started to move the documenation to [Read The Docs](http://pyrocore.readthedocs.org/).
 ``14–Mar–2015`` | Moved from [Google Code](https://code.google.com/p/pyroscope/ ) to [GitHub](https://github.com/pyroscope/pyroscope). Documentation will be in a limbo state and spread over both sites for some time, I'll try to reasonably cross-link.
