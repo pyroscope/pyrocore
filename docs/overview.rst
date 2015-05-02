@@ -24,7 +24,15 @@ See the
 if you want to get a first impression without installing the software.
 
 To get in contact and share your experiences with other users of
-PyroScope, join the
+*PyroScope*, join the
 `pyroscope-users <http://groups.google.com/group/pyroscope-users>`_
 mailing list or the inofficial ``##rtorrent`` channel on
 ``irc.freenode.net``.
+
+
+Customization
+-------------
+
+It's very easy to
+`WriteYourOwnScripts <https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md>`_
+to automate anything that the standard commands can't do.

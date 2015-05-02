@@ -18,3 +18,15 @@ To install this software, use the following commands:
 
 You can choose a different install directory, just change the paths
 accordingly.
+
+.. warning::
+
+    If you want to switch over from an old installation based on
+    subversion source (from `Google code <https://code.google.com/p/pyroscope/>`_),
+    then *move that old directory away*, before installation! Like this:
+
+    .. code-block:: shell
+
+        ( cd ~/lib && mv pyroscope pyroscope-$(date +'%Y-%m-%d').bak )
+
+    Your configuration and data is not affected by this.

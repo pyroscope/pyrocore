@@ -12,67 +12,12 @@ It's just that both unsurprisingly have synergies if used together,
 and some features *do* only work when both are present.
 
 
-## Introduction
+Further information can be found in the
+[documentation](http://pyrocore.readthedocs.org/), specifically:
 
-``pyrocore`` is part of the
-[PyroScope](https://github.com/pyroscope/pyroscope/blob/wiki/PyroScope.md)
-family of projects, and offers a collection of tools for the
-[BitTorrent protocol](https://github.com/pyroscope/pyroscope/blob/wiki/BitTorrent.md)
-and especially the rTorrent client. This includes:
-
- * [CommandLineTools](https://github.com/pyroscope/pyroscope/blob/wiki/CommandLineTools.md) for automation of common tasks, like metafile creation, and [filtering and mass-changing your loaded torrents](https://github.com/pyroscope/pyroscope/blob/wiki/RtControlExamples.md).
- * rTorrent extensions like a [QueueManager](https://github.com/pyroscope/pyroscope/blob/wiki/QueueManager.md) and statistics (_work in progress_).
- * All this is based on the `pyrocore` Python package, that you can use to [write your own scripts](https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md) for any special needs that aren't covered by the standard tools.
-
-See the
-[ScreenShotGallery](https://github.com/pyroscope/pyroscope/blob/wiki/ScreenShotGallery.md)
-if you want to get a first impression without installing the software.
-
-To get in contact and share your experiences with other users of PyroScope,
-join the [pyroscope-users](http://groups.google.com/group/pyroscope-users) mailing list
-or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
-
-
-## Installation
-
-To install the software, use the following commands:
-
-```sh
-# To be executed in a shell with your normal user account!
-mkdir -p ~/bin ~/lib
-git clone "https://github.com/pyroscope/pyrocore.git" ~/lib/pyroscope
-
-# Pass "/usr/bin/python2" or whatever to the script,
-# if "/usr/bin/python" is not a suitable version
-~/lib/pyroscope/update-to-head.sh
-
-# Check success
-rtcontrol --version
-```
-
-You can choose a different install directory, just change the paths accordingly.
-
-:loudspeaker: | If you want to switch over from an old installation based on subversion source (from [Google code](https://code.google.com/p/pyroscope/)), then _move that old directory away_, before installation! Like this:
----- | :----
-:computer: | ``( cd ~/lib && mv pyroscope pyroscope-$(date +'%Y-%m-%d').bak )``
-
-
-## Customization
-
-It's very easy to
-[WriteYourOwnScripts](https://github.com/pyroscope/pyroscope/blob/wiki/WriteYourOwnScripts.md)
-to automate anything that the standard commands can't do.
-
-
-## External Links
-
- * [User Mailing List](http://groups.google.com/group/pyroscope-users)
- * [rTorrent Homepage](http://libtorrent.rakshasa.no/)
- * [rTorrent Community Wiki](http://community.rutorrent.org/PyroScope)
- * [Open HUB](https://www.openhub.net/p/pyroscope/)
- * [free(code)](http://freecode.com/projects/pyrocore)
- * [Bintray](https://bintray.com/pkg/show/general/pyroscope/rtorrent-ps/rtorrent-ps)
- * [pyrobase](https://github.com/pyroscope/pyrobase/wiki)
+ * [A feature overview](http://pyrocore.readthedocs.org/en/latest/overview.html)
+ * [Installation instructions](http://pyrocore.readthedocs.org/en/latest/installation.html)
+ * [Full API documentation](http://pyrocore.readthedocs.org/en/latest/api.html)
 
 
 ## News
