@@ -4,7 +4,7 @@ A collection of tools for the BitTorrent protocol and especially the rTorrent cl
 
 ![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
 
-The `PyroScope` command line utilities are *not* the same as 
+The `PyroScope` command line utilities are *not* the same as
 [rTorrent-PS](https://github.com/pyroscope/rtorrent-ps),
 and they work perfectly fine without it;
 the same is true the other way 'round.
@@ -79,6 +79,7 @@ to automate anything that the standard commands can't do.
 
 Date     | Description
 :-------------------: | :----
+*02–May–2015* | Started to move the documenation to [Read The Docs](http://pyrocore.readthedocs.org/).
 *14–Mar–2015* | Moved from [Google Code](https://code.google.com/p/pyroscope/ ) to [GitHub](https://github.com/pyroscope/pyroscope). Documentation will be in a limbo state and spread over both sites for some time, I'll try to reasonably cross-link.
 *05–Jun–2011* | [pyrocore 0.4.2](http://freshmeat.net/projects/pyrocore/releases/332769) released.
 *17–Apr–2011* | [pyrocore 0.4.1](http://freshmeat.net/projects/pyrocore/releases/331021) released.
