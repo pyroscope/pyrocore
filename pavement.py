@@ -214,6 +214,18 @@ def dist_docs():
     print docs_package
 
 
+@task
+def sphinx():
+    "create Sphinx docs locally"
+    with pushd("docs"):
+        sh('make html')
+
+    index_html = path('docs/_build/html/index.html')
+    if index_html.exists():
+        print "Opening '%s' in browser..." % index_html
+        webbrowser.open_new_tab(index_html)
+
+
 #
 # Testing
 #
