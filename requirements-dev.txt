@@ -1,0 +1,6 @@
+# Full list of tools for development
+Paver==1.2.4
+Sphinx==1.1.3
+bpython==0.14.1
+
+-r requirements-torque.txt
