@@ -218,6 +218,9 @@ def dist_docs():
 def sphinx():
     "create Sphinx docs locally"
     with pushd("docs"):
+        print "\n*** Generating API doc ***\n"
+        sh("sphinx-apidoc -o apidoc -f -T -M ../src/pyrocore")
+        print "\n*** Generating HTML doc ***\n"
         sh('make html')
 
     index_html = path('docs/_build/html/index.html')
