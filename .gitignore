@@ -61,5 +61,7 @@ pyrobase/
 bin/
 include/
 local/
+share/
+
 pip-selfcheck.json
 src/pyrocore/data/config/rtorrent-0.8.9.rc
