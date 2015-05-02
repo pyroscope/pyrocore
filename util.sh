@@ -16,7 +16,12 @@ fail() {
     exit 1
 }
 
-PROJECT_ROOT=${PROJECT_ROOT:-$(builtin cd $(dirname "$0") && pwd)}
+
+SCRIPTNAME="$0"
+test "$SCRIPTNAME" != "-bash" || SCRIPTNAME="${BASH_SOURCE[0]}"
+
+test -f "$PROJECT_ROOT"/util.sh || unset PROJECT_ROOT
+PROJECT_ROOT=${PROJECT_ROOT:-$(builtin cd $(dirname "$SCRIPTNAME") && pwd)}
 test -f "$PROJECT_ROOT"/util.sh || PROJECT_ROOT=$(dirname "$PROJECT_ROOT")
 test -f "$PROJECT_ROOT"/util.sh || abend "Cannot find project root in '$PROJECT_ROOT'"
 export PROJECT_ROOT

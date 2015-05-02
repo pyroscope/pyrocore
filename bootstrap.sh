@@ -19,6 +19,11 @@
 export DEBFULLNAME=pyroscope
 export DEBEMAIL=pyroscope.project@gmail.com
 
+deactivate 2>/dev/null
+test -z "$PYTHON" -a -x "/usr/bin/python2" && PYTHON="/usr/bin/python2"
+test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
+test -z "$PYTHON" && PYTHON="python"
+
 git_projects="pyrobase auvyon"
 . ./util.sh # load funcs
 
