@@ -27,6 +27,7 @@ import os
 import re
 import sys
 import glob
+import time
 import webbrowser
 
 from paver.easy import *
@@ -38,6 +39,9 @@ except ImportError:
     pass # dependencies not yet installed
 
 from setuptools import find_packages
+
+
+SPHINX_AUTOBUILD_PORT = 8340
 
 
 #
@@ -215,18 +219,48 @@ def dist_docs():
 
 
 @task
-def sphinx():
-    "create Sphinx docs locally"
+@needs("stopdocs")
+def autodocs():
+    "create Sphinx docs locally, and start a watchdog"
+    build_dir = path('docs/_build')
+    index_html = build_dir / 'html/index.html'
+    if build_dir.exists():
+        build_dir.rmtree()
+
     with pushd("docs"):
         print "\n*** Generating API doc ***\n"
         sh("sphinx-apidoc -o apidoc -f -T -M ../src/pyrocore")
         print "\n*** Generating HTML doc ***\n"
-        sh('make html')
+        sh('nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d -i \'*.log\'" html >autobuild.log 2>&1 &'
+           % (os.getcwd(), SPHINX_AUTOBUILD_PORT))
 
-    index_html = path('docs/_build/html/index.html')
-    if index_html.exists():
-        print "Opening '%s' in browser..." % index_html
-        webbrowser.open_new_tab(index_html)
+    for i in range(10):
+        time.sleep(.5)
+        pid = sh('netstat -tulpn 2>/dev/null | grep 127.0.0.1:%d' % (SPHINX_AUTOBUILD_PORT,),
+                 capture=True, ignore_error=True)
+        if pid:
+            sh("touch docs/index.rst")
+            pid, _ = pid.split()[-1].split('/', 1)
+            sh('ps %s' % pid)
+            url = 'http://localhost:%d/' % SPHINX_AUTOBUILD_PORT
+            print "\n*** Open '%s' in your browser..." % url
+            break
+
+
+@task
+def stopdocs():
+    "stop Sphinx watchdog"
+    for i in range(4):
+        pid = sh('netstat -tulpn 2>/dev/null | grep 127.0.0.1:%d' % (SPHINX_AUTOBUILD_PORT,),
+                 capture=True, ignore_error=True).strip()
+        if pid:
+            pid, _ = pid.split()[-1].split('/', 1)
+            if not i:
+                sh('ps %s' % pid)
+            sh('kill %s' % pid)
+            time.sleep(.5)
+        else:
+            break
 
 
 #

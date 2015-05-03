@@ -2,6 +2,7 @@
 Paver==1.2.4
 Sphinx==1.3
 sphinx-rtd-theme==0.1.7
+sphinx-autobuild==0.5.2
 bpython==0.14.1
 
 -r requirements-torque.txt
