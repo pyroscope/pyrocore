@@ -1,4 +1,5 @@
 # requirements for use on "Read The Docs"
 Tempita>=0.5.1
+ProxyTypes==0.9
 pyrobase>=0.2
 auvyon>=0.1
