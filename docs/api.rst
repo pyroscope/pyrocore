@@ -17,22 +17,38 @@ Packages & Modules
 UML Diagrams
 ------------
 
+
+All Classes
+^^^^^^^^^^^
+
+.. uml:: pyrocore -k
+
 Exceptions
 ^^^^^^^^^^
 
-.. uml:: ../src/pyrocore/error.py
+.. uml:: -a2 -b
+    ../src/pyrocore/error.py
 
 rTorrent API
 ^^^^^^^^^^^^
 
-.. uml:: ../src/pyrocore/torrent/engine.py
+.. uml:: -s1
+    ../src/pyrocore/torrent/rtorrent.py
 
-.. uml:: ../src/pyrocore/torrent/rtorrent.py
+.. uml:: -s2
+    ../src/pyrocore/torrent/engine.py
+
 
 Filter Rules
 ^^^^^^^^^^^^
 
-.. uml:: ../src/pyrocore/util/matching.py
+.. uml:: -s1
+    ../src/pyrocore/util/matching.py
+
+Scripts
+^^^^^^^
+
+.. uml:: pyrocore.scripts
 
 Configuration
 ^^^^^^^^^^^^^
@@ -44,12 +60,7 @@ Metafile
 
 .. uml:: ../src/pyrocore/util/metafile.py
 
-Scripts
-^^^^^^^
-
-.. uml:: ../src/pyrocore/scripts/base.py
-
 Tree Watch
 ^^^^^^^^^^
 
-.. uml:: ../src/pyrocore/torrent/watch.py
+.. uml:: pyrocore.torrent.watch

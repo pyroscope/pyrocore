@@ -1,5 +1,6 @@
 # requirements for use on "Read The Docs"
 pylint==1.4.3
-sphinx-pyreverse==0.0.12
+##sphinx-pyreverse==0.0.12
+-e git+git@github.com:pyroscope/sphinx-pyreverse.git#egg=sphinx-pyreverse
 
 -r ../requirements-torque.txt
