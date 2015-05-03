@@ -14,13 +14,17 @@ Connecting via SSH
 
     This is quite slow at the moment!
 
-Starting with version 0.4.1, you can use
-``scgi+ssh://[«user»@]«host»[:«port»]«/path/to/unix/domain/socket»``
-URLs to connect securely to a remote rTorrent instance. For this to
+Starting with version 0.4.1, you can use URLs of the form
+
+::
+
+    scgi+ssh://[«user»@]«host»[:«port»]«/path/to/unix/domain/socket»
+
+to connect securely to a remote rTorrent instance. For this to
 work, the following preconditions have to be met:
 
   * the provided account has to have full permissions (``rwx``) on the given socket.
-  * you have to use either public key authentication via``authorized_keys``,
+  * you have to use either public key authentication via ``authorized_keys``,
     or a SSH agent that holds your password.
   * the remote host needs to have the ``socat`` executable available (on
     Debian/Ubuntu, install the ``socat`` package).
@@ -44,3 +48,6 @@ This typically takes several seconds due to the necessary authentication.
 
 Event Handling
 --------------
+
+**TODO**
+– see `the old docs <https://code.google.com/p/pyroscope/wiki/WikiSideBar>`_ for anything not yet moved.
