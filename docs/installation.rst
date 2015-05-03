@@ -11,7 +11,7 @@ Installation Guide
 .. note::
 
     Unless otherwise indicated by using ``sudo`` or mentioning it in the text,
-    installation commands should *not* be run as ``root``, but in your normal
+    installation commands should **not** be run as ``root``, but in your normal
     user account, or else one you specifically created for installing *rTorrent*
     and ``pyrocore``.
 
