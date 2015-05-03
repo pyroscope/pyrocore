@@ -16,6 +16,35 @@ Installation Guide
     and ``pyrocore``.
 
 
+Preparing Your Host
+-------------------
+
+Before installing *pyrocore*, some software packages need to be available
+on your machine, Python 2 among them.
+
+On Debian-type systems (Debian, Ubuntu, Mint, …), the following ensures you have
+everything you need, including packages necessary for installing from source:
+
+.. code-block:: shell
+
+    sudo apt-get install python python-dev python-virtualenv python-pip \
+        python-setuptools python-pkg-resources git build-essential
+
+On other Linux distributions, see the following section for further hints.
+
+
+Installing Python
+^^^^^^^^^^^^^^^^^
+
+Your Linux usually comes equipped with a Python 2.7 interpreter, but on very new
+releases, Python 3 may be the default and Python 2.7 just an option.
+In case you need to install Python, refer to `Installing Python on Linux`_ and
+consider using `pyenv`_.
+
+.. _`Installing Python on Linux`: http://docs.python-guide.org/en/latest/starting/install/linux/
+.. _`pyenv`: https://github.com/yyuu/pyenv#simple-python-version-management-pyenv
+
+
 Installing From Source
 ----------------------
 
