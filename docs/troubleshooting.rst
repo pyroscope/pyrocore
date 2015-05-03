@@ -18,7 +18,10 @@ use e-mail or IRC for that.
 .. note::
 
     Please describe your problem clearly, and provide any pertinent
-    information. What did you do? What was the unexpected result?
+    information.
+    What are the version numbers of software and OS?
+    What did you do?
+    What was the unexpected result?
     If things worked and ‘suddenly’ broke, what did you change?
 
     On IRC, don't ask if somebody is there, just describe your problem.
