@@ -6,3 +6,5 @@ waitress>=0.8.2
 WebOb>=1.2.3
 psutil>=0.6.1
 requests>=2.3.0
+
+-r requirements.txt
