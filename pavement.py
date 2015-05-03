@@ -80,7 +80,7 @@ project = Bunch(
     zip_safe = False,
     data_files = [
         ("EGG-INFO", [
-            "README", "LICENSE", "debian/changelog",
+            "README.md", "LICENSE", "debian/changelog",
         ]),
     ],
 
