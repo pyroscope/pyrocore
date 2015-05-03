@@ -5,4 +5,4 @@ sphinx-rtd-theme==0.1.7
 sphinx-autobuild==0.5.2
 bpython==0.14.1
 
--r requirements-torque.txt
+-r docs/requirements.txt
