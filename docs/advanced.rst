@@ -1,8 +1,11 @@
 Advanced Features
 =================
 
-**TODO**
-– see `the old docs <https://code.google.com/p/pyroscope/wiki/WikiSideBar>`_ for anything not yet moved.
+.. note::
+
+    Using these features requires some knowledge in the area Linux, Bash,
+    and Python beyond a novice level, but they enable you to customize
+    your setup even further and handle very specific use-cases.
 
 
 .. _CustomFields:
@@ -10,12 +13,18 @@ Advanced Features
 Defining Custom Fields
 ----------------------
 
+.. include:: advanced-custom-fields.rst
+
 
 .. _RtXmlRpcExamples:
 
 Using rtxmlrpc
 --------------
 
+.. include:: advanced-rtxmlrpc.rst
 
-Connecting via SSH
-------------------
+
+Queue Manager
+-------------
+
+.. include:: advanced-queue.rst

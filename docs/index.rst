@@ -36,6 +36,7 @@ Contents of This Manual
     setup
     usage
     advanced
+    experimental
     scripts
     troubleshooting
     updating
