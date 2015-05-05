@@ -63,7 +63,8 @@ To install this software from its GitHub repository, use the following commands:
     pyroadmin --version
 
 You can choose a different install directory, just change the paths
-accordingly.
+accordingly. If then anything fails, stop changing things and stick
+to the trodden path.
 
 .. warning::
 
