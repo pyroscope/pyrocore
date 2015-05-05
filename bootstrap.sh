@@ -68,6 +68,8 @@ this_paver="$PWD/bin/paver"
 for project in $git_projects; do
     if test -f ../$project/setup.py; then
         ( builtin cd ../$project && $this_paver -q develop -U)
+    elif test -f $project/setup.py; then
+        ( builtin cd $project && $this_paver -q develop -U)
     else
         abend "Project '$project' is not initialized!"
         return 1
