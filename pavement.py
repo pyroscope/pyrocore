@@ -299,7 +299,11 @@ def installtest():
     testdir = path("build/install-test")
     if testdir.exists():
         testdir.rmtree()
-    sh("git clone . " + testdir)
+
+    if os.environ.get('TRAVIS', '').lower() == 'true':
+        sh("git clone https://github.com/pyroscope/pyrocore.git " + testdir)
+    else:
+        sh("git clone . " + testdir)
 
     testbin = testdir / "test-bin"
     testbin.makedirs()
