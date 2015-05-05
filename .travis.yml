@@ -7,6 +7,7 @@ python:
 # - sudo apt-get update -qq
 # - sudo apt-get install -qq python-apt python-pycurl
 install:
+  - pip install -UI setuptools
   - pip install -r requirements-dev.txt
   - paver develop -U
 script:
