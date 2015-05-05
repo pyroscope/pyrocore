@@ -287,9 +287,10 @@ def coverage():
 @needs("build")
 def functest():
     "functional test of the command line tools"
-    sh("bin/mktor -o build/pavement.torrent pavement.py http://example.com/")
-    sh("bin/mktor -o build/tests.torrent -x '*.pyc' -r 'pyroscope tests' --private src/tests/ http://example.com/")
-    sh("bin/lstor build/*.torrent")
+    bindir = os.path.dirname(sys.executable)
+    sh(bindir + "/mktor -o build/pavement.torrent pavement.py http://example.com/")
+    sh(bindir + "/mktor -o build/tests.torrent -x '*.pyc' -r 'pyroscope tests' --private src/tests/ http://example.com/")
+    sh(bindir + "/lstor build/*.torrent")
 
 
 #
