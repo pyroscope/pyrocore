@@ -49,7 +49,6 @@ $SED_I $rc_file \
     -e 's%view_sort_current\([ =]\)%view.sort_current\1%' \
     -e 's%view_sort_new\([ =]\)%view.sort_new\1%' \
     -e 's%view_sort\([ =]\)%view.sort\1%' \
-    -e 's%d.multicall\([ =]\)%d.multicall2\1%' \
     -r
 
 # Setters
@@ -156,6 +155,7 @@ $SED_I $rc_file \
     -e 's%delete_tied=%d.delete_tied=%g' \
     -e 's%delete_link=%d.delete_link=%g' \
     -e 's%create_link=%d.create_link=%g' \
+    -e 's%d.multicall=%d.multicall2=%' \
     -r
 
 # Inline Commands - Setter
