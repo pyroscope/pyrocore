@@ -49,6 +49,7 @@ $SED_I $rc_file \
     -e 's%view_sort_current\([ =]\)%view.sort_current\1%' \
     -e 's%view_sort_new\([ =]\)%view.sort_new\1%' \
     -e 's%view_sort\([ =]\)%view.sort\1%' \
+    -e 's%d.multicall\([ =]\)%d.multicall2\1%' \
     -r
 
 # Setters
@@ -413,4 +414,3 @@ $SED_I $rc_file \
     -r
 
 diff -U1 $rc_file,0.8.6 $rc_file || :
-
