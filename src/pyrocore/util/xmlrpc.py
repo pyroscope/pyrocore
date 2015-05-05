@@ -37,6 +37,7 @@ class RTorrentMethod(object):
     # Actually, many more methods might need a fake target added; but these are the ones we call...
     NEEDS_FAKE_TARGET = set((
         "ui.current_view.set",
+        "view_filter",
     ))
 
 
