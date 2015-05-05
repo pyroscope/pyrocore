@@ -12,3 +12,4 @@ install:
   - paver develop -U
 script:
   - paver functest
+  - paver installtest

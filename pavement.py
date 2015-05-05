@@ -293,6 +293,22 @@ def functest():
     sh(bindir + "/lstor build/*.torrent")
 
 
+@task
+def installtest():
+    "test of fresh installation"
+    testdir = path("build/install-test")
+    if testdir.exists():
+        testdir.rmtree()
+    sh("git clone . " + testdir)
+
+    testbin = testdir / "test-bin"
+    testbin.makedirs()
+    os.environ["BIN_DIR"] = testbin.abspath()
+    os.environ["PROJECT_ROOT"] = ''
+    with pushd(testdir):
+        sh("./update-to-head.sh")
+        sh("./test-bin/pyroadmin --version")
+
 #
 # Release Management
 #
