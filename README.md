@@ -19,6 +19,10 @@ Further information can be found in the
  * [Installation instructions](http://pyrocore.readthedocs.org/en/latest/installation.html)
  * [Full API documentation](http://pyrocore.readthedocs.org/en/latest/api.html)
 
+To get in contact and share your experiences with other users of *PyroScope*, join the
+[pyroscope-users](http://groups.google.com/group/pyroscope-users)
+mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
+
 
 ## News
 
