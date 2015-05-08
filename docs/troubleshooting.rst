@@ -92,4 +92,21 @@ Similarly, execute this in a shell prompt:
 Common Problems & Solutions
 ---------------------------
 
-**TODO** Provide feedback on what you ran into in the past. Or make a PR with additions.
+
+.. _pyro-extended:
+
+“rTorrent-PS features NOT active!” during rTorrent startup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As mentioned several times in the installation guides,
+you *must* tell the standard ``rtorrent.rc`` configuration
+include that it's loaded into a *rTorrent-PS* installation.
+
+The way to do that is setting the ``pyro.extended`` constant to ``1``:
+
+.. code-block:: ini
+
+    method.insert = pyro.extended, value|const, 1
+
+If you do that and are *not* actually running *rTorrent-PS*,
+you *will* get errors about missing commands during startup.
