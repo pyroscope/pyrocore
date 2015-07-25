@@ -20,13 +20,14 @@
 
 import re
 import sys
+import json
 import operator
 
 from pyrobase import templating
 from pyrobase.parts import Bunch
 
-from pyrocore import error, config 
-from pyrocore.torrent import engine 
+from pyrocore import error, config
+from pyrocore.torrent import engine
 from pyrocore.util import os, fmt, algo, pymagic
 
 
@@ -114,6 +115,12 @@ def fmt_pathdir(val):
     return os.path.dirname(val or '')
 
 
+def fmt_json(val):
+    """ JSON serialization.
+    """
+    return json.dumps(val, cls=pymagic.JSONEncoder)
+
+
 #
 # Displaying and filtering items
 #
@@ -130,7 +137,7 @@ class OutputMapping(algo.AttributeMapping):
         for name, method in globals().items():
             if name.startswith("fmt_"):
                 result.append((name[4:], method.__doc__.strip()))
-        
+
         return result
 
 
@@ -138,7 +145,7 @@ class OutputMapping(algo.AttributeMapping):
         """ Store object we want to map, and any default values.
 
             @param obj: the wrapped object
-            @type obj: object 
+            @type obj: object
             @param defaults: default values
             @type defaults: dict
         """
@@ -167,7 +174,7 @@ class OutputMapping(algo.AttributeMapping):
             have_raw = formats[0] == "raw"
             if have_raw:
                 formats = formats[1:]
-            
+
             for fmtname in formats:
                 try:
                     fmtfunc = globals()["fmt_"+fmtname]
@@ -180,11 +187,11 @@ class OutputMapping(algo.AttributeMapping):
         try:
             field = engine.FieldDefinition.FIELDS[key]
         except KeyError:
-            if key not in self.defaults and not engine.TorrentProxy.add_manifold_attribute(key): 
-                raise error.UserError("Unknown field %r" % (key,))  
+            if key not in self.defaults and not engine.TorrentProxy.add_manifold_attribute(key):
+                raise error.UserError("Unknown field %r" % (key,))
         else:
             if field._formatter and not have_raw:
-                formatter = (lambda val, f=formatter: f(field._formatter(val))) if formatter else field._formatter 
+                formatter = (lambda val, f=formatter: f(field._formatter(val))) if formatter else field._formatter
 
         if self.obj is None:
             # Return column name
@@ -216,19 +223,19 @@ def preparse(output_format):
 def expand_template(template, namespace):
     """ Expand the given (preparsed) template.
         Currently, only Tempita templates are supported.
-        
+
         @param template: The template, in preparsed form, or as a string (which then will be preparsed).
         @param namespace: Custom namespace that is added to the predefined defaults
             and takes precedence over those.
         @return: The expanded template.
-        @raise LoggableError: In case of typical errors during template execution.  
+        @raise LoggableError: In case of typical errors during template execution.
     """
     # Combine provided namespace with defaults
     variables = {}
 
     # Add format specifiers (for headers, disable them)
     variables.update((name[4:], method)
-        for name, method in globals().items() 
+        for name, method in globals().items()
         if name.startswith("fmt_")
     )
 
@@ -249,7 +256,7 @@ def expand_template(template, namespace):
             else:
                 hint = "%svVv\n" % (' ' * (col+4))
 
-        content = getattr(template, "content", template)                    
+        content = getattr(template, "content", template)
         raise error.LoggableError("%s: %s in template:\n%s%s" % (
             type(exc).__name__, exc, hint,
             "\n".join("%3d: %s" % (i+1, line) for i, line in enumerate(content.splitlines()))
@@ -258,11 +265,11 @@ def expand_template(template, namespace):
 
 def format_item(format, item, defaults=None):
     """ Format an item according to the given output format.
-        The format can be gioven as either an interpolation string, 
+        The format can be gioven as either an interpolation string,
         or a Tempita template (which has to start with "E{lb}E{lb}"),
 
-        @param format: The output format. 
-        @param item: The object, which is automatically wrapped for interpolation. 
+        @param format: The output format.
+        @param item: The object, which is automatically wrapped for interpolation.
         @param defaults: Optional default values.
     """
     template_engine = getattr(format, "__engine__", None)
@@ -280,7 +287,7 @@ def format_item(format, item, defaults=None):
 
             # Justify headers to width of a formatted value
             namespace.update((name[4:], lambda x, m=method: str(x).rjust(len(str(m(0)))))
-                for name, method in globals().items() 
+                for name, method in globals().items()
                 if name.startswith("fmt_")
             )
 
@@ -292,22 +299,22 @@ def format_item(format, item, defaults=None):
         if item is None:
             # For headers, ensure we only have string formats
             format = re.sub(
-                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]", 
-                lambda m: m.group(1) + 's', format) 
+                r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]",
+                lambda m: m.group(1) + 's', format)
 
         return format % OutputMapping(item, defaults)
 
 
 def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
     """ Make sure the fields in the given list exist.
-    
+
         @param fields: List of fields (comma-/space-separated if a string).
         @type fields: list or str
         @return: validated field names.
-        @rtype: list  
+        @rtype: list
     """
     formats = [i[4:] for i in globals() if i.startswith("fmt_")]
-    
+
     try:
         fields = [i.strip() for i in fields.replace(',', ' ').split()]
     except AttributeError:
@@ -322,9 +329,9 @@ def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
             fullname = name
             name, fmtspecs = name.split('.', 1)
             for fmt in fmtspecs.split('.'):
-                if fmt not in formats and fmt != "raw": 
+                if fmt not in formats and fmt != "raw":
                     raise error.UserError("Unknown format specification %r in %r" % (fmt, fullname))
-            
+
         if name not in engine.FieldDefinition.FIELDS and not engine.TorrentProxy.add_manifold_attribute(name):
             raise error.UserError("Unknown field name %r" % (name,))
 
@@ -333,7 +340,7 @@ def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
 
 def validate_sort_fields(sort_fields):
     """ Make sure the fields in the given list exist, and return sorting key.
-    
+
         If field names are prefixed with '-', sort order is reversed for that field (descending).
     """
     # Allow descending order per field by prefixing with '-'
@@ -371,4 +378,3 @@ def validate_sort_fields(sort_fields):
             return False
 
     return Key
-

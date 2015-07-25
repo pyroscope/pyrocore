@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import json
 import logging
 import pkg_resources
 
@@ -74,3 +75,13 @@ def get_lazy_logger(name):
         early (on import), *before* the logging system is properly initialized.
     """
     return LazyProxy(lambda n=name: logging.getLogger(n))
+
+
+class JSONEncoder(json.JSONEncoder):
+    """Custon JSON encoder."""
+
+    def default(self, obj):
+        """Support more object types."""
+        if isinstance(obj, set):
+            return list(obj)
+        return super(JSONEncoder, self).default(obj)
