@@ -26,8 +26,24 @@ from pyrobase.io import xmlrpc2scgi
 from pyrocore import config, error
 from pyrocore.util import os, fmt, pymagic
 
+
+class XmlRpcError(Exception):
+    """Base class for XMLRPC protocol errors."""
+
+    def __init__(self, msg, *args):
+        Exception.__init__(self, msg, *args)
+        self.message = msg.format(*args)
+
+    def __str__(self):
+        return self.message
+
+
+class HashNotFound(XmlRpcError):
+    """Non-existing or disappeared hash."""
+
+
 # Currently, we don't have our own errors, so just copy it
-ERRORS = xmlrpc2scgi.ERRORS
+ERRORS = (XmlRpcError,) + xmlrpc2scgi.ERRORS
 
 
 class RTorrentMethod(object):
@@ -125,6 +141,10 @@ class RTorrentMethod(object):
                 # Don't catch these
                 raise
             except:
+                exc_type, exc = sys.exc_info()[:2]
+                if exc_type is xmlrpclib.Fault and exc.faultCode == -501 and exc.faultString == 'Could not find info-hash.':
+                    raise HashNotFound("Unknown hash for {}({}) @ {}", self._method_name, args[0] if args else '', self._proxy._url)
+
                 if not fail_silently:
                     # Dump the bad packet, then re-raise
                     filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
