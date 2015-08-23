@@ -66,6 +66,9 @@ You can choose a different install directory, just change the paths
 accordingly. If then anything fails, stop changing things and stick
 to the trodden path.
 
+If you previously had no ``~/bin`` directory, call ``exec $SHELL -l``
+to register it in the ``PATH`` of your current terminal session.
+
 .. warning::
 
     If you want to switch over from an old installation based on
