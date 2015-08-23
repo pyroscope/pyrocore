@@ -99,7 +99,7 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
         r"^(?P<title>.+?)[. ](?P<year>\d{4})"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|MULTI|L[iI]M[iI]TED))*"
         r"(?:[._ ](?P<format0>720p|1080p|1080i))?"
-        r"(?:[._ ](?P<source>Blu-ray|BluRay))"
+        r"(?:[._ ](?P<source>Blu-ray|BluRay|BD25|BD50))"
         r"(?:[._ ](?P<format>720p|1080p|1080i))?"
         r"(?:[._ ](?P<codec1>avc|x264|hevc|h265))?"
         r"(?:[._ ](?P<sound>DTS(?:-HD)?))*"
