@@ -92,7 +92,7 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
         r"(?:[._ ](?P<codec1>xvid|divx|avc|x264|hevc|h265))?"
         r"(?:[._ ](?P<sound2>MP3|AC3|FLAC|DTS(?:-HD)?))?"
         #r"(?:[._ ](?P<channels>6ch))?"
-        r"(?:[-.](?P<group>.+?))"
+        r"(?:[-.](?P<group>.+?))?"
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
     ( "Blu-ray movie",
@@ -105,14 +105,15 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
         r"(?:[._ ](?P<sound>DTS(?:-HD)?))*"
         r"(?:[._ ](?P<channels>6ch|MA.5.1))?"
         r"(?:[._ ](?P<codec2>avc|x264|hevc|h265))?"
-        r"(?:[-.](?P<group>.+?))"
+        r"(?:[-.](?P<group>.+?))?"
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
 )]
 
 BAD_TITLE_WORDS = set((
     "bdrip", "brrip", "hdrip", "dvdrip", "ntsc",
-    "hdtv", "dvd-r", "dvdr", "dvd5", "dvd9", "blu-ray", "bluray", "web-dl",
+    "hdtv", "dvd-r", "dvdr", "dvd5", "dvd9", "web-dl",
+    "blu-ray", "bluray", "bd25", "bd50",
     "720p", "1080p",
     "mp3", "ac3", "dts",
 ))
@@ -166,12 +167,13 @@ def name_trait(name, add_info=False):
             trait_patterns = trait_patterns[:1]
 
         # Regex checks
+        re_name = '.'.join([i.lstrip('[(').rstrip(')]') for i in name.split(' .')])
         for trait, patterns, title_group in trait_patterns:
             matched = None
 
             for patname, pattern in patterns:
-                matched = pattern.match(name)
-                ##print matched, patname; print "   ", pattern.pattern
+                matched = pattern.match(re_name)
+                ##print matched, patname, re_name; print "   ", pattern.pattern
                 if matched and not any(i in matched.groupdict()[title_group].lower() for i in BAD_TITLE_WORDS):
                     kind, info = trait, matched.groupdict()
                     break
