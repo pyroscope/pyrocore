@@ -38,9 +38,9 @@ _TV_TRAIL = (
     r"(?:[._ ](?P<release_tags>PREAIR|READNFO))?"
     r"(?:[._ ](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
     r"(?:[._ ](?P<aspect>WS))?"
-    r"(?:[._ ](?P<format>HDTV|PDTV|DSR|DVD[59]?|DVDSCR|576p|720p|1080p|1080i))?"
+    r"(?:[._ ](?P<format>HDTV|PDTV|DSR|DVD[59]?|DVDSCR|480p|576p|720p|1080p|1080i|2160p))?"
     r"(?:[._ ](?P<release2>WEB-DL|WEB\.DL|WEBRip))?"
-    r"(?:[._ ](?P<format2>HDTV|PDTV|DSR|DVD[59]?|DVDSCR|576p|720p|1080p|1080i))?"
+    r"(?:[._ ](?P<format2>HDTV|PDTV|DSR|DVD[59]?|DVDSCR|480p|576p|720p|1080p|1080i|2160p))?"
     r"(?:[._ ](?P<codec>[XH]\.?264|XviD|VTS|ISO|NTSC|PAL))?"
     r"(?:[._ ](?P<sound>MP3|AC3|DD5\.1|L?PCM|AAC 2\.0))?"
     r"(?:[._ ](?P<codec2>[XH]\.?264|XviD|VTS|ISO|NTSC|PAL))?"
@@ -84,9 +84,9 @@ TV_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
 
 MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
     ( "Scene tagged movie",
-        r"^(?P<title>.+?)[. ](?P<year>\d{4})"
+        r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
-        r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i))?"
+        r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i|2160p))?"
         r"(?:[._ ](?P<source>BDRip|BRRip|HDRip|DVDRip|PAL|NTSC))"
         r"(?:[._ ](?P<sound1>MP3|AC3|FLAC|DTS(?:-HD)?))?"
         r"(?:[._ ](?P<codec1>xvid|divx|avc|x264|hevc|h265))?"
@@ -96,11 +96,11 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
     ( "Blu-ray movie",
-        r"^(?P<title>.+?)[. ](?P<year>\d{4})"
+        r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|MULTI|L[iI]M[iI]TED))*"
-        r"(?:[._ ](?P<format0>720p|1080p|1080i))?"
+        r"(?:[._ ](?P<format0>720p|1080p|1080i|2160p))?"
         r"(?:[._ ](?P<source>Blu-ray|BluRay|BD25|BD50))"
-        r"(?:[._ ](?P<format>720p|1080p|1080i))?"
+        r"(?:[._ ](?P<format>720p|1080p|1080i|2160p))?"
         r"(?:[._ ](?P<codec1>avc|x264|hevc|h265))?"
         r"(?:[._ ](?P<sound>DTS(?:-HD)?))*"
         r"(?:[._ ](?P<channels>6ch|MA.5.1))?"
@@ -114,7 +114,7 @@ BAD_TITLE_WORDS = set((
     "bdrip", "brrip", "hdrip", "dvdrip", "ntsc",
     "hdtv", "dvd-r", "dvdr", "dvd5", "dvd9", "web-dl",
     "blu-ray", "bluray", "bd25", "bd50",
-    "720p", "1080p",
+    "480p", "576p", "720p", "1080p", "2160p",
     "mp3", "ac3", "dts",
 ))
 
