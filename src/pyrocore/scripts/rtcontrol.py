@@ -25,7 +25,7 @@ from pyrobase.parts import Bunch, DefaultBunch
 from pyrocore import config
 from pyrocore.util import os, fmt, osmagic, matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
-from pyrocore.torrent import engine, formatting 
+from pyrocore.torrent import engine, formatting
 
 
 def print_help_fields():
@@ -57,7 +57,7 @@ def print_help_fields():
 class FieldStatistics(object):
     """ Collect statistical values for the fields of a search result.
     """
-    
+
     def __init__(self, size):
         "Initialize accumulator"
         self.size = size
@@ -70,7 +70,7 @@ class FieldStatistics(object):
 
     def __nonzero__(self):
         "Truth"
-        return bool(self.total) 
+        return bool(self.total)
 
 
     def add(self, field, val):
@@ -108,22 +108,22 @@ class FieldStatistics(object):
         #print self.total
         #print result
         return result
-        
+
 
 class RtorrentControl(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ 
+    """
         Control and inspect rTorrent from the command line.
-    
+
         Filter expressions take the form "<field>=<value>", and all expressions must
         be met (AND). If a field name is omitted, "name" is assumed. You can also use
         uppercase OR to build a list of alternative conditions.
-        
-        For numeric fields, a leading "+" means greater than, a leading "-" means less 
+
+        For numeric fields, a leading "+" means greater than, a leading "-" means less
         than. For string fields, the value is a glob pattern (*, ?, [a-z], [!a-z]).
         Multiple values separated by a comma indicate several possible choices (OR).
         "!" in front of a filter value negates it (NOT).
-        
+
         Examples:
           - All 1:1 seeds         ratio=+1
           - All active torrents   xfer=+0
@@ -153,40 +153,39 @@ class RtorrentControl(ScriptBaseWithConfig):
     PRIO_OPTIONS = ('0', '1', '2', '3')
 
     # action options that perform some change on selected items
-    ACTION_MODES = ( 
-        Bunch(name="start", options=("--start",), help="start torrent"), 
-        Bunch(name="close", options=("--close", "--stop"), help="stop torrent", method="stop"), 
-        Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True), 
-        # TODO: Bunch(name="announce", options=("--announce",), help="announce right now", interactive=True), 
+    ACTION_MODES = (
+        Bunch(name="start", options=("--start",), help="start torrent"),
+        Bunch(name="close", options=("--close", "--stop"), help="stop torrent", method="stop"),
+        Bunch(name="hash_check", label="HASH", options=("-H", "--hash-check"), help="hash-check torrent", interactive=True),
+        # TODO: Bunch(name="announce", options=("--announce",), help="announce right now", interactive=True),
         # TODO: --pause, --resume?
         # TODO: implement --clean-partial
         #self.add_bool_option("--clean-partial",
         #    help="remove partially downloaded 'off'ed files (also stops downloads)")
-        Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True), 
-        Bunch(name="purge", options=("--purge", "--delete-partial"), 
-              help="delete PARTIAL data files and remove torrent from client", interactive=True), 
-        Bunch(name="cull", options=("--cull", "--exterminate", "--delete-all"), 
-            help="delete ALL data files and remove torrent from client", interactive=True), 
+        Bunch(name="delete", options=("--delete",), help="remove torrent from client", interactive=True),
+        Bunch(name="purge", options=("--purge", "--delete-partial"),
+              help="delete PARTIAL data files and remove torrent from client", interactive=True),
+        Bunch(name="cull", options=("--cull", "--exterminate", "--delete-all"),
+            help="delete ALL data files and remove torrent from client", interactive=True),
         Bunch(name="throttle", options=("-T", "--throttle",), argshelp="NAME", method="set_throttle",
-            help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True), 
+            help="assign to named throttle group (NULL=unlimited, NONE=global)", interactive=True),
         Bunch(name="tag", options=("--tag",), argshelp='"TAG +TAG -TAG..."',
-            help="add or remove tag(s)", interactive=False), 
+            help="add or remove tag(s)", interactive=False),
         Bunch(name="custom", label="SET_CUSTOM", options=("--custom",), argshelp='KEY=VALUE', method="set_custom",
-            help="set value of 'custom_KEY' field (KEY might also be 1..5)", interactive=False), 
+            help="set value of 'custom_KEY' field (KEY might also be 1..5)", interactive=False),
+        Bunch(name="exec", label="EXEC", options=("--exec", "--xmlrpc"), argshelp='CMD', method="execute",
+            help="execute XMLRPC command pattern", interactive=True),
         # TODO: --with-dupes / -D Include any items that reference the same data paths as the selected ones
         # TODO: --no-dupes / --unique / -U Exclude any items that reference the same data paths as any other (from deletion, etc.)
         # TODO: --move / --link output_format / the formatted result is the target path
         #           if the target contains a '//' in place of a '/', directories
         #           after that are auto-created
-        #           "--move tracker_dated", with a custom output format 
+        #           "--move tracker_dated", with a custom output format
         #           like "tracker_dated = ~/done//$(alias)s/$(completed).7s",
         #           will move to ~/done/OBT/2010-08 for example
         #        self.add_value_option("--move", "TARGET",
         #            help="move data to given target directory (implies -i, can be combined with --delete)")
         # TODO: --copy, and --move/--link across devices
-        # TODO:
-        # Bunch(name="xmlrpc", options=("--xmlrpc",), argshelp="CMD[,ARG1,...]", method="xmlrpc",
-        #     help="call raw XMLRPC command", interactive=True), 
     )
 
 
@@ -212,7 +211,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("--detach",
             help="run the process in the background")
         self.prompt.add_options()
-      
+
         # output control
         self.add_bool_option("-S", "--shell",
             help="escape output following shell rules")
@@ -258,10 +257,10 @@ class RtorrentControl(ScriptBaseWithConfig):
             action.setdefault("argshelp", "")
             action.setdefault("args", ())
             if action.argshelp:
-                self.add_value_option(*action.options + (action.argshelp,), 
+                self.add_value_option(*action.options + (action.argshelp,),
                     **{"help": action.help + (" (implies -i)" if action.interactive else "")})
             else:
-                self.add_bool_option(*action.options, 
+                self.add_bool_option(*action.options,
                     **{"help": action.help + (" (implies -i)" if action.interactive else "")})
         self.add_value_option("--ignore", "|".join(self.IGNORE_OPTIONS),
             type="choice", choices=self.IGNORE_OPTIONS,
@@ -294,7 +293,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
             yield r"%s=+" % (name,)
             yield r"%s=-" % (name,)
-                
+
         yield "custom_"
         yield "kind_"
 
@@ -304,7 +303,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         """ Format an item.
         """
         try:
-            item_text = fmt.to_console(formatting.format_item(self.options.output_format, item, defaults)) 
+            item_text = fmt.to_console(formatting.format_item(self.options.output_format, item, defaults))
         except (NameError, ValueError, TypeError), exc:
             self.fatal("Trouble with formatting item %r\n\n  FORMAT = %r\n\n  REASON =" % (item, self.options.output_format), exc)
             raise # in --debug mode
@@ -330,7 +329,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         item_text = self.format_item(item, defaults, stencil)
 
         # Post-process line?
-        if item_formatter: 
+        if item_formatter:
             item_text = item_formatter(item_text)
 
         # For a header, use configured escape codes on a terminal
@@ -343,7 +342,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         elif self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
-        else: 
+        else:
             print(item_text)
 
         return item_text.count('\n') + 1
@@ -378,7 +377,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             .replace("\0", "$")
             .replace(r"\ ", " ") # to prevent stripping in config file
             #.replace(r"\", "\")
-        )                            
+        )
 
         self.options.output_format = formatting.preparse(output_format)
 
@@ -388,7 +387,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         """ Get field names from output template.
         """
         # Re-engineer list from output format
-        # XXX TODO: Would be better to use a FieldRecorder class to catch the full field names 
+        # XXX TODO: Would be better to use a FieldRecorder class to catch the full field names
         emit_fields = list(i.lower() for i in re.sub(r"[^_A-Z]+", ' ', self.format_item(None)).split())
 
         # Validate result
@@ -398,7 +397,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                 self.LOG.warn("Omitted unknown name '%s' from statistics and output format sorting" % name)
             else:
                 result.append(name)
-            
+
         return result
 
 
@@ -438,10 +437,10 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Check special action options
         actions = []
         if self.options.ignore:
-            actions.append(Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED", 
+            actions.append(Bunch(name="ignore", method="ignore", label="IGNORE" if int(self.options.ignore) else "HEED",
                 help="commands on torrent", interactive=False, args=(self.options.ignore,)))
         if self.options.prio:
-            actions.append(Bunch(name="prio", method="set_prio", label="PRIO" + str(self.options.prio), 
+            actions.append(Bunch(name="prio", method="set_prio", label="PRIO" + str(self.options.prio),
                 help="for torrent", interactive=False, args=(self.options.prio,)))
 
         # Check standard action options
@@ -458,7 +457,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                     action_mode.args = (getattr(self.options, action_mode.name),)
                 actions.append(action_mode)
         if not actions and self.options.flush:
-            actions.append(Bunch(name="flush", method="flush", label="FLUSH", 
+            actions.append(Bunch(name="flush", method="flush", label="FLUSH",
                 help="flush session data", interactive=False, args=()))
             self.options.flush = False # No need to flush twice
         if any(i.interactive for i in actions):
@@ -468,7 +467,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if self.options.select:
             try:
                 if '-' in self.options.select:
-                    selection = tuple(int(i or default, 10) for i, default in 
+                    selection = tuple(int(i or default, 10) for i, default in
                         zip(self.options.select.split('-', 1), ("1", "-1")))
                 else:
                     selection = 1, int(self.options.select, 10)
@@ -542,11 +541,11 @@ class RtorrentControl(ScriptBaseWithConfig):
         def output_formatter(templ, ns=None):
             "Output formatting helper"
             full_ns = dict(
-                version = self.version, 
+                version = self.version,
                 proxy = config.engine.open(),
-                view = view, 
-                query = matcher, 
-                matches = matches, 
+                view = view,
+                query = matcher,
+                matches = matches,
                 summary = summary
             )
             full_ns.update(ns or {})
@@ -603,15 +602,15 @@ class RtorrentControl(ScriptBaseWithConfig):
                     # Emit a header line every 'output_header_frequency' lines
                     if self.options.column_headers and line_count % config.output_header_frequency == 0:
                         self.emit(None, stencil=stencil)
-    
+
                     # Print matching item
                     line_count += self.emit(item, self.FORMATTER_DEFAULTS)
 
             # Print summary?
             if matches and summary:
-                self.emit(None, stencil=stencil, 
+                self.emit(None, stencil=stencil,
                     #item_formatter=None if self.options.summary
-                    #    # TODO: this can be done better! 
+                    #    # TODO: this can be done better!
                     #    else lambda i: re.sub("[^ \t]", "=", i)
                     #    #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
                 )
@@ -619,15 +618,15 @@ class RtorrentControl(ScriptBaseWithConfig):
                 self.emit(summary.min, item_formatter=lambda i: i.rstrip() + " [MIN of %d item(s)]" % len(matches))
                 self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG of %d item(s)]" % len(matches))
                 self.emit(summary.max, item_formatter=lambda i: i.rstrip() + " [MAX of %d item(s)]" % len(matches))
-                
+
             self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
         else:
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
-        
+
         if self.options.debug and 0:
             print '\n' + repr(matches[0])
             print '\n' + repr(matches[0].files)
-        
+
         # XMLRPC stats
         self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)
 
@@ -641,4 +640,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-

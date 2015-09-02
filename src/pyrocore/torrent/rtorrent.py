@@ -22,6 +22,7 @@ from __future__ import with_statement
 import sys
 import time
 import errno
+import shlex
 import socket
 import fnmatch
 import logging
@@ -32,6 +33,16 @@ from pyrobase.parts import Bunch
 from pyrocore import config, error
 from pyrocore.util import os, xmlrpc, load_config, traits, fmt
 from pyrocore.torrent import engine
+
+
+class CommaLexer(shlex.shlex):
+    """Helper to split argument lists."""
+
+    def __init__(self, text):
+        shlex.shlex.__init__(self, text, None, True)
+        self.whitespace += ','
+        self.whitespace_split = True
+        self.commenters = ''
 
 
 class RtorrentItem(engine.TorrentProxy):
@@ -46,15 +57,18 @@ class RtorrentItem(engine.TorrentProxy):
         self._fields = dict(fields)
 
 
-    def _make_it_so(self, command, calls, *args):
+    def _make_it_so(self, command, calls, *args, **kwargs):
         """ Perform some error-checked XMLRPC calls.
         """
+        results = kwargs.pop('results', False)
         args = (self._fields["hash"],) + args
         try:
             for call in calls:
                 self._engine.LOG.debug("%s%s torrent #%s (%s)" % (
                     command[0].upper(), command[1:], self._fields["hash"], call))
-                getattr(self._engine._rpc.d, call)(*args)
+                result = getattr(self._engine._rpc.d, call)(*args)
+                if results:
+                    yield result
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
@@ -62,12 +76,12 @@ class RtorrentItem(engine.TorrentProxy):
     def _get_files(self, attrs=None):
         """ Get a list of all files in this download; each entry has the
             attributes C{path} (relative to root), C{size} (in bytes),
-            C{mtime}, C{prio} (0=off, 1=normal, 2=high), C{created}, 
+            C{mtime}, C{prio} (0=off, 1=normal, 2=high), C{created},
             and C{opened}.
-            
+
             This is UNCACHED, use C{fetch("files")} instead.
-            
-            @param attrs: Optional list of additional attributes to fetch. 
+
+            @param attrs: Optional list of additional attributes to fetch.
         """
         try:
             # Get info for all files
@@ -157,7 +171,7 @@ class RtorrentItem(engine.TorrentProxy):
                 else:
                     getter_name = "get_" + getter_name
                 getter = getattr(self._engine._rpc.d, getter_name)
-    
+
                 try:
                     val = getter(self._fields["hash"])
                 except xmlrpc.ERRORS, exc:
@@ -171,7 +185,7 @@ class RtorrentItem(engine.TorrentProxy):
 
 
     def announce_urls(self, default=[]):
-        """ Get a list of all announce URLs. 
+        """ Get a list of all announce URLs.
             Returns `default` if no trackers are found at all.
         """
         try:
@@ -274,15 +288,40 @@ class RtorrentItem(engine.TorrentProxy):
         else:
             method, args = "set_custom", (key, value)
 
-        # Make the assignment                    
+        # Make the assignment
         self._make_it_so("setting custom_%s = %r on" % (key, value), [method], *args)
         self._fields["custom_"+key] = value
-        
+
 
     def hash_check(self):
         """ Hash check a download.
         """
         self._make_it_so("hash-checking", ["check_hash"])
+
+
+    def execute(self, commands):
+        """ Execute XMLRPC command(s).
+        """
+        try:
+            commands = [i.strip() for i in commands.split(' ; ')]
+        except (TypeError, AttributeError):
+            pass # assume an iterable
+
+        for command in commands:
+            try:
+                method, args = command.split('=', 1)
+                args = tuple(CommaLexer(args))
+            except (ValueError, TypeError), exc:
+                raise error.UserError("Bad command %r, probably missing a '=' (%s)" % (command, exc))
+
+            print_result = method.startswith('>')
+            method = method.lstrip('>')
+            results = list(self._make_it_so("executing command on", [method], *args, results=True))
+            if print_result:
+                args_list = ''
+                if args:
+                    args_list = '"' + '","'.join(args) + '"'
+                print('%s\t%s\td.%s=%s' % (self._fields["hash"], results[0], method, args_list))
 
 
     def delete(self):
@@ -305,20 +344,20 @@ class RtorrentItem(engine.TorrentProxy):
             "Filter out partial files"
             #print "???", repr(item)
             return item.completed_chunks < item.size_chunks
-            
+
         self.cull(file_filter=partial_file, attrs=["get_completed_chunks", "get_size_chunks"])
 
-    
+
     def cull(self, file_filter=None, attrs=None):
         """ Delete ALL data files and remove torrent from client.
 
             @param file_filter: Optional callable for selecting a subset of all files.
                 The callable gets a file item as described for RtorrentItem._get_files
-                and must return True for items eligible for deletion. 
-            @param attrs: Optional list of additional attributes to fetch for a filter. 
+                and must return True for items eligible for deletion.
+            @param attrs: Optional list of additional attributes to fetch for a filter.
         """
         dry_run = 0 # set to 1 for testing
-        
+
         def remove_with_links(path):
             "Remove a path including any symlink chains leading to it."
             rm_paths = []
@@ -332,7 +371,7 @@ class RtorrentItem(engine.TorrentProxy):
             else:
                 self._engine.LOG.debug("Real path '%s' doesn't exist,"
                     " but %d symlink(s) leading to it will be deleted..." % (path, len(rm_paths)))
-            
+
             # Remove the link chain, starting at the real path
             # (this prevents losing the chain when there's permission problems)
             for path in reversed(rm_paths):
@@ -347,9 +386,9 @@ class RtorrentItem(engine.TorrentProxy):
                             self._engine.LOG.info("Path '%s%s' disappeared before it could be deleted" % (path, '/' if is_dir else ''))
                         else:
                             raise
-        
+
             return rm_paths
-        
+
         # Assemble doomed files and directories
         files, dirs = set(), set()
         base_path = os.path.expanduser(self.directory)
@@ -372,21 +411,21 @@ class RtorrentItem(engine.TorrentProxy):
             files.add(path)
             if '/' in item_file.path:
                 dirs.add(os.path.dirname(path))
-        
+
         # Delete selected files
         if not dry_run:
             self.stop()
         for path in sorted(files):
             ##self._engine.LOG.debug("Deleting file '%s'" % (path,))
             remove_with_links(path)
-        
+
         # Prune empty directories (longer paths first)
         doomed = files | dirs
         for path in sorted(dirs, reverse=True):
             residue = set(os.listdir(path) if os.path.exists(path) else [])
-            ignorable = set(i for i in residue 
+            ignorable = set(i for i in residue
                 if any(fnmatch.fnmatch(i, pat) for pat in config.waif_pattern_list)
-                #or os.path.join(path, i) in doomed 
+                #or os.path.join(path, i) in doomed
             )
             ##print "---", residue - ignorable
             if residue and residue != ignorable:
@@ -405,10 +444,10 @@ class RtorrentItem(engine.TorrentProxy):
                             os.remove(waif)
                         except EnvironmentError, exc:
                             self._engine.LOG.warn("Problem deleting waif '%s' (%s)" % (waif, exc))
-                    
+
                 ##self._engine.LOG.debug("Deleting empty directory '%s'" % (path,))
                 doomed.update(remove_with_links(path))
-        
+
         # Delete item from engine
         if not dry_run:
             self.delete()
@@ -431,17 +470,17 @@ class RtorrentEngine(engine.TorrentEngine):
 
     # mapping from new to old commands, and thus our config keys
     RTORRENT_RC_ALIASES = {
-        "network.scgi.open_local": "scgi_local", 
-        "network.scgi.open_port": "scgi_port", 
-        #"log.execute": "", 
-        "throttle.up": "throttle_up", 
-        "throttle.down": "throttle_down", 
+        "network.scgi.open_local": "scgi_local",
+        "network.scgi.open_port": "scgi_port",
+        #"log.execute": "",
+        "throttle.up": "throttle_up",
+        "throttle.down": "throttle_down",
         "throttle.ip": "throttle_ip",
     }
 
     # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
-        "hash", "name", "is_private", "tracker_size", "size_bytes", 
+        "hash", "name", "is_private", "tracker_size", "size_bytes",
     ))
 
     # rTorrent names of fields that need to be pre-fetched
@@ -453,7 +492,7 @@ class RtorrentEngine(engine.TorrentEngine):
     PREFETCH_FIELDS = CORE_FIELDS | set((
         "is_open", "is_active",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",
-        "base_path",  
+        "base_path",
     ))
 
     # mapping of our names to rTorrent names (only those that differ)
@@ -462,15 +501,15 @@ class RtorrentEngine(engine.TorrentEngine):
         is_ignored = "ignore_commands",
         down = "down_rate",
         up = "up_rate",
-        path = "base_path", 
-        metafile = "tied_to_file", 
+        path = "base_path",
+        metafile = "tied_to_file",
         size = "size_bytes",
         prio = "priority",
         throttle = "throttle_name",
     )
 
     # inverse mapping of rTorrent names to ours
-    RT2PYRO_MAPPING = dict((v, k) for k, v in PYRO2RT_MAPPING.items()) 
+    RT2PYRO_MAPPING = dict((v, k) for k, v in PYRO2RT_MAPPING.items())
 
 
     def __init__(self):
@@ -578,7 +617,7 @@ class RtorrentEngine(engine.TorrentEngine):
                 viewname = self.open().ui.current_view()
             except xmlrpc.ERRORS, exc:
                 raise error.EngineError("Can't get name of current view: %s" % (exc))
-        
+
         return viewname
 
 
@@ -644,7 +683,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
     def items(self, view=None, prefetch=None, cache=True):
         """ Get list of download items.
-        
+
             @param view: Name of the view.
             @param prefetch: OPtional list of field names to fetch initially.
             @param cache: Cache items for the given view?
@@ -655,7 +694,7 @@ class RtorrentEngine(engine.TorrentEngine):
         # to what's in the cache, fetch the rest. Getting the
         # fields for one hash might be done by a special view
         # (filter: $d.get_hash == hashvalue)
-        
+
         if view is None:
             view = engine.TorrentView(self, "main")
         elif isinstance(view, basestring):
@@ -725,11 +764,11 @@ class RtorrentEngine(engine.TorrentEngine):
         """
         proxy = self.open()
         view = self._resolve_viewname(view or "rtcontrol")
-        
+
         # Add view if needed
         if view not in proxy.view_list():
             proxy.view_add(view)
-        
+
         # Clear view and show it
         proxy.view_filter(view, "false=")
         proxy.ui.current_view.set(view)
@@ -755,4 +794,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-
