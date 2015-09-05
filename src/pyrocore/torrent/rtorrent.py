@@ -60,15 +60,15 @@ class RtorrentItem(engine.TorrentProxy):
     def _make_it_so(self, command, calls, *args, **kwargs):
         """ Perform some error-checked XMLRPC calls.
         """
-        results = kwargs.pop('results', False)
+        observer = kwargs.pop('observer', False)
         args = (self._fields["hash"],) + args
         try:
             for call in calls:
                 self._engine.LOG.debug("%s%s torrent #%s (%s)" % (
                     command[0].upper(), command[1:], self._fields["hash"], call))
                 result = getattr(self._engine._rpc.d, call)(*args)
-                if results:
-                    yield result
+                if observer:
+                    observer(result)
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
@@ -314,14 +314,15 @@ class RtorrentItem(engine.TorrentProxy):
             except (ValueError, TypeError), exc:
                 raise error.UserError("Bad command %r, probably missing a '=' (%s)" % (command, exc))
 
-            print_result = method.startswith('>')
-            method = method.lstrip('>')
-            results = list(self._make_it_so("executing command on", [method], *args, results=True))
-            if print_result:
+            def print_result(data):
                 args_list = ''
                 if args:
                     args_list = '"' + '","'.join(args) + '"'
-                print('%s\t%s\td.%s=%s' % (self._fields["hash"], results[0], method, args_list))
+                print('%s\t%s\td.%s=%s' % (self._fields["hash"], data, method, args_list))
+
+            observer = print_result if method.startswith('>') else None
+            method = method.lstrip('>')
+            self._make_it_so("executing command on", [method], *args, observer=observer)
 
 
     def delete(self):
