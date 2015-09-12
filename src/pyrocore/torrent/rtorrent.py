@@ -140,6 +140,12 @@ class RtorrentItem(engine.TorrentProxy):
         return set(ext for val, ext in histo if ext and val >= limit)
 
 
+    def as_dict(self):
+        """ Return known fields.
+        """
+        return self._fields.copy()
+
+
     def fetch(self, name, engine_name=None):
         """ Get a field on demand.
         """
