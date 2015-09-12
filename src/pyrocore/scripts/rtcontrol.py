@@ -139,7 +139,10 @@ class RtorrentControl(ScriptBaseWithConfig):
     ARGS_HELP = "<filter>..."
 
     # additonal stuff appended after the command handler's docstring
-    ADDITIONAL_HELP = ["", "", "Use --help-fields to list all fields and their description."]
+    ADDITIONAL_HELP = ["", "",
+        "Use --help to get a list of all options.",
+        "Use --help-fields to list all fields and their description.",
+    ]
 
     # additional values for output formatting
     FORMATTER_DEFAULTS = dict(
