@@ -15,7 +15,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import os
+import sys
 import logging
+import xmlrpclib
 from pprint import pformat
 
 from pyrocore import config, error
@@ -25,7 +28,7 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 class RtorrentXmlRpc(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ 
+    """
         Perform raw rTorrent XMLRPC calls, like "rtxmlrpc get_throttle_up_rate ''".
         Start arguments with "+" or "-" to indicate they're numbers (type i4 or i8).
     """
@@ -69,7 +72,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 self.parser.error("Please don't mix rTorrent and shell argument styles!")
             method, raw_args = method.split('=', 1)
             raw_args = raw_args.split(',')
-        
+
         args = []
         for arg in raw_args:
             # TODO: use the xmlrpc-c type indicators instead / additionally
@@ -82,6 +85,13 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 arg = arg[1:].split(',')
                 if all(i.isdigit() for i in arg):
                     arg = [int(i, 10) for i in arg]
+            elif arg and arg[0] == '@':
+                if arg == '@-':
+                    arg = sys.stdin.read()
+                else:
+                    with open(os.path.expanduser(arg[1:]), 'rb') as handle:
+                        arg = handle.read()
+                arg = xmlrpclib.Binary(arg)
             args.append(arg)
 
         # Open proxy
@@ -121,4 +131,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-
