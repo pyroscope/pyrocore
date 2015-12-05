@@ -59,7 +59,7 @@ done
 
 # Register new executables
 ln -nfs python ./bin/python-pyrocore
-test ! -d ${BIN_DIR:-~/bin} || ln -nfs $(grep -l 'entry_point.*pyrocore==' $PWD/bin/*) ${BIN_DIR:-~/bin}/
+test ! -d ${BIN_DIR:-~/bin} || ln -nfs $(grep -l 'entry_point.*pyrocore.*console_scripts' $PWD/bin/*) ${BIN_DIR:-~/bin}/
 test ! -d ${BIN_DIR:-~/bin} || ln -nfs $PWD/bin/python-pyrocore ${BIN_DIR:-~/bin}/
 
 # Update config defaults
