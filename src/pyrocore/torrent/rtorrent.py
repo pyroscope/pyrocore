@@ -66,7 +66,11 @@ class RtorrentItem(engine.TorrentProxy):
             for call in calls:
                 self._engine.LOG.debug("%s%s torrent #%s (%s)" % (
                     command[0].upper(), command[1:], self._fields["hash"], call))
-                result = getattr(self._engine._rpc.d, call)(*args)
+                if call[:2].endswith('.'):
+                    namespace = self._engine._rpc
+                else:
+                    namespace = self._engine._rpc.d
+                result = getattr(namespace, call)(*args)
                 if observer:
                     observer(result)
         except xmlrpc.ERRORS, exc:
