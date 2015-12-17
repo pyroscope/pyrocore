@@ -331,7 +331,8 @@ class RtorrentItem(engine.TorrentProxy):
                 args_list = ''
                 if args:
                     args_list = '"' + '","'.join(args) + '"'
-                print('%s\t%s\td.%s=%s' % (self._fields["hash"], data, method, args_list))
+                namespace = '' if method[:2].endswith('.') else 'd.'
+                print('%s\t%s\t%s%s=%s' % (self._fields["hash"], data, namespace, method, args_list))
 
             observer = print_result if method.startswith('>') else None
             method = method.lstrip('>')
