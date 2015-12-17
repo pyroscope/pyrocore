@@ -85,6 +85,11 @@ def fmt_strip(val):
     return str(val).strip()
 
 
+def fmt_subst(regex, subst):
+    """Replace regex with string."""
+    return lambda text: re.sub(regex, subst, text) if text else text
+
+
 def fmt_mtime(val):
     """ Modification time of a path.
     """
