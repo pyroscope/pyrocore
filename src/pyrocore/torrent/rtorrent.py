@@ -199,11 +199,14 @@ class RtorrentItem(engine.TorrentProxy):
             Returns `default` if no trackers are found at all.
         """
         try:
-            response = self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=")
+            response = self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=", "t.is_enabled=")
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
-        return response[0] if response else default
+        if response:
+            return [i[0] for i in response if i[1]]
+        else:
+            return default
 
 
     def start(self):
