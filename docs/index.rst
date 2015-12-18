@@ -35,6 +35,7 @@ Contents of This Manual
     installation
     setup
     usage
+    howto
     advanced
     experimental
     scripts
