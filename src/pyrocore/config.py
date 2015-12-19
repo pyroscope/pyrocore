@@ -81,3 +81,4 @@ traits_by_alias = {}
 torque = {}
 log_execute = None
 magnet_watch = None
+influxdb = {}

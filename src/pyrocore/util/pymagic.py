@@ -80,7 +80,7 @@ def get_lazy_logger(name):
 class JSONEncoder(json.JSONEncoder):
     """Custon JSON encoder."""
 
-    def default(self, obj):
+    def default(self, obj):  # pylint: disable=method-hidden
         """Support more object types."""
         if isinstance(obj, set):
             return list(obj)

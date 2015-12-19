@@ -141,7 +141,7 @@ class JsonController(object):
 
         data = dict(
             engine      = self.json_engine(req),
-            uptime      = time.time() - psutil.BOOT_TIME,
+            uptime      = time.time() - psutil.BOOT_TIME,  # pylint: disable=no-member
             fqdn        = self.guarded(socket.getfqdn),
             cpu_usage   = self.guarded(psutil.cpu_percent, 0),
             ram_usage   = self.guarded(psutil.virtual_memory),
