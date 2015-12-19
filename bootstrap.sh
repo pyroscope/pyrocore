@@ -47,7 +47,7 @@ pip_install -U "yolk3k"
 
 # Harmless options (just install them, but ignore errors)
 pip_install_opt -U "Tempita>=0.5.1"
-pip_install_opt -U "APScheduler>=2.0.2"
+pip_install_opt -U "APScheduler>=2.0.2,<3"
 pip_install_opt -U "waitress>=0.8.2"
 pip_install_opt -U "WebOb>=1.2.3"
 ##pip_install_opt -U "psutil>=0.6.1"
@@ -59,7 +59,7 @@ test ! -d pyrobase || ( builtin cd pyrobase && ../bin/paver -q develop -U)
 test -x ./bin/paver || pip_install -U "paver>=1.0.1"
 
 # package dependencies (optional)
-for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2"; do
+for pkgreq in "Tempita>=0.5.1" "APScheduler>=2.0.2,<3"; do
     pip_install_opt "$pkgreq"
 done
 
