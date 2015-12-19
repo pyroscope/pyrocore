@@ -10,6 +10,7 @@ test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
 
 set -e
+PROJECT_ROOT="$(builtin cd $(dirname "$0") && pwd)"
 builtin cd $(dirname "$0")
 rtfm="DO read http://code.google.com/p/pyroscope/wiki/InstallFromSource."
 
