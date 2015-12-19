@@ -80,6 +80,8 @@ class MetafileHandler(object):
         # Check whether item is already loaded
         try:
             name = self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)
+        except xmlrpc.HashNotFound:
+            pass
         except xmlrpc.ERRORS, exc:
             if exc.faultString != "Could not find info-hash.":
                 self.job.LOG.error("While checking for #%s: %s" % (self.ns.info_hash, exc))

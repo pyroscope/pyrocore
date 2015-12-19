@@ -33,6 +33,8 @@ class XmlRpcError(Exception):
     def __init__(self, msg, *args):
         Exception.__init__(self, msg, *args)
         self.message = msg.format(*args)
+        self.faultString = self.message
+        self.faultCode = -500
 
     def __str__(self):
         return self.message
@@ -40,6 +42,10 @@ class XmlRpcError(Exception):
 
 class HashNotFound(XmlRpcError):
     """Non-existing or disappeared hash."""
+
+    def __init__(self, msg, *args):
+        XmlRpcError.__init__(self, msg, *args)
+        self.faultCode = -404
 
 
 # Currently, we don't have our own errors, so just copy it
