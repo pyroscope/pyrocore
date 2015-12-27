@@ -1,6 +1,20 @@
 Tips & How-Tos
 ==============
 
+Working With Several rTorrent Instances
+---------------------------------------
+
+Both ``rtcontrol`` and ``rtxmlrpc`` read the existing rTorrent configuration
+to extract some settings, so that you don't need to maintain them twice – most
+importantly the details of the XMLRPC connection. That is why ``config.ini``
+has the ``rtorrent_rc`` setting, and changing that is the key to select
+a different instance you have running.
+
+Just pass the option ``-D rtorrent_rc=PATH_TO/rtorrent.rc`` to either
+``rtcontrol`` or ``rtxmlrpc``, to read the configuration of another instance
+than the default one. For convenient use on the command line, you can add
+shell aliases to you profile.
+
 
 Using Tags or Flag Files to Control Item Processing
 ---------------------------------------------------
