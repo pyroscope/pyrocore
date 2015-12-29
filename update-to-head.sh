@@ -10,8 +10,9 @@ test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
 
 set -e
-PROJECT_ROOT="$(builtin cd $(dirname "$0") && pwd)"
-builtin cd $(dirname "$0")
+PROJECT_ROOT="$(command cd $(dirname "$0") >/dev/null && pwd)"
+command cd "$PROJECT_ROOT" >/dev/null
+echo "Installing into $PWD..."
 rtfm="DO read http://code.google.com/p/pyroscope/wiki/InstallFromSource."
 
 # Fix Generation YouTube's reading disability
@@ -38,7 +39,7 @@ else
     git clone "https://github.com/pyroscope/pyrocore.git" pyroscope
     cd pyroscope
 fi
-. ./util.sh # load funcs
+. "$PROJECT_ROOT/util.sh" # load funcs
 
 # Ensure virtualenv is there
 test -f bin/activate || install_venv --never-download
