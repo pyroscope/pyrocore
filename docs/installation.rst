@@ -1,12 +1,11 @@
 Installation Guide
 ==================
 
-**TODO**
-– see `the old docs <https://code.google.com/p/pyroscope/wiki/WikiSideBar>`_ for anything not yet moved.
-
-*    Official release
-*    Virtual environment
-*    Linux setup from scratch
+This chapter presents you with different installation options.
+If you start with an unconfigured host, consider using the automated
+setup provided by the `pimp-my-box`_ project, which will install all
+you need for a fully working torrenting setup including a default
+configuration.
 
 .. note::
 
@@ -14,6 +13,8 @@ Installation Guide
     installation commands should **not** be run as ``root``, but in your normal
     user account, or else one you specifically created for installing *rTorrent*
     and ``pyrocore``.
+
+.. _`pimp-my-box`: https://github.com/pyroscope/pimp-my-box#pimp-my-box
 
 
 Preparing Your Host
@@ -32,14 +33,33 @@ everything you need, including packages necessary for installing from source:
 
 On other Linux distributions, see the following section for further hints.
 
+If you want to install everything in a dedicated user account,
+e.g. for security reasons, this will create a ``rtorrent`` user
+when entered into a ``root`` shell:
+
+.. code-block:: shell
+
+    groupadd rtorrent
+    useradd -g rtorrent -G rtorrent,users -c "Torrent User" -s /bin/bash --create-home rtorrent
+    chmod 750 ~rtorrent
+    su - rtorrent -c "mkdir -p ~/bin"
+
 
 Installing Python
 ^^^^^^^^^^^^^^^^^
 
 Your Linux usually comes equipped with a Python 2.7 interpreter, but on very new
 releases, Python 3 may be the default and Python 2.7 just an option.
-In case you need to install Python, refer to `Installing Python on Linux`_ and
+In case you need to install Python 2, refer to `Installing Python on Linux`_ and
 consider using `pyenv`_.
+
+The following shows how you can check what version you have as the default (the
+sample output is from *Ubuntu 15.04*):
+
+.. code-block:: shell
+
+    $ /usr/bin/python --version
+    Python 2.7.9
 
 .. _`Installing Python on Linux`: http://docs.python-guide.org/en/latest/starting/install/linux/
 .. _`pyenv`: https://github.com/yyuu/pyenv#simple-python-version-management-pyenv
@@ -48,15 +68,17 @@ consider using `pyenv`_.
 Installing From Source
 ----------------------
 
-To install this software from its GitHub repository, use the following commands:
+The recommended way to install this software is directly from its GitHub repository.
+To do that, use the following commands:
 
 .. code-block:: shell
 
     mkdir -p ~/bin ~/lib
     git clone "https://github.com/pyroscope/pyrocore.git" ~/lib/pyroscope
 
-    # Pass "/usr/bin/python2", or whatever else fits, to the script,
-    # if "/usr/bin/python" is not a suitable version (e.g. Python 3)
+    # Pass "/usr/bin/python2", or whatever else fits, to the script as its
+    # 1st argument, if the default of "/usr/bin/python" is not a suitable
+    # version.
     ~/lib/pyroscope/update-to-head.sh
 
     # Check success
@@ -67,7 +89,10 @@ accordingly. If then anything fails, stop changing things and stick
 to the trodden path.
 
 If you previously had no ``~/bin`` directory, call ``exec $SHELL -l``
-to register it in the ``PATH`` of your current terminal session.
+to register it in the ``PATH`` of your current terminal session
+– especially if you see an error message like ``pyroadmin: command not found``.
+
+If everything went OK, continue with the :doc:`setup`.
 
 .. warning::
 
