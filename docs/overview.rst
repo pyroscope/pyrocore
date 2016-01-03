@@ -34,11 +34,12 @@ To get in contact and share your experiences with other users of
 Quick Start Guide
 -----------------
 
-**TODO**
+Work through these chapters in order to get the software up and running,
+and to learn basic concepts of using the command line tools.
 
-  * Installation
-  * Configuration
-  * Using
+  * :doc:`installation`
+  * :doc:`setup`
+  * :doc:`usage`
 
 Consult the :doc:`troubleshooting` if anything goes wrong.
 
