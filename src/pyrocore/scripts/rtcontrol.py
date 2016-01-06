@@ -17,13 +17,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import re
 import sys
+import json
 import time
 import logging
 from collections import defaultdict
 
 from pyrobase.parts import Bunch, DefaultBunch
 from pyrocore import config
-from pyrocore.util import os, fmt, osmagic, matching
+from pyrocore.util import os, fmt, osmagic, pymagic, matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine, formatting
 
@@ -228,6 +229,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="print only statistical summary, without the items")
         #self.add_bool_option("-f", "--full",
         #    help="print full torrent details")
+        self.add_bool_option("--json",
+            help="dump all items as JSON (use '-o f1,f2,...' to specify fields)")
         self.add_value_option("-o", "--output-format", "FORMAT",
             help="specify display format (use '-o-' to disable item display)")
         self.add_value_option("-O", "--output-template", "FILE",
@@ -482,6 +485,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        print repr(config.engine)
 
         # Preparation steps
+        raw_output_format = self.options.output_format
         default_output_format = "default"
         if actions:
             default_output_format = "action_cron" if self.options.cron else "action"
@@ -584,9 +588,21 @@ class RtorrentControl(ScriptBaseWithConfig):
                     if self.options.flush:
                         item.flush()
 
-        # Show in ncurses?
+        # Show in ncurses UI?
         elif not self.options.tee_view and (self.options.to_view or self.options.view_only):
             self.show_in_view(view, matches)
+
+        # Dump as JSON array?
+        elif self.options.json:
+            json_data = matches
+            if raw_output_format:
+                json_fields = raw_output_format.split(',')
+                json_data = [dict([(name, getattr(i, name)) for name in json_fields])
+                             for i in matches]
+            json.dump(json_data, sys.stdout, indent=2, separators=(',', ': '),
+                      sort_keys=True, cls=pymagic.JSONEncoder)
+            sys.stdout.write('\n')
+            sys.stdout.flush()
 
         # Show via template?
         elif self.options.output_template:

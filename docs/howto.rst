@@ -1,6 +1,28 @@
 Tips & How-Tos
 ==============
 
+Dumping Items as a JSON Array
+-----------------------------
+
+If you want to access rTorrent item data in machine readable form via ``rtcontrol``,
+you can use its ``--json`` option and feed the output into another script parsing
+the JSON data for further processing.
+
+Here's an example:
+
+.. code-block:: shell
+
+    $ rtcontrol --json -qo name,is_ghost,directory,fno foo
+    [
+      {
+        "directory": "/var/torrent/load/foo",
+        "fno": 1,
+        "is_ghost": false,
+        "name": "foo"
+      }
+    ]
+
+
 Working With Several rTorrent Instances
 ---------------------------------------
 
