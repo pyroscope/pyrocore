@@ -83,5 +83,8 @@ class JSONEncoder(json.JSONEncoder):
     def default(self, obj):  # pylint: disable=method-hidden
         """Support more object types."""
         if isinstance(obj, set):
-            return list(obj)
-        return super(JSONEncoder, self).default(obj)
+            return list(sorted(obj))
+        elif hasattr(obj, 'as_dict'):
+            return obj.as_dict()
+        else:
+            return super(JSONEncoder, self).default(obj)
