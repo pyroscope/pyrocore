@@ -28,6 +28,7 @@ To get in contact and share your experiences with other users of
 Contents of This Manual
 -----------------------
 
+..    :caption: First Steps
 ..  toctree::
     :maxdepth: 4
 
@@ -35,12 +36,22 @@ Contents of This Manual
     installation
     setup
     usage
+
+..    :caption: Advanced Usage
+..  toctree::
+    :maxdepth: 4
+
     howto
     advanced
     experimental
     scripts
     troubleshooting
     updating
+
+..    :caption: References
+..  toctree::
+    :maxdepth: 4
+
     references
     api
     contributing
