@@ -5,6 +5,8 @@ See `contribution-guide.org`_ for the basics on contributing
 to an open source project.
 
 
+.. _issue-reporting:
+
 Reporting an Issue, or Requesting a Feature
 -------------------------------------------
 

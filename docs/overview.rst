@@ -31,6 +31,33 @@ To get in contact and share your experiences with other users of
 .. _`pyroscope-users`: http://groups.google.com/group/pyroscope-users
 
 
+Glossary
+--------
+
+To help you better understand this manual,
+here are the definitions of some key concepts used in it.
+
+(download) item
+    An item loaded into rTorrent.
+
+field
+    An attribute of a download item, e.g. ``name``, ``completed``, and ``directory``.
+    Most of these you know from *rTorrent* or *ruTorrent*, but *PyroScope* adds some of its own.
+    They are used in conditions to filter items using the ``rtcontrol`` tool,
+    and also name the things you want to print to the console when listing items.
+    To get a full list, use the ``rtcontrol --help-fields`` command.
+
+metafile
+    The term *metafile* means the ``.torrent`` file – using 'torrent' is avoided intentionally,
+    because it's often used ambiguously to mean *either* the metafile or the *data* of a download item.
+
+XMLRPC
+    The protocol used to remotely control a running rTorrent process.
+    Note that support for XMLRPC is an option that must be activated when compiling
+    the rTorrent binary, so make sure it's active in your installation
+    when 'nothing works' for you.
+
+
 Quick Start Guide
 -----------------
 
@@ -42,11 +69,20 @@ and to learn basic concepts of using the command line tools.
   * :doc:`usage`
 
 Consult the :doc:`troubleshooting` if anything goes wrong.
+:ref:`issue-reporting` explains how to provide feedback in case
+you encounter a serious problem, or are missing a feature.
 
 
-Customization
--------------
+Further Information & Customization
+-----------------------------------
 
+  * :doc:`howto` highlights some specific use-cases and might
+    give you some inspiration when solving your own problems.
   * :ref:`CustomFields` allows you to add user-defined fields,
     available in ``rtcontrol`` just like built-in ones.
-  * :doc:`scripts` is an easy way to automate anything that the standard commands can't do.
+  * :doc:`scripts` is an easy way to automate anything
+    that the standard commands can't do.
+  * :doc:`updating` explains how to get newer versions
+    of this software after the initial installation.
+  * :doc:`references` provides details on technical background topics
+    like XMLRPC, and links into the web with related information.
