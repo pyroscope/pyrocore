@@ -19,11 +19,13 @@ import re
 import sys
 import json
 import time
+import shlex
 import logging
+import subprocess
 from collections import defaultdict
 
 from pyrobase.parts import Bunch, DefaultBunch
-from pyrocore import config
+from pyrocore import config, error
 from pyrocore.util import os, fmt, osmagic, pymagic, matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine, formatting
@@ -251,6 +253,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="select only items that are on view NAME")
         self.add_value_option("-M", "--modify-view", "NAME",
             help="get items from given view and write result back to it (short-cut to combine --from-view and --to-view)")
+        self.add_value_option("--call", "CMD",
+            help="call an OS command pattern in the shell")
+        self.add_value_option("--spawn", "CMD [--spawn ...]",
+            action="append", default=[],
+            help="execute OS command pattern(s) directly")
 # TODO: implement -S
 #        self.add_bool_option("-S", "--summary",
 #            help="print statistics")
@@ -469,6 +476,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         if any(i.interactive for i in actions):
             self.options.interactive = True
 
+        # Reduce results according to index range
         selection = None
         if self.options.select:
             try:
@@ -504,7 +512,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # View handling
         if self.options.modify_view:
             if self.options.from_view or self.options.to_view:
-                self.fatal("You cannot combine with --modify_view with --from-view or --to-view")
+                self.fatal("You cannot combine --modify-view with --from-view or --to-view")
             self.options.from_view = self.options.to_view = self.options.modify_view
 
         # Find matching torrents
@@ -591,6 +599,42 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Show in ncurses UI?
         elif not self.options.tee_view and (self.options.to_view or self.options.view_only):
             self.show_in_view(view, matches)
+
+        # Execute OS commands?
+        elif self.options.call or self.options.spawn:
+            if self.options.call and self.options.spawn:
+                self.fatal("You cannot mix --call and --spawn")
+
+            template_cmds = []
+            if self.options.call:
+                template_cmds.append([formatting.preparse("{{#tempita}}" + self.options.call)])
+            else:
+                for cmd in self.options.spawn:
+                    template_cmds.append([formatting.preparse("{{#tempita}}" + i if "{{" in i else i)
+                                          for i in shlex.split(str(cmd))])
+
+            for item in matches:
+                cmds = [[output_formatter(i, ns=dict(item=item)) for i in k] for k in template_cmds]
+
+                if self.options.dry_run:
+                    self.LOG.info("Would call command(s) %r" % (cmds,))
+                else:
+                    for cmd in cmds:
+                        if self.options.call:
+                            logged_cmd = cmd[0]
+                        else:
+                            logged_cmd = '"%s"' % ('" "'.join(cmd),)
+                        if self.options.verbose:
+                            self.LOG.info("Calling: %s" % (logged_cmd,))
+                        try:
+                            if self.options.call:
+                                subprocess.check_call(cmd[0], shell=True)
+                            else:
+                                subprocess.check_call(cmd)
+                        except subprocess.CalledProcessError, exc:
+                            raise error.UserError("Command failed: %s" % (exc,))
+                        except OSError, exc:
+                            raise error.UserError("Command failed (%s): %s" % (logged_cmd, exc,))
 
         # Dump as JSON array?
         elif self.options.json:

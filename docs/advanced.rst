@@ -27,6 +27,30 @@ Defining Custom Fields
 .. _rtcontrol-exec:
 
 
+Executing OS commands with rtcontrol
+------------------------------------
+
+The ``--call`` and ``--spawn`` options can be used to call an OS level command
+and feed it with data from the selected items. The argument to both options
+is a template, i.e. you can have things like ``{{item.hash}}`` in them.
+
+When using ``--call``, the command is passed to the shell for parsing
+– with obvious implications regarding the quoting of arguments,
+thus ``--call`` only makes sense if you need I/O redirection or similar shell features.
+
+In contrast, the ``--spawn`` option splits its argument list according to shell rules *before*
+expanding the template placeholders, and then calls the resulting sequence of command name
+and arguments directly.
+Consider ``--spawn 'echo "name: {{item.name}}"'`` vs. ``--spawn 'echo name: {{item.name}}'``
+– the first form passes one argument to ``/bin/echo``, the second form two arguments.
+Note that in both cases, spaces or shell meta characters contained in the item name are
+of no relevance, since the argument list is split according to the template, *not* its expanded value.
+
+Unlike ``--call``, where you can use shell syntax to call several commands, ``--spawn`` can be
+passed several times for executing a sequence of commands. If any called command fails, the ``rtcontrol``
+call is aborted with an error.
+
+
 Executing XMLRPC commands with rtcontrol
 ----------------------------------------
 
