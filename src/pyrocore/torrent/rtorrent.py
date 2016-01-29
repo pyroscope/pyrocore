@@ -118,6 +118,19 @@ class RtorrentItem(engine.TorrentProxy):
 
             return result
 
+    def _memoize(self, name, getter, *args, **kwargs):
+        """ Cache a stable expensive-to-get item value for later (optimized) retrieval.
+        """
+        field = "custom_m_" + name
+        cached = self.fetch(field)
+        if cached:
+            value = cached
+        else:
+            value = getter(*args, **kwargs)
+            self._make_it_so("caching %s=%r for" % (name, value,), ["set_custom"], field[7:], value)
+            self._fields[field] = value
+        return value
+
 
     def _get_kind(self, limit):
         """ Get a set of dominant file types. The files must contribute
@@ -507,7 +520,7 @@ class RtorrentEngine(engine.TorrentEngine):
     PREFETCH_FIELDS = CORE_FIELDS | set((
         "is_open", "is_active",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",
-        "base_path",
+        "base_path", "custom=m_alias",
     ))
 
     # mapping of our names to rTorrent names (only those that differ)
@@ -521,6 +534,7 @@ class RtorrentEngine(engine.TorrentEngine):
         size = "size_bytes",
         prio = "priority",
         throttle = "throttle_name",
+        custom_m_alias = "custom=m_alias",
     )
 
     # inverse mapping of rTorrent names to ours
@@ -745,11 +759,13 @@ class RtorrentEngine(engine.TorrentEngine):
 
                 if infohash:
                     multi_call = self.open().system.multicall
-                    args = [dict(methodName=field, params=[infohash]) for field in args]
+                    args = [dict(methodName=field.rsplit('=',1)[0],
+                                 params=[infohash] + (field.rsplit('=',1)[1].split(',') if '=' in field else []))
+                            for field in args]
                     raw_items = [[i[0] for i in multi_call(args)]]
                 else:
                     multi_call = self.open().d.multicall
-                    args = [view.viewname] + [field + '=' for field in args]
+                    args = [view.viewname] + [field if '=' in field else field + '=' for field in args]
                     raw_items = multi_call(*tuple(args))
 
                 ##self.LOG.debug("multicall %r" % (args,))
