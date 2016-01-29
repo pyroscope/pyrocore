@@ -521,6 +521,7 @@ class RtorrentEngine(engine.TorrentEngine):
         "is_open", "is_active",
         "ratio", "up_rate", "up_total", "down_rate", "down_total",
         "base_path", "custom=m_alias",
+        "custom=tm_completed", "custom=tm_loaded", "custom=tm_started",
     ))
 
     # mapping of our names to rTorrent names (only those that differ)
@@ -535,6 +536,9 @@ class RtorrentEngine(engine.TorrentEngine):
         prio = "priority",
         throttle = "throttle_name",
         custom_m_alias = "custom=m_alias",
+        custom_tm_completed = "custom=tm_completed",
+        custom_tm_loaded = "custom=tm_loaded",
+        custom_tm_started = "custom=tm_started",
     )
 
     # inverse mapping of rTorrent names to ours
