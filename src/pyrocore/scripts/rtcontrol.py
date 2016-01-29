@@ -615,6 +615,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
             for item in matches:
                 cmds = [[output_formatter(i, ns=dict(item=item)) for i in k] for k in template_cmds]
+                cmds = [[i.encode('utf-8') if isinstance(i, unicode) else i for i in k] for k in cmds]
 
                 if self.options.dry_run:
                     self.LOG.info("Would call command(s) %r" % (cmds,))
