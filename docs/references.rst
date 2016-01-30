@@ -1,6 +1,18 @@
 References
 ==========
 
+.. _cli-usage:
+
+PyroScope CLI Tools Usage
+-------------------------
+
+This section is automatically generated and shows the options available
+in the *development* version of the code (git HEAD).
+See :doc:`usage` for more details on how to use these commands.
+
+.. include:: references-cli-usage.rst
+
+
 .. _RtXmlRpcReference:
 
 rTorrent XMLRPC

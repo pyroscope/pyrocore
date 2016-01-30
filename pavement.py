@@ -167,33 +167,41 @@ def build():
 
 
 @task
-def wiki():
-    "create some wiki pages automatically"
-    helppage = path("wiki/CliUsage.wiki")
+def gendocs():
+    "create some doc pages automatically"
+    helppage = path("docs/references-cli-usage.rst")
     content = [
-        "#summary PyroScope CLI Tools Usage.",
-        "#labels cli,shell",
-        '<wiki:toc max_depth="2" />',
+        ".. automatically generated using 'paver gendocs'.",
         "",
-        "This page is automatically generated and shows the options available in the *development* version of the code (SVN head).",
-        "See CommandLineTools for more details on how to use these commands.",
-        "The help output presented here applies to version `%s` of the tools." % sh("pyroadmin --version", capture=True).split()[1],
+        ".. contents::",
+        "    :local:",
+        "",
+        ".. note::",
+        "",
+        "    The help output presented here applies to version ``%s`` of the tools."
+            % sh("pyroadmin --version", capture=True).split()[1],
         "",
     ]
 
     for tool in sorted(project.entry_points["console_scripts"]):
         tool, _ = tool.split(None, 1)
         content.extend([
-            "= %s =" % tool,
-            "{{{",
+            ".. _cli-usage-%s:" % tool,
+            "",
+            tool,
+            '^' * len(tool),
+            "",
+            "::",
+            "",
         ])
         help_opt = "--help-fields --config-dir /tmp" if tool == "rtcontrol" else "--help"
-        content.extend(sh("%s -q %s" % (tool, help_opt), capture=True, ignore_error=True).splitlines())
+        help_txt = sh("%s -q %s" % (tool, help_opt), capture=True, ignore_error=True).splitlines()
+        content.extend('    ' + i for i in help_txt)
         content.extend([
-            "}}}",
+            "",
         ])
 
-    content = [line for line in content if all(
+    content = [line.rstrip() for line in content if all(
         i not in line for i in (", Copyright (c) ", "Total time: ", "Configuration file '/tmp/")
     )]
     content = [line for line, succ in zip(content, content[1:] + ['']) if line or succ] # filter twin empty lines
