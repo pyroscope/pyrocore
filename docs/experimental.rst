@@ -50,4 +50,4 @@ Event Handling
 --------------
 
 **TODO**
-– see `the old docs <https://code.google.com/p/pyroscope/wiki/WikiSideBar>`_ for anything not yet moved.
+– see `the old docs <https://github.com/pyroscope/pyroscope/tree/wiki/>`_ for anything not yet moved.

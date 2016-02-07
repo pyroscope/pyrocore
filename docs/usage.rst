@@ -2,11 +2,11 @@ User's Manual
 =============
 
 **TODO**
-– see `the old docs <https://code.google.com/p/pyroscope/wiki/WikiSideBar>`_ for anything not yet moved.
+– see `the old docs <https://github.com/pyroscope/pyroscope/tree/wiki/>`_ for anything not yet moved.
 
-*    CLI Tools Overview
-*    Using rtcontrol
-*    Templating
+*    CLI Tools Overview https://github.com/pyroscope/pyroscope/blob/wiki/CommandLineTools.md
+*    Using rtcontrol https://github.com/pyroscope/pyroscope/blob/wiki/RtControlExamples.md
+*    Templating https://github.com/pyroscope/pyroscope/blob/wiki/OutputTemplates.md
 
 
 Bash Completion
