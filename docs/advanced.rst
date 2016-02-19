@@ -102,7 +102,7 @@ Using rtxmlrpc
 .. include:: advanced-rtxmlrpc.rst
 
 
-Queue Manager
--------------
+rTorrent Queue Manager
+----------------------
 
 .. include:: advanced-queue.rst
