@@ -8,13 +8,9 @@ Introduction
 collection of tools for the :ref:`bt-protocol` and especially the
 *rTorrent* client. This includes:
 
-  * `CommandLineTools <https://github.com/pyroscope/pyroscope/blob/wiki/CommandLineTools.md>`_
-    for automation of common tasks, like metafile creation, and
-    `filtering and mass-changing your loaded
-    torrents <https://github.com/pyroscope/pyroscope/blob/wiki/RtControlExamples.md>`_.
-  * rTorrent extensions like a
-    `QueueManager <https://github.com/pyroscope/pyroscope/blob/wiki/QueueManager.md>`_
-    and statistics (*work in progress*).
+  * :ref:`CommandLineTools` for automation of common tasks, like metafile creation, and
+    :ref:`filtering and mass-changing your loaded torrents <rtcontrol-examples>`.
+  * rTorrent extensions like a :ref:`QueueManager` and statistics (*work in progress*).
   * All this is based on the ``pyrocore`` Python package, that you can
     use to :doc:`scripts` for any special needs that aren't covered by
     the standard tools.

@@ -1,6 +1,7 @@
 User's Manual
 =============
 
+.. _CommandLineTools:
 
 Command Line Tools
 ------------------

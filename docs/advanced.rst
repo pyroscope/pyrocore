@@ -102,6 +102,8 @@ Using rtxmlrpc
 .. include:: advanced-rtxmlrpc.rst
 
 
+.. _QueueManager:
+
 rTorrent Queue Manager
 ----------------------
 
