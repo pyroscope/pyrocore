@@ -1,8 +1,9 @@
 .. included from usage.rst
 
 .. _condition-examples:
+.. _useful-filter-conditions:
 
-Useful filter conditions
+Useful Filter Conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following conditions give you a hint on what you can do, and some
@@ -87,8 +88,8 @@ output of the ``--help-fields`` option of :ref:`cli-usage-rtcontrol`
 which gives you a complete list for your installation.
 
 
-Integrating rtcontrol into the curses UI
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Integrating ‘rtcontrol’ into the Curses UI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Anyone who ever dreamt about a `search box <http://www.youtube.com/watch?v=y8gHEfA1w3Y>`_
 in their rtorrent UI, dream no more...
@@ -124,7 +125,7 @@ shortcuts for common use-case directly callable from the curses UI.
 Reports
 ^^^^^^^
 
-Using bash aliases for common reports
+Using bash Aliases for Common Reports
 """""""""""""""""""""""""""""""""""""
 
 You might want to add the following alias definitions to your
@@ -144,7 +145,7 @@ combination of tracker and message text, and finally ``rt2days`` gives
 the completion history of the last 48 hours.
 
 
-Defining and using custom output formats
+Defining and Using Custom Output Formats
 """"""""""""""""""""""""""""""""""""""""
 
 Before describing the possible options for output formatting in more
@@ -221,7 +222,7 @@ described above, more on that in :ref:`output-templates`.
 Statistics
 ^^^^^^^^^^
 
-Printing some statistics to the terminal
+Printing Some Statistics to the Terminal
 """"""""""""""""""""""""""""""""""""""""
 
 Create a list of all your trackers and how many torrents are loaded for
@@ -258,7 +259,7 @@ of your numerical output columns, like this::
      462.4 MiB	 298.9 MiB	81.0 [AVG of 32 item(s)]
 
 
-Normalized histogram of ratio distribution
+Normalized Histogram of Ratio Distribution
 """"""""""""""""""""""""""""""""""""""""""
 
 The following will create a normalized histogram of ratio distribution
@@ -280,10 +281,10 @@ installed, on Debian/Ubuntu all you need is
 ``sudo aptitude install octave3.0``.
 
 
-Performing management tasks
+Performing Management Tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixing items with an empty "Base path"
+Fixing Items With an Empty "Base Path"
 """"""""""""""""""""""""""""""""""""""
 
 Sometimes rTorrent loses track of where it stores the data for an item,
@@ -307,7 +308,7 @@ restored like so:
 (note that the ``--from-view`` option needs version 0.3.7)
 
 
-Deleting download items and their data
+Deleting Download Items and Their Data
 """"""""""""""""""""""""""""""""""""""
 
 Using the option ``--cull`` of version 0.3.10, an item can be deleted
@@ -331,7 +332,7 @@ Just select the item you want to annihilate and enter ``cull=`` into the
 command prompt (``Ctrl-X``).
 
 
-Pruning partial downloads
+Pruning Partial Downloads
 """""""""""""""""""""""""
 
 Starting with version 0.3.10, the ``--purge`` option (a/k/a
@@ -354,8 +355,8 @@ is useful:
     system.method.insert = purge,simple,"execute_nothrow=rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
 
 
-Performing periodic tasks (cron jobs)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Performing Periodic Tasks
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Simple Queue Management
 """""""""""""""""""""""
@@ -523,8 +524,8 @@ is changed, a line like the following will be appended to the file
 .. _dynamic seed throttle: https://github.com/pyroscope/pyrocore/blob/master/docs/examples/rt_cron_throttle_seed
 
 
-Automatic stop of torrents having problems
-""""""""""""""""""""""""""""""""""""""""""
+Automatic Stop of Items Having Problems
+"""""""""""""""""""""""""""""""""""""""
 
 This takes away a lot of manual monitoring work you had to do previously::
 
