@@ -3,6 +3,7 @@ User's Manual
 
 
 .. _CommandLineTools:
+.. _command-line-tools:
 
 Command Line Tools
 ------------------
