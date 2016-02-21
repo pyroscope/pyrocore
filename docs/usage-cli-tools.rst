@@ -84,32 +84,12 @@ Also see the :ref:`cli-usage` section for an automatically generated and thus
 comprehensive listing of all the current options.
 
 
+.. _mktor:
+
 mktor
 ^^^^^
 
-::
-
-    mktor [options] <dir-or-file> <tracker-url-or-alias>...
-
-    Options:
-      -p, --private         disallow DHT and PEX
-      --no-date             leave out creation date
-      -o PATH, --output-filename=PATH
-                            optional file name for the metafile
-      -r NAME, --root-name=NAME
-                            optional root name (default is basename of the data
-                            path)
-      -x PATTERN [-x ...], --exclude=PATTERN [-x ...]
-                            exclude files matching a glob pattern from hashing
-      --comment=TEXT        optional human-readable comment
-      -X LABEL, --cross-seed=LABEL
-                            set explicit label for cross-seeding (changes info
-                            hash)
-      -H, --hashed, --fast-resume
-                            create second metafile containing libtorrent fast-
-                            resume information
-
-``mktor`` creates ``*.torrent`` files (metafiles), given the path to a
+:ref:`cli-usage-mktor` creates ``*.torrent`` files (metafiles), given the path to a
 file, directory, or named pipe (more on that below) and a tracker URL or
 alias name (see UserConfiguration on how to define them). Optionally,
 you can also set an additional comment and a different name for the
@@ -156,10 +136,12 @@ for a demonstration of the concept.
 .. _`the fifotest script`: https://github.com/pyroscope/pyrocore/blob/master/src/tests/fifotest.sh
 
 
+.. _lstor:
+
 lstor
 ^^^^^
 
-``lstor`` lists the contents of bittorrent metafiles. The resulting
+:ref:`cli-usage-lstor` lists the contents of bittorrent metafiles. The resulting
 output looks like this::
 
     NAME pavement.torrent
@@ -250,46 +232,12 @@ option::
                   'views': []}}
 
 
+.. _chtor:
+
 chtor
 ^^^^^
 
-::
-
-    Usage: chtor [options] <metafile>...
-
-    Change attributes of a bittorrent metafile.
-
-    Options:
-      -n, --dry-run         don't write changes to disk, just tell what would
-                            happen
-      --no-skip             do not skip broken metafiles that fail the integrity
-                            check
-      -o PATH, --output-directory=PATH
-                            optional output directory for the modified metafile(s)
-      -p, --make-private    make torrent private (DHT/PEX disabled)
-      -P, --make-public     make torrent public (DHT/PEX enabled)
-      -s KEY=VAL [-s ...], --set=KEY=VAL [-s ...]
-                            set a specific key to the given value
-      -C, --clean           remove all non-standard data from metafile outside the
-                            info dict
-      -A, --clean-all       remove all non-standard data from metafile including
-                            inside the info dict
-      -X, --clean-xseed     like --clean-all, but keep libtorrent resume
-                            information
-      -R, --clean-rtorrent  remove all rTorrent session data from metafile
-      -H DATAPATH, --hashed=DATAPATH, --fast-resume=DATAPATH
-                            add libtorrent fast-resume information
-      -a URL, --reannounce=URL
-                            set a new announce URL, but only if the old announce
-                            URL matches the new one
-      --reannounce-all=URL  set a new announce URL on ALL given metafiles
-      --no-cross-seed       when using --reannounce-all, do not add a non-standard
-                            field to the info dict ensuring unique info hashes
-      --comment=TEXT        set a new comment (an empty value deletes it)
-      --bump-date           set the creation date to right now
-      --no-date             remove the 'creation date' field
-
-``chtor`` is able to change common attributes of a metafile, or clean
+:ref:`cli-usage-chtor` is able to change common attributes of a metafile, or clean
 any non-standard data from them (namely, rTorrent session information).
 
 Note that ``chtor`` automatically changes only those metafiles whose
@@ -302,10 +250,12 @@ very sure you provide only those files you actually want to be changed.
 changes are first written to a temporary file, which is then renamed.
 
 
+.. _rtcontrol:
+
 rtcontrol
 ^^^^^^^^^
 
-``rtcontrol`` allows you to select torrents loaded into rTorrent using
+:ref:`cli-usage-rtcontrol` allows you to select torrents loaded into rTorrent using
 various filter conditions. You can then either display the matches found
 in any rTorrent view for further inspection,
 list them to the console using flexible output formatting,
@@ -317,8 +267,11 @@ torrents that are currently uploading any data, but at a rate of below
 10 KiB/s. See the :ref:`rtcontrol-examples` for more real-world examples,
 and the following section on basics regarding the filter conditions.
 
-‘rtcontrol’ Filter Conditions
-"""""""""""""""""""""""""""""
+
+.. _filter-conditions:
+
+Filter Conditions
+"""""""""""""""""
 
 Filter conditions take the form ``‹field›=‹value›``, and by default
 all given conditions must be met (AND). If a field name is omitted,
@@ -358,22 +311,29 @@ fields), you have three possible options to specify the value:
        upper- or lower-case letter and one of ``Y``\ ear, ``M``\ onth, ``W``\ eek,
        ``D``\ ay, ``H``\ our, m\ ``I``\ nute, or ``S``\ econd. The order is important
        (``y`` before ``m``), and a ``+`` before the delta means *older than*,
-       while ``-`` means *younger than*. Example: ``-1m2w3d``.
+       while ``-`` means *younger than*.
+
+       Example: ``-1m2w3d``
     #. a certain date and time in human readable form, where the date can be given in ISO
        (``Y-M-D``), American (``M/D/Y``), or European (``D.M.Y``) format.
        A date can be followed by a time, with minutes and seconds optional and
        separated by ``:``. Put either a space or a ``T`` between the date and
-       the time. Example: ``+2010-08-15t14:50``.
-    #. absolute numerical UNIX timestamp, i.e. what
-       ``ls -l --time-style '+%s'`` returns. Example: ``+1281876597``.
+       the time.
 
-See :ref:`condition-examples` for some concrete examples with an explanation what they do.
+       Example: ``+2010-08-15t14:50``
+    #. absolute numerical UNIX timestamp, i.e. what ``ls -l --time-style '+%s'`` returns.
 
+       Example: ``+1281876597``
+
+See :ref:`useful-filter-conditions` for some concrete examples with an explanation what they do.
+
+
+.. _rtxmlrpc:
 
 rtxmlrpc
 ^^^^^^^^
 
-``rtxmlrpc`` allows you to call raw XMLRPC methods on the rTorrent
+:ref:`cli-usage-rtxmlrpc` allows you to call raw XMLRPC methods on the rTorrent
 instance that you have specified in your configuration. See the `usage
 information <CliUsage#rtxmlrpc.md>`_ for available options.
 
@@ -388,20 +348,12 @@ To get a list of available methods, just call ``rtxmlrpc system.listMethods``.
 See RtXmlRpcExamples for a list of useful calls. **TODO** (fix reference)
 
 
+.. _rtmv:
+
 rtmv
 ^^^^
 
-::
-
-    Usage: rtmv [options] <source>... <target>
-
-    Move data actively seeded in rTorrent.
-
-      -n, --dry-run         don't move data, just tell what would happen
-      -F, --force-incomplete
-                            force a move of incomplete data
-
-With ``rtmv``, you can move actively seeded data around at will.
+With :ref:`cli-usage-rtmv`, you can move actively seeded data around at will.
 Currently, it only knows one mode of operation, namely moving the data
 directory or file and leave a symlink behind in its place (or fixing the
 symlink if you move data around a second time). Watch this example that
@@ -445,11 +397,13 @@ haywire and create directory structures just anywhere.
     then deleting).
 
 
+.. _rtevent:
+
 rtevent
 ^^^^^^^
 
 **Not yet implemented**
 
-``rtevent`` handles rTorrent events and provides common implementations
+:ref:`cli-usage-rtevent` handles rTorrent events and provides common implementations
 for them, like completion moving. See EventHandling for details on using
 it.
