@@ -307,13 +307,67 @@ rtcontrol
 
 ``rtcontrol`` allows you to select torrents loaded into rTorrent using
 various filter conditions. You can then either display the matches found
-in any rTorrent view, list them to the console using flexible output
-formatting, or perform some management action like starting and stopping
-torrents.
+in any rTorrent view for further inspection,
+list them to the console using flexible output formatting,
+or perform some management action like starting and stopping torrents.
+See also :ref:`RtXmlRpcExamples` for sending single commands to rTorrent.
 
 For example, the command ``rtcontrol up=+0 up=-10k`` will list all
 torrents that are currently uploading any data, but at a rate of below
-10 KiB/s. See the :ref:`rtcontrol-examples` for more real-world examples.
+10 KiB/s. See the :ref:`rtcontrol-examples` for more real-world examples,
+and the following section on basics regarding the filter conditions.
+
+‘rtcontrol’ Filter Conditions
+"""""""""""""""""""""""""""""
+
+Filter conditions take the form ``‹field›=‹value›``, and by default
+all given conditions must be met (AND). If a field name is omitted,
+``name`` is assumed. Multiple values separated by a comma indicate
+several possible choices (OR). ``!`` in front of a filter value
+negates it (NOT). Use uppercase ``OR`` to combine multiple alternative
+sets of conditions. And finally brackets can be used to group conditions
+and alter the default "AND before OR" behaviour; be sure to separate
+both the opening and closing bracket by white space from surrounding
+text. ``NOT`` at the start of a bracket pair inverts the contained condition.
+
+
+For string fields, the value is a
+`glob pattern <http://docs.python.org/library/fnmatch.html>`_
+which you are used to from shell filename patterns (``*``, ``?``, ``[a-z]``,
+``[!a-z]``); glob patterns must match the whole field value, i.e. use
+``*...*`` for 'contains' type searches. To use
+`regex matches <http://docs.python.org/howto/regex.html>`_ instead of globbing,
+enclose the pattern in slashes (``/regex/``). Since regex can express
+anchoring the match at the head (``^``) or tail (``$``), they're by
+default of the 'contains' type.
+
+For numeric fields, a leading ``+`` means greater than, a leading
+``-`` means less than (just like with the standard ``find`` command).
+
+Selection on fields that are lists of tags or names (e.g. ``tagged`` and
+``views``) works by just providing the tags you want to search for. The
+difference to the glob patterns for string fields is that tagged search
+respects word boundaries (whitespace), and to get a match the given tag
+just has to appear anywhere in the list (``bar`` matches on
+``foo bar baz``).
+
+In time filtering conditions (e.g. for the ``completed`` and ``loaded``
+fields), you have three possible options to specify the value:
+
+    #. time deltas in the form "``<number><unit>...``", where unit is a single
+       upper- or lower-case letter and one of ``Y``\ ear, ``M``\ onth, ``W``\ eek,
+       ``D``\ ay, ``H``\ our, m\ ``I``\ nute, or ``S``\ econd. The order is important
+       (``y`` before ``m``), and a ``+`` before the delta means *older than*,
+       while ``-`` means *younger than*. Example: ``-1m2w3d``.
+    #. a certain date and time in human readable form, where the date can be given in ISO
+       (``Y-M-D``), American (``M/D/Y``), or European (``D.M.Y``) format.
+       A date can be followed by a time, with minutes and seconds optional and
+       separated by ``:``. Put either a space or a ``T`` between the date and
+       the time. Example: ``+2010-08-15t14:50``.
+    #. absolute numerical UNIX timestamp, i.e. what
+       ``ls -l --time-style '+%s'`` returns. Example: ``+1281876597``.
+
+See :ref:`condition-examples` for some concrete examples with an explanation what they do.
 
 
 rtxmlrpc
