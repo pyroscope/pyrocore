@@ -14,6 +14,8 @@ configuration.
     user account, or else one you specifically created for installing *rTorrent*
     and ``pyrocore``.
 
+.. include:: include-xmlrpc-dialects.rst
+
 .. _`pimp-my-box`: https://github.com/pyroscope/pimp-my-box#pimp-my-box
 
 
@@ -23,7 +25,7 @@ Preparing Your Host
 Before installing *pyrocore*, some software packages need to be available
 on your machine, Python 2 among them.
 
-On Debian-type systems (Debian, Ubuntu, Mint, …), the following ensures you have
+On Debian-type systems (Debian, Ubuntu, Raspbian, …), the following ensures you have
 everything you need, including packages necessary for installing from source:
 
 .. code-block:: shell
@@ -43,6 +45,10 @@ when entered into a ``root`` shell:
     useradd -g rtorrent -G rtorrent,users -c "Torrent User" -s /bin/bash --create-home rtorrent
     chmod 750 ~rtorrent
     su - rtorrent -c "mkdir -p ~/bin"
+
+Using such a dedicated account also makes sure you don't need to have fear
+this software does anything malicious — if it did, it'd be contained in that
+account. It also makes deinstallation or start-from-zero way less of a hassle.
 
 
 Installing Python
@@ -82,7 +88,7 @@ To do that, use the following commands:
     ~/lib/pyroscope/update-to-head.sh
 
     # Check success
-    pyroadmin --version
+    pyroadmin --version  # call "exec $SHELL -l" if this fails, and retry
 
 You can choose a different install directory, just change the paths
 accordingly. If then anything fails, stop changing things and stick
