@@ -53,7 +53,12 @@ XMLRPC
     The protocol used to remotely control a running rTorrent process.
     Note that support for XMLRPC is an option that must be activated when compiling
     the rTorrent binary, so make sure it's active in your installation
-    when 'nothing works' for you.
+    when 'nothing works' for you. A quick way to check is calling the following command:
+
+    .. code-block:: bash
+
+        $ ldd $(command which rtorrent) | grep libxmlrpc.so
+                libxmlrpc.so.3 => /home/pyroscope/lib/rtorrent-0.9.6/lib/libxmlrpc.so.3 …
 
 
 Quick Start Guide
@@ -70,13 +75,24 @@ Consult the :doc:`troubleshooting` if anything goes wrong.
 :ref:`issue-reporting` explains how to provide feedback in case
 you encounter a serious problem, or are missing a feature.
 
+.. warning::
+
+    If you do a fresh installation of *pyrocore* in addition to an existing
+    *rTorrent* one, you will need to follow the instructions
+    to :ref:`backfill-data`, which fills in some data your already
+    running rTorrent instance is missing otherwise! So do **not**
+    skip that section.
+
 
 Further Information & Customization
 -----------------------------------
 
   * :doc:`howto` highlights some specific use-cases and might
     give you some inspiration when solving your own problems.
-  * :ref:`CustomFields` allows you to add user-defined fields,
+  * Using :doc:`advanced` requires some knowledge in the area Linux,
+    Bash, and Python beyond a novice level, but they enable you to
+    customize your setup even further and handle very specific use-cases.
+    For example, :ref:`CustomFields` describes adding user-defined fields,
     available in ``rtcontrol`` just like built-in ones.
   * :doc:`scripts` is an easy way to automate anything
     that the standard commands can't do.
