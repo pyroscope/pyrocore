@@ -22,6 +22,12 @@ Here's an example:
       }
     ]
 
+.. note::
+
+    When using ``--json``, the list of fields given with ``-o`` must
+    consist only of plain field names, i.e. format specifiers aren't supported.
+    If you need derived values, the process parsing the output needs to calculate them.
+
 
 Working With Several rTorrent Instances
 ---------------------------------------
