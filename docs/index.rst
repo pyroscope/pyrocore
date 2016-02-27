@@ -11,18 +11,22 @@ Welcome to pyrocore's documentation!
 *pyrocore* is a collection of tools for the BitTorrent protocol
 and especially the rTorrent client.
 
-The *PyroScope* command line utilities are *not* the same as `rTorrent-PS`_,
+The *PyroScope* command line utilities (i.e. *pyrocore*) are *not* the same as `rTorrent-PS`_,
 and they work perfectly fine without it; the same is true the other
 way 'round.
-It's just that both unsurprisingly have synergies if used together,
+It's just that both projects unsurprisingly have synergies if used together,
 and some features *do* only work when both are present.
 
-To get in contact and share your experiences with other users of
-*PyroScope*, join the `pyroscope-users`_ mailing list or the inofficial
-``##rtorrent`` channel on ``irc.freenode.net``.
+You absolutely **must** read the first three chapters
+:doc:`overview`, :doc:`installation`, and :doc:`setup`
+̣— *pyrocore* utilities won't work at all or not properly if
+you do not provide an adequate configuration, and also modify
+the *rTorrent* one to provide some essential data and commands.
+Once you got everything basically working, :doc:`usage`
+will show you all the common commands and use-cases. Further chapters then explain
+more complex use-cases and features that might not appeal or apply to you.
 
-.. _`pyroscope-users`: http://groups.google.com/group/pyroscope-users
-.. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps
+.. include:: include-contacts.rst
 
 
 Contents of This Manual
