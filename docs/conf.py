@@ -81,6 +81,7 @@ exclude_patterns = [
     'advanced-*.rst',
     'references-*.rst',
     'usage-*.rst',
+    'include-*.rst',
 ]
 
 # The reST default role (used for this markup: `text`) to use for all documents.
