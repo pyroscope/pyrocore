@@ -24,11 +24,17 @@ basics of the Python programming language. See :doc:`advanced` for that.
     filtering in ``rtcontrol`` and other tools will *not* work correctly for
     existing items. More on that below.
 
-If you have any problems with or questions about your configuration,
-subscribe to the
-`pyroscope-users <http://groups.google.com/group/pyroscope-users>`_
-mailing list to get help from the community, or join the inofficial
-``##rtorrent`` channel on ``irc.freenode.net``.
+In summary, you'll perform these steps, explained in the sections that follow:
+
+ #. Create a directory with the default configuration.
+
+ #. Edit ``~/.pyroscope/config.ini`` to adapt it to your needs, e.g. add tracker aliases.
+
+ #. Modify your ``~/.rtorrent.rc`` to integrate necessary settings.
+
+ #. Back-fill some data into the *rTorrent* session.
+
+.. include:: include-contacts.rst
 
 
 Creating a set of default configuration files
@@ -36,7 +42,9 @@ Creating a set of default configuration files
 
 To create your own configuration, the best way is to start from the
 default files that are part of your PyroScope installation. To create
-them at the default location ``~/.pyroscope``, simply call this command::
+them at the default location ``~/.pyroscope``, simply call this command:
+
+.. code-block:: bash
 
     pyroadmin --create-config
 
@@ -47,12 +55,17 @@ you'll automatically get the newer version of settings, if they're
 updated.
 
 If you need several distinct configuration sets, just add the
-``--config-dir`` option to commands like so::
+``--config-dir`` option to commands like so:
+
+.. code-block:: bash
 
     pyroadmin --create-config --config-dir ~/rtorrent/special/.pyroscope
 
-To view your configuration, use this (again, the ``--config-dir``
-option allows non-default configuration locations)::
+To view your loaded configuration with all the system defaults added,
+use this (again, the ``--config-dir`` option allows non-default
+configuration locations):
+
+.. code-block:: bash
 
     pyroadmin --dump-config
 
@@ -75,8 +88,8 @@ leading whitespace is removed from values.
 
 Lines beginning with a semicolon (``;``), a hash mark (``#``), or the
 letters ``REM`` (uppercase or lowercase) will be ignored and can be used
-for comments. You cannot put a comment on an option line, a comment
-**MUST** start the beginning of a line!
+for comments. You cannot append a comment to an option line, a comment
+**MUST** start at the beginning of a line!
 
 As an example, this is a very minimal configuration file:
 
@@ -120,7 +133,8 @@ See the *rTorrent* documentation for details.
 
     Using ``network.scgi.open_port`` means *any* user on the machine you run *rTorrent* on can
     execute *arbitrary* commands with the permission of the *rTorrent* runtime user.
-    Most people don't realize that, now you do!
+    Most people don't realize that, now you do! Also, **never** use any other address than
+    ``127.0.0.1`` with it.
 
 For the ``loaded`` and ``completed`` fields to work, as well as the
 ``started``, ``leechtime`` and ``seedtime`` ones, you also have to add
@@ -163,6 +177,8 @@ including some view changes regarding sort order made possible by the additional
 
     Remember to restart rTorrent for the new configuration to take effect.
 
+
+.. _backfill-data:
 
 Adding Missing Data to Your rTorrent Session
 --------------------------------------------
