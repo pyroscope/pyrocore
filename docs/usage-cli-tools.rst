@@ -37,13 +37,13 @@ In case you don't know what ``bash`` completion looks like, watch this…
 
 .. image:: videos/bash-completion.gif
 
-Every time you're unsure what options you have, you can press *TAB* twice
+Every time you're unsure what options you have, you can press ``TAB ↹`` twice
 to get a menu of choices, and if you already know roughly what you want,
-you can start typing and save keystrokes by pressing *TAB* once, to
+you can start typing and save keystrokes by pressing ``TAB ↹`` once, to
 complete whatever you provided so far.
 
-So for example, enter a partial command name like ``rtco`` and *TAB* to
-get "``rtcontrol``", then type ``--`` and *TAB* twice to get a list of
+So for example, enter a partial command name like ``rtco`` and then ``TAB ↹`` to
+get "``rtcontrol``", then type ``--`` followed by 2 times ``TAB ↹`` to get a list of
 possible command line options.
 
 Activating completion
