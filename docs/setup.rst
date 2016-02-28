@@ -175,7 +175,10 @@ including some view changes regarding sort order made possible by the additional
 
 .. note::
 
-    Remember to restart rTorrent for the new configuration to take effect.
+    Remember to restart *rTorrent* for the new configuration to take effect.
+    If you also installed the `rtorrent-ps`_ distribution of *rTorrent*,
+    do not forget to activate the extended features available with it,
+    by setting ``pyro.extended`` to ``1`` in the above configuration.
 
 
 .. _backfill-data:
@@ -210,3 +213,6 @@ It's safe to call them repeatedly, since existing values are kept unchanged.
 
 To check, use the command ``rtcontrol completed=-1d -scompleted`` which should now
 show your completed downloads of the last 24 hours, in order.
+
+
+.. _`rtorrent-ps`: https://github.com/pyroscope/rtorrent-ps
