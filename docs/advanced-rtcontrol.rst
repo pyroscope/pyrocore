@@ -31,14 +31,18 @@ If you want to apply some custom XMLRPC commands against a set of download items
 the ``--exec`` option of ``rtcontrol`` allows you to do that. For global commands
 not referring to specific items, see the next section about the ``rtxmlrpc`` tool.
 
-Let's start with an easy and typical example of using ``--exec``::
+Let's start with an easy and typical example of using ``--exec``:
 
-    rtcontrol --exec directory.set=/mnt/data/new/path directory=/mnt/data/old/path
+.. code-block:: bash
+
+    rtcontrol --exec 'directory.set=/mnt/data/new/path' directory=/mnt/data/old/path
 
 This simply replaces the location of items stored at ``/mnt/data/old/path`` with a new path.
 But to be really useful, we'd want to shift *any* path under a given base directory
 to a new location – the next command does this by using templating and calculating the
-new path based on the old one::
+new path based on the old one:
+
+.. code-block:: bash
 
     rtcontrol \
         --exec 'directory.set={{item.directory|subst("^/mnt/data/","/var/data/")}} ; >directory=' \
@@ -51,12 +55,17 @@ result of a XMLRPC command. Also note that the ``d.`` prefix to download item co
 
 The next example replaces an active announce URL with a new one,
 which is necessary after a domain or passkey change.
+Compared to other methods like using ``sed`` on the files in your
+session directory, this does not require a client restart, and is also safer
+(the ``sed`` approach can easily make your session files unusable).
 This disables all old announce URLs in group 0 using a ``t.multicall``,
-and then adds a new one::
+and then adds a new one:
+
+.. code-block:: bash
 
     rtcontrol \
-        --exec 't.multicall=0,t.disable= ; tracker.insert=0,"http://foobaz.example.com/announce" ; save_full_session=' \
-        "tracker=http://foobar.example.com/announce"
+        --exec 't.multicall=0,t.disable= ; tracker.insert=0,"http://new.example.com/announce" ; save_full_session=' \
+        "tracker=http://old.example.com/announce"
 
 The ``tracker.insert`` also shows that arguments to commands can be quoted.
 
