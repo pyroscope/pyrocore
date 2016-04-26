@@ -260,7 +260,8 @@ various filter conditions. You can then either display the matches found
 in any rTorrent view for further inspection,
 list them to the console using flexible output formatting,
 or perform some management action like starting and stopping torrents.
-See also :ref:`RtXmlRpcExamples` for sending single commands to rTorrent.
+:ref:`RtXmlRpcExamples` show examples for sending commands
+that don't target a specific item.
 
 For example, the command ``rtcontrol up=+0 up=-10k`` will list all
 torrents that are currently uploading any data, but at a rate of below
@@ -334,8 +335,8 @@ rtxmlrpc
 ^^^^^^^^
 
 :ref:`cli-usage-rtxmlrpc` allows you to call raw XMLRPC methods on the rTorrent
-instance that you have specified in your configuration. See the `usage
-information <CliUsage#rtxmlrpc.md>`_ for available options.
+instance that you have specified in your configuration. See the
+:ref:`usage information <cli-usage-rtxmlrpc>` for available options.
 
 The method name and optional arguments are provided using standard shell
 rules, i.e. where you would use ``^X throttle_down=slow,120`` in
@@ -345,7 +346,8 @@ recognized though, but without any escaping rules (i.e. you cannot have
 a '``,``' in your arguments then).
 
 To get a list of available methods, just call ``rtxmlrpc system.listMethods``.
-See RtXmlRpcExamples for a list of useful calls. **TODO** (fix reference)
+:ref:`RtXmlRpcExamples` shows some typical examples for querying global information
+and controlling rTorrent behaviour.
 
 
 .. _rtmv:
