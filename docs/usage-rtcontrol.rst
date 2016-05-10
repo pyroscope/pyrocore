@@ -248,7 +248,7 @@ The amount uploaded per tracker:
 
     rtcontrol -qo alias,uploaded // \
         | awk '{arr[$1]+=$2} END {for (i in arr) {printf "%20s %7.1f GiB\n",i,arr[i]/1024^3}}' \
-        | sort -bnk21
+        | sort -bnk2
 
 Starting with version 0.4.1, you can also request a statistical summary
 of your numerical output columns, like this::
