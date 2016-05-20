@@ -1,6 +1,8 @@
 # pyrocore
 
 A collection of tools for the BitTorrent protocol and especially the rTorrent client.
+They enable you to filter rTorrent's item list for displaying or changing selected items,
+also creating, inspecting and changing ``.torrent`` files, and much more.
 
 ![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
 
