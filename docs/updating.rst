@@ -85,8 +85,8 @@ Then to **update** an existing installation, use these commands:
 
 .. _config-update:
 
-Updating your Existing Configuration For a New Software Version
----------------------------------------------------------------
+Updating Your Configuration
+---------------------------
 
 After you installed a new version of the software, you can easily check
 whether the default configuration files changed by calling the
@@ -105,7 +105,7 @@ want is recommended.
 And remember to **always read the `changelog`_**!
 
 
-Migrating to version 0.4.1
+Migrating to Version 0.4.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There is a new dependency on the ``pyrobase`` package, and for **release
@@ -137,7 +137,7 @@ completion for the PyroScope commands, see the instructions on the
 BashCompletion page.
 
 
-Migrating to version 0.4.2
+Migrating to Version 0.4.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Release 0.4.2 not only contains some additions to the PyroScope
@@ -167,7 +167,7 @@ The new stable version 0.8.9 of rTorrent is now supported by this
 release, see RtXmlRpcMigration for details.
 
 
-Migrating to version 0.4.3 (UNRELEASED)
+Migrating to Version 0.4.3 (UNRELEASED)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The 0.4.3 release adds a QueueManager and (possibly) EventHandling.
