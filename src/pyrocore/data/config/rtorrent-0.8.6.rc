@@ -115,10 +115,7 @@ method.insert = d.last_scrape.send_set, simple, "d.tracker.send_scrape=0;d.last_
 method.insert = d.last_scrape.check_elapsed, simple|private, "branch={(elapsed.greater,$d.custom=tm_last_scrape,$argument.0=),d.last_scrape.send_set=}"
 # helper method: checks for non-existing/empty custom field to be able to test its validity later
 method.insert = d.last_scrape.check, simple|private, "branch={d.custom=tm_last_scrape,d.last_scrape.check_elapsed=$argument.0=,d.last_scrape.send_set=}"
-# helper method: decides whether a torrent transferring data or not
-method.insert = d.transferring.check, simple|private, "or={d.up.rate=,d.down.rate=}"
 # sets custom field (tm_last_scrape) to current time only for torrents just has been added (skips setting time on purpose when rtorrent started)
 method.set_key = event.download.inserted_new, last_scrape_i, "d.last_scrape.set="
 # check for update every 5 minutes (300 sec) and update scrape info for transferring torrents in every 10 minutes (600-20=580 sec) and for non-transferring ones in every 12 hours (43200-20=43180 sec)
-schedule2 = last_scrape_t, 300, 300, "d.multicall2=main,\"branch=$d.transferring.check=,d.last_scrape.check=580,d.last_scrape.check=43180\""
-
+schedule2 = last_scrape_t, 300, 300, "d.multicall2=main,\"branch=\\\"or={d.up.rate=,d.down.rate=}\\\",d.last_scrape.check=580,d.last_scrape.check=43180\""
