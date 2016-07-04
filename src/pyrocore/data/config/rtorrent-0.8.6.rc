@@ -119,3 +119,6 @@ method.insert = d.last_scrape.check, simple|private, "branch={d.custom=tm_last_s
 method.set_key = event.download.inserted_new, last_scrape_i, "d.last_scrape.set="
 # check for update every 5 minutes (300 sec) and update scrape info for transferring torrents in every 10 minutes (600-20=580 sec) and for non-transferring ones in every 12 hours (43200-20=43180 sec)
 schedule2 = last_scrape_t, 300, 300, "d.multicall2=main,\"branch=\\\"or={d.up.rate=,d.down.rate=}\\\",d.last_scrape.check=580,d.last_scrape.check=43180\""
+
+# UI/KEY: Bind "#" to send scrape request manually
+branch=pyro.extended=,"schedule2 = bind_send_scrape,0,0,\"ui.bind_key=download_list,#,d.last_scrape.send_set=\""
