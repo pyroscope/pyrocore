@@ -102,6 +102,9 @@ branch=pyro.extended=,"schedule = bind_pyrotorque,0,0,\"ui.bind_key=download_lis
 # TORQUE: Daemon watchdog
 system.method.insert = pyro.watchdog,simple|private,"execute_nothrow=bash,-c,\"$cat=\\\"test ! -f \\\",$argument.0=,\\\"/run/pyrotorque || \\\",$pyro.bin_dir=,\\\"pyrotorque --cron \\\",$argument.1=\""
 
+
+### begin: Sending scrape requests ###
+
 # Regularly update scrape information for all torrents (even stopped ones), it won't affect the operation of rtorrent, but nice to have these values updated.
 # This info is only updated when rtorrent starts or a torrent is added by default.
 # Try to balance calls to not fire them up at the same time (since multiscraping isn't implemented in libtorrent). Check for update every 5 minutes and distinguish between 2 groups:
@@ -122,3 +125,5 @@ schedule2 = last_scrape_t, 300, 300, "d.multicall2=main,\"branch=\\\"or={d.up.ra
 
 # UI/KEY: Bind "#" to send scrape request manually
 branch=pyro.extended=,"schedule2 = bind_send_scrape,0,0,\"ui.bind_key=download_list,#,d.last_scrape.send_set=\""
+
+### end: Sending scrape requests ###
