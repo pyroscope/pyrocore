@@ -54,9 +54,11 @@ branch=pyro.extended=,"schedule = bind_rtcontrol,0,0,\"ui.bind_key=download_list
 # UI/VIEW: Show current messages (bound to '!' in rT-PS)
 view_add = messages
 view_filter = messages,d.get_message=
+branch=pyro.extended=,false=,"view_sort_new = messages,less=d.get_message="
+branch=pyro.extended=,"view_sort_new = messages,\"compare=,d.get_message=,d.get_name=\""
 branch=pyro.extended=,false=,"view_sort_current = messages,less=d.get_message="
 branch=pyro.extended=,"view_sort_current = messages,\"compare=,d.get_message=,d.get_name=\""
-system.method.insert = ui.messages.show,simple,"ui.current_view.set=messages ;view_filter=messages,d.get_message= ;view_sort=messages ;print=$view.size=messages,\" message(s)!\""
+system.method.insert = ui.messages.show,simple,"ui.current_view.set=messages ;view_sort=messages ;print=$view.size=messages,\" message(s)!\""
 branch=pyro.extended=,"schedule = bind_messages,0,0,\"ui.bind_key=download_list,!,ui.messages.show=\""
 
 # UI/VIEW: Trackers (all items, sorted by tracker domain and name)
