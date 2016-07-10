@@ -30,21 +30,30 @@ system.method.insert = startup_time,value|const,$system.time=
 #   tm_started = time of *first* start
 #   tm_completed = time of completion
 system.method.insert = pyro.tm_started.now,simple|private,"d.set_custom=tm_started,$cat=$system.time= ;d.save_session="
-system.method.set_key = event.download.resumed,time_stamp,"branch=d.get_custom=tm_started,false=,pyro.tm_started.now="
-system.method.set_key = event.download.inserted_new,time_stamp,"d.set_custom=tm_loaded,$cat=$system.time= ;d.save_session="
-system.method.set_key = event.download.finished,time_stamp,"d.set_custom=tm_completed,$cat=$system.time= ;d.save_session="
+system.method.set_key = event.download.resumed,time_stamp_r,"branch=d.get_custom=tm_started,false=,pyro.tm_started.now="
+system.method.set_key = event.download.inserted_new,time_stamp_i,"d.set_custom=tm_loaded,$cat=$system.time= ;d.save_session="
+system.method.insert = pyro.tm_completed.now,simple|private,"d.set_custom=tm_completed,$cat=$system.time= ;d.save_session="
+system.method.set_key = event.download.finished,time_stamp_f,"pyro.tm_completed.now="
+system.method.set_key = event.download.hash_done,time_stamp_h,"branch=\"and={d.complete=,not=$d.get_custom=tm_completed}\",pyro.tm_completed.now="
 
 # EVENTS: Activation intervals
 system.method.insert = pyro.activations.append,simple|private,"d.set_custom=activations,\"$cat=$d.get_custom=activations,$argument.0=,$system.time=\" ;d.save_session="
 system.method.set_key = event.download.paused,activations,"pyro.activations.append=P"
 system.method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
 
-# SCHEDULE: Set "last_active" custom field for items that have peers
-system.method.insert = d.last_active, simple|value, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
-schedule = update_last_active,24,42,"d.multicall=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
-system.method.insert = d.last_active.print, simple|private, "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
-system.method.set_key = event.download.resumed,last_active,"d.set_custom=last_active,$cat=$system.time= ;d.save_session="
-system.method.set_key = event.download.finished,last_active,"d.set_custom=last_active,$cat=$system.time= ;d.save_session="
+# SCHEDULE/EVENTS: Set "last_active" custom field for items that have peers
+system.method.insert = d.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
+system.method.insert = d.last_active.set, simple|private, "d.set_custom=last_active,$cat=$system.time= ;branch=argument.0=,d.save_session="
+schedule = update_last_active,24,42,"d.multicall=started,\"branch=$d.peers_connected=,d.last_active.set=\""
+system.method.set_key = event.download.resumed,last_active_r,"branch=\"or={d.peers_connected=,not=$d.custom=last_active}\",d.last_active.set=1"
+system.method.set_key = event.download.finished,last_active_f,"d.last_active.set=1"
+
+# Display any valid timestamp value in human readable format or print the value itself (e.g.: 30/06/2013 23:47:33).
+#   Usage: hrf_time=<<timefield>>  (e.g.: hrf_time=$d.last_active=  ,  hrf_time=$d.custom=tm_loaded)
+# helper method: to display any timestamp field (e.g. d.creation_date= , d.custom=tm_started) in human readable format
+system.method.insert = hrf_time.helper, simple|private, "print=\"$cat={$convert.date=$argument.0=, \\\" \\\", $convert.time=$argument.0=}\""
+# method to display any timestamp field in human readable format if the value greater than 0 otherwise print the value itself
+system.method.insert = hrf_time, simple, "branch=\"greater={argument.0=,cat=0}\",hrf_time.helper=$argument.0=,print=$argument.0="
 
 # UI/VIEW: Default view for filtering results (bound to '^' key in rT-PS)
 view_add = rtcontrol
