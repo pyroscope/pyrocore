@@ -39,6 +39,12 @@ system.method.insert = pyro.activations.append,simple|private,"d.set_custom=acti
 system.method.set_key = event.download.paused,activations,"pyro.activations.append=P"
 system.method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
 
+# EVENTS: Timestamp 'tm_downloaded' (time when meta (torrent) file was downloaded)
+method.insert = pyro._tm_downloaded_stat, simple|private, "execute.capture=sh,-c,\"echo -n \$(stat -c %Y \\\"$1\\\")\",getDownloadedDate,(d.tied_to_file)"
+method.insert = pyro._tm_downloaded_init, simple|private, "d.custom.set=tm_downloaded,(cat,(pyro._tm_downloaded_stat)); d.save_full_session="
+method.insert = d.timestamp.downloaded, simple, "d.custom=tm_downloaded"
+method.set_key = event.download.inserted_new, set_downloaded_date, ((pyro._tm_downloaded_init))
+
 # SCHEDULE: Set "last_active" custom field for items that have peers
 system.method.insert = d.last_active, simple|value, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
 schedule = update_last_active,24,42,"d.multicall=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
