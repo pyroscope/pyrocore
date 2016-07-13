@@ -18,7 +18,7 @@ fail() {
 
 
 SCRIPTNAME="$0"
-test "$SCRIPTNAME" != "-bash" || SCRIPTNAME="${BASH_SOURCE[0]}"
+test "$SCRIPTNAME" != "-bash" -a "$SCRIPTNAME" != "-/bin/bash" || SCRIPTNAME="${BASH_SOURCE[0]}"
 
 test -f "$PROJECT_ROOT/util.sh" || unset PROJECT_ROOT
 PROJECT_ROOT=${PROJECT_ROOT:-$(builtin cd $(dirname "$SCRIPTNAME") >/dev/null && pwd)}

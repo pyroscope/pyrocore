@@ -16,6 +16,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+SCRIPTNAME="$0"
+test "$SCRIPTNAME" != "-bash" -a "$SCRIPTNAME" != "-/bin/bash" || SCRIPTNAME="${BASH_SOURCE[0]}"
+
 export DEBFULLNAME=pyroscope
 export DEBEMAIL=pyroscope.project@gmail.com
 
@@ -29,6 +32,7 @@ git_projects="pyrobase auvyon"
 
 # generic bootstrap
 test -f ./bin/activate || install_venv --no-site-packages
+./bin/pip install -U pip setuptools wheel
 ln -nfs python ./bin/python-pyrocore
 . ./bin/activate || abend "venv activate failed" || return 1
 
