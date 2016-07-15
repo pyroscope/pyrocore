@@ -1,4 +1,4 @@
-.. _rtcontrol-exec:
+.. _rtcontrol-spawn:
 
 Executing OS commands
 ^^^^^^^^^^^^^^^^^^^^^
@@ -23,6 +23,8 @@ Unlike ``--call``, where you can use shell syntax to call several commands, ``--
 passed several times for executing a sequence of commands. If any called command fails, the ``rtcontrol``
 call is aborted with an error.
 
+
+.. _rtcontrol-exec:
 
 Executing XMLRPC commands
 ^^^^^^^^^^^^^^^^^^^^^^^^^

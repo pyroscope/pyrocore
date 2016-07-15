@@ -44,6 +44,36 @@ than the default one. For convenient use on the command line, you can add
 shell aliases to you profile.
 
 
+Moving All Data for Selected Items to a New Location
+----------------------------------------------------
+
+This shows how to move the *data* of all items for a specific tracker
+(identified by the alias ``TRK``) from ``~/rtorrent/data/`` to ``~/rtorrent/data/tracker/``.
+Note that you can do that in *ruTorrent* too, but with too many items, or items too big,
+the results vary (data is not or only partially moved).
+
+This sequence of commands will stop and relocate the loaded items, move their data,
+and finally start everything again.
+
+.. code-block:: shell
+
+    mkdir -p ~/rtorrent/data/tracker
+    rtcontrol --to-view tagged alias=TRK realpath=$HOME/rtorrent/data
+    rtcontrol --from-view tagged // --stop
+    rtcontrol --from-view tagged // --exec "directory.set=$HOME/rtorrent/data/tracker" --yes
+    rtcontrol --from-view tagged // --spawn "mv {{item.path}} $HOME/rtorrent/data/tracker"
+    rtcontrol --from-view tagged // --start
+
+By changing the first ``rtcontrol`` command that populates the ``tagged`` view,
+you can change this to move data for any criteria you can think of — within the
+limits of ``rtcontrol`` filters. Also, if you run *rTorrent-PS*, you can manually
+remove items from the ``tagged`` view by using the ``.`` key, before applying the
+rest of the commands.
+
+Also see the :ref:`advanced-rtcontrol` section that explains
+the ``--spawn`` and ``--exec`` options in more depth.
+
+
 Using Tags or Flag Files to Control Item Processing
 ---------------------------------------------------
 

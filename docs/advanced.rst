@@ -24,6 +24,8 @@ Defining Custom Fields
 .. include:: advanced-custom-fields.rst
 
 
+.. _advanced-rtcontrol:
+
 Advanced ‘rtcontrol’
 --------------------
 
