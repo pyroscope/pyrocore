@@ -80,7 +80,8 @@ Then to **update** an existing installation, use these commands:
 
 .. code-block:: bash
 
-    cd ~/lib/pyroscope svn update ./update-to-head.sh
+    cd ~/lib/pyroscope
+    ./update-to-head.sh
 
 
 .. _config-update:

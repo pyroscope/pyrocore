@@ -35,7 +35,7 @@ set of dependencies:
 
 .. code-block:: shell
 
-    ~/lib/pyroscope/bin/pip install -r ~/lib/pyroscope/pyrocore/requirements-torque.txt
+    ~/lib/pyroscope/bin/pip install -r ~/lib/pyroscope/requirements-torque.txt
 
 The queue manager daemon needs additional settings, but there are
 defaults in place, so the detailed explanation in this section can be
