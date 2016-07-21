@@ -3,10 +3,18 @@
     Use it like this:
         rtcontrol -qO orphans.txt \*
 }}{{py:
-global os, download_dir, entries
-from pyrocore.util import os
+global os, download_dir, entries, fmt, subprocess
+from pyrocore.util import os,fmt
+import subprocess
+
+def du(path):
+    """disk usage in Bytes"""
+    return int(subprocess.check_output(['du','-sB1', path]).split()[0])
 
 download_dir = proxy.get_directory().rstrip(os.sep) + os.sep
+
+entriessizes = {}
+allsize = 0
 
 # List all non-symlinked entries in the download directory
 entries = set(i 
@@ -17,5 +25,11 @@ entries = set(i
 entries -= set(os.path.basename(d.path)
     for d in matches 
     if os.path.samefile(os.path.dirname(d.path or d.directory), download_dir))
-}}{{for i in sorted(entries)}}{{i}}
-{{endfor}}
+
+# Adding size info to the remaining entries and sum them up
+for i in entries:
+    entriessizes[i] = du(os.path.join(download_dir, i))
+    allsize += entriessizes[i]
+}}{{for i in sorted(entriessizes)}} {{fmt.human_size(entriessizes[i])}} - {{i.decode('utf-8')}}
+{{endfor}}{{if bool(entriessizes)}}
+Orphaned data size:{{fmt.human_size(allsize)}}{{endif}}
