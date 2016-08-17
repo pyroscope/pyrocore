@@ -294,6 +294,7 @@ which you are used to from shell filename patterns (``*``, ``?``, ``[a-z]``,
 enclose the pattern in slashes (``/regex/``). Since regex can express
 anchoring the match at the head (``^``) or tail (``$``), they're by
 default of the 'contains' type.
+All string comparisons are case-ignoring.
 
 For numeric fields, a leading ``+`` means greater than, a leading
 ``-`` means less than (just like with the standard ``find`` command).
