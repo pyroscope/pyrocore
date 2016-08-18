@@ -329,6 +329,33 @@ fields), you have three possible options to specify the value:
 
 See :ref:`useful-filter-conditions` for some concrete examples with an explanation what they do.
 
+Annealing Results
+"""""""""""""""""
+
+**NOT IMPLEMENTED YET!**
+
+Using the ``--anneal`` option, you can add some pre-defined post-processing steps that
+modify the current result set. You can use this option several times to combine processing
+steps in the order given on the command line. Sorting is done first, and if anything changes,
+the modified result is sorted again before applying the next step. Note that any ``--select``
+restrictions are applied *after* annealing.
+
+The current processing methods are these:
+
+dupes+
+    Adds any loaded item that shares *at least one* file with any existing result item.
+    This is especially useful in combination with ``--cull`` to avoid leaving items
+    with some or all of their files gone.
+
+dupes-
+    Removes items that share at least one file with any loaded item. Again, combination
+    with ``--cull`` is a typical use-case, to avoid deleting data of items that still
+    need to be seeded, when only some of a set of duplicated items meet the deletion
+    criteria.
+
+unique
+    Removes any item having the same name, excluding the first one.
+
 
 .. _rtxmlrpc:
 

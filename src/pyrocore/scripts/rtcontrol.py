@@ -184,8 +184,6 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="set value of 'custom_KEY' field (KEY might also be 1..5)", interactive=False),
         Bunch(name="exec", label="EXEC", options=("--exec", "--xmlrpc"), argshelp='CMD', method="execute",
             help="execute XMLRPC command pattern", interactive=True),
-        # TODO: --with-dupes / -D Include any items that reference the same data paths as the selected ones
-        # TODO: --no-dupes / --unique / -U Exclude any items that reference the same data paths as any other (from deletion, etc.)
         # TODO: --move / --link output_format / the formatted result is the target path
         #           if the target contains a '//' in place of a '/', directories
         #           after that are auto-created
@@ -244,6 +242,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
+        self.add_value_option("-A", "--anneal", "MODE", type='choice', action='append', default=[],
+            choices=('dupes+', 'dupes-', 'unique'),
+            help="modify result set using some pre-defined methods")
         self.add_value_option("-/", "--select", "[N-]M",
             help="select result subset by item position (counting from 1)")
         self.add_bool_option("-V", "--view-only",
@@ -436,6 +437,17 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.LOG.info("%s into rTorrent view %r." % (msg, targetname))
         config.engine.log(msg)
 
+    def anneal(self, mode, matches):
+        """ Perform post-processing.
+
+            Return True when any changes were applied.
+        """
+        changed = False
+
+        self.LOG.warn("Annealing not implemented, would apply %r." % (mode,))
+
+        return changed
+
 
     def mainloop(self):
         """ The main loop.
@@ -527,6 +539,9 @@ class RtorrentControl(ScriptBaseWithConfig):
         view = config.engine.view(self.options.from_view, matcher)
         matches = list(view.items())
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
+        for mode in self.options.anneal:
+            if self.anneal(mode, matches):
+                matches.sort(key=sort_key, reverse=self.options.reverse_sort)
         if selection:
             matches = matches[selection[0]-1:selection[1]]
 
