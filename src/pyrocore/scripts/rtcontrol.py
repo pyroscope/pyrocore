@@ -444,7 +444,21 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         changed = False
 
-        self.LOG.warn("Annealing not implemented, would apply %r." % (mode,))
+        if mode == 'dupes+':
+            self.LOG.warn("Annealing not implemented, would apply %r." % (mode,))
+        elif mode == 'dupes-':
+            self.LOG.warn("Annealing not implemented, would apply %r." % (mode,))
+        elif mode == 'unique':
+            seen, dupes = set(), []
+            for i, item in enumerate(matches):
+                if item.name in seen:
+                    changed = True
+                    dupes.append(i)
+                seen.add(item.name)
+            for i in reversed(dupes):
+                del matches[i]
+        else:
+            raise RuntimeError('Internal Error: Unknown anneal mode ' + mode)
 
         return changed
 

@@ -340,7 +340,7 @@ steps in the order given on the command line. Sorting is done first, and if anyt
 the modified result is sorted again before applying the next step. Note that any ``--select``
 restrictions are applied *after* annealing.
 
-The current processing methods are these:
+The available processing methods are these:
 
 dupes+
     Adds any loaded item that shares *at least one* file with any existing result item.
