@@ -20,6 +20,7 @@
 import re
 import time
 import operator
+from collections import defaultdict
 
 from pyrocore import config, error
 from pyrocore.util import os, pymagic, fmt, traits, matching
@@ -636,3 +637,25 @@ class TorrentEngine(object):
         """ Visualize a set of items (search result), and return the view name.
         """
         raise NotImplementedError()
+
+
+    def group_by(self, fields, items=None):
+        """ Returns a dict of lists of items, grouped by the given fields.
+
+            ``fields`` can be a string (one field) or an iterable of field names.
+        """
+        result = defaultdict(list)
+        if items is None:
+            items = self.items()
+
+        try:
+            key = operator.attrgetter(fields + '')
+        except TypeError:
+            def key(obj, names=tuple(fields)):
+                'Helper to return group key tuple'
+                return tuple(getattr(obj, x) for x in names)
+
+        for item in items:
+            result[key(item)].append(item)
+
+        return result
