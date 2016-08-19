@@ -445,9 +445,28 @@ class RtorrentControl(ScriptBaseWithConfig):
         changed = False
 
         if mode == 'dupes+':
-            self.LOG.warn("Annealing not implemented, would apply %r." % (mode,))
+            items_by_path = config.engine.group_by('realpath')
+            hashes = set([x.hash for x in matches])
+            dupes = []
+            for item in matches:
+                if item.realpath:
+                    # Add all items with the same path that are missing
+                    for dupe in items_by_path.get(item.realpath, []):
+                        if dupe.hash not in hashes:
+                            changed = True
+                            dupes.append(dupe)
+                            hashes.add(dupe.hash)
+            matches.extend(dupes)
         elif mode == 'dupes-':
-            self.LOG.warn("Annealing not implemented, would apply %r." % (mode,))
+            items_by_path = config.engine.group_by('realpath')
+            dupes = []
+            for i, item in enumerate(matches):
+                same_path = items_by_path.get(item.realpath, [])
+                if item.realpath and same_path and same_path != [item]:
+                    changed = True
+                    dupes.append(i)
+            for i in reversed(dupes):
+                del matches[i]
         elif mode == 'unique':
             seen, dupes = set(), []
             for i, item in enumerate(matches):

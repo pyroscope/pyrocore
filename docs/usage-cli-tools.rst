@@ -332,8 +332,6 @@ See :ref:`useful-filter-conditions` for some concrete examples with an explanati
 Annealing Results
 """""""""""""""""
 
-**NOT IMPLEMENTED YET!**
-
 Using the ``--anneal`` option, you can add some pre-defined post-processing steps that
 modify the current result set. You can use this option several times to combine processing
 steps in the order given on the command line. Sorting is done first, and if anything changes,
@@ -343,18 +341,23 @@ restrictions are applied *after* annealing.
 The available processing methods are these:
 
 dupes+
-    Adds any loaded item that shares *at least one* file with any existing result item.
+    Adds any loaded item that shares the same base directory with any existing result item,
+    or points to the same file. Note that symlinks are followed, but hardlinks are always
+    considered independent (which they are when deleted).
     This is especially useful in combination with ``--cull`` to avoid leaving items
     with some or all of their files gone.
 
 dupes-
-    Removes items that share at least one file with any loaded item. Again, combination
-    with ``--cull`` is a typical use-case, to avoid deleting data of items that still
-    need to be seeded, when only some of a set of duplicated items meet the deletion
-    criteria.
+    Removes items from the result that share the same path with any other loaded item,
+    as described for ``dupes+``. Again, combination with ``--cull`` is a typical use-case,
+    to avoid deleting data of items that still need to be seeded,
+    when only some of a set of duplicated items meet the deletion criteria.
 
 unique
-    Removes any item having the same name, excluding the first one.
+    Ensures that only the *first* item in the result set having the same name
+    as other items *in the result set* is kept. The others are removed.
+    Note that unlike with ‘dupes’, the scope here is only the current result set,
+    not *all* loaded items.
 
 
 .. _rtxmlrpc:
