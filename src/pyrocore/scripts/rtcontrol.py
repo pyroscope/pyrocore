@@ -459,10 +459,12 @@ class RtorrentControl(ScriptBaseWithConfig):
             matches.extend(dupes)
         elif mode == 'dupes-':
             items_by_path = config.engine.group_by('realpath')
+            hashes = set([x.hash for x in matches])
             dupes = []
             for i, item in enumerate(matches):
-                same_path = items_by_path.get(item.realpath, [])
-                if item.realpath and same_path and same_path != [item]:
+                same_path_but_not_in_matches = any(x.hash not in hashes
+                    for x in items_by_path.get(item.realpath, []))
+                if item.realpath and same_path_but_not_in_matches:
                     changed = True
                     dupes.append(i)
             for i in reversed(dupes):

@@ -349,7 +349,8 @@ dupes+
 
 dupes-
     Removes items from the result that share the same path with any other loaded item,
-    as described for ``dupes+``. Again, combination with ``--cull`` is a typical use-case,
+    as described for ``dupes+``, that is not *also* part of the result.
+    Again, combination with ``--cull`` is a typical use-case,
     to avoid deleting data of items that still need to be seeded,
     when only some of a set of duplicated items meet the deletion criteria.
 
