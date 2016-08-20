@@ -1,11 +1,11 @@
 .. Included in advanced.rst
 
-User-defined fields added to ``~/.pyroscope/config.py`` behave just like
-the built-in ones and are listed via ``rtcontrol --help-fields`` just like those.
-
-
 Introduction
 ^^^^^^^^^^^^
+
+As mentioned in the :doc:`setup`, the ``config.py`` script can be used to add
+custom logic to your setup. The most common use for this file is adding
+custom fields.
 
 To add user-defined fields you can put code describing them into your
 ``~/.pyroscope/config.py`` file. You can then use your custom field just
@@ -19,7 +19,9 @@ Basic custom field code
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 The following is the framework you need to add before putting in your
-field definitions::
+field definitions:
+
+.. code-block:: python
 
     def _custom_fields():
         """ Yield custom field definitions.
@@ -36,6 +38,8 @@ field definitions::
 
 In place of the ``# PUT CUSTOM FIELD CODE HERE`` comment you can add any
 combination of the examples below, or your own code.
+Be sure to do so at the correct indent level, the example snippets
+are left-aligned and need to be indented by 4 spaces.
 
 
 Examples
@@ -48,7 +52,7 @@ Examples
 Adding rTorrent fields not supported by default
 """""""""""""""""""""""""""""""""""""""""""""""
 
-::
+.. code-block:: python
 
         # Add rTorrent attributes not available by default
         def get_tracker_field(obj, name, aggregator=sum):
@@ -81,7 +85,7 @@ Adding rTorrent fields not supported by default
 Checking that certain files are present
 """""""""""""""""""""""""""""""""""""""
 
-::
+.. code-block:: python
 
         # Add file checkers
         def has_nfo(obj):
@@ -116,7 +120,7 @@ actually should be, when chunks shared by different files are not yet
 complete; but it will eventually reach ``100`` when all selected chunks
 are downloaded in full.
 
-::
+.. code-block:: python
 
         # Fields for partial downloads
         def partial_info(obj, name):
@@ -159,9 +163,9 @@ Extract TV data from item name
 This defines the ``tv_series`` and ``tv_episode`` fields, that are
 non-empty when the item name follows the "usual" naming conventions. Try
 it using something like
-«``rtcontrol loaded=-2w traits=tv -co tv_series,tv_episode,name``».
+``rtcontrol loaded=-2w traits=tv -co tv_series,tv_episode,name``.
 
-::
+.. code-block:: python
 
         # Map name field to TV series name, if applicable, else an empty string
         from pyrocore.util import traits
@@ -195,14 +199,14 @@ it using something like
 Only start items that you have disk space for
 """""""""""""""""""""""""""""""""""""""""""""
 
-This works together with QueueManager, so only items that pass a disk
+This works together with :ref:`QueueManager`, so that only items that pass a disk
 space check are actually started.
 
 The first step is to add a custom field that checks whether an item has
 room on the target device. As with the other examples, place this in
-your ``config.py`` (read the 1st two sections on this page).
+your ``config.py`` (read the 1st two sections, before the “Examples” one).
 
-::
+.. code-block:: python
 
         # Disk space check
         def has_room(obj):
