@@ -15,7 +15,7 @@ below examples). They're also listed when you call
 ``rtcontrol --help-fields``.
 
 
-Basic custom field code
+Basic Custom Field Code
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 The following is the framework you need to add before putting in your
@@ -42,8 +42,8 @@ Be sure to do so at the correct indent level, the example snippets
 are left-aligned and need to be indented by 4 spaces.
 
 
-Examples
-^^^^^^^^
+Custom Field Examples
+^^^^^^^^^^^^^^^^^^^^^
 
 .. contents::
     :local:

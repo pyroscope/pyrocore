@@ -8,14 +8,6 @@ Advanced Features
     your setup even further and handle very specific use-cases.
 
 
-Modifying and extending your configuration via 'config.py'
-----------------------------------------------------------
-
-As mentioned in the :doc:`setup`, the ``config.py`` script can be used to add
-custom logic to your setup. The most common use for this file is adding
-custom fields, described in the next section.
-
-
 .. _CustomFields:
 
 Defining Custom Fields
@@ -46,3 +38,19 @@ rTorrent Queue Manager
 ----------------------
 
 .. include:: advanced-queue.rst
+
+
+.. _tree-watch:
+
+Using the Tree Watch Job
+------------------------
+
+.. include:: advanced-tree-watch.rst
+
+
+.. _monitoring:
+
+Using the Monitoring Web Service
+--------------------------------
+
+.. include:: advanced-monitoring.rst
