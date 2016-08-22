@@ -118,6 +118,7 @@ class RtorrentItem(engine.TorrentProxy):
 
             return result
 
+
     def _memoize(self, name, getter, *args, **kwargs):
         """ Cache a stable expensive-to-get item value for later (optimized) retrieval.
         """
@@ -205,6 +206,17 @@ class RtorrentItem(engine.TorrentProxy):
             self._fields[name] = val
 
             return val
+
+
+    def datapath(self):
+        """ Get an item's data path.
+        """
+        path = self._fields['path']
+        if not path:  # stopped item with no base_dir?
+            path = self.fetch('directory')
+            if path and not self._fields['is_multi_file']:
+                path = os.path.join(path, self._fields['name'])
+        return os.path.expanduser(fmt.to_unicode(path))
 
 
     def announce_urls(self, default=[]):
@@ -508,7 +520,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
     # rTorrent names of fields that never change
     CONSTANT_FIELDS = set((
-        "hash", "name", "is_private", "tracker_size", "size_bytes",
+        "hash", "name", "is_private", "is_multi_file", "tracker_size", "size_bytes",
     ))
 
     # rTorrent names of fields that need to be pre-fetched

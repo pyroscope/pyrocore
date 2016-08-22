@@ -363,6 +363,12 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
+    def datapath(self):
+        """ Get an item's data path.
+        """
+        raise NotImplementedError()
+
+
     def announce_urls(self):
         """ Get a list of all announce URLs.
         """
@@ -450,7 +456,7 @@ class TorrentProxy(object):
     is_ignored = OnDemandField(bool, "is_ignored", "ignore commands?", matcher=matching.BoolFilter,
         formatter=lambda val: "IGN!" if int(val) else "HEED")
     is_ghost = DynamicField(bool, "is_ghost", "has no data file or directory?", matcher=matching.BoolFilter,
-        accessor=lambda o: o._fields["path"] and not os.path.exists(fmt.to_unicode(o._fields["path"])),
+        accessor=lambda o: not os.path.exists(o.datapath()) if o.datapath() else None,
         formatter=lambda val: "GHST" if val else "DATA")
 
     # Paths
@@ -484,9 +490,9 @@ class TorrentProxy(object):
     """
     directory = OnDemandField(fmt.to_unicode, "directory", "directory containing download data", matcher=matching.PatternFilter)
     path = DynamicField(fmt.to_unicode, "path", "path to download data", matcher=matching.PatternFilter,
-        accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["path"])) if o._fields["path"] else "")
+        accessor=lambda o: o.datapath())
     realpath = DynamicField(fmt.to_unicode, "realpath", "real path to download data", matcher=matching.PatternFilter,
-        accessor=lambda o: os.path.realpath(o.path.encode("UTF-8")) if o._fields["path"] else "")
+        accessor=lambda o: os.path.realpath(o.datapath()))
     metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
     files = OnDemandField(list, "files", "list of files in this item",
