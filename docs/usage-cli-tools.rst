@@ -354,6 +354,14 @@ dupes-
     to avoid deleting data of items that still need to be seeded,
     when only some of a set of duplicated items meet the deletion criteria.
 
+dupes=
+    Removes any items from the result that are *not* dupes, as defined above,
+    leaving only the dupes. Combine with ``invert`` to only get singular items.
+
+invert
+    Invert the current selection, i.e. select any item in the *original* result
+    (before any annealing happened) that is not in the *current* selection.
+
 unique
     Ensures that only the *first* item in the result set having the same name
     as other items *in the result set* is kept. The others are removed.

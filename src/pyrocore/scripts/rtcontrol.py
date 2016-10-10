@@ -243,7 +243,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
         self.add_value_option("-A", "--anneal", "MODE", type='choice', action='append', default=[],
-            choices=('dupes+', 'dupes-', 'unique'),
+            choices=('dupes+', 'dupes-', 'dupes=', 'invert', 'unique'),
             help="modify result set using some pre-defined methods")
         self.add_value_option("-/", "--select", "[N-]M",
             help="select result subset by item position (counting from 1)")
@@ -437,12 +437,24 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.LOG.info("%s into rTorrent view %r." % (msg, targetname))
         config.engine.log(msg)
 
-    def anneal(self, mode, matches):
+    def anneal(self, mode, matches, orig_matches):
         """ Perform post-processing.
 
             Return True when any changes were applied.
         """
         changed = False
+
+        def dupes_in_matches():
+            """Generator for index of matches that are dupes."""
+            items_by_path = config.engine.group_by('realpath')
+            hashes = set([x.hash for x in matches])
+            for idx, item in enumerate(matches):
+                same_path_but_not_in_matches = any(
+                    x.hash not in hashes
+                    for x in items_by_path.get(item.realpath, [])
+                )
+                if item.realpath and same_path_but_not_in_matches:
+                    yield idx
 
         if mode == 'dupes+':
             items_by_path = config.engine.group_by('realpath')
@@ -458,17 +470,19 @@ class RtorrentControl(ScriptBaseWithConfig):
                             hashes.add(dupe.hash)
             matches.extend(dupes)
         elif mode == 'dupes-':
+            for idx in reversed(list(dupes_in_matches())):
+                changed = True
+                del matches[idx]
+        elif mode == 'dupes=':
             items_by_path = config.engine.group_by('realpath')
+            dupes = list(i for i in matches if i.realpath and len(items_by_path.get(i.realpath, [])) > 1)
+            if len(dupes) != len(matches):
+                changed = True
+                matches[:] = dupes
+        elif mode == 'invert':
             hashes = set([x.hash for x in matches])
-            dupes = []
-            for i, item in enumerate(matches):
-                same_path_but_not_in_matches = any(x.hash not in hashes
-                    for x in items_by_path.get(item.realpath, []))
-                if item.realpath and same_path_but_not_in_matches:
-                    changed = True
-                    dupes.append(i)
-            for i in reversed(dupes):
-                del matches[i]
+            changed = True
+            matches[:] = list(i for i in orig_matches if i.hash not in hashes)
         elif mode == 'unique':
             seen, dupes = set(), []
             for i, item in enumerate(matches):
@@ -573,9 +587,10 @@ class RtorrentControl(ScriptBaseWithConfig):
         #
         view = config.engine.view(self.options.from_view, matcher)
         matches = list(view.items())
+        orig_matches = matches[:]
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
         for mode in self.options.anneal:
-            if self.anneal(mode, matches):
+            if self.anneal(mode, matches, orig_matches):
                 matches.sort(key=sort_key, reverse=self.options.reverse_sort)
         if selection:
             matches = matches[selection[0]-1:selection[1]]
