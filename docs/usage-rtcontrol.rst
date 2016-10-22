@@ -119,7 +119,7 @@ The 'trick' here is the ``-V`` (``--view-only``) option, which shows the
 selection result in a rTorrent view instead of on the console. You can
 add this to any query you execute on the command line, and then
 interactively work with the result. The above commands are just
-shortcuts for common use-case directly callable from the curses UI.
+shortcuts for common use-cases, directly callable from the curses UI.
 
 
 Reports
