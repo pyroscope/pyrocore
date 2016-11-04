@@ -255,6 +255,9 @@ changes are first written to a temporary file, which is then renamed.
 rtcontrol
 ^^^^^^^^^
 
+Purpose
+"""""""
+
 :ref:`cli-usage-rtcontrol` allows you to select torrents loaded into rTorrent using
 various filter conditions. You can then either display the matches found
 in any rTorrent view for further inspection,
