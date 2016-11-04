@@ -55,6 +55,15 @@ This selects any item stored under ``/mnt/data`` and relocates it to the new bas
 a semicolon with spaces on both sides delimits several commands, and the ``>`` prints the
 result of a XMLRPC command. Also note that the ``d.`` prefix to download item commands is implied.
 
+Another example regarding data paths is this:
+
+.. code-block:: bash
+
+    rtcontrol --from stopped // --anneal dupes= --exec 'directory.set={{item.directory}}-{{item.hash}}'
+
+That command ensures that items that would download into the same path get a unique name by appending the info hash,
+and assumes those items weren't started yet (i.e. added via ``load.normal``).
+
 The next example replaces an active announce URL with a new one,
 which is necessary after a domain or passkey change.
 Compared to other methods like using ``sed`` on the files in your
