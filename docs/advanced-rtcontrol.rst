@@ -33,6 +33,19 @@ If you want to apply some custom XMLRPC commands against a set of download items
 the ``--exec`` option of ``rtcontrol`` allows you to do that. For global commands
 not referring to specific items, see the next section about the ``rtxmlrpc`` tool.
 
+.. contents:: Examples for using ``--exec``
+    :local:
+
+.. note::
+
+    Previously, the common way to handle use-cases covered by ``--exec`` was
+    to pipe ``rtxmlrpc`` commands generated via templating into ``bash``.
+    Don't do that anymore, it's quite inferior to using ``--exec``.
+
+
+Relocating Download Data
+""""""""""""""""""""""""
+
 Let's start with an easy and typical example of using ``--exec``:
 
 .. code-block:: bash
@@ -55,6 +68,10 @@ This selects any item stored under ``/mnt/data`` and relocates it to the new bas
 a semicolon with spaces on both sides delimits several commands, and the ``>`` prints the
 result of a XMLRPC command. Also note that the ``d.`` prefix to download item commands is implied.
 
+
+Making Shared Data Paths Unique
+"""""""""""""""""""""""""""""""
+
 Another example regarding data paths is this:
 
 .. code-block:: bash
@@ -63,6 +80,10 @@ Another example regarding data paths is this:
 
 That command ensures that items that would download into the same path get a unique name by appending the info hash,
 and assumes those items weren't started yet (i.e. added via ``load.normal``).
+
+
+Changing Announce URLs in Bulk
+""""""""""""""""""""""""""""""
 
 The next example replaces an active announce URL with a new one,
 which is necessary after a domain or passkey change.
@@ -79,9 +100,3 @@ and then adds a new one:
         "tracker=http://old.example.com/announce"
 
 The ``tracker.insert`` also shows that arguments to commands can be quoted.
-
-.. note::
-
-    Previously, the common way to handle use-cases covered by ``--exec`` was
-    to pipe ``rtxmlrpc`` commands generated via templating into ``bash``.
-    Don't do that anymore, it's quite inferior to using ``--exec``.
