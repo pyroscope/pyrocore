@@ -49,7 +49,7 @@ class ScriptBase(object):
     ADDITIONAL_HELP = []
 
     # Can be empty or None in derived classes
-    COPYRIGHT = "Copyright (c) 2009, 2010, 2011, 2012 Pyroscope Project"
+    COPYRIGHT = "Copyright (c) 2009 - 2016 Pyroscope Project"
 
     # Can be made explicit in derived classes
     VERSION = None
@@ -124,7 +124,9 @@ class ScriptBase(object):
             "%prog [options] " + self.ARGS_HELP + "\n\n"
             "%prog " + self.version + (", " + self.COPYRIGHT if self.COPYRIGHT else "") + "\n\n"
             + textwrap.dedent(self.__doc__.rstrip()).lstrip('\n')
-            + '\n'.join(self.ADDITIONAL_HELP),
+            + '\n'.join(self.ADDITIONAL_HELP)
+            + "\n\nFor more details, see the full documentation at"
+            + "\n\n    https://pyrocore.readthedocs.io/",
             version="%prog " + self.version)
 
 
