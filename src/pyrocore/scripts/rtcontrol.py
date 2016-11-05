@@ -55,6 +55,9 @@ def print_help_fields():
     print("\n".join(["  %-21s %s" % (name, doc)
         for name, doc in sorted(formatting.OutputMapping.formatter_help())
     ]))
+    print('')
+    print("Append format specifiers using a '.' to field names in '-o' lists,\n"
+          "e.g. 'size.sz' or 'completed.raw.delta'.")
 
 
 class FieldStatistics(object):
