@@ -32,6 +32,10 @@ Executing XMLRPC commands
 If you want to apply some custom XMLRPC commands against a set of download items,
 the ``--exec`` option of ``rtcontrol`` allows you to do that. For global commands
 not referring to specific items, see the next section about the ``rtxmlrpc`` tool.
+Read through the following examples to understand how ``--exec`` works,
+features are explained as they are used there.
+Also make sure you understand basic things like :ref:`output-templates` beforehand,
+it's assumed here that you do.
 
 .. contents:: Examples for using ``--exec``
     :local:
@@ -64,7 +68,9 @@ new path based on the old one:
         directory=/mnt/data/\*
 
 This selects any item stored under ``/mnt/data`` and relocates it to the new base directory
-``/var/data``. Adding ``>directory=`` prints the new location to the console –
+``/var/data``.
+Fields of an item can be used via a ``item.‹field-name›`` reference.
+Adding ``>directory=`` prints the new location to the console –
 a semicolon with spaces on both sides delimits several commands, and the ``>`` prints the
 result of a XMLRPC command. Also note that the ``d.`` prefix to download item commands is implied.
 
