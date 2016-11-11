@@ -263,7 +263,7 @@ various filter conditions. You can then either display the matches found
 in any rTorrent view for further inspection,
 list them to the console using flexible output formatting,
 or perform some management action like starting and stopping torrents.
-:ref:`RtXmlRpcExamples` show examples for sending commands
+:ref:`RtXmlRpcExamples` shows examples for sending commands
 that don't target a specific item.
 
 For example, the command ``rtcontrol up=+0 up=-10k`` will list all
