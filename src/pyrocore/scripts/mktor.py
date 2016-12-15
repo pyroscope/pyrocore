@@ -16,6 +16,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import re
+import random
 
 from pyrobase import bencode
 from pyrocore import config
@@ -35,6 +36,8 @@ class MetafileCreator(ScriptBaseWithConfig):
 
     # argument description for the usage information
     ARGS_HELP = "<dir-or-file> <tracker-url-or-alias>... | <magnet-uri>"
+
+    ENTROPY_BITS = 512
 
 
     def add_options(self):
@@ -129,7 +132,11 @@ class MetafileCreator(ScriptBaseWithConfig):
         def callback(meta):
             "Callback to set label and resume data."
             if self.options.cross_seed:
-                meta["info"]["x_cross_seed_label"] = self.options.cross_seed
+                if self.options.cross_seed == "@entropy":
+                    meta["info"]["entropy"] = format(random.getrandbits(self.ENTROPY_BITS),
+                                                     'x').zfill(self.ENTROPY_BITS//4)
+                else:
+                    meta["info"]["x_cross_seed_label"] = self.options.cross_seed
             if self.options.no_cross_seed:
                 del meta["info"]["x_cross_seed"]
 
