@@ -23,6 +23,7 @@ import sys
 import glob
 import time
 import errno
+import random
 import textwrap
 import pkg_resources
 import logging.config
@@ -59,6 +60,7 @@ class ScriptBase(object):
     def setup(cls, cron_cfg="cron"):
         """ Set up the runtime environment.
         """
+        random.seed()
         logging_cfg = cls.LOGGING_CFG
         if "%s" in logging_cfg:
             logging_cfg = logging_cfg % (cron_cfg if "--cron" in sys.argv[1:] else "scripts",)
