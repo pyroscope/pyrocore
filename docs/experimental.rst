@@ -35,7 +35,7 @@ this snippet:
 .. code-block:: shell
 
     # COMMAND: Return startup time (can be used to calculate uptime)
-    system.method.insert = startup_time,value,$system.time=
+    method.insert = startup_time,value|const,$system.time=
 
 For example, the following queries the remote instance ID using ``rtxmlrpc``:
 

@@ -149,16 +149,16 @@ these commands (note that most settings actually reside in an
 
     # Set "pyro.extended" to 1 to activate rTorrent-PS features!
     # LEAVE THIS AT 0 IF YOU RUN A VANILLA rTorrent!
-    system.method.insert = pyro.extended, value|const, 0
+    method.insert = pyro.extended, value|const, 0
 
     # Set "pyro.bin_dir" to the "bin" directory where you installed the pyrocore tools!
     # Make sure you end it with a "/"; if this is left empty, then the shell's path is searched.
-    system.method.insert = pyro.bin_dir, string|const,
+    method.insert = pyro.bin_dir, string|const,
 
     # Remove the ".default" if you want to change something (else your
     # changes get over-written on update).
-    system.method.insert = pyro.rc_dialect, string|const|simple, "execute_capture=bash,-c,\"test $1 = 0.8.6 && echo -n 0.8.6 || echo -n 0.8.9\",dialect,$system.client_version="
-    system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$pyro.rc_dialect=\",.rc.default"
+    method.insert = pyro.rc_dialect, string|const, "execute.capture=bash,-c,\"test $1 = 0.8.6 && echo -n 0.8.6 || echo -n 0.8.9\",dialect,$system.client_version="
+    method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$pyro.rc_dialect=\",.rc.default"
     import = $pyro.rtorrent_rc=
 
     # TORQUE: Daemon watchdog schedule

@@ -108,9 +108,9 @@ Just add this to your ``.rtorrent.rc``:
 .. code-block:: ini
 
     # VIEW: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
-    system.method.insert = s,simple,"execute_nothrow=rtcontrol,--detach,-qV,\"$cat=*,$argument.0=,*\""
-    system.method.insert = t,simple,"execute_nothrow=rtcontrol,--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
-    system.method.insert = f,simple,"execute_nothrow=rtcontrol,--detach,-qV,$argument.0="
+    method.insert = s,simple|private,"execute.nothrow=rtcontrol,--detach,-qV,\"$cat=*,$argument.0=,*\""
+    method.insert = t,simple|private,"execute.nothrow=rtcontrol,--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
+    method.insert = f,simple|private,"execute.nothrow=rtcontrol,--detach,-qV,$argument.0="
 
 You can of course add as many commands as you like, and include sorting
 options and whatever else ``rtcontrol`` offers.
@@ -326,7 +326,7 @@ current item directly from ncurses (needs version 0.4.1 to work):
 
 .. code-block:: ini
 
-    system.method.insert = cull,simple,"execute_nothrow=rtcontrol,-q,--detach,--cull,--yes,\"$cat=hash=,$d.get_hash=\""
+    method.insert = cull,simple|private,"execute.nothrow=rtcontrol,-q,--detach,--cull,--yes,\"$cat=hash=,$d.hash=\""
 
 Just select the item you want to annihilate and enter ``cull=`` into the
 command prompt (``Ctrl-X``).
