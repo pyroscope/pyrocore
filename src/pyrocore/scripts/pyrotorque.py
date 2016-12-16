@@ -39,7 +39,7 @@ def _raise_interrupt(signo, dummy):
 
 class RtorrentQueueManager(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ 
+    """
         rTorrent queue manager & daemon.
     """
 
@@ -136,7 +136,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             params.dry_run = bool_param("dry_run", False) or self.options.dry_run
             params.active = bool_param("active", True)
             params.schedule = self._parse_schedule(params.schedule)
-    
+
             if params.active:
                 try:
                     params.handler = pymagic.import_name(params.handler)
@@ -177,8 +177,8 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             self.wsgi_server = WSGIServer(wsgi_app, **self.httpd.waitress)
             self.LOG.info("Started web server at %s://%s:%d/" % (
                 self.httpd.waitress.url_scheme,
-                self.wsgi_server.get_server_name(self.wsgi_server.effective_host), 
-                self.wsgi_server.effective_port,
+                self.wsgi_server.get_server_name(self.wsgi_server.effective_host),
+                int(self.wsgi_server.effective_port),
             ))
 
 
@@ -219,9 +219,9 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
 
         # Defaults for process control paths
         if not self.options.no_fork and not self.options.guard_file:
-            self.options.guard_file = os.path.join(config.config_dir, "run/pyrotorque") 
+            self.options.guard_file = os.path.join(config.config_dir, "run/pyrotorque")
         if not self.options.pid_file:
-            self.options.pid_file = os.path.join(config.config_dir, "run/pyrotorque.pid") 
+            self.options.pid_file = os.path.join(config.config_dir, "run/pyrotorque.pid")
 
         # Process control
         if self.options.status or self.options.stop or self.options.restart:
@@ -229,7 +229,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 running, pid = osmagic.check_process(self.options.pid_file)
             else:
                 running, pid = False, 0
-    
+
             if self.options.stop or self.options.restart:
                 if running:
                     os.kill(pid, signal.SIGTERM)
@@ -240,7 +240,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                         if not running:
                             break
                         time.sleep(.1)
-                    
+
                     self.LOG.info("Process #%d stopped." % (pid))
                 elif pid:
                     self.LOG.info("Process #%d NOT running anymore." % (pid))
@@ -264,10 +264,10 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             osmagic.guard(self.options.pid_file, self.options.guard_file)
         except EnvironmentError, exc:
             self.LOG.debug(str(exc))
-            self.return_code = error.EX_TEMPFAIL 
+            self.return_code = error.EX_TEMPFAIL
             return
 
-        # Detach, if not disabled via option 
+        # Detach, if not disabled via option
         if not self.options.no_fork: # or getattr(sys.stdin, "isatty", lambda: False)():
             osmagic.daemonize(pidfile=self.options.pid_file, logfile=logutil.get_logfile())
             time.sleep(.05) # let things settle a little
@@ -296,7 +296,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                     os.remove(self.options.pid_file)
                 except EnvironmentError, exc:
                     self.LOG.warn("Failed to remove pid file '%s' (%s)" % (self.options.pid_file, exc))
-                    self.return_code = error.EX_IOERR 
+                    self.return_code = error.EX_IOERR
 
 
 def run(): #pragma: no cover
@@ -308,4 +308,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-
