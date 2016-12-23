@@ -123,6 +123,9 @@ class RTorrentMethod(object):
             self._proxy._outbound += self._outbound
             self._proxy._outbound_max = max(self._proxy._outbound_max, self._outbound)
 
+            if config.debug:
+                self._proxy.LOG.debug("XMLRPC raw request: %r" % xmlreq)
+
             # Send it
             scgi_req = xmlrpc2scgi.SCGIRequest(self._proxy._transport)
             xmlresp = scgi_req.send(xmlreq)
