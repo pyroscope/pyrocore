@@ -30,6 +30,10 @@ and ``rtevent`` is experimental and incomplete.
 Bash Completion
 ^^^^^^^^^^^^^^^
 
+If you don't know what bash  completion is, or want to handle this later,
+you can skip to :ref:`common-options`.
+
+
 Using completion
 """"""""""""""""
 
@@ -67,6 +71,8 @@ After that, completion should work, see the above section for things to try out.
     installed on your machine. Other Linux systems will have a similar
     pre-condition.
 
+
+.. _common-options:
 
 Common Options
 ^^^^^^^^^^^^^^
