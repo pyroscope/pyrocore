@@ -110,3 +110,12 @@ The way to do that is setting the ``pyro.extended`` constant to ``1``:
 
 If you do that and are *not* actually running *rTorrent-PS*,
 you *will* get errors about missing commands during startup.
+
+
+“Input failed: ExecFile::execute(...) Fork failed.” during searches
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is always a host setup problem, check your resource limits,
+namely ``nofile`` (max. number of open file handles)
+and ``nproc`` (max. number of processes).
+Also look into ``~/rtorrent/log/execute.log`` if it contains any hints.
