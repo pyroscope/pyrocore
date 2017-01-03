@@ -33,7 +33,7 @@ def replace_fields(meta, patterns):
     for pattern in patterns:
         try:
             field, regex, subst, _ = pattern.split(pattern[-1])
-    
+
             # TODO: Allow numerical indices, and "+" for append
             namespace = meta
             keypath = [i.replace('\0', '.') for i in field.replace('..', '\0').split('.')]
@@ -56,7 +56,7 @@ class MetafileChanger(ScriptBaseWithConfig):
 
     # Keys of rTorrent session data
     RT_RESUMT_KEYS = ('libtorrent_resume', 'log_callback', 'err_callback', 'rtorrent')
-              
+
 
     def add_options(self):
         """ Add program options.
@@ -75,7 +75,7 @@ class MetafileChanger(ScriptBaseWithConfig):
             help="make torrent public (DHT/PEX enabled)")
         self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
             action="append", default=[],
-            help="set a specific key to the given value")
+            help="set a specific key to the given value; omit the '=' to delete a key")
         self.add_value_option("-r", "--regex", "KEYcREGEXcSUBSTc [-r ...]",
             action="append", default=[],
             help="replace pattern in a specific key by the given substitution")
@@ -165,7 +165,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                     self.LOG.warn("Metafile %r failed integrity check: %s" % (filename, exc,))
                     if not self.options.no_skip:
                         continue
-                
+
                 # Skip any metafiles that don't meet the pre-conditions
                 if filter_url_prefix and not metainfo['announce'].startswith(filter_url_prefix):
                     self.LOG.warn("Skipping metafile %r no tracked by %r!" % (filename, filter_url_prefix,))
@@ -211,7 +211,7 @@ class MetafileChanger(ScriptBaseWithConfig):
 
                 # Change announce URL?
                 if self.options.reannounce:
-                    metainfo['announce'] = self.options.reannounce 
+                    metainfo['announce'] = self.options.reannounce
                     if "announce-list" in metainfo:
                         del metainfo["announce-list"]
 
@@ -233,7 +233,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                     metainfo["creation date"] = long(time.time())
                 if self.options.no_date and "creation date" in metainfo:
                     del metainfo["creation date"]
-                    
+
                 # Add fast-resume data?
                 if self.options.hashed:
                     try:
@@ -306,4 +306,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-

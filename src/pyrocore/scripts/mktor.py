@@ -60,7 +60,7 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="optional human-readable comment")
         self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
             action="append", default=[],
-            help="set a specific key to the given value")
+            help="set a specific key to the given value; omit the '=' to delete a key")
         self.add_bool_option("--no-cross-seed",
             help="do not automatically add a field to the info dict ensuring unique info hashes")
         self.add_value_option("-X", "--cross-seed", "LABEL",
