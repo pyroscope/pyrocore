@@ -47,16 +47,33 @@ it's assumed here that you do.
     Don't do that anymore, it's quite inferior to using ``--exec``.
 
 
+Repairing Stuck Items
+"""""""""""""""""""""
+
+Let's start with an easy example of using ``--exec``, where no templating is needed:
+
+.. code-block:: bash
+
+    rtcontrol --exec 'stop= ; close= ; f.multicall=,f.set_create_queued=0,f.set_resize_queued=0 ; check_hash=' \
+              --from stopped -/1
+
+This command simulates pressing ``^K^E^R`` in the curses UI (which cleans the state of stuck / damaged items)
+and only affects the first stopped item.
+Use different filter arguments after ``--exec`` to select other items.
+Afterwards, use ``--start`` to start these items again.
+
+
 Relocating Download Data
 """"""""""""""""""""""""
 
-Let's start with an easy and typical example of using ``--exec``:
+The most simple variant of changing the download path is setting a new fixed location
+for all selected items, as follows:
 
 .. code-block:: bash
 
     rtcontrol --exec 'directory.set=/mnt/data/new/path' directory=/mnt/data/old/path
 
-This simply replaces the location of items stored at ``/mnt/data/old/path`` with a new path.
+This replaces the location of items stored at ``/mnt/data/old/path`` with a new path.
 But to be really useful, we'd want to shift *any* path under a given base directory
 to a new location – the next command does this by using templating and calculating the
 new path based on the old one:
