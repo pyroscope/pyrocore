@@ -23,7 +23,7 @@ Consider this example:
 
     $ date >example.dat
     $ mktor -q example.dat http://tracker.example.com/
-    $ python -m pyrocore.torrent.watch -v example.dat.torrent
+    $ python-pyrocore -m pyrocore.torrent.watch -v example.dat.torrent
     …
     DEBUG    Tree watcher created with config Bunch(active=False, …
         cmd.target='{{# set target path\n}}d.custom.set=targetdir,/var/torrent/done/{{label}}/{{relpath}}',
@@ -87,3 +87,41 @@ can set the "move on completion" target using that value.
 
     job.treewatch.cmd.target    = {{# set target path
         }}d.custom.set=targetdir,/var/torrent/done/{{label}}/{{relpath}}
+
+Note that this still needs a typical completion event handler that takes
+the custom variable that is set, and moves the data based on its value.
+
+
+Tree Watch with Sorting
+"""""""""""""""""""""""
+
+This example adds a *second* job for a ``sorted`` tree that directly saves
+the data into a path based on the loaded metafile's location.
+
+.. code-block:: ini
+
+    # Tree watch with location
+    job.watch-sorted.handler        = pyrocore.torrent.watch:TreeWatch
+    job.watch-sorted.schedule       = hour=*
+    job.watch-sorted.active         = True
+
+    job.watch-sorted.load_mode      = normal
+    job.watch-sorted.queued         = True
+    job.watch-sorted.path           = /var/torrent/sorted/watch
+    job.watch-sorted.cmd.setdir     = {{# set download path
+        }}{{if '/music/' in pathname}}{{# add metafile basename to path
+            }}d.directory_base.set="/var/torrent/sorted/{{relpath}}/{{pathname|h.pathname}}"{{#
+        }}{{elif traits.kind == 'tv'}}{{# store TV content into separate show folders
+            }}d.directory.set="/var/torrent/sorted/{{relpath}}/{{traits.get('show', '_UNKNOWN').replace('.',' ')}}"{{#
+        }}{{else}}{{# just use the relative metafile location
+            }}d.directory.set="/var/torrent/sorted/{{relpath}}"{{#
+        }}{{endif}}
+
+Change the values in the second block to suit your needs. As given,
+an item loaded from ``…/sorted/watch/movies/*.torrent``
+would end up in the ``…/sorted/movies`` directorey
+(with the filename coming from inside the metafile as usual),
+and it won't start by itself.
+
+Also, paths containing ``music`` use the metafile's basename as the data directory,
+and metafiles recognized as TV content get separated into show directories.
