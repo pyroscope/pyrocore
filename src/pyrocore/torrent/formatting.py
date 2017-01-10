@@ -235,14 +235,17 @@ def expand_template(template, namespace):
         @return: The expanded template.
         @raise LoggableError: In case of typical errors during template execution.
     """
-    # Combine provided namespace with defaults
-    variables = {}
-
-    # Add format specifiers (for headers, disable them)
-    variables.update((name[4:], method)
+    # Create helper namespace
+    formatters = dict((name[4:], method)
         for name, method in globals().items()
         if name.startswith("fmt_")
     )
+    helpers = Bunch()
+    helpers.update(formatters)
+
+    # Default templating namespace
+    variables = dict(h=helpers)
+    variables.update(formatters)  # redundant, for backwards compatibility
 
     # Provided namespace takes precedence
     variables.update(namespace)
