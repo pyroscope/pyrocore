@@ -2,7 +2,7 @@
 # pylint: disable=I0011
 """ Configuration Loader.
 
-    For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration
+    For details, see https://pyrocore.readthedocs.io/en/latest/setup.html
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
 """
@@ -47,9 +47,9 @@ def validate(key, val):
 def walk_resources(package_or_requirement, resource_name, recurse=True, base=''):
     """ Yield paths of files in the given resource directory, all paths start with '/'.
     """
-    base = base.rstrip('/') + '/' 
+    base = base.rstrip('/') + '/'
     resource_base = (resource_name.rstrip('/') + '/' + base.strip('/')).rstrip('/')
-    
+
     # Create default configuration files
     for filename in pymagic.resource_listdir(package_or_requirement, resource_base):
         # Skip hidden and other trashy names
@@ -148,7 +148,7 @@ class ConfigLoader(object):
 
             # Override with values set in this INI file
             raw_vars.update(dict(ini_file.items(section, raw=True)))
-                
+
             # Interpolate and validate all values
             if section == "FORMATS":
                 self._interpolation_escape(raw_vars)
@@ -172,7 +172,7 @@ class ConfigLoader(object):
             if any(i in cfg_file for i in set('/' + os.sep)):
                 continue # skip any non-plain filenames
 
-            try:                
+            try:
                 defaults = pymagic.resource_string("pyrocore", "data/config/" + cfg_file) #@UndefinedVariable
             except IOError, exc:
                 if idx and exc.errno == errno.ENOENT:
@@ -206,7 +206,7 @@ class ConfigLoader(object):
             execfile(config_file, vars(config), namespace)
         else:
             self.LOG.warning("Configuration file %r not found!" % (config_file,))
-            
+
 
     def load(self, optional_cfg_files=None):
         """ Actually load the configuation from either the default location or the given directory.
@@ -234,7 +234,7 @@ class ConfigLoader(object):
             self._validate_namespace(namespace)
             self._load_py(namespace, namespace["config_script"])
             self._validate_namespace(namespace)
-            
+
             for callback in namespace["config_validator_callbacks"]:
                 callback()
         except ConfigParser.ParsingError, exc:
@@ -273,4 +273,3 @@ class ConfigLoader(object):
                 with closing(open(config_file + i, "w")) as handle:
                     handle.write(text)
                 self.LOG.info("Configuration file %r written!" % (config_file + i,))
-

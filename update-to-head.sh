@@ -13,7 +13,7 @@ set -e
 PROJECT_ROOT="$(command cd $(dirname "$0") >/dev/null && pwd)"
 command cd "$PROJECT_ROOT" >/dev/null
 echo "Installing into $PWD..."
-rtfm="DO read http://code.google.com/p/pyroscope/wiki/InstallFromSource."
+rtfm="DO read https://pyrocore.readthedocs.io/en/latest/installation.html."
 
 # Fix Generation YouTube's reading disability
 for cmd in $PYTHON git; do

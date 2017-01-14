@@ -99,7 +99,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             config.engine.load_config()
         if not config.scgi_url:
             self.LOG.error("You need to configure a XMLRPC connection, read"
-                " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
+                " https://pyrocore.readthedocs.io/en/latest/setup.html")
         proxy = xmlrpc.RTorrentProxy(config.scgi_url)
         proxy._set_mappings()
 

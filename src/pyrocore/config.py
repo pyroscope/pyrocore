@@ -2,7 +2,7 @@
 # pylint: disable=I0011,C0103,W0404
 """ Configuration.
 
-    For details, see http://code.google.com/p/pyroscope/wiki/UserConfiguration
+    For details, see https://pyrocore.readthedocs.io/en/latest/setup.html
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
 """

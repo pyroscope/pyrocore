@@ -679,7 +679,7 @@ class RtorrentEngine(engine.TorrentEngine):
         # Reading abilities are on the downfall, so...
         if not config.scgi_url:
             raise error.UserError("You need to configure a XMLRPC connection, read"
-                " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
+                " https://pyrocore.readthedocs.io/en/latest/setup.html")
 
         # Connect and get instance ID (also ensures we're connectable)
         self._rpc = xmlrpc.RTorrentProxy(config.scgi_url)
@@ -701,7 +701,7 @@ class RtorrentEngine(engine.TorrentEngine):
             self._session_dir = self._rpc.get_session()
             if not self._session_dir:
                 raise error.UserError("You need a session directory, read"
-                    " http://code.google.com/p/pyroscope/wiki/UserConfiguration")
+                    " https://pyrocore.readthedocs.io/en/latest/setup.html")
             if not os.path.exists(self._session_dir):
                 raise error.UserError("Non-existing session directory %r" % self._session_dir)
             self._download_dir = os.path.expanduser(self._rpc.get_directory())
