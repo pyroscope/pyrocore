@@ -108,7 +108,7 @@ project = Bunch(
     long_description = __doc__.split('.', 1)[1].strip(),
     license = [line.strip() for line in __doc__.splitlines()
         if line.strip().startswith("Copyright")][0],
-    url = "http://code.google.com/p/pyroscope/",
+    url = "https://github.com/pyroscope/pyroscope",
     keywords = "bittorrent rtorrent cli python",
     classifiers = [
         # see http://pypi.python.org/pypi?:action=list_classifiers
