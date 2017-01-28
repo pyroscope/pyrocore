@@ -50,7 +50,7 @@ class MetafileCreator(ScriptBaseWithConfig):
         self.add_bool_option("--no-date",
             help="leave out creation date")
         self.add_value_option("-o", "--output-filename", "PATH",
-            help="optional file name for the metafile")
+            help="optional file name (or target directory) for the metafile")
         self.add_value_option("-r", "--root-name", "NAME",
             help="optional root name (default is basename of the data path)")
         self.add_value_option("-x", "--exclude", "PATTERN [-x ...]",
