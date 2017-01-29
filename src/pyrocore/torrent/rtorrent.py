@@ -173,6 +173,9 @@ class RtorrentItem(engine.TorrentProxy):
         try:
             return self._fields[name]
         except KeyError:
+            if isinstance(name, (int, long)):
+                name = "custom_%d" % name
+
             if name == "done":
                 val = float(self.fetch("completed_chunks")) / self.fetch("size_chunks")
             elif name == "files":
