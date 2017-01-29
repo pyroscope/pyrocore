@@ -23,6 +23,16 @@ Unlike ``--call``, where you can use shell syntax to call several commands, ``--
 passed several times for executing a sequence of commands. If any called command fails, the ``rtcontrol``
 call is aborted with an error.
 
+Here's a practical example for using ``--spawn``, it copies all your loaded metafiles
+from the session directory into a folder structure categorized by the *ruTorrent* label.
+Unlabelled items are simply ignored.
+
+.. code-block:: bash
+
+    rtcontrol 'custom_1=!' \
+        --spawn "mkdir -p /tmp/metafiles/{{item.fetch(1)}}" \
+        --spawn "cp $HOME/rtorrent/.session/{{item.hash}}.torrent /tmp/metafiles/{{item.fetch(1)}}/{{item.name}}-{{item.hash[:7]}}.torrent"
+
 
 .. _rtcontrol-exec:
 
