@@ -19,6 +19,12 @@ Consider ``--spawn 'echo "name: {{item.name}}"'`` vs. ``--spawn 'echo name: {{it
 Note that in both cases, spaces or shell meta characters contained in the item name are
 of no relevance, since the argument list is split according to the template, *not* its expanded value.
 
+To list all the fields available in the first five items, try this command:
+
+.. code-block:: bash
+
+    rtcontrol // -/5 --spawn "echo -e '\\n'{{item}}" | sed -re 's/, /,\n    /g'
+
 Unlike ``--call``, where you can use shell syntax to call several commands, ``--spawn`` can be
 passed several times for executing a sequence of commands. If any called command fails, the ``rtcontrol``
 call is aborted with an error.
