@@ -11,7 +11,7 @@ of the inner workings is too technical and nerdy for you, skip to the
 :ref:`tree-watch-examples` section below, and just adapt one of the
 prepared use cases to your setup.
 
-So how does this work? When a ``.torrent`` file is notified for loading,
+So how does this work? When a ``.torrent`` file is notified for loading via ``inotify``,
 it's parsed and contained data is put into variables that can be used in
 the command templates. In order to get an idea what variables are
 available, you can dump the templating namespace for a metafile to the
@@ -112,7 +112,7 @@ the data into a path based on the loaded metafile's location.
         }}{{if '/music/' in pathname}}{{# add metafile basename to path
             }}d.directory_base.set="/var/torrent/sorted/{{relpath}}/{{pathname|h.pathname}}"{{#
         }}{{elif traits.kind == 'tv'}}{{# store TV content into separate show folders
-            }}d.directory.set="/var/torrent/sorted/{{relpath}}/{{traits.get('show', '_UNKNOWN').replace('.',' ')}}"{{#
+            }}d.directory.set="/var/torrent/sorted/{{relpath}}/{{traits.get('show', '_UNKNOWN').replace('.',' ').title()}}"{{#
         }}{{else}}{{# just use the relative metafile location
             }}d.directory.set="/var/torrent/sorted/{{relpath}}"{{#
         }}{{endif}}
