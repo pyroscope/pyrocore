@@ -243,8 +243,8 @@ def autodocs():
            ' -i \'.*\' -i \'*.log\' -i \'*.png\' -i \'*.txt\'" html >autobuild.log 2>&1 &'
            % (os.getcwd(), SPHINX_AUTOBUILD_PORT))
 
-    for i in range(10):
-        time.sleep(.5)
+    for i in range(25):
+        time.sleep(2.5)
         pid = sh('netstat -tulpn 2>/dev/null | grep 127.0.0.1:%d' % (SPHINX_AUTOBUILD_PORT,),
                  capture=True, ignore_error=True)
         if pid:
