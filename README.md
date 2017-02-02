@@ -4,6 +4,11 @@ A collection of tools for the BitTorrent protocol and especially the rTorrent cl
 They enable you to filter rTorrent's item list for displaying or changing selected items,
 also creating, inspecting and changing ``.torrent`` files, and much more.
 
+An optional daemon process (``pyrotorque``) can add flexible queue management for rTorrent,
+starting items added in bulk slowly over time according to customizable rules,
+and also watch a directory tree recursively for new metafiles using inotify,
+resulting in instantaneous loading without any polling and no extra configuration for nested directories.
+
 ![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
 
 The `PyroScope` command line utilities are *not* the same as
