@@ -45,7 +45,7 @@ Installation & Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As previously mentioned, monitoring is an optional part of
-``pyrotorque``, so *first* see QueueManager on how to set it up in case
+``pyrotorque``, so *first* see :ref:`QueueManager` on how to set it up in case
 you didn't do that already. *After* ``pyrotorque`` is successfully
 running, follow these additional steps to activate the web server.
 
