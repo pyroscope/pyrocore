@@ -1,5 +1,9 @@
 # pyrocore
 
+[![Travis CI](https://travis-ci.org/pyroscope/pyrocore.svg?branch=master)](https://travis-ci.org/pyroscope/pyrocore)
+[![Issues](https://img.shields.io/github/issues/pyroscope/pyrocore.svg)](https://github.com/pyroscope/pyrocore/issues)
+[![PyPI](https://img.shields.io/pypi/v/pyrocore.svg)](https://pypi.python.org/pypi/pyrocore/)
+
 A collection of tools for the BitTorrent protocol and especially the rTorrent client.
 They enable you to filter rTorrent's item list for displaying or changing selected items,
 also creating, inspecting and changing ``.torrent`` files, and much more.
