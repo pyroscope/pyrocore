@@ -13,11 +13,18 @@ and especially the rTorrent client.
 They enable you to filter rTorrent's item list for displaying or changing selected items,
 also creating, inspecting and changing ``.torrent`` files, and much more.
 
-The *PyroScope* command line utilities (i.e. *pyrocore*) are *not* the same as `rTorrent-PS`_,
-and they work perfectly fine without it; the same is true the other
-way 'round.
-It's just that both projects unsurprisingly have synergies if used together,
-and some features *do* only work when both are present.
+An optional daemon process named ``pyrotorque`` can add flexible queue management for rTorrent,
+starting items added in bulk slowly over time according to customizable rules.
+It can also watch a directory tree recursively for new metafiles using *inotify*,
+resulting in instantaneous loading without any polling and no extra configuration for nested directories.
+
+.. note::
+
+    The *PyroScope* command line utilities (i.e. *pyrocore*) are *not* the same as `rTorrent-PS`_,
+    and they work perfectly fine without it; the same is true the other
+    way 'round.
+    It's just that both projects unsurprisingly have synergies if used together,
+    and some features *do* only work when both are present.
 
 You absolutely **must** read the first three chapters
 :doc:`overview`, :doc:`installation`, and :doc:`setup`
