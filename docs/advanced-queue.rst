@@ -32,9 +32,8 @@ Initial Setup
 
 Before you start configuring the daemon, you have to install some additional
 Python dependencies it needs to do its work, also depending on what jobs
-you activate in your configuration. You need at least
-``APScheduler>=2.0.2``, and the following is how to install the *full*
-set of dependencies:
+you activate in your configuration.
+The following is how to install the *full* set of dependencies:
 
 .. code-block:: shell
 
