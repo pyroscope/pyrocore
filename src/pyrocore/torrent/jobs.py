@@ -86,7 +86,7 @@ class InfluxDBStats(object):
     """
 
     def __init__(self, config=None):
-        """ Set up statistics logger.
+        """ Set up InfluxDB logger.
         """
         self.config = config or Bunch()
         self.influxdb = Bunch(config_ini.influxdb)
@@ -167,7 +167,7 @@ class InfluxDBStats(object):
 def module_test():
     """ Quick test using…
 
-            python -m pyrocore.daemon.webapp
+            python -m pyrocore.torrent.jobs
     """
     import pprint
     from pyrocore import connect
