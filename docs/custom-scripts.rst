@@ -1,10 +1,9 @@
-Writing Your Own Scripts
-========================
+.. Included in custom.rst
 
 .. _intro:
 
 Introduction
-------------
+^^^^^^^^^^^^
 
 The ``pyrocore`` Python package contains powerful helper classes that
 make remote access to *rTorrent* child's play (see :ref:`api`).
@@ -85,7 +84,7 @@ like built-in ones.
 
 
 Interactive use in a Python shell
----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can also access rTorrent interactively, like this:
 
@@ -105,7 +104,7 @@ You can also access rTorrent interactively, like this:
 
 
 Using ``pyrocore`` as a library in other projects
--------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The example in the first section is an easy way to create user-defined
 scripts. If you want to use ``pyrocore``'s features in another runtime
@@ -134,7 +133,7 @@ does for you otherwise).
 
 
 Code snippets
--------------
+^^^^^^^^^^^^^
 
 .. note::
 
@@ -143,7 +142,7 @@ Code snippets
 
 
 Accessing the files in a download item
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+""""""""""""""""""""""""""""""""""""""
 
 To get all the files for several items at once, we combine
 ``system.multicall`` and ``f.multicall`` to one big efficient mess.

@@ -32,7 +32,7 @@ When called, it prints something like this:
     $ rtuptime
     rTorrent 0.8.6/0.12.6, up 24:49:38 [123.456 GiB loaded], D: 42,3 MiB @ 0,1 / 666,0 KiB/s, U: 42,2 MiB @ 42,1 / 42,2 KiB/s
 
-And yes, doing the same in a :doc:`Python script <scripts>`
+And yes, doing the same in a :ref:`Python script <scripts>`
 would be much more CPU efficient. ;)
 
 If you connect via ``scgi_port``, touch a file in ``/tmp`` in your

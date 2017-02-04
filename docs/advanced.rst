@@ -8,14 +8,6 @@ Advanced Features
     your setup even further and handle very specific use-cases.
 
 
-.. _CustomFields:
-
-Defining Custom Fields
-----------------------
-
-.. include:: advanced-custom-fields.rst
-
-
 .. _advanced-rtcontrol:
 
 Advanced ‘rtcontrol’

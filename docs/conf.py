@@ -81,6 +81,7 @@ exclude_patterns = [
     'advanced-*.rst',
     'references-*.rst',
     'usage-*.rst',
+    'custom-*.rst',
     'include-*.rst',
 ]
 

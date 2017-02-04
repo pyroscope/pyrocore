@@ -12,7 +12,7 @@ collection of tools for the :ref:`bt-protocol` and especially the
     :ref:`filtering and mass-changing your loaded torrents <rtcontrol>`.
   * rTorrent extensions like a :ref:`QueueManager` and statistics (*work in progress*).
   * All this is based on the ``pyrocore`` Python package, that you can
-    use to :doc:`scripts` for any special needs that aren't covered by
+    use to :ref:`scripts` for any special needs that aren't covered by
     the standard tools.
 
 See the

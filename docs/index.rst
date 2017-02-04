@@ -57,7 +57,7 @@ Contents of This Manual
     howto
     advanced
     experimental
-    scripts
+    custom
     troubleshooting
     updating
 
