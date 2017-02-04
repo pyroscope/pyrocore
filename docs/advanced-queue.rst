@@ -15,7 +15,7 @@ command — one of the jobs does start stopped items in a controlled fashion,
 that is the queue manager part.
 
 Besides the queue manager, the most important job type is ``TreeWatch``.
-It registers to file system events (via ``inotify``) to load new metafiles on the spot,
+It reacts to file system events (via ``inotify``) to load new metafiles on the spot,
 if you add the necessary configuration and activate it.
 This way you have no delays at all, and no polling of watch directories in short intervals,
 most often with no tangible result and just wasted CPU cycles.
