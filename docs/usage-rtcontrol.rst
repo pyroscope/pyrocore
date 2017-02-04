@@ -153,10 +153,10 @@ details below, here's a short overview of the possible methods, each
 with an example:
 
   * ``size.sz,name`` — simple field lists, possibly with
-    format specifiers; the fields are separated by a TAB character.
+    format specifiers; in the output, fields are separated by a TAB character.
   * ``%(size.sz)s %(name)s`` — string interpolation, i.e. like the above
-    lists, but interspersed with literal text.
-  * ``{{d.size|sz}} {{d.name}}`` — Tempita templates, see OutputTemplates
+    lists, but interspersed with literal text instead of TABs.
+  * ``{{d.size|sz}} {{d.name}}`` — Tempita templates, see :ref:`output-templates`
     for more details.
   * ``file:template.tmpl`` — File URLs that point to a
     template file, which is especially useful for more complicated
@@ -165,7 +165,7 @@ with an example:
     ``templates`` in the configuration directory (anything else).
   * ``«formatname»`` — A name of a custom format from the ``[FORMATS]``
     configuration section, see ``~/.pyroscope/config.ini.default`` for the
-    spredefined ones (including the special ``default`` format).
+    predefined ones (including the special ``default`` format).
 
 Starting with version 0.3.5, you can define custom output formats and
 print column headers, the ``rt2days`` example from the previous section
@@ -203,7 +203,7 @@ Then, calling ``rt2days -q`` will print something like this::
     1d 21h ago   10m  2s  OPN    0 bytes/s   100% SeedBox  rar   lab-rats
 
 And with version 0.3.6 installed, you can create a full listing of all
-the files you have loaded into rTorrent using the built-in format
+the files you have loaded into rTorrent using the predefined format
 "``files``"::
 
     $ rtcontrol \* -ofiles | less
@@ -330,6 +330,7 @@ current item directly from ncurses (needs version 0.4.1 to work):
 
 Just select the item you want to annihilate and enter ``cull=`` into the
 command prompt (``Ctrl-X``).
+Note that *you already have that command added* if you followed the :doc:`setup`.
 
 
 Pruning Partial Downloads
@@ -353,6 +354,8 @@ is useful:
 .. code-block:: ini
 
     system.method.insert = purge,simple,"execute_nothrow=rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
+
+Note that *you already have that command added* if you followed the :doc:`setup`.
 
 
 Performing Periodic Tasks
