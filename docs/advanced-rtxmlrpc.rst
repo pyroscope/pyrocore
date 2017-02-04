@@ -9,20 +9,21 @@ The ``rtuptime`` script shows you essential information about your
     #! /bin/bash
     SCGI_SOCKET=~/rtorrent/.scgi_local
 
-    if test \! -S $SCGI_SOCKET; then
+    if test ! -S $SCGI_SOCKET; then
         echo >&2 "rTorrent is not running (no socket $SCGI_SOCKET)"
         exit 1
     fi
 
     echo -n rTorrent $(rtxmlrpc system.client_version)/$(rtxmlrpc system.library_version)
     echo -n , up $(rtxmlrpc to_elapsed_time $(ls -l --time-style '+%s' $SCGI_SOCKET | awk '{print $6}'))
-    echo -n \ [$(rtcontrol -qosize \* | awk '{ SUM += $1} END { print SUM/1024/1024/1024 }') GiB loaded]
-    echo -n , D:$(rtxmlrpc to_mb $(rtxmlrpc get_down_total)) MiB
-    echo -n \ @ $(rtxmlrpc to_kb $(rtxmlrpc get_down_rate))
-    echo -n \ / $(rtxmlrpc to_kb $(rtxmlrpc get_download_rate)) KiB/s
-    echo -n , U:$(rtxmlrpc to_mb $(rtxmlrpc get_up_total)) MiB
-    echo -n \ @ $(rtxmlrpc to_kb $(rtxmlrpc get_up_rate))
-    echo -n \ / $(rtxmlrpc to_kb $(rtxmlrpc get_upload_rate)) KiB/s
+    echo -n \ [$(rtcontrol -qo"1 %(uploaded)s %(size)s" \* | \
+        awk '{ TOT += $1; UP += $2; SUM += $3} END { print TOT " loaded; U: " UP/1024/1024/1024 " GiB; S: " SUM/1024/1024/1024 }') GiB]
+    echo -n , D: $(rtxmlrpc to_xb $(rtxmlrpc get_down_total))
+    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc get_down_rate))/s
+    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc get_download_rate))/s
+    echo -n , U: $(rtxmlrpc to_xb $(rtxmlrpc get_up_total))
+    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc get_up_rate))/s
+    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc get_upload_rate))/s
     echo
 
 When called, it prints something like this:
@@ -30,7 +31,8 @@ When called, it prints something like this:
 .. code-block:: shell
 
     $ rtuptime
-    rTorrent 0.8.6/0.12.6, up 24:49:38 [123.456 GiB loaded], D: 42,3 MiB @ 0,1 / 666,0 KiB/s, U: 42,2 MiB @ 42,1 / 42,2 KiB/s
+    rTorrent 0.9.6/0.13.6, up 189:00:28 [315 loaded; U: 177.292 GiB; S: 891.781 GiB],
+    D: 27.3 GB @ 0.0 KB/s of 520.0 KB/s, U: 36.8 MB @ 0.0 KB/s of 52.0 KB/s
 
 And yes, doing the same in a :ref:`Python script <scripts>`
 would be much more CPU efficient. ;)
@@ -48,7 +50,7 @@ instance:
 .. code-block:: shell
 
     # Flush ALL session data NOW, use this before you make a backup of your session directory
-    rtxmlrpc session_save
+    rtxmlrpc session.save
 
 
 Setting and checking throttles
@@ -59,18 +61,18 @@ and print the current download rate, use:
 
 .. code-block:: shell
 
-    rtxmlrpc throttle_down slow 120
+    rtxmlrpc throttle.down '' slow 120
     # 0
-    rtxmlrpc get_throttle_down_max slow
+    rtxmlrpc throttle.down.max '' slow
     # 122880
-    rtxmlrpc get_throttle_down_rate slow
+    rtxmlrpc throttle.down.rate '' slow
     # 0
 
 Note that the speed is specified in KiB/s as a string when setting it
 but returned in bytes/s as an integer on queries.
 
 The following script makes this available in an easy usable form, e.g.
-"``throttle slow 42``" – it also shows the current rate and settings of
+``throttle slow 42`` – it also shows the current rate and settings of
 all defined throttles when called without arguments:
 
 .. code-block:: shell
