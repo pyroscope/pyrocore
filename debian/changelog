@@ -1,4 +1,4 @@
-pyrocore (0.4.3) jaunty; urgency=low
+pyrocore (0.5.1) precise; urgency=low
 
   * rtcontrol: added '--shell' option
   * rtcontrol: added '--prio' action
@@ -7,7 +7,7 @@ pyrocore (0.4.3) jaunty; urgency=low
   * Fix for rT-PS build script failing the xmlrpc-c configure tests
     on current Wheezy et al, courtesy of mittens @ freenode.net
 
- -- pyroscope <pyroscope.project@gmail.com>  Fri, 11 Oct 2013 22:20:24 +0200
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 05 Feb 2017 12:45:03 +0100
 
 pyrocore (0.4.2) jaunty; urgency=low
 
