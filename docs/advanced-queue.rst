@@ -11,8 +11,8 @@ ones that you can add yourself.
 
 It runs in the background parallel to rTorrent and has its own
 scheduler to run automation jobs similar to rTorrent's ``schedule``
-command — one of the jobs does start stopped items in a controlled fashion,
-that is the queue manager part.
+command — one of the jobs is to start stopped items in a controlled fashion.
+That is the queue manager part.
 
 Besides the queue manager, the most important job type is ``TreeWatch``.
 It reacts to file system events (via ``inotify``) to load new metafiles on the spot,
