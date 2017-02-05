@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Python utilities tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -26,7 +28,7 @@ log.trace("module loaded")
 
 
 class ImportTest(unittest.TestCase):
-    
+
     def test_import_name(self):
         docstr = pymagic.import_name("pyrocore", "__doc__")
         assert "Core Package" in docstr

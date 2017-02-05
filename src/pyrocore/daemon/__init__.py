@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Background Daemon Package.
 
     Copyright (c) 2012 The PyroScope Project <pyroscope.project@gmail.com>
@@ -15,4 +17,3 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-

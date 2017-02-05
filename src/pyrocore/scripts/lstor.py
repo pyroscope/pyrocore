@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Metafile Lister.
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -85,10 +87,10 @@ class MetafileLister(ScriptBase):
                     if not self.options.reveal and "info" in data:
                         # Shorten useless binary piece hashes
                         data["info"]["pieces"] = "<%d piece hashes>" % (
-                            len(data["info"]["pieces"]) / len(hashlib.sha1().digest()) # bogus pylint: disable=E1101 
+                            len(data["info"]["pieces"]) / len(hashlib.sha1().digest()) # bogus pylint: disable=E1101
                         )
 
-                    pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)() 
+                    pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)()
                     listing = pprinter.pformat(data)
                 elif self.options.output:
                     def splitter(fields):
@@ -134,4 +136,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-

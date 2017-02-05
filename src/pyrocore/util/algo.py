@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Helper Algorithms.
 
     Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -67,7 +69,7 @@ class AttributeMapping(object):
         """ Store object we want to map, and any default values.
 
             @param obj: the wrapped object
-            @type obj: object 
+            @type obj: object
             @param defaults: default values
             @type defaults: dict
         """
@@ -86,4 +88,3 @@ class AttributeMapping(object):
                 return self.defaults[key]
             except KeyError:
                 raise AttributeError("%s for %r.%s" % (exc, self.obj, key))
-

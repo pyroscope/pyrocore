@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Utility Modules.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -32,7 +34,7 @@ if not os.path.supports_unicode_filenames:
             return text
         else:
             return text.encode("UTF-8")
-    
+
     # copy "os" identifiers
     _os = Bunch()
     for _key in os.__all__:
@@ -56,7 +58,7 @@ if not os.path.supports_unicode_filenames:
 
     # wrap os.path stuff
     _unary_fs_functions = [
-        'getsize', 'getmtime', 'getatime', 'getctime', 'islink', 'exists', 'lexists', 
+        'getsize', 'getmtime', 'getatime', 'getctime', 'islink', 'exists', 'lexists',
         'isdir', 'isfile', 'ismount', 'abspath', 'realpath'
         #'samefile', 'sameopenfile', 'samestat', , 'supports_unicode_filenames'
     ]
@@ -69,4 +71,3 @@ if not os.path.supports_unicode_filenames:
     os = _os
     os.path = _os_path
     del Bunch, _unary_fs_functions, _key, _wrap, _os, _os_path
-

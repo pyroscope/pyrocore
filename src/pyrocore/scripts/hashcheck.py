@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Metafile Checker.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -76,4 +78,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-

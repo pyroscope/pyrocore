@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ rTorrent queue manager & daemon.
 
     Copyright (c) 2012 The PyroScope Project <pyroscope.project@gmail.com>

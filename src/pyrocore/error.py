@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Exception Classes.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -56,4 +58,3 @@ class NetworkError(LoggableError):
 class UserError(LoggableError):
     """ Yes, it was your fault!
     """
-

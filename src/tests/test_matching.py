@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Filter condition tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -73,7 +75,7 @@ class FilterTest(unittest.TestCase):
             keep = matching.ConditionParser(lookup, "name").parse(cond)
             result = set(i.name for i in self.DATA if keep(i))
             expected = set(expected.split())
-            assert result == expected, "Expected %r, but got %r, for '%s' [ %s ]" % (expected, result, cond, keep) 
+            assert result == expected, "Expected %r, but got %r, for '%s' [ %s ]" % (expected, result, cond, keep)
 
 
 class MagicTest(unittest.TestCase):
@@ -95,12 +97,12 @@ class MagicTest(unittest.TestCase):
     ]
 
     def check(self, obj, expected, cond):
-        assert type(obj) is expected, "%s is not %s for '%s'" % (type(obj).__name__, expected.__name__, cond) 
+        assert type(obj) is expected, "%s is not %s for '%s'" % (type(obj).__name__, expected.__name__, cond)
 
     def test_magic(self):
         for cond, expected in self.CASES:
             matcher = matching.ConditionParser(lambda _: {"matcher": matching.MagicFilter}, "f").parse(cond)
-            log.debug("MAGIC: '%s' ==> %s" % (cond, type(matcher[0]._inner).__name__)) 
+            log.debug("MAGIC: '%s' ==> %s" % (cond, type(matcher[0]._inner).__name__))
             self.check(matcher[0]._inner, expected, cond)
 
     def test_magic_negate(self):
@@ -108,7 +110,7 @@ class MagicTest(unittest.TestCase):
         self.check(matcher[0], matching.NegateFilter, "!")
         self.check(matcher[0]._inner, matching.MagicFilter, "!")
         self.check(matcher[0]._inner._inner, matching.PatternFilter, "!")
-        
+
     def test_magic_matching(self):
         item = Bunch(name="foo", date=time.time() - 86401, one=1, year=2011, size=1024**2)
         match = lambda c: matching.ConditionParser(
@@ -128,7 +130,7 @@ class MagicTest(unittest.TestCase):
         assert not match("one=+1")
         assert not match("year=+2525")
         assert not match("size=-1m")
-        
+
 
 class ParserTest(unittest.TestCase):
     GOOD = [
@@ -167,8 +169,8 @@ class ParserTest(unittest.TestCase):
                 canonical = canonical % cond
             matcher = matching.ConditionParser(lookup, "name").parse(cond)
             assert isinstance(matcher, matching.Filter), "Matcher is not a filter"
-            assert str(matcher) == canonical, "'%s' != '%s'" % (matcher, canonical)  
-            assert matcher, "Matcher is empty" 
+            assert str(matcher) == canonical, "'%s' != '%s'" % (matcher, canonical)
+            assert matcher, "Matcher is empty"
 
     def test_bad_conditions(self):
         for cond in self.BAD:

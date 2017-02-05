@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Move seeding data.
 
     Copyright (c) 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -21,7 +23,7 @@ from collections import defaultdict
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 from pyrocore.util import os, fmt
-#from pyrocore.torrent import engine 
+#from pyrocore.torrent import engine
 
 
 def pretty_path(path):
@@ -36,7 +38,7 @@ def pretty_path(path):
 
 class RtorrentMove(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ 
+    """
         Move data actively seeded in rTorrent.
     """
 
@@ -62,7 +64,7 @@ class RtorrentMove(ScriptBaseWithConfig):
 
 
     def resolve_slashed(self, path):
-        """ Resolve symlinked directories if they end in a '/', 
+        """ Resolve symlinked directories if they end in a '/',
             remove trailing '/' otherwise.
         """
         if path.endswith(os.sep):
@@ -76,7 +78,7 @@ class RtorrentMove(ScriptBaseWithConfig):
 
 
     def guarded(self, call, *args):
-        """ Catch exceptions thrown by filesystem calls, and don't really 
+        """ Catch exceptions thrown by filesystem calls, and don't really
             execute them in dry-run mode.
         """
         self.LOG.debug('%s(%s)' % (
@@ -135,7 +137,7 @@ class RtorrentMove(ScriptBaseWithConfig):
                 realpath = os.path.realpath(item.path)
             except (EnvironmentError, UnicodeError), exc:
                 self.LOG.warning("Cannot realpath %r (%s)" % (item.path, exc))
-            
+
             # Look if item matches a source path
             # TODO: Handle download items nested into each other!
             try:
@@ -157,7 +159,7 @@ class RtorrentMove(ScriptBaseWithConfig):
         moved_count = 0
         for path in source_paths:
             item = None # Make sure there's no accidental stale reference
-            
+
             if not source_items[path]:
                 self.LOG.warn("No download item found for %s, skipping!" % (pretty_path(path),))
                 continue
@@ -165,7 +167,7 @@ class RtorrentMove(ScriptBaseWithConfig):
             if len(source_items[path]) > 1:
                 self.LOG.warn("Can't handle multi-item moving yet, skipping %s!" % (pretty_path(path),))
                 continue
-            
+
             if os.path.islink(path):
                 self.LOG.warn("Won't move symlinks, skipping %s!" % (pretty_path(path),))
                 continue
@@ -233,4 +235,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-

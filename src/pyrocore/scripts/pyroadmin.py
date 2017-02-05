@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Administration Tool.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>

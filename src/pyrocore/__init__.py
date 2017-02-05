@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Python Torrent Tools Core Package.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -19,7 +21,7 @@
 
 def connect(config_dir=None, optional_config_files=None, cron_cfg="cron"):
     """ Initialize everything for interactive use.
-    
+
         Returns a ready-to-use RtorrentEngine object.
     """
     from pyrocore.scripts.base import ScriptBase

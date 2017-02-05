@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Metafile tests.
 
     Copyright (c) 2009 The PyroScope Project <pyroscope.project@gmail.com>
@@ -28,7 +30,7 @@ log.trace("module loaded")
 
 
 class MaskTest(unittest.TestCase):
-    
+
     def test_urls(self):
         testcases = (
             "http://example.com:1234/user/ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ/announce",
@@ -47,7 +49,7 @@ class MaskTest(unittest.TestCase):
             "D": lambda: random.choice("0123456789"),
             "Z": lambda: random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"),
         }
-        
+
         for testcase in testcases:
             expected = testcase.replace("D", "*").replace("Z", "*")
             randomized = ''.join(mapping.get(i, lambda: i)() for i in testcase)
@@ -57,4 +59,3 @@ class MaskTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Rtorrent event handler.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -23,7 +25,7 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 class RtorrentEventHandler(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
-    """ 
+    """
         Handle rTorrent events.
     """
 
@@ -50,9 +52,9 @@ class RtorrentEventHandler(ScriptBaseWithConfig):
         if sys.stdin.isatty():
             self.options.no_fork = True
 
-        # Need to demonize (single-fork) ouselfves here, since otherwise rTorrent dead-locks 
+        # Need to demonize (single-fork) ouselfves here, since otherwise rTorrent dead-locks
 
-        # TODO: Actually implement something here 
+        # TODO: Actually implement something here
 
 
 def run(): #pragma: no cover
@@ -64,4 +66,3 @@ def run(): #pragma: no cover
 
 if __name__ == "__main__":
     run()
-

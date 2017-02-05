@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Torrent Backend Engines Package.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -17,4 +19,3 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 # make refactoring of 0.4.1 transparent, so the old config.py examples still work
 from pyrocore.util import matching
-

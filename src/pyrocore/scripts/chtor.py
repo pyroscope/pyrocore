@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Metafile Editor.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>

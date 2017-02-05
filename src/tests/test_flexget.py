@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ FlexGet Plugin Tests.
 
     Copyright (c) 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -68,39 +70,39 @@ if os.path.exists(os.path.expanduser(FLEXGET_BOOTSTRAP)) and load_flexget_tests(
                   - {title: 'test', year: 2000}
                   - {title: 'brilliant', rating: 9.9}
                   - {title: 'fresh', year: 2011}
-    
+
             feeds:
               test_condition_reject:
                 pyro_reject_if: year<2011
-    
+
               test_condition_accept:
                 pyro_accept_if:
                   - ?year>=2010
                   - ?rating>9
-    
+
               test_condition_and1:
                 pyro_accept_if: '*t ?rating>9'
               test_condition_and2:
                 pyro_accept_if: '*t'
         """
-    
+
         def test_reject(self):
             self.execute_feed('test_condition_reject')
-            count = len(self.feed.rejected) 
+            count = len(self.feed.rejected)
             assert count == 1
-    
+
         def test_accept(self):
             self.execute_feed('test_condition_accept')
             count = len(self.feed.accepted)
             assert count == 2
-    
+
         def test_implicit_and(self):
             for i in "12":
                 self.execute_feed('test_condition_and' + i)
                 count = len(self.feed.accepted)
                 assert count == int(i)
-    
-    
+
+
     class TestDownloadCondition(FlexGetBase):
         __yaml__ = """
             presets:
@@ -110,23 +112,23 @@ if os.path.exists(os.path.expanduser(FLEXGET_BOOTSTRAP)) and load_flexget_tests(
                   - {title: 'test', file: 'tests/test.torrent'}
                   - {title: 'prv', file: 'tests/private.torrent'}
                   - {title: 'not_a_torrent'}
-    
+
             feeds:
               test_condition_field_access1:
                 pyro_reject_if_download: ?torrent.content.info.?private=1
-    
+
               test_condition_field_access2:
                 pyro_reject_if_download: ?torrent.content.announce=*openbittorrent.com[/:]*
         """
-    
+
         def test_field_access(self):
             for i in "12":
                 self.execute_feed('test_condition_field_access' + i)
                 count = len(self.feed.rejected)
                 assert count == int(i), "Expected %s rejects, got %d" % (i, count)
                 assert i != "1" or self.feed.rejected[0]["title"] == "prv"
-    
-    
+
+
     class TestQualityCondition(FlexGetBase):
         __yaml__ = """
             presets:
@@ -140,15 +142,15 @@ if os.path.exists(os.path.expanduser(FLEXGET_BOOTSTRAP)) and load_flexget_tests(
                   - {title: 'Smoke.cam'}
                   - {title: 'Smoke.HR'}
                 accept_all: yes
-    
+
             feeds:
               test_condition_quality_name_2:
                 pyro_reject_if: quality.name~(1080|720)p
-    
+
               test_condition_quality_value_3:
                 pyro_reject_if: quality.value<500
         """
-    
+
         def test_quality(self):
             for feedname in self.manager.config['feeds']:
                 self.execute_feed(feedname)
@@ -160,7 +162,7 @@ if os.path.exists(os.path.expanduser(FLEXGET_BOOTSTRAP)) and load_flexget_tests(
     # TODO: For meaningful tests, pyrocore must get mock support (specifically for xmlrpc)
     class TestRtorrentUnavailable(FlexGetBase):
         """Tests that can run without pyrocore installed."""
-    
+
         # Note we enforce an error here if pyrocore is installed, so we can test
         # that disabling the plugin causes no unwanted calls (they'd raise).
         __tmp__ = True
@@ -170,21 +172,21 @@ if os.path.exists(os.path.expanduser(FLEXGET_BOOTSTRAP)) and load_flexget_tests(
                 rtorrent_view:
                   enabled: no
                   config_dir: __tmp__
-    
+
             feeds:
               test_rtorrent_disabled:
                 rtorrent_view:
                   enabled: no
         """
-    
+
         def test_rtorrent_disabled(self):
             "Test 'enabled' flag"
             self.execute_feed('test_rtorrent_disabled')
-    
+
             rtorrent = plugin.get_plugin_by_name("rtorrent_view") #@UndefinedVariable
             assert rtorrent.instance.proxy is None
             assert rtorrent.instance.global_config is not None
-    
+
         #def test_rtorrent_config(self):
         #    "Test different config layouts"
 '''
