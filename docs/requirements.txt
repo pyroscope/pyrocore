@@ -1,5 +1,5 @@
 # requirements for use on "Read The Docs"
-pylint==1.4.3
+pylint==1.6.5
 ##sphinx-pyreverse==0.0.12
 https://github.com/pyroscope/sphinx-pyreverse/archive/master.zip#egg=sphinx-pyreverse
 
