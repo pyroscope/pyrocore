@@ -94,7 +94,7 @@ Further Information & Customization
     customize your setup even further and handle very specific use-cases.
     For example, :ref:`CustomFields` describes adding user-defined fields,
     available in ``rtcontrol`` just like built-in ones.
-  * :doc:`scripts` is an easy way to automate anything
+  * :ref:`scripts` is an easy way to automate anything
     that the standard commands can't do.
   * :doc:`updating` explains how to get newer versions
     of this software after the initial installation.
