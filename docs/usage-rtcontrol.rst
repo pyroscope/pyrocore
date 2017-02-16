@@ -530,15 +530,21 @@ is changed, a line like the following will be appended to the file
 Automatic Stop of Items Having Problems
 """""""""""""""""""""""""""""""""""""""
 
-This takes away a lot of manual monitoring work you had to do previously::
+This job takes away a lot of manual monitoring work you had to do previously::
 
-    RT_SOCKET=/home/bt/rtorrent/.scgi_local
+    HOME=/home/rtorrent
+    RT_SOCKET=/var/torrent/.scgi_local
 
     # Stops any torrent that isn't known by the tracker anymore,
     # or has other authorization problems, or lost its data
-    *	* * * * 	test -S $RT_SOCKET && ~/bin/rtcontrol --from-view started prio=-3 'message=*not?registered*,*unregistered*,*not?authorized*' OR is_complete=yes is_ghost=yes --stop --cron
+    * * * * *   test -S $RT_SOCKET && sleep 21 && nice ~/bin/_cron_rt_invalid_items --stop --cron
 
-Note that this means you can simply stop torrents by removing their data,
+Just call ``crontab -e`` as the ``rtorrent`` user and add the above lines.
+You also need to install the `_cron_rt_invalid_items`_ script into ``~/bin``.
+
+The ``prio=-3`` in the script's list of conditions enables you to keep items running in case of errors, by setting their
+priority to ``high``, e.g. when only some trackers in a longer list return errors.
+The ``is_complete=yes is_ghost=yes`` part means you can simply stop torrents by removing their data,
 it won't take more than a minute for the related item to be force-stopped.
-The ``prio=-3`` enables you to keep items running in case of errors, by setting their
-priority to high, e.g. when only some trackers in a longer list return errors.
+
+.. _`_cron_rt_invalid_items`: https://raw.githubusercontent.com/pyroscope/pimp-my-box/master/roles/pyroscope-cli/files/bin/_cron_rt_invalid_items
