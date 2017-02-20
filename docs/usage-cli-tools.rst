@@ -193,6 +193,12 @@ metafile, like this::
     $ lstor -qo __hash__,info.piece\ length,info.name *.torrent
     00319ED92914E30C9104DA30BF39AF862513C4C8	262144	Execute My Liberty - The Cursed Way -- Jamendo - OGG Vorbis q7 - 2010.07.29 [www.jamendo.com]
 
+This can also be used to rename ``‹infohash›.torrent`` metafiles from a session directory to a human readable name::
+
+    for i in *.torrent; do
+        mv "$i" "$(lstor -q -o info.name "$i").torrent"
+    done
+
 And to see a metafile with all the guts hanging out, use the ``--raw``
 option::
 
