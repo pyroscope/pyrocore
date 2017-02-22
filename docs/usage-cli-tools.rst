@@ -193,10 +193,13 @@ metafile, like this::
     $ lstor -qo __hash__,info.piece\ length,info.name *.torrent
     00319ED92914E30C9104DA30BF39AF862513C4C8	262144	Execute My Liberty - The Cursed Way -- Jamendo - OGG Vorbis q7 - 2010.07.29 [www.jamendo.com]
 
-This can also be used to rename ``‹infohash›.torrent`` metafiles from a session directory to a human readable name::
+This can also be used to rename ``‹infohash›.torrent`` metafiles
+from a session directory to a human readable name,
+using parts of the hash to ensure unique names::
 
-    for i in *.torrent; do
-        mv "$i" "$(lstor -q -o info.name "$i").torrent"
+    ls -1 *.torrent | egrep '^[0-9a-fA-F]{40}\.torrent' | while read i; do
+        humanized="$(lstor -qo info.name,__hash__ "$i" | awk -F$'\t' '{print $1"-"substr($2,1,7)}')"
+        mv "$i" "$humanized.torrent"
     done
 
 And to see a metafile with all the guts hanging out, use the ``--raw``
