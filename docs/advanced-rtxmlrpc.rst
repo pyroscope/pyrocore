@@ -18,12 +18,12 @@ The ``rtuptime`` script shows you essential information about your
     echo -n , up $(rtxmlrpc to_elapsed_time $(ls -l --time-style '+%s' $SCGI_SOCKET | awk '{print $6}'))
     echo -n \ [$(rtcontrol -qo"1 %(uploaded)s %(size)s" \* | \
         awk '{ TOT += $1; UP += $2; SUM += $3} END { print TOT " loaded; U: " UP/1024/1024/1024 " GiB; S: " SUM/1024/1024/1024 }') GiB]
-    echo -n , D: $(rtxmlrpc to_xb $(rtxmlrpc get_down_total))
-    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc get_down_rate))/s
-    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc get_download_rate))/s
-    echo -n , U: $(rtxmlrpc to_xb $(rtxmlrpc get_up_total))
-    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc get_up_rate))/s
-    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc get_upload_rate))/s
+    echo -n , D: $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_down.total))
+    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_down.rate))/s
+    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_down.max_rate))/s
+    echo -n , U: $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_up.total))
+    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_up.rate))/s
+    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_up.max_rate))/s
     echo
 
 When called, it prints something like this:
@@ -37,7 +37,7 @@ When called, it prints something like this:
 And yes, doing the same in a :ref:`Python script <scripts>`
 would be much more CPU efficient. ;)
 
-If you connect via ``scgi_port``, touch a file in ``/tmp`` in your
+If you connect via ``network.scgi.open_port``, touch a file in ``/tmp`` in your
 startup script and use that for uptime checking.
 
 
@@ -112,10 +112,10 @@ all defined throttles when called without arguments:
             echo "CURRENT THROTTLE SETTINGS"
             for throttle in $throttles; do
                 echo -e "  $throttle\t" \
-                    "U: $(rtxmlrpc to_kb $(rtxmlrpc get_throttle_up_rate $throttle)) /" \
-                    "$(rtxmlrpc to_kb $(rtxmlrpc get_throttle_up_max $throttle | sed 's/^-1$/0/')) KiB/s\t" \
-                    "D: $(rtxmlrpc to_kb $(rtxmlrpc get_throttle_down_rate $throttle)) /" \
-                    "$(rtxmlrpc to_kb $(rtxmlrpc get_throttle_down_max $throttle | sed 's/^-1$/0/')) KiB/s"
+                    "U: $(rtxmlrpc to_kb $(rtxmlrpc throttle.up.rate $throttle)) /" \
+                    "$(rtxmlrpc to_kb $(rtxmlrpc throttle.up.max $throttle | sed 's/^-1$/0/')) KiB/s\t" \
+                    "D: $(rtxmlrpc to_kb $(rtxmlrpc throttle.down.rate $throttle)) /" \
+                    "$(rtxmlrpc to_kb $(rtxmlrpc throttle.down.max $throttle | sed 's/^-1$/0/')) KiB/s"
             done
         fi
         exit 2
@@ -125,16 +125,16 @@ all defined throttles when called without arguments:
 
     # Set chosen bandwidth
     if $down; then
-        if test $(rtxmlrpc get_throttle_down_max $throttle_name) -ne $rate; then
-            rtxmlrpc -q throttle_down $throttle_name $(( $rate / 1024 ))
+        if test $(rtxmlrpc throttle.down.max $throttle_name) -ne $rate; then
+            rtxmlrpc -q throttle.down $throttle_name $(( $rate / 1024 ))
             echo "Throttle '$throttle_name' download rate changed to" \
-                 "$(( $(rtxmlrpc get_throttle_down_max $throttle_name) / 1024 )) KiB/s"
+                 "$(( $(rtxmlrpc throttle.down.max $throttle_name) / 1024 )) KiB/s"
         fi
     else
-        if test $(rtxmlrpc get_throttle_up_max $throttle_name) -ne $rate; then
-            rtxmlrpc -q throttle_up $throttle_name $(( $rate / 1024 ))
+        if test $(rtxmlrpc throttle.up.max $throttle_name) -ne $rate; then
+            rtxmlrpc -q throttle.up $throttle_name $(( $rate / 1024 ))
             echo "Throttle '$throttle_name' upload rate changed to" \
-                 "$(( $(rtxmlrpc get_throttle_up_max $throttle_name) / 1024 )) KiB/s"
+                 "$(( $(rtxmlrpc throttle.up.max $throttle_name) / 1024 )) KiB/s"
         fi
     fi
 
@@ -180,11 +180,11 @@ If you want to be loved by your house-mates, try this:
     test -z "$hosts" || reason="for$hosts"
 
     # Set chosen bandwidth
-    if test $(rtxmlrpc get_upload_rate) -ne $up; then
+    if test $(rtxmlrpc throttle.global_up.max_rate) -ne $up; then
         echo "Setting upload rate to $(( $up / 1024 )) KiB/s $reason"
         rtxmlrpc -q set_upload_rate $up
     fi
-    if test $(rtxmlrpc get_download_rate) -ne $down; then
+    if test $(rtxmlrpc throttle.global_down.max_rate) -ne $down; then
         echo "Setting download rate to $(( $down / 1024 )) KiB/s $reason"
         rtxmlrpc -q set_download_rate $down
     fi
