@@ -179,7 +179,6 @@ s/http_cacert/network\.http\.cacert\.set/g
 s/http_capath/network\.http\.capath\.set/g
 s/http_proxy/network\.http\.proxy_address\.set/g
 s/load=/load.normal=/g
-s/load/load\.normal/g
 s/load_raw/load.raw/g
 s/load_raw/load\.raw/g
 s/load_raw_start/load\.raw_start/g
