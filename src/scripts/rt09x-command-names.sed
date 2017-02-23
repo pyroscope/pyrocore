@@ -297,3 +297,4 @@ s/view_sort_new/view\.sort_new/g
 s/view_sort/view\.sort/g
 s/xmlrpc_dialect/network\.xmlrpc\.dialect\.set/g
 s/xmlrpc_size_limit/network\.xmlrpc\.size_limit\.set/g
+s/\/.network.scgi.open_local/\/.scgi_local/g
