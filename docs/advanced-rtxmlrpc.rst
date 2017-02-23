@@ -182,11 +182,11 @@ If you want to be loved by your house-mates, try this:
     # Set chosen bandwidth
     if test $(rtxmlrpc throttle.global_up.max_rate) -ne $up; then
         echo "Setting upload rate to $(( $up / 1024 )) KiB/s $reason"
-        rtxmlrpc -q set_upload_rate $up
+        rtxmlrpc -q throttle.global_up.max_rate.set_kb $(( $up / 1024 ))
     fi
     if test $(rtxmlrpc throttle.global_down.max_rate) -ne $down; then
         echo "Setting download rate to $(( $down / 1024 )) KiB/s $reason"
-        rtxmlrpc -q set_download_rate $down
+        rtxmlrpc -q throttle.global_down.max_rate.set_kb $(( $down / 1024 ))
     fi
 
 
