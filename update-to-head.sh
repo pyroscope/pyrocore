@@ -66,7 +66,8 @@ test ! -d ${BIN_DIR:-~/bin} || ln -nfs $(grep -l 'entry_point.*pyrocore.*console
 test ! -d ${BIN_DIR:-~/bin} || ln -nfs $PWD/bin/python-pyrocore ${BIN_DIR:-~/bin}/
 
 # Make sure people update their main config
-rm -f ~/.pyroscope/rtorrent-0.8.?.rc.default 2>/dev/null || :
+rm -f "$PROJECT_ROOT/src/pyrocore/data/config/rtorrent-0.8.?.rc" 2>/dev/null || :
+rm -f "$HOME/.pyroscope/rtorrent-0.8.?.rc.default" 2>/dev/null || :
 
 # Update config defaults
 ./bin/pyroadmin --create-config
