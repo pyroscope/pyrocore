@@ -65,6 +65,9 @@ ln -nfs python ./bin/python-pyrocore
 test ! -d ${BIN_DIR:-~/bin} || ln -nfs $(grep -l 'entry_point.*pyrocore.*console_scripts' $PWD/bin/*) ${BIN_DIR:-~/bin}/
 test ! -d ${BIN_DIR:-~/bin} || ln -nfs $PWD/bin/python-pyrocore ${BIN_DIR:-~/bin}/
 
+# Make sure people update their main config
+rm -f ~/.pyroscope/rtorrent-0.8.?.rc.default 2>/dev/null || :
+
 # Update config defaults
 ./bin/pyroadmin --create-config
 

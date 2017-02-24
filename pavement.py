@@ -154,12 +154,12 @@ def bootstrap():
 @task
 def build():
     "build the software"
-    rtrc_086 = path("src/pyrocore/data/config/rtorrent-0.8.6.rc")
-    rtrc_089 = path(str(rtrc_086).replace("0.8.6", "0.8.9"))
-    if not rtrc_089.exists() or rtrc_086.mtime > rtrc_089.mtime:
-        rtrc_089.write_bytes(rtrc_086.text().replace("#087#", ""))
-        sh("./src/scripts/migrate_rtorrent_rc.sh %s >/dev/null" % rtrc_089)
-        sh("bash -c 'rm %s{?0.8.6,-????-??-??-??-??-??}'" % rtrc_089)
+    #rtrc_086 = path("src/pyrocore/data/config/rtorrent-0.8.6.rc")
+    #rtrc_089 = path(str(rtrc_086).replace("0.8.6", "0.8.9"))
+    #if not rtrc_089.exists() or rtrc_086.mtime > rtrc_089.mtime:
+    #    rtrc_089.write_bytes(rtrc_086.text().replace("#087#", ""))
+    #    sh("./src/scripts/migrate_rtorrent_rc.sh %s >/dev/null" % rtrc_089)
+    #    sh("bash -c 'rm %s{?0.8.6,-????-??-??-??-??-??}'" % rtrc_089)
 
     call_task("setuptools.command.build")
 

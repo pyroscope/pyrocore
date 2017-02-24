@@ -139,7 +139,7 @@ See the *rTorrent* documentation for details.
 For the ``loaded`` and ``completed`` fields to work, as well as the
 ``started``, ``leechtime`` and ``seedtime`` ones, you also have to add
 these commands (note that most settings actually reside in an
-`included file <https://github.com/pyroscope/pyrocore/blob/master/src/pyrocore/data/config/rtorrent-0.8.6.rc>`_):
+`included file <https://github.com/pyroscope/pyrocore/blob/master/src/pyrocore/data/config/rtorrent-pyro.rc>`_):
 
 .. code-block:: ini
 
@@ -157,9 +157,7 @@ these commands (note that most settings actually reside in an
 
     # Remove the ".default" if you want to change something (else your
     # changes get over-written on update).
-    method.insert = pyro.rc_dialect, string|const, "execute.capture=bash,-c,\"test $1 = 0.8.6 && echo -n 0.8.6 || echo -n 0.8.9\",dialect,$system.client_version="
-    method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$pyro.rc_dialect=\",.rc.default"
-    import = $pyro.rtorrent_rc=
+    import = ~/.pyroscope/rtorrent-pyro.rc.default
 
     # TORQUE: Daemon watchdog schedule
     # Must be activated by touching the "~/.pyroscope/run/pyrotorque" file!

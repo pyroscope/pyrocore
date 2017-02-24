@@ -168,25 +168,32 @@ The new stable version 0.8.9 of rTorrent is now supported by this
 release, see RtXmlRpcMigration for details.
 
 
-Migrating to Version 0.4.3 (UNRELEASED)
+Migrating to Version 0.5.1 (UNRELEASED)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The 0.4.3 release adds a QueueManager and (possibly) EventHandling.
+The ``0.5.1`` release adds a queue manager,
+watching a directory tree for loading metafiles,
+and removes support for ancient versions of *Python* and *rTorrent*.
 
-To upgrade your existing installation, follow these steps: 1. For people
-that run a source code installation. use the ``update-to-head.sh``
-script as usual, outlined further up on this page. 1. Call
-``pyroadmin --create-config`` to update the ``.default`` configuration
-examples. 1. Read the QueueManager and EventHandling pages if you plan
-to use these features; both are inactive by default and need to be
-enabled. \* You need to add the new ``pyro_watchdog`` schedule into your
-configuration, as shown on the UserConfiguration page.
+To upgrade your existing installation, follow these steps:
 
-If you upgraded to rTorrent **0.9.2**, take note of the new way the
-PyroScope configuration include is loaded, see
-`here <UserConfiguration#Extending_your_.rtorrent.rc.md>`_ (the block
-containing the ``pyro.rc_dialect`` command is updated).
+#. For people that run a source code installation. use the ``update-to-head.sh``
+   script as usual, outlined further up on this page.
+#. Call ``pyroadmin --create-config`` to update the ``.default`` configuration
+   examples.
+#. You also **MUST** change the ``import`` command in your ``rtorrent.rc``
+   that loads the PyroScope configuration include:
 
+   .. code-block:: ini
+
+      # Remove the ".default" if you want to change something (else your
+      # changes get over-written on update).
+      import = ~/.pyroscope/rtorrent-pyro.rc.default
+
+#. Read the :ref:`QueueManager` section if you plan to use item queueing
+   and/or the tree watch feature; both are inactive by default and need to be
+   enabled. You also need to add the new ``pyro_watchdog`` schedule into your
+   configuration, as shown in the :doc:`setup`.
 
 .. _`changelog`: https://github.com/pyroscope/pyrocore/blob/master/debian/changelog
 .. _`list of commits`: https://github.com/pyroscope/pyrocore/commits/master

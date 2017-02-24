@@ -65,5 +65,4 @@ share/
 
 wiki/
 pip-selfcheck.json
-src/pyrocore/data/config/rtorrent-0.8.9.rc
 docs/uml_images/
