@@ -184,7 +184,7 @@ to your ``~/.pyroscope/config.ini``:
     # Custom output formats
     completion = $(completed.raw.delta)13.13s $(leechtime)9.9s $(is_open)4.4s $(up.sz)10s/s $(ratio.pc)5d$(pc)s $(alias)-8s $(kind_50)-4.4s  $(name)s
 
-See `String Formatting Operations <http://docs.python.org/release/2.5.2/lib/typesseq-strings.html>`_
+See `PyFormat <https://pyformat.info/>`_
 for a description how the formatting options work, and notice that ``$``
 is used instead of ``%`` here, because ``%`` has a special meaning in
 INI files. For the same reason, a single ``%`` in the final output
