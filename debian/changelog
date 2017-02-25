@@ -1,21 +1,43 @@
 pyrocore (0.5.1) precise; urgency=low
 
+  * Docs: Brand new docs on 'readthedocs.io'
+  * Project: Moved to GitHub
+  * Migration: Read the docs, take note of "rtorrent-pyro.rc"
   * rTorrent: Removed support for anything but 0.9.2+
   * Python: Removed support for 2.5 and 2.6
+  * rtcontrol: added '--select' option ('1-/')
   * rtcontrol: added '--shell' option
+  * rtcontrol: added '--modify-view' option
+  * rtcontrol: resolve '-' as a viewname to the current view (needs rT-PS)
+  * rtcontrol: added 'is_multi_file' field
+  * rtcontrol: added 'active' for when items last had peers
+  * rtcontrol: added 'stopped' field
+  * rtcontrol: added '[ NOT … ]' in conditions
   * rtcontrol: added '--prio' action
+  * rtcontrol: added '--anneal' option for post-filters
+  * rtcontrol: added '--exec' option for raw XMLRPC commands
+  * rtcontrol: executing OS commands ('--call' and '--spawn')
+  * rtcontrol: single item 'views' via '--from #‹hash›' ('#' is optional)
+  * rtcontrol: actions with arguments (like --custom) now allow templating
+  * rtcontrol: added 'json' formatter (main use case: files.raw.json)
+  * rtcontrol: added '--json' to dump items as a JSON array
+  * rtcontrol: also added new default template 'json' for '-O json'
   * chtor: added '--regex' option
   * chtor: replacing {} with the torrent name in --hashed path
-  * Fix for rT-PS build script failing the xmlrpc-c configure tests
-    on current Wheezy et al, courtesy of mittens @ freenode.net
+  * mktor: added '--no-cross-seed' option
+  * mktor: '-X @entropy' for non-deterministic infohash
+  * rtxmlrpc: allow passing of binary data via '@-' and '@filename'
+  * pyrotorque: added queue manager and tree watch features
+  * rtorrent config: added 'tagged' view handling
+  * rtorrent config: 'd.timestamp.downloaded' attribute (thanks @chros73)
+  * API: added 'subst' templating helper
+  * API: 'connect()' helper for easy interactive use
+  * API: added 'h.' helper namespace to templating
 
  -- pyroscope <pyroscope.project@gmail.com>  Sun, 05 Feb 2017 12:45:03 +0100
 
 pyrocore (0.4.2) jaunty; urgency=low
 
-  * Build script and patches for an extended distribution of
-    rTorrent (rTorrent-PS); for details see the wiki at
-    http://code.google.com/p/pyroscope/wiki/RtorrentExtended
   * Added rtorrent.rc include with standard PyroScope additions
     to make configuration easier
   * mktor/chtor: --set can now create new namespaces, e.g. you
