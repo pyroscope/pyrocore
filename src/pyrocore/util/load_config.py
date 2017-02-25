@@ -254,7 +254,7 @@ class ConfigLoader(object):
             os.mkdir(self.config_dir)
 
         # Create default configuration files
-        for filepath in walk_resources("pyrocore", "data/config"):
+        for filepath in sorted(walk_resources("pyrocore", "data/config")):
             # Load from package data
             text = pymagic.resource_string("pyrocore", "data/config" + filepath)
 
