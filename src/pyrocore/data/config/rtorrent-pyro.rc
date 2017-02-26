@@ -73,4 +73,5 @@ branch=pyro.extended=,"schedule = bind_tag_show,0,0,\"ui.bind_key=download_list,
 branch=pyro.extended=,"schedule = bind_collapsed,0,0,\"ui.bind_key=download_list,*,view.collapsed.toggle=\""
 
 # Import files from "~/.pyroscope/rtorrent.d"
+execute = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,~/.pyroscope/rtorrent.d/*.rc.default
 import = ~/.pyroscope/rtorrent.d.rc
