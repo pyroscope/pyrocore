@@ -71,6 +71,7 @@ rm -f "$HOME/.pyroscope"/rtorrent-0.8.?.rc.default 2>/dev/null || :
 
 # Update config defaults
 ./bin/pyroadmin --create-config
+./bin/pyroadmin --create-import "~/.pyroscope/rtorrent.d/*.rc.default"
 
 # Make sure PATH is decent
 ( echo $PATH | tr : \\n | egrep "^$HOME/bin/?\$" >/dev/null ) || echo "$HOME/bin is NOT on your PATH, you need to fix that"'!'

@@ -1,13 +1,10 @@
 #############################################################################
 # Standard PyroScope rTorrent Configuration
 #
-# Include this into your main "~/.rtorrent.rc" for 0.8.6 by adding...
-#   system.method.insert = pyro.extended, value|const, 0
-#   system.method.insert = pyro.bin_dir, string|const,
-#   system.method.insert = pyro.rtorrent_rc, string|const|private, "$cat=~/.pyroscope/rtorrent-,\"$system.client_version=\",.rc.default"
-#   import = $pyro.rtorrent_rc=
-#
-# For 0.8.8 and up, use "method.insert" instead.
+# Include this into your main "~/.rtorrent.rc" by adding...
+#   method.insert = pyro.extended, value|const, 0
+#   method.insert = pyro.bin_dir, string|const,
+#   import = ~/.pyroscope/rtorrent-pyro.rc.default
 #
 # Remove the ".default" if you want to change something (else your
 # changes get over-written on update).
@@ -15,15 +12,9 @@
 # Set "pyro.extended" to 1 to activate rTorrent-PS features, but ONLY if
 # you actually run that patched version of rTorrent!
 #
-# Things marked with ♯087♯ are for version 0.8.7+ only (the migration script
-# reacts on that)!
-#
 
 # Log extension switch setting
 branch=pyro.extended=,print=rTorrent-PS\\\ features\\\ active!,print=rTorrent-PS\\\ features\\\ NOT\\\ active!
-
-# COMMAND: Return startup time (can be used to calculate uptime)
-method.insert = startup_time,value|const,$system.time=
 
 # EVENTS: Timestamps
 #   tm_loaded = time loaded into client
@@ -57,16 +48,6 @@ view.add = rtcontrol
 view.filter = rtcontrol,false=
 branch=pyro.extended=,"schedule = bind_rtcontrol,0,0,\"ui.bind_key=download_list,^,ui.current_view.set=rtcontrol\""
 
-# UI/VIEW: Show current messages (bound to '!' in rT-PS)
-view.add = messages
-view.filter = messages,d.message=
-branch=pyro.extended=,false=,"view.sort_new = messages,less=d.message="
-branch=pyro.extended=,"view.sort_new = messages,\"compare=,d.message=,d.name=\""
-branch=pyro.extended=,false=,"view.sort_current = messages,less=d.message="
-branch=pyro.extended=,"view.sort_current = messages,\"compare=,d.message=,d.name=\""
-method.insert = ui.messages.show,simple,"ui.current_view.set=messages ;view.sort=messages ;print=$view.size=messages,\" message(s)!\""
-branch=pyro.extended=,"schedule = bind_messages,0,0,\"ui.bind_key=download_list,!,ui.messages.show=\""
-
 # UI/VIEW: Trackers (all items, sorted by tracker domain and name)
 #          This will ONLY work if you use rT-PS!
 branch=pyro.extended=,"view.add = trackers"
@@ -91,21 +72,5 @@ branch=pyro.extended=,"schedule = bind_tag_show,0,0,\"ui.bind_key=download_list,
 # UI/VIEW: Bind "*" to toggle between collapsed and expanded display
 branch=pyro.extended=,"schedule = bind_collapsed,0,0,\"ui.bind_key=download_list,*,view.collapsed.toggle=\""
 
-# UI/CMD: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
-method.insert = s,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=*,$argument.0=,*\""
-method.insert = t,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
-method.insert = f,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,$argument.0="
-
-# UI/CMD: Housekeeping (delete item + data)
-method.insert = purge,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--purge,--yes,\"$cat=hash=,$d.hash=\""
-method.insert = cull,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--cull,--yes,\"$cat=hash=,$d.hash=\""
-
-# TORQUE: View for queue manager job
-# (this is not the buggy internal scheduler controlled by scheduler.max_active)
-view.add = pyrotorque
-view.filter = pyrotorque,false=
-schedule = filter_pyrotorque,1,15,"view.filter = pyrotorque,\"or={d.up.rate=,d.down.rate=,d.peers_connected=,not=$d.complete=}\""
-branch=pyro.extended=,"schedule = bind_pyrotorque,0,0,\"ui.bind_key=download_list,Q,ui.current_view.set=pyrotorque\""
-
-# TORQUE: Daemon watchdog
-method.insert = pyro.watchdog,simple|private,"execute.nothrow=bash,-c,\"$cat=\\\"test ! -f \\\",$argument.0=,\\\"/run/pyrotorque || \\\",$pyro.bin_dir=,\\\"pyrotorque --cron \\\",$argument.1=\""
+# Import files from "~/.pyroscope/rtorrent.d"
+import = ~/.pyroscope/rtorrent.d.rc

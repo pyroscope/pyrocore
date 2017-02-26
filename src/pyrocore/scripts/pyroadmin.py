@@ -20,6 +20,7 @@
 from __future__ import with_statement
 
 import sys
+import glob
 import shutil
 import pprint
 import urllib2
@@ -27,8 +28,9 @@ from zipfile import ZipFile
 from StringIO import StringIO
 from contextlib import closing
 
+from pyrobase import fmt
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore import config
+from pyrocore import config, error
 from pyrocore.util import os, load_config, metafile, matching
 
 
@@ -54,6 +56,9 @@ class AdminTool(ScriptBaseWithConfig):
             help="create default configuration")
         self.add_bool_option("--dump-config",
             help="pretty-print configuration including all defaults")
+        self.add_value_option("--create-import", "GLOB-PATTERN",
+            action="append", default=[],
+            help="create import file for a '.d' directory")
         self.add_value_option("-o", "--output", "KEY,KEY1.KEY2=DEFAULT,...",
             action="append", default=[],
             help="select fields to print, output is separated by TABs;"
@@ -156,6 +161,35 @@ class AdminTool(ScriptBaseWithConfig):
                 else:
                     print '\t'.join(values)
 
+        elif self.options.create_import:
+            conf_dirs = {}
+
+            # Scan given directories
+            for pattern in self.options.create_import:
+                folder = os.path.expanduser(os.path.dirname(pattern))
+                if not os.path.isdir(folder):
+                    raise error.UserError("Parent of --create-import is not a directory: {}"
+                                          .format(os.path.dirname(pattern)))
+
+                folder = os.path.abspath(folder)
+                files = glob.glob(os.path.join(folder, os.path.basename(pattern)))
+                if not files:
+                    self.LOG.warning("Pattern '{}' did not resolve to any files!".format(pattern))
+                conf_dirs[folder] = [x[len(folder+os.sep):] for x in files]
+
+            # Write ".rc" files
+            for folder, files in conf_dirs.items():
+                conf_rc = [
+                    "# Include for '{}', generated {}".format(os.path.basename(folder), fmt.iso_datetime())
+                ]
+                folder = folder.replace(os.path.expanduser('~') + os.sep, '~' + os.sep)
+                for name in sorted(files):
+                    conf_rc.append('import = "{}{}{}"'.format(folder, os.sep, name))
+
+                self.LOG.info("Creating %r..." % (folder + '.rc',))
+                with open(os.path.expanduser(folder + '.rc'), 'wt') as handle:
+                    handle.write('\n'.join(conf_rc + ['']))
+
         elif self.options.screenlet:
             # Create screenlet stub
             stub_dir = os.path.expanduser("~/.screenlets/PyroScope")
@@ -165,7 +199,7 @@ class AdminTool(ScriptBaseWithConfig):
             stub_template = os.path.join(os.path.dirname(config.__file__), "data", "screenlet")
             shutil.copytree(stub_template, stub_dir)
 
-            py_stub= os.path.join(stub_dir, "PyroScopeScreenlet.py")
+            py_stub = os.path.join(stub_dir, "PyroScopeScreenlet.py")
             with closing(open(py_stub, "w")) as handle:
                 handle.write('\n'.join([
                     "#! %s" % sys.executable,
