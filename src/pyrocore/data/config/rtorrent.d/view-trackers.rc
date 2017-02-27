@@ -1,0 +1,7 @@
+# UI/VIEW: Trackers (all items, sorted by tracker domain and name)
+#          This will ONLY work if you use rT-PS!
+branch=pyro.extended=,"view.add = trackers"
+branch=pyro.extended=,"view.collapsed.toggle = trackers"
+branch=pyro.extended=,"view.sort_new     = trackers,\"compare=,d.tracker_domain=,d.name=\""
+branch=pyro.extended=,"view.sort_current = trackers,\"compare=,d.tracker_domain=,d.name=\""
+branch=pyro.extended=,"schedule = bind_trackers,0,0,\"ui.bind_key=download_list,t,ui.current_view.set=trackers\""

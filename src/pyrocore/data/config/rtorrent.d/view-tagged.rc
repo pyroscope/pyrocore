@@ -1,0 +1,12 @@
+# UI/VIEW: Manually tag (select) items
+# . = toggle focused item between tagged and untagged
+# T = clear all tags
+# : = show tagged items view
+view.add = tagged
+view.persistent = tagged
+branch=pyro.extended=,view.collapsed.toggle=tagged
+method.insert = view.toggle_visible,simple,"branch=d.views.has=$argument.0=,view.set_not_visible=$argument.0=,view.set_visible=$argument.0="
+method.insert = pyro.view_tagged_clear,simple|private,"view.filter=tagged,false= ;d.multicall2=main,d.views.remove=tagged"
+branch=pyro.extended=,"schedule = bind_tag_toggle,0,0,\"ui.bind_key=download_list,.,view.toggle_visible=tagged\""
+branch=pyro.extended=,"schedule = bind_tag_clear,0,0,\"ui.bind_key=download_list,T,pyro.view_tagged_clear=\""
+branch=pyro.extended=,"schedule = bind_tag_show,0,0,\"ui.bind_key=download_list,:,ui.current_view.set=tagged\""

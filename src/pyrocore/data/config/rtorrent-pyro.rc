@@ -1,7 +1,7 @@
 #############################################################################
 # Standard PyroScope rTorrent Configuration
 #
-# Include this into your main "~/.rtorrent.rc" by adding...
+# Include this into your main "~/.rtorrent.rc" by adding
 #   method.insert = pyro.extended, value|const, 0
 #   method.insert = pyro.bin_dir, string|const,
 #   import = ~/.pyroscope/rtorrent-pyro.rc.default
@@ -12,65 +12,6 @@
 # Set "pyro.extended" to 1 to activate rTorrent-PS features, but ONLY if
 # you actually run that patched version of rTorrent!
 #
-
-# Log extension switch setting
-branch=pyro.extended=,print=rTorrent-PS\\\ features\\\ active!,print=rTorrent-PS\\\ features\\\ NOT\\\ active!
-
-# EVENTS: Timestamps
-#   tm_loaded = time loaded into client
-#   tm_started = time of *first* start
-#   tm_completed = time of completion
-method.insert = pyro.tm_started.now,simple|private,"d.custom.set=tm_started,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.resumed,time_stamp,"branch=d.custom=tm_started,false=,pyro.tm_started.now="
-method.set_key = event.download.inserted_new,time_stamp,"d.custom.set=tm_loaded,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.finished,time_stamp,"d.custom.set=tm_completed,$cat=$system.time= ;d.save_full_session="
-
-# EVENTS: Activation intervals
-method.insert = pyro.activations.append,simple|private,"d.custom.set=activations,\"$cat=$d.custom=activations,$argument.0=,$system.time=\" ;d.save_full_session="
-method.set_key = event.download.paused,activations,"pyro.activations.append=P"
-method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
-
-# EVENTS: Timestamp 'tm_downloaded' (time when meta (torrent) file was downloaded)
-method.insert = pyro._tm_downloaded_stat, simple|private, "execute.capture=sh,-c,\"echo -n \$(stat -c %Y \\\"$1\\\")\",getDownloadedDate,(d.tied_to_file)"
-method.insert = pyro._tm_downloaded_init, simple|private, "d.custom.set=tm_downloaded,(cat,(pyro._tm_downloaded_stat)); d.save_full_session="
-method.insert = d.timestamp.downloaded, simple, "d.custom=tm_downloaded"
-method.set_key = event.download.inserted_new, set_downloaded_date, ((pyro._tm_downloaded_init))
-
-# SCHEDULE: Set "last_active" custom field for items that have peers
-method.insert = d.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
-schedule = update_last_active,24,42,"d.multicall2=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
-method.insert = d.last_active.print, simple|private, "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
-method.set_key = event.download.resumed,last_active,"d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.finished,last_active,"d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
-
-# UI/VIEW: Default view for filtering results (bound to '^' key in rT-PS)
-view.add = rtcontrol
-view.filter = rtcontrol,false=
-branch=pyro.extended=,"schedule = bind_rtcontrol,0,0,\"ui.bind_key=download_list,^,ui.current_view.set=rtcontrol\""
-
-# UI/VIEW: Trackers (all items, sorted by tracker domain and name)
-#          This will ONLY work if you use rT-PS!
-branch=pyro.extended=,"view.add = trackers"
-branch=pyro.extended=,"view.collapsed.toggle = trackers"
-branch=pyro.extended=,"view.sort_new     = trackers,\"compare=,d.tracker_domain=,d.name=\""
-branch=pyro.extended=,"view.sort_current = trackers,\"compare=,d.tracker_domain=,d.name=\""
-branch=pyro.extended=,"schedule = bind_trackers,0,0,\"ui.bind_key=download_list,t,ui.current_view.set=trackers\""
-
-# UI/VIEW: Manually tag (select) items
-# . = toggle focused item between tagged and untagged
-# T = clear all tags
-# : = show tagged items view
-view.add = tagged
-view.persistent = tagged
-branch=pyro.extended=,view.collapsed.toggle=tagged
-method.insert = view.toggle_visible,simple,"branch=d.views.has=$argument.0=,view.set_not_visible=$argument.0=,view.set_visible=$argument.0="
-method.insert = pyro.view_tagged_clear,simple|private,"view.filter=tagged,false= ;d.multicall2=main,d.views.remove=tagged"
-branch=pyro.extended=,"schedule = bind_tag_toggle,0,0,\"ui.bind_key=download_list,.,view.toggle_visible=tagged\""
-branch=pyro.extended=,"schedule = bind_tag_clear,0,0,\"ui.bind_key=download_list,T,pyro.view_tagged_clear=\""
-branch=pyro.extended=,"schedule = bind_tag_show,0,0,\"ui.bind_key=download_list,:,ui.current_view.set=tagged\""
-
-# UI/VIEW: Bind "*" to toggle between collapsed and expanded display
-branch=pyro.extended=,"schedule = bind_collapsed,0,0,\"ui.bind_key=download_list,*,view.collapsed.toggle=\""
 
 # Import files from "~/.pyroscope/rtorrent.d"
 execute = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,~/.pyroscope/rtorrent.d/*.rc.default
