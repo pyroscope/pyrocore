@@ -6,13 +6,13 @@
 #   method.insert = pyro.bin_dir, string|const,
 #   import = ~/.pyroscope/rtorrent-pyro.rc.default
 #
-# Remove the ".default" if you want to change something (else your
-# changes get over-written on update).
+# Remove the ".default" if you want to change something (else your changes
+# get over-written on update, when you put them into ``*.default`` files).
 #
 # Set "pyro.extended" to 1 to activate rTorrent-PS features, but ONLY if
 # you actually run that patched version of rTorrent!
 #
 
-# Import files from "~/.pyroscope/rtorrent.d"
+# Import files from "~/.pyroscope/rtorrent.d" (default versions)
 execute = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,~/.pyroscope/rtorrent.d/*.rc.default
 import = ~/.pyroscope/rtorrent.d/.import.rc

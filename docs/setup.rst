@@ -155,8 +155,8 @@ these commands (note that most settings actually reside in an
     # Make sure you end it with a "/"; if this is left empty, then the shell's path is searched.
     method.insert = pyro.bin_dir, string|const,
 
-    # Remove the ".default" if you want to change something (else your
-    # changes get over-written on update).
+    # Remove the ".default" if you want to change something (else your changes
+    # get over-written on update, when you put them into ``*.default`` files).
     import = ~/.pyroscope/rtorrent-pyro.rc.default
 
     # TORQUE: Daemon watchdog schedule

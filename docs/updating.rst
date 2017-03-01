@@ -186,8 +186,8 @@ To upgrade your existing installation, follow these steps:
 
    .. code-block:: ini
 
-      # Remove the ".default" if you want to change something (else your
-      # changes get over-written on update).
+      # Remove the ".default" if you want to change something (else your changes
+      # get over-written on update, when you put them into ``*.default`` files).
       import = ~/.pyroscope/rtorrent-pyro.rc.default
 
 #. Read the :ref:`QueueManager` section if you plan to use item queueing
