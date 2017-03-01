@@ -15,4 +15,4 @@
 
 # Import files from "~/.pyroscope/rtorrent.d"
 execute = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,~/.pyroscope/rtorrent.d/*.rc.default
-import = ~/.pyroscope/rtorrent.d.rc
+import = ~/.pyroscope/rtorrent.d/.import.rc

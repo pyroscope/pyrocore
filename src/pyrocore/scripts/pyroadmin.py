@@ -173,9 +173,11 @@ class AdminTool(ScriptBaseWithConfig):
 
                 folder = os.path.abspath(folder)
                 files = glob.glob(os.path.join(folder, os.path.basename(pattern)))
+                files = [x[len(folder+os.sep):] for x in files]
+                files = [x for x in files if not x.startswith('.')]
                 if not files:
                     self.LOG.warning("Pattern '{}' did not resolve to any files!".format(pattern))
-                conf_dirs[folder] = [x[len(folder+os.sep):] for x in files]
+                conf_dirs[folder] = files
 
             # Write ".rc" files
             for folder, files in conf_dirs.items():
@@ -186,8 +188,8 @@ class AdminTool(ScriptBaseWithConfig):
                 for name in sorted(files):
                     conf_rc.append('import = "{}{}{}"'.format(folder, os.sep, name))
 
-                self.LOG.info("Creating %r..." % (folder + '.rc',))
-                with open(os.path.expanduser(folder + '.rc'), 'wt') as handle:
+                self.LOG.info("Creating %r..." % (folder + '/.import.rc',))
+                with open(os.path.expanduser(folder + '/.import.rc'), 'wt') as handle:
                     handle.write('\n'.join(conf_rc + ['']))
 
         elif self.options.screenlet:
