@@ -93,7 +93,7 @@ s/d\.set_uploads_max/d\.uploads_max\.set/g
 s/execute_capture/execute.capture/g
 s/execute_capture/execute\.capture/g
 s/execute_capture_nothrow/execute\.capture_nothrow/g
-s/execute/execute2/g
+s/execute=/execute2=/g
 s/execute_nothrow/execute\.nothrow/g
 s/execute_raw/execute\.raw/g
 s/execute_raw_nothrow/execute\.raw_nothrow/g
