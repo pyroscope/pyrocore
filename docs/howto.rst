@@ -92,7 +92,7 @@ The basic pattern works like this:
         …
 
         # Mark item as handled
-        rtcontrol -q hash=$hash --tag "$guard" --flush --yes --cron
+        rtcontrol -q --from-view $hash // --tag "$guard" --flush --yes --cron
     done
 
 A variant of this is to use a flag file in the download's directory –
