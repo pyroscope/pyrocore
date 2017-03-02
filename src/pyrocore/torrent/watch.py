@@ -172,7 +172,7 @@ class MetafileHandler(object):
                 for key, val in sorted(self.ns.items())
             ))
 
-            load_cmd(self.ns.pathname, *tuple(self.ns.commands))
+            load_cmd('', self.ns.pathname, *tuple(self.ns.commands))
             time.sleep(.05) # let things settle
 
             # Announce new item
