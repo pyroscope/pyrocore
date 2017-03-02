@@ -75,7 +75,7 @@ class QueueManager(object):
 
         #down_traffic = sum(i.down for i in downloading)
         ##self.LOG.info("%d downloading, down %d" % (len(downloading), down_traffic))
-        
+
         # Start eligible items
         for idx, item in enumerate(startable):
             # Check if we reached 'start_now' in this run
@@ -101,12 +101,12 @@ class QueueManager(object):
             # If we made it here, start it!
             downloading.append(item)
             self.LOG.info("%s '%s' [%s, #%s]" % (
-                "WOULD start" if self.config.dry_run else "Starting", 
+                "WOULD start" if self.config.dry_run else "Starting",
                 fmt.to_utf8(item.name), item.alias, item.hash))
             if not self.config.dry_run:
                 item.start()
                 if not self.config.quiet:
-                    self.proxy.log('', "%s: Started '%s' {%s}" % (
+                    self.proxy.log(xmlrpc.NOHASH, "%s: Started '%s' {%s}" % (
                         self.__class__.__name__, fmt.to_utf8(item.name), item.alias,
                     ))
 
@@ -116,7 +116,7 @@ class QueueManager(object):
         """
         try:
             self.proxy = config.engine.open()
-            
+
             # Get items from 'pyrotorque' view
             items = list(config.engine.items(self.VIEWNAME, cache=False))
 
@@ -129,5 +129,4 @@ class QueueManager(object):
             self.LOG.debug("%s - %s" % (config.engine.engine_id, self.proxy))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             # only debug, let the statistics logger do its job
-            self.LOG.debug(str(exc)) 
-
+            self.LOG.debug(str(exc))

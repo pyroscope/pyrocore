@@ -172,7 +172,7 @@ class MetafileHandler(object):
                 for key, val in sorted(self.ns.items())
             ))
 
-            load_cmd('', self.ns.pathname, *tuple(self.ns.commands))
+            load_cmd(xmlrpc.NOHASH, self.ns.pathname, *tuple(self.ns.commands))
             time.sleep(.05) # let things settle
 
             # Announce new item
@@ -184,7 +184,7 @@ class MetafileHandler(object):
                     " [queued]" if queue_it else "",
                     (" [startable]"  if queue_it else " [started]") if start_it else " [normal]",
                 )
-                self.job.proxy.log('', msg)
+                self.job.proxy.log(xmlrpc.NOHASH, msg)
 
             # TODO: Evaluate fields and set client values
             # TODO: Add metadata to tied file if requested

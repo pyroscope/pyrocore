@@ -27,6 +27,9 @@ from pyrocore import config, error
 from pyrocore.util import os, fmt, pymagic
 
 
+NOHASH = ''  # use named constant to make new-syntax commands with no hash easily searchable
+
+
 class XmlRpcError(Exception):
     """Base class for XMLRPC protocol errors."""
 
