@@ -22,7 +22,7 @@ from collections import defaultdict
 
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.util import os, fmt
+from pyrocore.util import os, fmt, xmlrpc
 #from pyrocore.torrent import engine
 
 
@@ -120,7 +120,7 @@ class RtorrentMove(ScriptBaseWithConfig):
         # TODO: Handle cases where target is the original download path correctly!
         #       i.e.   rtmv foo/ foo   AND   rtmv foo/ .   (in the download dir)
         proxy = config.engine.open()
-        download_path = os.path.realpath(os.path.expanduser(proxy.get_directory().rstrip(os.sep)))
+        download_path = os.path.realpath(os.path.expanduser(proxy.directory.default(xmlrpc.NOHASH).rstrip(os.sep)))
         target = self.resolve_slashed(target)
         source_paths = [self.resolve_slashed(i) for i in self.args[:-1]]
         source_realpaths = [os.path.realpath(i) for i in source_paths]
@@ -195,7 +195,7 @@ class RtorrentMove(ScriptBaseWithConfig):
                 # if was_active: item.pause()
 
                 # TODO: move across devices
-                # TODO: move using "d.set_directory" instead of symlinks
+                # TODO: move using "d.directory.set" instead of symlinks
                 if os.path.islink(item.path):
                     if os.path.abspath(dst) == os.path.abspath(item.path.rstrip(os.sep)):
                         # Moving back to original place
