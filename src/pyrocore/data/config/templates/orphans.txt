@@ -6,7 +6,7 @@
 global os, download_dir, entries
 from pyrocore.util import os
 
-download_dir = proxy.get_directory().rstrip(os.sep) + os.sep
+download_dir = proxy.directory.default().rstrip(os.sep) + os.sep
 
 # List all non-symlinked entries in the download directory
 entries = set(i 

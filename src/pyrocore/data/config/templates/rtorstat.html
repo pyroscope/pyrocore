@@ -8,7 +8,7 @@
 import time
 }}{{def title}}
 rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}} 
-- {{proxy.get_name()}}
+- {{proxy.session.name()}}
 - up {{(time.time() - proxy.startup_time()) | duration}}
 {{enddef}}{{def show(loop, d)}}
 <div class="torrent">

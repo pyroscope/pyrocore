@@ -14,7 +14,7 @@ viewdef = [i.split() for i in (
     "5 active",
 )]
 
-df = os.statvfs(proxy.get_directory())
+df = os.statvfs(proxy.directory.default())
 df = df.f_bavail * df.f_bsize
 
 max_entries = 4
@@ -36,21 +36,21 @@ active = [] #[i for i in matches if i.is_complete]
 }}{{enddef}}{{#
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 }}{{'rTorrent'|header}}      {{'VERSION  %CPU %MEM UPTIME'|label}}
-{{"%-13.13s" % proxy.get_name()}} {{"%-8s" % proxy.system.client_version()}}{{#
+{{"%-13.13s" % proxy.session.name()}} {{"%-8s" % proxy.system.client_version()}}{{#
            }} {{subprocess.Popen(["ps", "h", "-o", "%cpu,%mem,etime", "-p", str(proxy.system.pid())], stdout=subprocess.PIPE).communicate()[0].rstrip()}}
 
 {{'Views   '|header}}      {{for title, name in viewdef}}   {{str(proxy.view.size('', name)).ljust(5)}} {{endfor}}
 ${voffset -14}              ${font Webdings:size=12}{{for title, name in viewdef}}{{title|label}}     {{endfor}}${font }
-${voffset 4}{{'Data    '|header}}      {{'U'|label}}{{proxy.get_up_total()|sz}}   {{'D'|label}}{{proxy.get_down_total()|sz}}{{#
+${voffset 4}{{'Data    '|header}}      {{'U'|label}}{{proxy.throttle.global_up.total()|sz}}   {{'D'|label}}{{proxy.throttle.global_down.total()|sz}}{{#
 }}   {{'F'|label}}{{df|sz}}
-{{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}% {{#
-    }}${color #0d6}${execgraph echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
-${voffset -20} {{proxy.get_up_rate()|sz}}/s
-             {{pc_col(100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}} ${execbar echo {{min(100, 100.0 * proxy.get_up_rate() / proxy.get_upload_rate())}}}${color }
-{{'Download'|label}} {{"%3.0f" % (100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}% {{#
-    }}${color #d06}${execgraph echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}${color }
-${voffset -20} {{proxy.get_down_rate()|sz}}/s 
-             {{pc_col(100.0 * proxy.get_down_rate() / proxy.get_download_rate())}} ${execbar echo {{min(100, 100.0 * proxy.get_down_rate() / proxy.get_download_rate())}}}${color }
+{{'Upload  '|label}} {{"%3.0f" % (100.0 * proxy.throttle.global_up.rate() / proxy.throttle.global_up.max_rate())}}% {{#
+    }}${color #0d6}${execgraph echo {{min(100, 100.0 * proxy.throttle.global_up.rate() / proxy.throttle.global_up.max_rate())}}}${color }
+${voffset -20} {{proxy.throttle.global_up.rate()|sz}}/s
+             {{pc_col(100.0 * proxy.throttle.global_up.rate() / proxy.throttle.global_up.max_rate())}} ${execbar echo {{min(100, 100.0 * proxy.throttle.global_up.rate() / proxy.throttle.global_up.max_rate())}}}${color }
+{{'Download'|label}} {{"%3.0f" % (100.0 * proxy.throttle.global_down.rate() / proxy.throttle.global_down.max_rate())}}% {{#
+    }}${color #d06}${execgraph echo {{min(100, 100.0 * proxy.throttle.global_down.rate() / proxy.throttle.global_down.max_rate())}}}${color }
+${voffset -20} {{proxy.throttle.global_down.rate()|sz}}/s
+             {{pc_col(100.0 * proxy.throttle.global_down.rate() / proxy.throttle.global_down.max_rate())}} ${execbar echo {{min(100, 100.0 * proxy.throttle.global_down.rate() / proxy.throttle.global_down.max_rate())}}}${color }
 {{if incomplete}}
 
 {{'Incomplete'|header}} {{'['|label}}{{len(incomplete)}}{{']'|label}}
