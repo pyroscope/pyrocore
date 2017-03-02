@@ -79,7 +79,7 @@ class MetafileHandler(object):
 
         # Check whether item is already loaded
         try:
-            name = self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)
+            name = self.job.proxy.d.name(self.ns.info_hash, fail_silently=True)
         except xmlrpc.HashNotFound:
             pass
         except xmlrpc.ERRORS, exc:
@@ -161,12 +161,12 @@ class MetafileHandler(object):
                 queue_it = True
 
             # Load metafile into client
-            load_cmd = self.job.proxy.load_verbose
+            load_cmd = self.job.proxy.load.verbose
             if queue_it:
                 if not start_it:
-                    self.ns.commands.append("d.set_priority=0")
+                    self.ns.commands.append("d.priority.set=0")
             elif start_it:
-                load_cmd = self.job.proxy.load_start_verbose
+                load_cmd = self.job.proxy.load.start_verbose
 
             self.job.LOG.debug("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, repr(val))
                 for key, val in sorted(self.ns.items())
@@ -179,7 +179,7 @@ class MetafileHandler(object):
             if not self.job.config.quiet:
                 msg = "%s: Loaded '%s' from '%s/'%s%s" % (
                     self.job.__class__.__name__,
-                    fmt.to_utf8(self.job.proxy.d.get_name(self.ns.info_hash, fail_silently=True)),
+                    fmt.to_utf8(self.job.proxy.d.name(self.ns.info_hash, fail_silently=True)),
                     os.path.dirname(self.ns.pathname).rstrip(os.sep),
                     " [queued]" if queue_it else "",
                     (" [startable]"  if queue_it else " [started]") if start_it else " [normal]",
@@ -410,11 +410,12 @@ class TreeWatchCommand(ScriptBaseWithConfig):
             ok = handler.parse()
             self.LOG.debug("Metafile '%s' would've %sbeen loaded" % (pathname, "" if ok else "NOT "))
 
-            handler.addinfo()
-            post_process = str if self.options.verbose else logutil.shorten
-            self.LOG.info("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, post_process(repr(val)))
-                for key, val in sorted(handler.ns.items())
-            ))
+            if ok:
+                handler.addinfo()
+                post_process = str if self.options.verbose else logutil.shorten
+                self.LOG.info("Templating values are:\n    %s" % "\n    ".join("%s=%s" % (key, post_process(repr(val)))
+                    for key, val in sorted(handler.ns.items())
+                ))
 
 
     @classmethod
