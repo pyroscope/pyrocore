@@ -1,11 +1,10 @@
-# UI/VIEW: Collapse all default views
+# UI/VIEW: Collapse all built-in views
 #
 # To disable this, use
 #
-#   echo >>~/.pyroscope/rtorrent.d/.rcignore "view-zz-collapse.rc.default"
+#   echo >>~/.pyroscope/rtorrent.d/.rcignore "collapse-built-in-views.rc.default"
 #
 
-# built-in
 branch=(pyro.extended),(view.collapsed.toggle,active)
 branch=(pyro.extended),(view.collapsed.toggle,complete)
 branch=(pyro.extended),(view.collapsed.toggle,hashing)
@@ -16,9 +15,3 @@ branch=(pyro.extended),(view.collapsed.toggle,name)
 branch=(pyro.extended),(view.collapsed.toggle,seeding)
 branch=(pyro.extended),(view.collapsed.toggle,started)
 branch=(pyro.extended),(view.collapsed.toggle,stopped)
-
-# pyrocore
-branch=(pyro.extended),(view.collapsed.toggle,messages)
-branch=(pyro.extended),(view.collapsed.toggle,rtcontrol)
-branch=(pyro.extended),(view.collapsed.toggle,tagged)
-branch=(pyro.extended),(view.collapsed.toggle,trackers)
