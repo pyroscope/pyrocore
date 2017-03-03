@@ -1,6 +1,9 @@
 # Log extension switch setting
 branch=pyro.extended=,print=rTorrent-PS\\\ features\\\ active!,print=rTorrent-PS\\\ features\\\ NOT\\\ active!
 
+# COMMAND: Return startup time (can be used to calculate uptime)
+method.insert = startup_time,value|const,$system.time=
+
 # UI/VIEW: Default view for filtering results (bound to '^' key in rT-PS)
 view.add = rtcontrol
 view.filter = rtcontrol,false=

@@ -1,6 +1,3 @@
-# COMMAND: Return startup time (can be used to calculate uptime)
-method.insert = startup_time,value|const,$system.time=
-
 # UI/CMD: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
 method.insert = s,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=*,$argument.0=,*\""
 method.insert = t,simple|private,"execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
