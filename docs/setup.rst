@@ -69,6 +69,17 @@ configuration locations):
 
     pyroadmin --dump-config
 
+To start over with a pristine set of configuration files, and remove
+any stale ones, add the ``--remove-all-rc-files`` option:
+
+.. code-block:: bash
+
+    pyroadmin --create-config --remove-all-rc-files
+
+Be aware that this *really* removes **any** ``*.rc`` and ``*.rc.default``
+file in ``~/.pyroscope`` and its subfolder ``rtorrent.d``, before writing
+a new set of files.
+
 .. note::
 
     Each configuration file is accompanied by a matching ``*.default`` file
