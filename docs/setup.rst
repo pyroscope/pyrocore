@@ -74,7 +74,7 @@ any stale ones, add the ``--remove-all-rc-files`` option:
 
 .. code-block:: bash
 
-    pyroadmin --create-config --remove-all-rc-files
+    pyroadmin --remove-all-rc-files --create-config
 
 Be aware that this *really* removes **any** ``*.rc`` and ``*.rc.default``
 file in ``~/.pyroscope`` and its subfolder ``rtorrent.d``, before writing
