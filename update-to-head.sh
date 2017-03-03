@@ -10,6 +10,7 @@ test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
 
 set -e
+MY_SUM=$(md5sum "$0")
 PROJECT_ROOT="$(command cd $(dirname "$0") >/dev/null && pwd)"
 command cd "$PROJECT_ROOT" >/dev/null
 echo "Installing into $PWD..."
@@ -39,6 +40,12 @@ else
     git clone "https://github.com/pyroscope/pyrocore.git" pyroscope
     cd pyroscope
 fi
+
+if test "$MY_SUM" != $(md5sum "$0"); then
+    echo -e "\n\n*** Update script changed, starting over ***\n"
+    exec "$0" "$@"
+fi
+
 . "$PROJECT_ROOT/util.sh" # load funcs
 
 # Ensure virtualenv is there
