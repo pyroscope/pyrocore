@@ -91,8 +91,8 @@ class RtorrentItem(engine.TorrentProxy):
             # Get info for all files
             f_multicall = self._engine._rpc.f.multicall
             f_params = [self._fields["hash"], 0,
-                "f.get_path=", "f.get_size_bytes=", "f.get_last_touched=",
-                "f.get_priority=", "f.is_created=", "f.is_open=",
+                "f.path=", "f.size_bytes=", "f.last_touched=",
+                "f.priority=", "f.is_created=", "f.is_open=",
             ]
             for attr in (attrs or []):
                 f_params.append("f.%s=" % attr)
@@ -188,7 +188,7 @@ class RtorrentItem(engine.TorrentProxy):
                     if len(key) == 1 and key in "12345":
                         val = getattr(self._engine._rpc.d, "get_custom"+key)(self._fields["hash"])
                     else:
-                        val = self._engine._rpc.d.get_custom(self._fields["hash"], key)
+                        val = self._engine._rpc.d.custom(self._fields["hash"], key)
                 except xmlrpc.ERRORS, exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
@@ -227,7 +227,7 @@ class RtorrentItem(engine.TorrentProxy):
             Returns `default` if no trackers are found at all.
         """
         try:
-            response = self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.get_url=", "t.is_enabled=")
+            response = self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.url=", "t.is_enabled=")
         except xmlrpc.ERRORS, exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
@@ -377,7 +377,7 @@ class RtorrentItem(engine.TorrentProxy):
 
     #TODO: def set_files_priority(self, pattern, prio)
     # Set priority of selected files
-    # NOTE: need to call d.update_priorities after f.set_priority!
+    # NOTE: need to call d.update_priorities after f.priority.set!
 
 
     def purge(self):
@@ -687,7 +687,7 @@ class RtorrentEngine(engine.TorrentEngine):
         # Connect and get instance ID (also ensures we're connectable)
         self._rpc = xmlrpc.RTorrentProxy(config.scgi_url)
         self.versions, self.version_info = self._rpc._set_mappings()
-        self.engine_id = self._rpc.get_name()
+        self.engine_id = self._rpc.session.name()
         time_usec = self._rpc.system.time_usec()
 
         # Make sure xmlrpc-c works as expected
@@ -701,13 +701,13 @@ class RtorrentEngine(engine.TorrentEngine):
         if "+ssh:" in config.scgi_url:
             self.startup = int(self._rpc.startup_time() or time.time())
         else:
-            self._session_dir = self._rpc.get_session()
+            self._session_dir = self._rpc.session.path()
             if not self._session_dir:
                 raise error.UserError("You need a session directory, read"
                     " https://pyrocore.readthedocs.io/en/latest/setup.html")
             if not os.path.exists(self._session_dir):
                 raise error.UserError("Non-existing session directory %r" % self._session_dir)
-            self._download_dir = os.path.expanduser(self._rpc.get_directory())
+            self._download_dir = os.path.expanduser(self._rpc.directory.default())
             if not os.path.exists(self._download_dir):
                 raise error.UserError("Non-existing download directory %r" % self._download_dir)
             self.startup = os.path.getmtime(os.path.join(self._session_dir, "rtorrent.lock"))
@@ -741,7 +741,7 @@ class RtorrentEngine(engine.TorrentEngine):
         # else get a list of hashes from the view, make a diff
         # to what's in the cache, fetch the rest. Getting the
         # fields for one hash might be done by a special view
-        # (filter: $d.get_hash == hashvalue)
+        # (filter: $d.hash == hashvalue)
 
         if view is None:
             view = engine.TorrentView(self, "main")
@@ -816,11 +816,11 @@ class RtorrentEngine(engine.TorrentEngine):
         view = self._resolve_viewname(view or "rtcontrol")
 
         # Add view if needed
-        if view not in proxy.view_list():
-            proxy.view_add(view)
+        if view not in proxy.view.list():
+            proxy.view.add(view)
 
         # Clear view and show it
-        proxy.view_filter(view, "false=")
+        proxy.view.filter(view, "false=")
         proxy.ui.current_view.set(view)
 
         # Add items
