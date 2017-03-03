@@ -817,10 +817,10 @@ class RtorrentEngine(engine.TorrentEngine):
 
         # Add view if needed
         if view not in proxy.view.list():
-            proxy.view.add(view)
+            proxy.view.add(xmlrpc.NOHASH, view)
 
         # Clear view and show it
-        proxy.view.filter(view, "false=")
+        proxy.view.filter(xmlrpc.NOHASH, view, "false=")
         proxy.ui.current_view.set(view)
 
         # Add items
