@@ -171,10 +171,20 @@ class AdminTool(ScriptBaseWithConfig):
                     raise error.UserError("Parent of --create-import is not a directory: {}"
                                           .format(os.path.dirname(pattern)))
 
+                # Read names of files to ignore
+                ignore_file = os.path.join(folder, '.rcignore')
+                rc_ignore = set()
+                if os.path.exists(ignore_file):
+                    with open(ignore_file) as handle:
+                        for line in handle:
+                            line = line.strip()
+                            if line and not line.startswith('#'):
+                                rc_ignore.add(line)
+
                 folder = os.path.abspath(folder)
                 files = glob.glob(os.path.join(folder, os.path.basename(pattern)))
                 files = [x[len(folder+os.sep):] for x in files]
-                files = [x for x in files if not x.startswith('.')]
+                files = [x for x in files if not x.startswith('.') and x not in rc_ignore]
                 if not files:
                     self.LOG.warning("Pattern '{}' did not resolve to any files!".format(pattern))
                 conf_dirs[folder] = files
