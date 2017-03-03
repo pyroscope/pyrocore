@@ -34,8 +34,9 @@ pyrocore (0.5.1) precise; urgency=low
   * API: added 'subst' templating helper
   * API: 'connect()' helper for easy interactive use
   * API: added 'h.' helper namespace to templating
+  * pyroadmin: added '--remove-all-rc-files' option
 
- -- pyroscope <pyroscope.project@gmail.com>  Sun, 05 Feb 2017 12:45:03 +0100
+ -- pyroscope <pyroscope.project@gmail.com>  Sat, 04 Mar 2017 00:32:56 +0100
 
 pyrocore (0.4.2) jaunty; urgency=low
 

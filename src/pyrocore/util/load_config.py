@@ -22,6 +22,7 @@
 from __future__ import with_statement
 
 import re
+import glob
 import errno
 import StringIO
 import ConfigParser
@@ -244,7 +245,7 @@ class ConfigLoader(object):
         self._loaded = True
 
 
-    def create(self):
+    def create(self, remove_all_rc_files=False):
         """ Create default configuration files at either the default location or the given directory.
         """
         # Check and create configuration directory
@@ -252,6 +253,14 @@ class ConfigLoader(object):
             self.LOG.debug("Configuration directory %r already exists!" % (self.config_dir,))
         else:
             os.mkdir(self.config_dir)
+
+        if remove_all_rc_files:
+            for subdir in ('.', 'rtorrent.d'):
+                config_files = list(glob.glob(os.path.join(os.path.abspath(self.config_dir), subdir, '*.rc')))
+                config_files += list(glob.glob(os.path.join(os.path.abspath(self.config_dir), subdir, '*.rc.default')))
+                for config_file in config_files:
+                    self.LOG.info("Removing %r!" % (config_file,))
+                    os.remove(config_file)
 
         # Create default configuration files
         for filepath in sorted(walk_resources("pyrocore", "data/config")):

@@ -55,6 +55,8 @@ class AdminTool(ScriptBaseWithConfig):
 
         self.add_bool_option("--create-config",
             help="create default configuration")
+        self.add_bool_option("--remove-all-rc-files",
+            help="write new versions of BOTH .rc and .rc.default files, and remove stale ones")
         self.add_bool_option("--dump-config",
             help="pretty-print configuration including all defaults")
         self.add_value_option("--create-import", "GLOB-PATTERN",
@@ -100,7 +102,7 @@ class AdminTool(ScriptBaseWithConfig):
         if self.options.create_config:
             # Create configuration
             config_loader = load_config.ConfigLoader(self.options.config_dir)
-            config_loader.create()
+            config_loader.create(self.options.remove_all_rc_files)
 
             # Create directories
             for dirname in self.CONFIG_DIRS:
