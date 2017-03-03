@@ -65,7 +65,7 @@ So, in summary, to customize a ``~/rtorrent1`` instance:
 
 .. code-block:: shell
 
-    echo >~/.pyroscope/rtorrent.d/.rcignore "commands.rc.default"
+    echo >>~/.pyroscope/rtorrent.d/.rcignore "commands.rc.default"
     sed -r -e 's:--detach:--detach,-D,"rtorrent_rc=~/rtorrent1/rtorrent.rc":' \
         ~/.pyroscope/rtorrent.d/commands.rc.default \
         >>~/rtorrent1/rtorrent.rc
