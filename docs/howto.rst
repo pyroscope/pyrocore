@@ -32,6 +32,9 @@ Here's an example:
 Working With Several rTorrent Instances
 ---------------------------------------
 
+Switching to the 'rtorrent.rc' of an Instance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Both ``rtcontrol`` and ``rtxmlrpc`` read the existing rTorrent configuration
 to extract some settings, so that you don't need to maintain them twice – most
 importantly the details of the XMLRPC connection. That is why ``config.ini``
@@ -42,6 +45,33 @@ Just pass the option ``-D rtorrent_rc=PATH_TO/rtorrent.rc`` to either
 ``rtcontrol`` or ``rtxmlrpc``, to read the configuration of another instance
 than the default one. For convenient use on the command line, you can add
 shell aliases to you profile.
+
+Customizing the Default Configuration per Instance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Since version ``0.5.1``, the extensions to the rTorrent configuration are
+loaded via the commands in ``~/.pyroscope/rtorrent-pyro.rc.default``,
+importing snippets found in the ``~/.pyroscope/rtorrent.d/`` directory.
+The ``commands.rc.default`` file located there contains commands that use
+``rtcontrol`` behind the scenes.
+
+As shown in the previous section, these commands must use ``-D`` to load the
+right configuration. Instead of switching to importing the ``*.rc`` variants
+wholesale, with all the work that comes with that after updates,
+you can simply ignore just the ``commands.rc.default`` file,
+and replace it with an adapted copy in your *main* configuration file.
+
+So, in summary, to customize a ``~/rtorrent1`` instance:
+
+.. code-block:: shell
+
+    echo >~/.pyroscope/rtorrent.d/.rcignore "commands.rc.default"
+    sed -r -e 's:--detach:--detach,-D,"rtorrent_rc=~/rtorrent1/rtorrent.rc":' \
+        ~/.pyroscope/rtorrent.d/commands.rc.default \
+        >>~/rtorrent1/rtorrent.rc
+
+Now commands like ``s=`` are defined in ``~/rtorrent1/rtorrent.rc``, and
+``commands.rc.default`` is not imported, so no duplicate definition errors occur.
 
 
 Moving All Data for Selected Items to a New Location
