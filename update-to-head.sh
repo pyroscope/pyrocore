@@ -10,7 +10,7 @@ test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
 
 set -e
-MY_SUM=$(md5sum "$0")
+MY_SUM=$(md5sum "$0" | cut -f1 -d' ')
 PROJECT_ROOT="$(command cd $(dirname "$0") >/dev/null && pwd)"
 command cd "$PROJECT_ROOT" >/dev/null
 echo "Installing into $PWD..."
@@ -41,7 +41,7 @@ else
     cd pyroscope
 fi
 
-if test "$MY_SUM" != $(md5sum "$0"); then
+if test "$MY_SUM" != $(md5sum "$0" | cut -f1 -d' '); then
     echo -e "\n\n*** Update script changed, starting over ***\n"
     exec "$0" "$@"
 fi
