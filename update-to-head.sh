@@ -77,6 +77,7 @@ rm -f "$PROJECT_ROOT/src/pyrocore/data/config"/rtorrent-0.8.?.rc 2>/dev/null || 
 rm -f "$HOME/.pyroscope"/rtorrent-0.8.?.rc.default 2>/dev/null || :
 
 # Update config defaults
+rm -f "$HOME/.pyroscope/rtorrent.d.rc" 2>/dev/null || :
 rm -f "$HOME/.pyroscope/rtorrent.d"/view-zz-collapse.rc* 2>/dev/null || :
 ./bin/pyroadmin --create-config
 ./bin/pyroadmin --create-import "~/.pyroscope/rtorrent.d/*.rc.default"
