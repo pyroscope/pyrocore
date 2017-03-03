@@ -23,6 +23,7 @@ import sys
 import glob
 import shutil
 import pprint
+import fnmatch
 import urllib2
 from zipfile import ZipFile
 from StringIO import StringIO
@@ -173,7 +174,7 @@ class AdminTool(ScriptBaseWithConfig):
 
                 # Read names of files to ignore
                 ignore_file = os.path.join(folder, '.rcignore')
-                rc_ignore = set()
+                rc_ignore = set(['.*', '*~'])
                 if os.path.exists(ignore_file):
                     with open(ignore_file) as handle:
                         for line in handle:
@@ -184,7 +185,7 @@ class AdminTool(ScriptBaseWithConfig):
                 folder = os.path.abspath(folder)
                 files = glob.glob(os.path.join(folder, os.path.basename(pattern)))
                 files = [x[len(folder+os.sep):] for x in files]
-                files = [x for x in files if not x.startswith('.') and x not in rc_ignore]
+                files = [x for x in files if not any(fnmatch.fnmatch(x, i) for i in rc_ignore)]
                 if not files:
                     self.LOG.warning("Pattern '{}' did not resolve to any files!".format(pattern))
                 conf_dirs[folder] = files
