@@ -5,7 +5,7 @@
 
 .. note::
 
-    The help output presented here applies to version ``0.4.3.dev20160130`` of the tools.
+    The help output presented here applies to version ``0.5.1.dev20170227`` of the tools.
 
 .. _cli-usage-chtor:
 
@@ -17,6 +17,10 @@ chtor
     Usage: chtor [options] <metafile>...
 
     Change attributes of a bittorrent metafile.
+
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -36,7 +40,7 @@ chtor
       -p, --make-private    make torrent private (DHT/PEX disabled)
       -P, --make-public     make torrent public (DHT/PEX enabled)
       -s KEY=VAL [-s ...], --set=KEY=VAL [-s ...]
-                            set a specific key to the given value
+                            set a specific key to the given value; omit the '=' to delete a key
       -r KEYcREGEXcSUBSTc [-r ...], --regex=KEYcREGEXcSUBSTc [-r ...]
                             replace pattern in a specific key by the given substitution
       -C, --clean           remove all non-standard data from metafile outside the info dict
@@ -65,6 +69,10 @@ hashcheck
 
     Check a bittorrent metafile.
 
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
+
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -87,6 +95,10 @@ lstor
     Usage: lstor [options] <metafile>...
 
     List contents of a bittorrent metafile.
+
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -119,6 +131,10 @@ mktor
     loadable by rTorrent. Which means you can register 'mktor' as a magnet:
     URL handler in Firefox.
 
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
+
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -133,14 +149,14 @@ mktor
       -p, --private         disallow DHT and PEX
       --no-date             leave out creation date
       -o PATH, --output-filename=PATH
-                            optional file name for the metafile
+                            optional file name (or target directory) for the metafile
       -r NAME, --root-name=NAME
                             optional root name (default is basename of the data path)
       -x PATTERN [-x ...], --exclude=PATTERN [-x ...]
                             exclude files matching a glob pattern from hashing
       --comment=TEXT        optional human-readable comment
       -s KEY=VAL [-s ...], --set=KEY=VAL [-s ...]
-                            set a specific key to the given value
+                            set a specific key to the given value; omit the '=' to delete a key
       --no-cross-seed       do not automatically add a field to the info dict ensuring unique info hashes
       -X LABEL, --cross-seed=LABEL
                             set additional explicit label for cross-seeding (changes info hash)
@@ -158,6 +174,10 @@ pyroadmin
 
     Support for administrative tasks.
 
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
+
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -171,6 +191,8 @@ pyroadmin
                             override configuration attributes
       --create-config       create default configuration
       --dump-config         pretty-print configuration including all defaults
+      --create-import=GLOB-PATTERN
+                            create import file for a '.d' directory
       -o KEY,KEY1.KEY2=DEFAULT,..., --output=KEY,KEY1.KEY2=DEFAULT,...
                             select fields to print, output is separated by TABs; default values can be provided after the key
       --reveal              show config internals and full announce URL including keys
@@ -186,6 +208,10 @@ pyrotorque
     Usage: pyrotorque [options]
 
     rTorrent queue manager & daemon.
+
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -222,9 +248,12 @@ rtcontrol
     uppercase OR to build a list of alternative conditions.
 
     For numeric fields, a leading "+" means greater than, a leading "-" means less
-    than. For string fields, the value is a glob pattern (*, ?, [a-z], [!a-z]).
+    than. For string fields, the value is a glob pattern (*, ?, [a-z], [!a-z]), or
+    a regex match enclosed by slashes. All string comparisons are case-ignoring.
     Multiple values separated by a comma indicate several possible choices (OR).
     "!" in front of a filter value negates it (NOT).
+
+    See https://pyrocore.readthedocs.io/en/latest/usage.html#rtcontrol for more.
 
     Examples:
       - All 1:1 seeds         ratio=+1
@@ -238,6 +267,10 @@ rtcontrol
 
     Use --help to get a list of all options.
     Use --help-fields to list all fields and their description.
+
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -268,6 +301,8 @@ rtcontrol
       -s [-]FIELD[,...], --sort-fields=[-]FIELD[,...]
                             fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list
       -r, --reverse-sort    reverse the sort order
+      -A MODE, --anneal=MODE
+                            modify result set using some pre-defined methods
       -/ [N-]M, --select=[N-]M
                             select result subset by item position (counting from 1)
       -V, --view-only       show search result only in default ncurses view
@@ -356,6 +391,9 @@ rtcontrol
       subst                 Replace regex with string.
       sz                    Format a byte sized value.
 
+    Append format specifiers using a '.' to field names in '-o' lists,
+    e.g. 'size.sz' or 'completed.raw.delta'.
+
 .. _cli-usage-rtevent:
 
 rtevent
@@ -366,6 +404,10 @@ rtevent
     Usage: rtevent [options] <event> <infohash> [<args>...]
 
     Handle rTorrent events.
+
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -391,6 +433,10 @@ rtmv
 
     Move data actively seeded in rTorrent.
 
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
+
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -415,8 +461,12 @@ rtxmlrpc
 
     Usage: rtxmlrpc [options] <method> <args>...
 
-    Perform raw rTorrent XMLRPC calls, like "rtxmlrpc get_throttle_up_rate ''".
+    Perform raw rTorrent XMLRPC calls, like "rtxmlrpc throttle.up.rate ''".
     Start arguments with "+" or "-" to indicate they're numbers (type i4 or i8).
+
+    For more details, see the full documentation at
+
+        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
