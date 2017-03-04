@@ -14,4 +14,6 @@ branch=(pyro.extended),((view.collapsed.toggle,main))
 branch=(pyro.extended),((view.collapsed.toggle,name))
 branch=(pyro.extended),((view.collapsed.toggle,seeding))
 branch=(pyro.extended),((view.collapsed.toggle,started))
-branch=(pyro.extended),((view.collapsed.toggle,stopped)
+branch=(pyro.extended),((view.collapsed.toggle,stopped))
+
+# EOF
