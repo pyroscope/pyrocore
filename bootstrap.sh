@@ -32,7 +32,7 @@ git_projects="pyrobase auvyon"
 
 # generic bootstrap
 test -f ./bin/activate || install_venv --no-site-packages
-./bin/pip install -U pip setuptools wheel
+update_venv ./bin/pip
 ln -nfs python ./bin/python-pyrocore
 . ./bin/activate || abend "venv activate failed" || return 1
 

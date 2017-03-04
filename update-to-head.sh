@@ -58,7 +58,7 @@ done
 
 # Update source
 source bin/activate
-bin/pip install -U pip
+update_venv ./bin/pip
 for project in $git_projects; do
     ( builtin cd $project && git pull -q --ff-only )
 done

@@ -41,14 +41,21 @@ ensure_pip() {
     test -x "$PROJECT_ROOT"/bin/pip || abend "installing pip into $PROJECT_ROOT failed"
 }
 
+update_venv() {
+    local pip="${1:?You MUST pass a pip executable}"
+
+    $pip install -U pip
+    $pip install -U setuptools || :
+    $pip install -U wheel || :
+}
+
 install_venv() {
-    venv_version=15.1.0
-    venv_url="https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$venv_version.tar.gz"
+    venv_url="https://pypi.python.org/packages/d4/0c/9840c08189e030873387a73b90ada981885010dd9aea134d6de30cd24cb8/virtualenv-15.1.0.tar.gz"
     mkdir -p "$PROJECT_ROOT/lib"
     test -f "$PROJECT_ROOT/lib/virtualenv.tgz" || \
         $PYTHON -c "import urllib2; open('$PROJECT_ROOT/lib/virtualenv.tgz','w').write(urllib2.urlopen('$venv_url').read())"
     test -d "$PROJECT_ROOT/lib/virtualenv" || \
-        ( cd lib && tar xzf virtualenv.tgz && mv virtualenv-$venv_version virtualenv )
+        ( mkdir -p lib/virtualenv && cd lib/virtualenv && tar -xz -f ../virtualenv.tgz --strip-components=1 )
     deactivate 2>/dev/null || true
     $PYTHON "$PROJECT_ROOT"/lib/virtualenv/virtualenv.py "$@" "$PROJECT_ROOT"
     test -f "$PROJECT_ROOT"/bin/activate || abend "creating venv in $PROJECT_ROOT failed"
