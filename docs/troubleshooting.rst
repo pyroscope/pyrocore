@@ -13,25 +13,25 @@ If you are sure there is a bug, then `open an issue`_ on *GitHub*.
 Make sure that nobody else reported the same problem before you,
 there is a `search box`_ you can use (after the **Filter** button).
 Please note that the *GitHub* issue tracker is not a support platform,
-use e-mail or IRC for that.
+use the mailing list or IRC for that.
 
 .. note::
 
-    Please describe your problem clearly, and provide any pertinent
+    Please **describe your problem clearly**, and provide any pertinent
     information.
-    What are the version numbers of software and OS?
+    What are the **version numbers** of software and OS?
     What did you do?
-    What was the unexpected result?
-    If things worked and ‘suddenly’ broke, what did you change?
+    What was the **unexpected result**?
+    If things worked and ‘suddenly’ broke, **what did you change**?
 
-    On IRC, don't ask if somebody is there, just describe your problem.
+    **On IRC, don't ask if somebody is there, just describe your problem**.
     Eventually, someone will notice you – IRC is a global medium, and
     people *do* live in different time zones than you.
 
     Put up any logs on `0bin <http://0bin.net/>`_ or any other pastebin
-    service, and make sure you removed any personal information you
+    service, and **make sure you removed any personal information** you
     don't want to be publically known. Copy the pastebin link into IRC
-    or into your message.
+    or into your post.
 
 The following helps with querying your system environment, e.g. the
 version of Python and your OS.
