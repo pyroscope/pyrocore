@@ -1,0 +1,7 @@
+# Logging + UI: Add day break to log
+schedule = log_new_day,00:00:05,24:00:00,"print=\"New day \",$to_date=$system.time="
+
+# EVENTS: Logging (don't log "opened", or you get swamped at startup)
+method.set_key = event.download.inserted_new,log,"print=\"LOADED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""
+method.set_key = event.download.finished,log,"print=\"COMPLETED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""
+method.set_key = event.download.closed,log,"print=\"CLOSED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""

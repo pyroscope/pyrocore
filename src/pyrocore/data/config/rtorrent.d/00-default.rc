@@ -12,3 +12,9 @@ branch=pyro.extended=,"schedule = bind_rtcontrol,0,0,\"ui.bind_key=download_list
 
 # UI/VIEW: Bind "*" to toggle between collapsed and expanded display
 branch=pyro.extended=,"schedule = bind_collapsed,0,0,\"ui.bind_key=download_list,*,view.collapsed.toggle=\""
+
+# UI: PgUp/Dn, Home, End
+branch=pyro.extended=,"schedule = bind_home,0,0,\"ui.bind_key=download_list,0406,ui.focus.home=\""
+branch=pyro.extended=,"schedule = bind_end, 0,0,\"ui.bind_key=download_list,0550,ui.focus.end=\""
+branch=pyro.extended=,"schedule = bind_pgup,0,0,\"ui.bind_key=download_list,0523,ui.focus.pgup=\""
+branch=pyro.extended=,"schedule = bind_pgdn,0,0,\"ui.bind_key=download_list,0522,ui.focus.pgdn=\""
