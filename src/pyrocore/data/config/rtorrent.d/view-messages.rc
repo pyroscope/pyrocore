@@ -2,7 +2,7 @@
 
 view.add = messages
 view.filter = messages,d.message=
-branch=(pyro.extended),(view.collapsed.toggle,messages)
+branch=(pyro.extended),((view.collapsed.toggle,messages))
 
 branch=pyro.extended=,false=,"view.sort_new = messages,less=d.message="
 branch=pyro.extended=,"view.sort_new = messages,\"compare=,d.message=,d.name=\""

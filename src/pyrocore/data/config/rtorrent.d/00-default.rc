@@ -7,7 +7,7 @@ method.insert = startup_time,value|const,$system.time=
 # UI/VIEW: Default view for filtering results (bound to '^' key in rT-PS)
 view.add = rtcontrol
 view.filter = rtcontrol,false=
-branch=(pyro.extended),(view.collapsed.toggle,rtcontrol)
+branch=(pyro.extended),((view.collapsed.toggle,rtcontrol))
 branch=pyro.extended=,"schedule = bind_rtcontrol,0,0,\"ui.bind_key=download_list,^,ui.current_view.set=rtcontrol\""
 
 # UI/VIEW: Bind "*" to toggle between collapsed and expanded display
