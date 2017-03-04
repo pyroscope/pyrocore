@@ -50,6 +50,7 @@ fi
 
 # Ensure virtualenv is there
 test -f bin/activate || install_venv --never-download
+update_venv ./bin/pip
 
 # Get base packages initially, for old or yet incomplete installations
 for project in $git_projects; do
@@ -58,7 +59,6 @@ done
 
 # Update source
 source bin/activate
-update_venv ./bin/pip
 for project in $git_projects; do
     ( builtin cd $project && git pull -q --ff-only )
 done
