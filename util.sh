@@ -42,7 +42,7 @@ ensure_pip() {
 }
 
 install_venv() {
-    venv_version=12.0.7
+    venv_version=15.1.0
     venv_url="https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$venv_version.tar.gz"
     mkdir -p "$PROJECT_ROOT/lib"
     test -f "$PROJECT_ROOT/lib/virtualenv.tgz" || \
