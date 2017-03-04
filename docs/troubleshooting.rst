@@ -119,3 +119,15 @@ This is always a host setup problem, check your resource limits,
 namely ``nofile`` (max. number of open file handles)
 and ``nproc`` (max. number of processes).
 Also look into ``~/rtorrent/log/execute.log`` if it contains any hints.
+
+
+"Scheduled command failed: bind_home: Bad key definition." during startup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Your rTorrent-PS is too old to support the new default key bindings
+for ``Home``, ``End``, and so on. Either compile the HEAD of rTorrent-PS
+to update your installation, or else do this:
+
+.. code-block:: shell
+
+    echo >>~/.pyroscope/rtorrent.d/.rcignore "bind-navigation-keys.rc.default"
