@@ -23,7 +23,7 @@ import operator
 from collections import defaultdict
 
 from pyrocore import config, error
-from pyrocore.util import os, pymagic, fmt, traits, matching
+from pyrocore.util import os, pymagic, fmt, traits, matching, metafile
 
 
 #
@@ -346,12 +346,19 @@ class TorrentProxy(object):
     def __repr__(self):
         """ Return a representation of internal state.
         """
+        def mask(key, val):
+            'helper to hide sensitive stuff'
+            if key in ('tracker', 'custom_m_alias'):
+                return key, metafile.mask_keys(val)
+            else:
+                return key, val
+
         attrs = set((field.name for field in FieldDefinition.FIELDS.values()
             if field._accessor or field.name in self._fields
         ))
         return "<%s(%s)>" % (self.__class__.__name__, ", ".join(sorted(
-            ["%s=%r" % (i, getattr(self, i)) for i in attrs] +
-            ["%s=%r" % (i, self._fields[i]) for i in (set(self._fields) - attrs)]
+            ["%s=%r" % mask(i, getattr(self, i)) for i in attrs] +
+            ["%s=%r" % mask(i, self._fields[i]) for i in (set(self._fields) - attrs)]
         )))
 
 
