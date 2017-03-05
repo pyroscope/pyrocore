@@ -7,4 +7,4 @@ branch=(pyro.extended),((view.collapsed.toggle,trackers))
 branch=pyro.extended=,"view.sort_new     = trackers,\"compare=,d.tracker_domain=,d.name=\""
 branch=pyro.extended=,"view.sort_current = trackers,\"compare=,d.tracker_domain=,d.name=\""
 
-branch=(pyro.extended), ((schedule, bind_trackers, 0, 0, "ui.bind_key=download_list,t,ui.current_view.set=trackers"))
+pyro.bind_key = trackers_view, t, "ui.current_view.set=trackers"

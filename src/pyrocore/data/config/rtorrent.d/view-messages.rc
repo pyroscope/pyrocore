@@ -12,4 +12,4 @@ branch=pyro.extended=,"view.sort_current = messages,\"compare=,d.message=,d.name
 
 method.insert = ui.messages.show,simple,"ui.current_view.set=messages ;view.sort=messages ;print=$view.size=messages,\" message(s)!\""
 
-branch=(pyro.extended), ((schedule, bind_messages, 0, 0, "ui.bind_key=download_list,!,ui.messages.show="))
+pyro.bind_key = messages_view, !, "ui.messages.show="
