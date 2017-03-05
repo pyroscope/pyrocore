@@ -39,17 +39,14 @@ The following is how to install the *full* set of dependencies:
 
     ~/lib/pyroscope/bin/pip install -r ~/lib/pyroscope/requirements-torque.txt
 
-The queue manager daemon needs additional settings, but there are
-defaults in place, so the detailed explanation in this section can be
-skipped, if you are OK with using defaults.
-Go directly to the next section :ref:`torque-config` in that case.
+Watch out for any errors, since this installs several Python extensions that *might*
+need some ``*-dev`` OS packages available that you don't have on your machine.
 
-``pyrotorque`` relies on certain additions to ``rtorrent.rc``, these are
-included in the standard ``pyrocore`` include that you added when you
-followed the :doc:`setup`.
-Look for the sections starting with a ``# TORQUE`` comment,
-near the end of that included file,
-if for whatever reason you need to add these manually.
+The ``pyrotorque`` queue manager daemon relies on certain additions to ``rtorrent.rc``,
+these are included in the standard ``pyrocore`` includes
+that you added when you followed the :doc:`setup`.
+If for whatever reason you need to add these manually,
+the file ``~/.pyroscope/rtorrent.d/torque.rc.default`` holds these settings.
 
 The daemon itself is configured by an additional configuration file
 ``~/.pyroscope/torque.ini`` containing the ``[TORQUE]`` section.
