@@ -1,8 +1,7 @@
 # UI/VIEW: Show current messages (bound to '!' in rT-PS)
 
-view.add = messages
-view.filter = messages,d.message=
-branch=(pyro.extended),((view.collapsed.toggle,messages))
+pyro.collapsed_view.add = messages
+view.filter = messages, ((d.message))
 
 branch=pyro.extended=,false=,"view.sort_new = messages,less=d.message="
 branch=pyro.extended=,"view.sort_new = messages,\"compare=,d.message=,d.name=\""

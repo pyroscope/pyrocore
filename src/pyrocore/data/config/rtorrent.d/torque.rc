@@ -1,10 +1,9 @@
 # TORQUE: View for queue manager job
 # (this is not the buggy internal scheduler controlled by scheduler.max_active)
 
-view.add = pyrotorque
-branch=(pyro.extended),((view.collapsed.toggle,pyrotorque))
+pyro.collapsed_view.add = pyrotorque
 
-view.filter = pyrotorque,false=
+view.filter = pyrotorque, ((false))
 schedule = filter_pyrotorque,1,15,"view.filter = pyrotorque,\"or={d.up.rate=,d.down.rate=,d.peers_connected=,not=$d.complete=}\""
 
 pyro.bind_key = pyrotorque_view, Q, "ui.current_view.set=pyrotorque"

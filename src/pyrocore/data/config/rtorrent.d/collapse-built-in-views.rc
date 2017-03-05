@@ -5,15 +5,15 @@
 #   echo >>~/.pyroscope/rtorrent.d/.rcignore "collapse-built-in-views.rc.default"
 #
 
-branch=(pyro.extended),((view.collapsed.toggle,active))
-branch=(pyro.extended),((view.collapsed.toggle,complete))
-branch=(pyro.extended),((view.collapsed.toggle,hashing))
-branch=(pyro.extended),((view.collapsed.toggle,incomplete))
-branch=(pyro.extended),((view.collapsed.toggle,leeching))
-branch=(pyro.extended),((view.collapsed.toggle,main))
-branch=(pyro.extended),((view.collapsed.toggle,name))
-branch=(pyro.extended),((view.collapsed.toggle,seeding))
-branch=(pyro.extended),((view.collapsed.toggle,started))
-branch=(pyro.extended),((view.collapsed.toggle,stopped))
+pyro.view.collapsed.toggle = active
+pyro.view.collapsed.toggle = complete
+pyro.view.collapsed.toggle = hashing
+pyro.view.collapsed.toggle = incomplete
+pyro.view.collapsed.toggle = leeching
+pyro.view.collapsed.toggle = main
+pyro.view.collapsed.toggle = name
+pyro.view.collapsed.toggle = seeding
+pyro.view.collapsed.toggle = started
+pyro.view.collapsed.toggle = stopped
 
 # EOF
