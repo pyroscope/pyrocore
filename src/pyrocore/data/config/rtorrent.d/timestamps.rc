@@ -2,25 +2,37 @@
 #   tm_loaded = time loaded into client
 #   tm_started = time of *first* start
 #   tm_completed = time of completion
-method.insert = pyro.tm_started.now,simple|private,"d.custom.set=tm_started,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.resumed,time_stamp,"branch=d.custom=tm_started,false=,pyro.tm_started.now="
-method.set_key = event.download.inserted_new,time_stamp,"d.custom.set=tm_loaded,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.finished,time_stamp,"d.custom.set=tm_completed,$cat=$system.time= ;d.save_full_session="
+
+method.insert = pyro.tm_started.now, simple|private,\
+    "d.custom.set=tm_started,$cat=$system.time= ;d.save_full_session="
+method.set_key = event.download.resumed, time_stamp,\
+    "branch=d.custom=tm_started,false=,pyro.tm_started.now="
+method.set_key = event.download.inserted_new, time_stamp,\
+    "d.custom.set=tm_loaded,$cat=$system.time= ;d.save_full_session="
+method.set_key = event.download.finished, time_stamp,\
+    "d.custom.set=tm_completed,$cat=$system.time= ;d.save_full_session="
 
 # EVENTS: Activation intervals
-method.insert = pyro.activations.append,simple|private,"d.custom.set=activations,\"$cat=$d.custom=activations,$argument.0=,$system.time=\" ;d.save_full_session="
-method.set_key = event.download.paused,activations,"pyro.activations.append=P"
-method.set_key = event.download.resumed,activations,"pyro.activations.append=R"
+method.insert = pyro.activations.append, simple|private,\
+    "d.custom.set=activations,\"$cat=$d.custom=activations,$argument.0=,$system.time=\" ;d.save_full_session="
+method.set_key = event.download.paused, activations, "pyro.activations.append=P"
+method.set_key = event.download.resumed, activations, "pyro.activations.append=R"
 
 # EVENTS: Timestamp 'tm_downloaded' (time when meta (torrent) file was downloaded)
-method.insert = pyro._tm_downloaded_stat, simple|private, "execute.capture=sh,-c,\"echo -n \$(stat -c %Y \\\"$1\\\")\",getDownloadedDate,(d.tied_to_file)"
-method.insert = pyro._tm_downloaded_init, simple|private, "d.custom.set=tm_downloaded,(cat,(pyro._tm_downloaded_stat)); d.save_full_session="
+method.insert = pyro._tm_downloaded_stat, simple|private,\
+    "execute.capture=sh,-c,\"echo -n \$(stat -c %Y \\\"$1\\\")\",getDownloadedDate,(d.tied_to_file)"
+method.insert = pyro._tm_downloaded_init, simple|private,\
+    "d.custom.set=tm_downloaded,(cat,(pyro._tm_downloaded_stat)); d.save_full_session="
 method.insert = d.timestamp.downloaded, simple, "d.custom=tm_downloaded"
 method.set_key = event.download.inserted_new, set_downloaded_date, ((pyro._tm_downloaded_init))
 
 # SCHEDULE: Set "last_active" custom field for items that have peers
 method.insert = d.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
-schedule = update_last_active,24,42,"d.multicall2=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
-method.insert = d.last_active.print, simple|private, "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
-method.set_key = event.download.resumed,last_active,"d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.finished,last_active,"d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
+schedule = update_last_active, 24, 42,\
+    "d.multicall2=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
+method.insert = d.last_active.print, simple|private,\
+    "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
+method.set_key = event.download.resumed, last_active,\
+    "d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
+method.set_key = event.download.finished, last_active,\
+    "d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="

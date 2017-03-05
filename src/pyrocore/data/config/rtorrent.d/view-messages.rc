@@ -9,6 +9,7 @@ branch=pyro.extended=,"view.sort_new = messages,\"compare=,d.message=,d.name=\""
 branch=pyro.extended=,false=,"view.sort_current = messages,less=d.message="
 branch=pyro.extended=,"view.sort_current = messages,\"compare=,d.message=,d.name=\""
 
-method.insert = ui.messages.show,simple,"ui.current_view.set=messages ;view.sort=messages ;print=$view.size=messages,\" message(s)!\""
+method.insert = ui.messages.show, simple,\
+    "ui.current_view.set=messages ;view.sort=messages ;print=$view.size=messages,\" message(s)!\""
 
 pyro.bind_key = messages_view, !, "ui.messages.show="
