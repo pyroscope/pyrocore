@@ -79,7 +79,7 @@ only changing a few values from the defaults to demonstrate key features:
     job.queue.downloading_max   = 3
     job.queue.startable         = is_ignored=0 message= prio>0
             [ prio>2 OR [ NOT [ traits=audio kind_25=jpg,png,tif,bmp ] ] ]
-    job.queue.downloading       = [ prio>1 [ down>0 OR started=-2i ] ]
+    job.queue.downloading       = [ prio>1 [ down>1 OR started=-2i ] ]
 
     # Tree watch (works together with the queue)
     job.treewatch.active        = True
@@ -160,7 +160,7 @@ i.e. the started-but-incomplete requirement.
 
 .. code-block:: ini
 
-    job.queue.downloading = [ prio>1 [ down>0 OR started=-2i ] ]
+    job.queue.downloading = [ prio>1 [ down>1 OR started=-2i ] ]
 
 In plain English, this example says we only count items
 that have a normal or high priority,
