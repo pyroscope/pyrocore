@@ -1,9 +1,13 @@
 # TORQUE: View for queue manager job
 # (this is not the buggy internal scheduler controlled by scheduler.max_active)
+
 view.add = pyrotorque
+branch=(pyro.extended),((view.collapsed.toggle,pyrotorque))
+
 view.filter = pyrotorque,false=
 schedule = filter_pyrotorque,1,15,"view.filter = pyrotorque,\"or={d.up.rate=,d.down.rate=,d.peers_connected=,not=$d.complete=}\""
-branch=pyro.extended=,"schedule = bind_pyrotorque,0,0,\"ui.bind_key=download_list,Q,ui.current_view.set=pyrotorque\""
+
+branch=(pyro.extended), ((schedule, bind_pyrotorque, 0, 0, "ui.bind_key=download_list,Q,ui.current_view.set=pyrotorque"))
 
 # TORQUE: Daemon watchdog
 method.insert = pyro.watchdog,simple|private,"execute.nothrow=bash,-c,\"$cat=\\\"test ! -f \\\",$argument.0=,\\\"/run/pyrotorque || \\\",$pyro.bin_dir=,\\\"pyrotorque --cron \\\",$argument.1=\""

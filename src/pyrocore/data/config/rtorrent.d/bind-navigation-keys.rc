@@ -6,7 +6,7 @@
 #
 # See the "Trouble-Shooting Guide" in the manual for when and why to do that.
 
-branch=pyro.extended=,"schedule = bind_home,0,0,\"ui.bind_key=download_list,0406,ui.focus.home=\""
-branch=pyro.extended=,"schedule = bind_end, 0,0,\"ui.bind_key=download_list,0550,ui.focus.end=\""
-branch=pyro.extended=,"schedule = bind_pgup,0,0,\"ui.bind_key=download_list,0523,ui.focus.pgup=\""
-branch=pyro.extended=,"schedule = bind_pgdn,0,0,\"ui.bind_key=download_list,0522,ui.focus.pgdn=\""
+branch=(pyro.extended), ((schedule, bind_home, 0, 0, "ui.bind_key=download_list,0406,ui.focus.home="))
+branch=(pyro.extended), ((schedule, bind_end,  0, 0, "ui.bind_key=download_list,0550,ui.focus.end="))
+branch=(pyro.extended), ((schedule, bind_pgup, 0, 0, "ui.bind_key=download_list,0523,ui.focus.pgup="))
+branch=(pyro.extended), ((schedule, bind_pgdn, 0, 0, "ui.bind_key=download_list,0522,ui.focus.pgdn="))
