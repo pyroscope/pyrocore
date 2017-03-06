@@ -51,11 +51,11 @@ method.insert = pyro.category.update, simple,\
 # completion handler to create target paths.
 
 method.insert = d.category.set, private|simple,\
-    "d.custom.set=category,(argument.0) ; d.custom1.set=(argument.0)"
+    "d.custom1.set=(argument.0) ; pyro.category.update=(d.custom,category) ; d.custom.set=category,(argument.0) ; pyro.category.update=(argument.0)"
 
 method.insert = load.category.normal, private|simple,\
-    "load.normal=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0))"
+    "load.normal=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0)) ; pyro.category.update=(argument.0)"
 method.insert = load.category.start, private|simple,\
-    "load.start=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0))"
+    "load.start=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0)) ; pyro.category.update=(argument.0)"
 
 # END categories
