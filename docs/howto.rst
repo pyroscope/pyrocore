@@ -1,6 +1,44 @@
 Tips & How-Tos
 ==============
 
+Adding Category Views to the rTorrent UI
+----------------------------------------
+
+Version ``0.5.1`` enables you to easily add category views,
+that also play nice with *ruTorrent* labels in ``custom_1``.
+Since this relies on key bindings, it only works using *rTorrent-PS*.
+
+First, you need to define your category names and watches,
+like in this example:
+
+.. code-block:: shell
+
+    cd ~/rtorrent
+    ~/lib/pyroscope/src/scripts/add-categories.sh books hdtv movies
+
+It is recommended to stick to alphanumeric category names,
+and use ``_`` for word separation.
+To remove a category, just edit the ``rtorrent.d/categories.rc`` file.
+
+The watches put loaded items into the given category,
+and they expect metafiles in ``~/rtorrent/watch/‹category-name›``.
+
+.. note::
+
+    After these configuration changes, don't forget to restart *rTorrent*.
+
+
+In the *rTorrent-PS* user interface, you can now work with the following keys:
+
+ * Rotate through category views using ``<`` and ``>``.
+ * The ``|`` key updates the current category view, i.e. filters for new or removed items.
+
+The sort order of these views is the same as ``main``,
+and if you switch to any other view and back to categories,
+you always start at the first category view
+(from the sorted list of category names).
+
+
 Dumping Items as a JSON Array
 -----------------------------
 
