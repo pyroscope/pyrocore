@@ -4,9 +4,11 @@
 #
 
 export RT_HOME="${RT_HOME:-$HOME/rtorrent}"
+mkdir -p "$RT_HOME"
+command cd "$RT_HOME"
 
 # Create "rtorrent.rc"
-echo "*** Creating 'rtorrent.rc'..."
+echo "*** Creating 'rtorrent.rc' in '$RT_HOME'..."
 sed -e "s:RT_HOME:$RT_HOME:" <~/lib/pyroscope/docs/examples/rtorrent.rc >$RT_HOME/rtorrent.rc
 
 # Download pimp-my-box source
