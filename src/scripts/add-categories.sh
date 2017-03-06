@@ -16,7 +16,7 @@ cat >$cat_rc <<EOF
 #   ${categories[@]}
 
 # "Other" category for empty labels
-pyro.category.add = (false)
+pyro.category.add = (cat,)
 EOF
 
 for i in $(seq ${#categories[@]}); do
