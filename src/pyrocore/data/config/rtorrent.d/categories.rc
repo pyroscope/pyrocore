@@ -29,6 +29,13 @@ pyro.bind_key = category_view_next, >,\
 method.insert = pyro.category.add, private|simple,\
     "view.add=(cat, category_, (argument.0)) ; pyro.view.collapsed.toggle=(cat, category_, (argument.0))"
 
+# HELPER: Compare item category (label) to a given text (arg.0), for filtering
+method.insert = pyro._in_category, simple|private, "equal={d.custom1=,argument.0=}"
+
+# HELPER: Filter a category view
+method.insert = pyro.category.update, simple,\
+    "view.filter = (cat, category_, (argument.0)), pyro._in_category=$argument.0="
+
 
 # HELPER: Categorized watches
 #

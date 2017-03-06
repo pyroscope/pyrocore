@@ -84,14 +84,8 @@ class CategoryManager(ScriptBaseWithConfig):
             self.LOG.info("{} category view '{}'.".format(
                 "Updating" if self.options.update else "Switching to", new_view))
 
-            # Filter by category
-            new_match = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
-                "custom_1={}".format(new_view[self.PREFIX_LEN:]))
-            self.LOG.debug("View filter for '{}' is: [ {} ]".format(new_view, new_match))
-            matches = [x for x in config.engine.items() if new_match(x)]
-            config.engine.show(matches, new_view)
-
-            # Switch to filtered view
+            # Update and switch to filtered view
+            proxy.pyro.category.update(xmlrpc.NOHASH, new_view[self.PREFIX_LEN:])
             proxy.ui.current_view.set(new_view)
 
         else:
