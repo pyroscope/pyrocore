@@ -31,12 +31,17 @@ pyrocore (0.5.1) precise; urgency=low
   * pyroadmin: added '--create-import' action
   * rtorrent config: added 'tagged' view handling
   * rtorrent config: 'd.timestamp.downloaded' attribute (thanks @chros73)
+  * pyroadmin: added '--remove-all-rc-files' option
+  * UI: Rotate through color schemes with the '~' key
+  * UI: Rotate through category views using '<' and '>'
+  * UI: The '|' keys updates the current category view
+  * UI: Show uptime and other info by pressing 'u'
+  * UI: Send a manual scrape for the current item with '&'
   * API: added 'subst' templating helper
   * API: 'connect()' helper for easy interactive use
   * API: added 'h.' helper namespace to templating
-  * pyroadmin: added '--remove-all-rc-files' option
 
- -- pyroscope <pyroscope.project@gmail.com>  Sat, 04 Mar 2017 00:32:56 +0100
+ -- pyroscope <pyroscope.project@gmail.com>  Mon, 06 Mar 2017 14:58:45 +0100
 
 pyrocore (0.4.2) jaunty; urgency=low
 
