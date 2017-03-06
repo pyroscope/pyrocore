@@ -3,12 +3,21 @@
 # Add views and watches to the rTorrent condiguration,
 # for the categories provided as arguments.
 
+set -e
+
 cat_rc="rtorrent.d/categories.rc"
 
 touch "$cat_rc"
-categories=( $({ grep pyro.category.add "$cat_rc" | tr -d ' ' | cut -f2 -d=; echo "$@"; } | sort -u) )
+categories=( $({ grep pyro.category.add "$cat_rc" | tr -d ' ' | \
+                 cut -f2 -d= | egrep '^[_a-zA-Z0-9]+$'; echo "$@" | tr ' ' \\n; } | sort -u) )
 
-echo -e >$cat_rc "# Category Definitions for:\n#   ${categories[@]}"
+cat >$cat_rc <<EOF
+# Category Definitions for:
+#   ${categories[@]}
+
+# "Other" category for empty labels
+pyro.category.add = (false)
+EOF
 
 for i in $(seq ${#categories[@]}); do
     name="${categories[$(($i - 1))]}"
