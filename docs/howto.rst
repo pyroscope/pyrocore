@@ -18,10 +18,12 @@ like in this example:
 
 It is recommended to stick to alphanumeric category names,
 and use ``_`` for word separation.
-To remove a category, just edit the ``rtorrent.d/categories.rc`` file.
 
 The watches put loaded items into the given category,
 and they expect metafiles in ``~/rtorrent/watch/‹category-name›``.
+
+To remove a category, just edit it out of the ``rtorrent.d/categories.rc`` file,
+and then call the ``add-categories.sh`` script without any arguments to clean things up.
 
 .. note::
 
