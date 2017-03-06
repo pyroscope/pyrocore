@@ -34,7 +34,7 @@ pyrocore (0.5.1) precise; urgency=low
   * pyroadmin: added '--remove-all-rc-files' option
   * UI: Rotate through color schemes with the '~' key
   * UI: Rotate through category views using '<' and '>'
-  * UI: The '|' keys updates the current category view
+  * UI: The '|' key updates the current category view
   * UI: Show uptime and other info by pressing 'u'
   * UI: Send a manual scrape for the current item with '&'
   * API: added 'subst' templating helper
