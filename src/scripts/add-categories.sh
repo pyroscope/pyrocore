@@ -24,8 +24,8 @@ for i in $(seq ${#categories[@]}); do
 
     mkdir -p "watch/$name"
     echo -e >>$cat_rc \
-        "\npyro.category.add = $name" \
-        "\nschedule = watch_$(printf '%02d' $i), $((10 + $i)), 10," \
+        "\npyro.category.add = $name\nschedule =" \
+        "category_watch_$(printf '%02d' $i), $((10 + $i)), 10," \
         "((load.category.normal, $name))"
 done
 
