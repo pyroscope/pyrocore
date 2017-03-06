@@ -13,7 +13,7 @@
 # Try to balance calls to not fire them up at the same time, since multiscraping
 # isn't implemented in libtorrent.
 #
-# Polls for elapsed scrape intervals every 5 minutes and distinguish between 2 groups:
+# Polls for elapsed scrape intervals every 5 minutes, and splits items into two groups:
 #   - transferring (uploading and/or downloading) items: update every 10 minutes
 #   - all others: update every 12 hours
 #
