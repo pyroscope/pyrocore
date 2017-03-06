@@ -25,6 +25,16 @@ and they expect metafiles in ``~/rtorrent/watch/‹category-name›``.
 To remove a category, just edit it out of the ``rtorrent.d/categories.rc`` file,
 and then call the ``add-categories.sh`` script without any arguments to clean things up.
 
+On an existing installation, to auto-create categories for all the *ruTorrent* labels
+you already have (and that also fit the *alphanumeric* constraint), call this:
+
+.. code-block:: shell
+
+    cd ~/rtorrent
+    ~/lib/pyroscope/src/scripts/add-categories.sh \
+        $(rtcontrol custom_1=\! -qo custom_1 | egrep '^[_a-zA-Z0-9]+$' | sort -u)
+
+
 .. note::
 
     After these configuration changes, don't forget to restart *rTorrent*.
