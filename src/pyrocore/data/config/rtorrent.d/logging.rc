@@ -1,3 +1,7 @@
+# To disable this, use
+#
+#   echo >>~/.pyroscope/rtorrent.d/.rcignore "logging.rc.default"
+
 # Logging + UI: Add day break to log
 schedule = log_new_day,00:00:05,24:00:00,"print=\"New day \",$to_date=$system.time="
 
