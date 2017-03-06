@@ -18,6 +18,11 @@ curl -L -o /tmp/$USER-pimp-my-box.tgz \
 tar -xz --strip-components=5 -f /tmp/$USER-pimp-my-box.tgz \
     "pimp-my-box-master/roles/rtorrent-ps/templates/rtorrent/rtorrent.d"
 
+if test ! -f ~/bin/_event.download.finished; then
+    echo -e >~/bin/_event.download.finished '#/bin/bash\necho "$@"'
+    chmod a+rx ~/bin/_event.download.finished
+fi
+
 # Replace Ansible variables
 echo "*** Configuring 'rtorrent.d' snippets..."
 ( command cd rtorrent.d && for i in *.rc; do \
