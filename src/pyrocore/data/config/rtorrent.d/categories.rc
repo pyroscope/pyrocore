@@ -1,0 +1,54 @@
+# UI/Categories: Rotate through category views, and add category watches
+#
+# List all category views:  python-pyrocore -m pyrocore.ui.categories -l
+# Rotate to next view:      python-pyrocore -m pyrocore.ui.categories -qn
+# Rotate to previous view:  python-pyrocore -m pyrocore.ui.categories -qp
+# Re-filter current view:   python-pyrocore -m pyrocore.ui.categories -qu
+#
+# See also 'd.category.set' in 'helper-methods'.
+#
+# Example category definitions:
+#
+#   echo >>rtorrent.d/categories.rc "pyro.category.add = hdtv"
+#   echo >>rtorrent.d/categories.rc "pyro.category.add = movies"
+#   echo >>rtorrent.d/categories.rc "pyro.category.add = books"
+#
+
+# UI/Keys: Prev / Update / Next [ < | > ]
+pyro.bind_key = category_view_prev, <,\
+    "execute.nothrow.bg = (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.categories, -q, --prev"
+
+pyro.bind_key = category_view_update, |,\
+    "execute.nothrow.bg = (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.categories, -q, --update"
+
+pyro.bind_key = category_view_next, >,\
+    "execute.nothrow.bg = (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.categories, -q, --next"
+
+
+# HELPER: Add a category
+method.insert = pyro.category.add, private|simple,\
+    "view.add=(cat, category_, (argument.0)) ; pyro.view.collapsed.toggle=(cat, category_, (argument.0))"
+
+
+# HELPER: Categorized watches
+#
+# This allows you to add concise labelled watches like this:
+#
+#   schedule = watch_hdtv,123,10,((load.category.normal,hdtv))
+#
+# Metafiles are loaded from a subdir with the given category
+# name, in the normal watch folder (cfg.watch).
+#
+# The "category" custom attribute is set to the given label,
+# as is "custom1" (the ruTorrent label). Use either in your
+# completion handler to create target paths.
+
+method.insert = d.category.set, private|simple,\
+    "d.custom.set=category,(argument.0) ; d.custom1.set=(argument.0)"
+
+method.insert = load.category.normal, private|simple,\
+    "load.normal=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0))"
+method.insert = load.category.start, private|simple,\
+    "load.start=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0))"
+
+# END categories
