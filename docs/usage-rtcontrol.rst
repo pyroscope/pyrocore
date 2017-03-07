@@ -137,12 +137,23 @@ You might want to add the following alias definitions to your
     alias rtmsg="rtcontrol -s alias,message,name 'message=?*' message=\!*Tried?all?trackers*"
     alias rtmsgstats="rtcontrol -q -s alias,message -o alias,message 'message=?*' message=\!*Tried?all?trackers* | uniq -c"
     alias rt2days="rtcontrol -scompleted -ocompleted,is_open,up.sz,ratio,alias,name completed=-2d"
+    alias rtls="rtcontrol -qo '{{chr(10).join([d.directory+chr(47)+x.path for x in d.files])}}'"
 
 ``rthot`` shows active torrents every 10 seconds (until you hit CTRL-C),
 ``rtmsg`` lists all torrents that have a non-trivial tracker message,
 ``rtmsgstats`` prints a count of how many messages there are per unique
 combination of tracker and message text, and finally ``rt2days`` gives
 the completion history of the last 48 hours.
+
+``rtls`` lets you create lists of files just like ``ls``:
+
+.. code-block:: bash
+
+    $ rtls /a.boy/ | xargs -d'\n' ls -lgGh
+    -rw-r----- 1 702M Mar  7 17:42 /var/torrent/work/A_Boy_and_His_Dog.avi
+
+If you feed the list of paths into normal ``ls`` as shown,
+you have all the usual options available to you.
 
 
 Defining and Using Custom Output Formats
