@@ -133,19 +133,11 @@ You might want to add the following alias definitions to your
 
 .. code-block:: bash
 
-    alias rthot="watch -n10 'rtcontrol -rs up,down,name xfer=+0 2>&1'"
-    alias rtmsg="rtcontrol -s alias,message,name 'message=?*' message=\!*Tried?all?trackers*"
-    alias rtmsgstats="rtcontrol -q -s alias,message -o alias,message 'message=?*' message=\!*Tried?all?trackers* | uniq -c"
     alias rt2days="rtcontrol -scompleted -ocompleted,is_open,up.sz,ratio,alias,name completed=-2d"
     alias rtls="rtcontrol -qo '{{chr(10).join([d.directory+chr(47)+x.path for x in d.files])}}'"
 
-``rthot`` shows active torrents every 10 seconds (until you hit CTRL-C),
-``rtmsg`` lists all torrents that have a non-trivial tracker message,
-``rtmsgstats`` prints a count of how many messages there are per unique
-combination of tracker and message text, and finally ``rt2days`` gives
-the completion history of the last 48 hours.
-
-``rtls`` lets you create lists of files just like ``ls``:
+``rt2days`` gives the completion history of the last 48 hours,
+and ``rtls`` lets you create lists of files just like ``ls``:
 
 .. code-block:: bash
 
@@ -154,6 +146,13 @@ the completion history of the last 48 hours.
 
 If you feed the list of paths into normal ``ls`` as shown,
 you have all the usual options available to you.
+
+.. note::
+
+    See the
+    `rt-alias.sh <https://github.com/pyroscope/pimp-my-box/blob/master/roles/pyroscope-cli/files/profile.d/rt-alias.sh>`_
+    file of the `pimp-my-box <https://github.com/pyroscope/pimp-my-box/>`_ project
+    for these and some more aliases.
 
 
 Defining and Using Custom Output Formats
