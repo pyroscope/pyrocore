@@ -241,11 +241,13 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="specify display format (use '-o-' to disable item display)")
         self.add_value_option("-O", "--output-template", "FILE",
             help="pass control of output formatting to the specified template")
-        self.add_value_option("-s", "--sort-fields", "[-]FIELD[,...]",
+        self.add_value_option("-s", "--sort-fields", "[-]FIELD[,...] [-s...]",
+            action='append', default=[],
             help="fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list")
         self.add_bool_option("-r", "--reverse-sort",
             help="reverse the sort order")
-        self.add_value_option("-A", "--anneal", "MODE", type='choice', action='append', default=[],
+        self.add_value_option("-A", "--anneal", "MODE [-A...]",
+            type='choice', action='append', default=[],
             choices=('dupes+', 'dupes-', 'dupes=', 'invert', 'unique'),
             help="modify result set using some pre-defined methods")
         self.add_value_option("-/", "--select", "[N-]M",
@@ -424,7 +426,7 @@ class RtorrentControl(ScriptBaseWithConfig):
     def validate_sort_fields(self):
         """ Take care of sorting.
         """
-        sort_fields = self.options.sort_fields
+        sort_fields = ','.join(self.options.sort_fields)
         if sort_fields == '*':
             sort_fields = self.get_output_fields()
 
