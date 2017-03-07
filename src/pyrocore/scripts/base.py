@@ -280,7 +280,7 @@ class ScriptBase(object):
                     raise
         finally:
             # Shut down
-            if log_total:
+            if log_total and self.options:  ## No time logging on --version and such
                 running_time = time.time() - self.startup
                 self.LOG.log(self.STD_LOG_LEVEL, "Total time: %.3f seconds." % running_time)
             logging.shutdown()
