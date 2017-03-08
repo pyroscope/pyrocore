@@ -14,15 +14,24 @@
 # isn't implemented in libtorrent.
 #
 # Polls for elapsed scrape intervals every 5 minutes, and splits items into two groups:
-#   - transferring (uploading and/or downloading) items: update every 10 minutes
-#   - all others: update every 12 hours
+#   - data-transferring items: update every 10 minutes
+#   - idle or stopped items: update every 12 hours
 #
-# To check scrape status, just list recorded scrape times in order:
+# To check the scrape status, just list recorded scrape times in order:
 #
 #   rtcontrol --from started -s* -qco custom_tm_last_scrape.raw.delta,name //
+#
+# To debug, call this after startup (on a test instance with just a few items):
+#
+#   rtxmlrpc pyro.scrape_verbose.set=,1 ; rtxmlrpc pyro.scrape_interval.idle.set=,200
 
 # VALUE: Enable verbose mode by setting to '1' → log any scrape, not just manual ones
-method.insert.value = pyro.last_scrape.verbose, 0
+method.insert.value = pyro.scrape_verbose, 0
+
+# VALUE: Scrape intervals (for active and idle items)
+method.insert.value = pyro.scrape_interval.active,   600
+method.insert.value = pyro.scrape_interval.idle,   43200
+
 
 # HELPER: Log a scraping event
 method.insert = pyro._last_scrape.print, simple|private,\
@@ -32,34 +41,32 @@ method.insert = pyro._last_scrape.print, simple|private,\
 method.insert = pyro._last_scrape.bump, simple|private,\
     "d.custom.set=tm_last_scrape, $cat=$system.time= ; d.save_full_session="
 
-# HELPER: Send the scrape request, set 'tm_last_scrape' timestamp, and save session
-method.insert = d.last_scrape.send, simple,\
-    "d.tracker.send_scrape=0 ; pyro._last_scrape.bump= ; branch=pyro.last_scrape.verbose=,pyro._last_scrape.print="
+# COMMAND: Send the scrape request, set 'tm_last_scrape' timestamp, and save session
+method.insert = d.tracker.bump_scrape, simple,\
+    "d.tracker.send_scrape=0 ; pyro._last_scrape.bump= ; branch=pyro.scrape_verbose=,pyro._last_scrape.print="
 
 # HELPER: Check if the required time interval (arg.0) has passed,
-#         if yes then call 'd.last_scrape.send'
-method.insert = pyro._last_scrape.send_after, simple|private,\
-    "branch={(elapsed.greater, $d.custom=tm_last_scrape, $argument.0=), d.last_scrape.send=}"
+#         if yes then call 'd.tracker.bump_scrape'
+method.insert = pyro._scrape.send_after, simple|private,\
+    "branch={(elapsed.greater, $d.custom=tm_last_scrape, $argument.0=), d.tracker.bump_scrape=}"
 
 # HELPER: Check for non-existing or empty custom field,
 #         to be able to test its validity later
 method.insert = pyro._last_scrape.poll, simple|private,\
-    "branch={d.custom=tm_last_scrape, pyro._last_scrape.send_after=$argument.0=, d.last_scrape.send=}"
+    "branch={d.custom=tm_last_scrape, pyro._scrape.send_after=$argument.0=, d.tracker.bump_scrape=}"
 
-# SCHEDULE: Check for updates every 5 minutes (300 sec), and update scrape info
-#           for active items every 10 minutes (600 - 20 = 580s). Idle items including
-#           stopped ones are only scraped every 12 hours (43200 - 20 = 43180s)
-schedule2 = pyro_last_scrape_check, 321, 300,\
-    "d.multicall2=main, \"branch=\\\"or={d.up.rate=,d.down.rate=}\\\",pyro._last_scrape.poll=580,pyro._last_scrape.poll=43180\""
-
-# option: scrape all started items often (mostly for debugging)
-##schedule2 = pyro_last_scrape_check, 321, 300,\
-##    "d.multicall2=main, \"branch=d.is_open=,pyro._last_scrape.poll=580,pyro._last_scrape.poll=43180\""
+# SCHEDULE: Check for elapsed intervals every 5 minutes, and update scrape info
+#           for active items and idle/stopped ones accoding to their interval settings.
+schedule2 = pyro_last_scrape_check, 333, 300,\
+    ((d.multicall2,main,\
+        "branch=\"or={d.up.rate=,d.down.rate=,}\",\
+            pyro._last_scrape.poll=$pyro.scrape_interval.active=,\
+            pyro._last_scrape.poll=$pyro.scrape_interval.idle="))
 
 # EVENT: Initialize 'tm_last_scrape' for newly added items
 method.set_key = event.download.inserted_new, pyro_last_scrape_init, "pyro._last_scrape.bump="
 
 # UI/Key: Manually send scrape with "&"
-pyro.bind_key = manual_scrape, &, "d.last_scrape.send= ; branch=pyro.last_scrape.verbose=,false=,pyro._last_scrape.print="
+pyro.bind_key = manual_scrape, &, "d.tracker.bump_scrape= ; branch=pyro.scrape_verbose=,false=,pyro._last_scrape.print="
 
 # END auto-scrape
