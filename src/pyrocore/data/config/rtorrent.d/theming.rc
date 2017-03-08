@@ -3,7 +3,7 @@
 # (De-)select a theme:  python-pyrocore -m pyrocore.ui.theming -t ‹name(s)›
 # Select all themes:    python-pyrocore -m pyrocore.ui.theming -a
 # List all themes:      python-pyrocore -m pyrocore.ui.theming -l
-# Rotate to next:       python-pyrocore -m pyrocore.ui.theming -q
+# Rotate to next:       python-pyrocore -m pyrocore.ui.theming -qn
 # Print current path:   python-pyrocore -m pyrocore.ui.theming -qc
 #
 # Example:
@@ -11,6 +11,6 @@
 #   python-pyrocore -m pyrocore.ui.theming -a -t default-256,solarized-blue,solarized-yellow,happy-pastel -l
 
 pyro.bind_key = rotate_theme, ~,\
-    "try_import=(execute.capture_nothrow, (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.theming, -q)"
+    "try_import=(execute.capture_nothrow, (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.theming, -qn)"
 
 try_import=(execute.capture_nothrow, (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.theming, -qc)

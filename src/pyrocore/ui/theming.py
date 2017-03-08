@@ -42,6 +42,8 @@ class ThemeSwitcher(ScriptBaseWithConfig):
             help="list available themes")
         self.add_bool_option("-c", "--current",
             help="print path to currently selected theme")
+        self.add_bool_option("-n", "--next",
+            help="rotate through selected themes, and print new path")
         self.add_bool_option("-a", "--all",
             help="remove any selections, and use all themes")
         self.add_value_option("-t", "--toggle", "NAME",
@@ -49,7 +51,7 @@ class ThemeSwitcher(ScriptBaseWithConfig):
 
 
     def mainloop(self):
-        """ Rotate through available themes that are also listed in ``selected_themes``.
+        """ Handle theme selection changes, or rotate through selection.
         """
         config_dir = self.options.config_dir or os.path.expanduser("~/.pyroscope")
         themes_dir = os.path.join(config_dir, 'color-schemes')
@@ -75,8 +77,14 @@ class ThemeSwitcher(ScriptBaseWithConfig):
                 if name:
                     themes.setdefault(name, filepath)
 
-        # Check special options
-        if not self.options.current:
+        # Use available selected themes in given order, if there are any, else all themes
+        if selected_themes and not set(selected_themes).isdisjoint(set(themes)):
+            theme_list = [x for x in selected_themes if x in themes]
+        else:
+            theme_list = list(sorted(themes))
+
+        # Check options
+        if self.options.list or self.options.all or self.options.toggle:
             if self.options.all:
                 if os.path.exists(selected_file):
                     os.remove(selected_file)
@@ -85,11 +93,10 @@ class ThemeSwitcher(ScriptBaseWithConfig):
             for name in (self.options.toggle or '').replace(',', ' ').split():
                 if name not in themes:
                     self.parser.error("Unknown theme {0!r}, use '--list' to show them".format(name))
+                elif name in selected_themes:
+                    selected_themes = [x for x in selected_themes if x != name]
                 else:
-                    if name in selected_themes:
-                        selected_themes = [x for x in selected_themes if x != name]
-                    else:
-                        selected_themes.append(name)
+                    selected_themes.append(name)
 
                 with open(selected_file, 'wt') as handle:
                     handle.write('\n'.join(selected_themes + ['']))
@@ -103,30 +110,27 @@ class ThemeSwitcher(ScriptBaseWithConfig):
                         name,
                     ))
 
-            if self.options.list or self.options.all or self.options.toggle:
-                return
+        elif self.options.current or self.options.next:
+            # Determine current theme, or rotate to next one
+            new_theme = theme_list[0]
+            if self.options.current and current_theme in theme_list:
+                new_theme = current_theme
+            elif current_theme in theme_list:
+                new_theme = (theme_list * 2)[theme_list.index(current_theme) + 1]
 
-        # Use selected themes in given order, if there is overlap
-        if selected_themes and not set(selected_themes).isdisjoint(set(themes)):
-            theme_list = [x for x in selected_themes if x in themes]
+            # Persist new theme
+            if new_theme != current_theme:
+                with open(current_file, 'wt') as handle:
+                    handle.write(new_theme + '\n')
+
+            # Return result
+            sys.stdout.write(themes[new_theme])
+            sys.stdout.flush()
+
         else:
-            theme_list = list(sorted(themes))
-
-        # Rotate to next theme
-        new_theme = theme_list[0]
-        if self.options.current and current_theme in theme_list:
-            new_theme = current_theme
-        elif current_theme in theme_list:
-            new_theme = (theme_list * 2)[theme_list.index(current_theme) + 1]
-
-        # Persist new theme
-        if new_theme != current_theme:
-            with open(current_file, 'wt') as handle:
-                handle.write(new_theme + '\n')
-
-        # Return result
-        sys.stdout.write(themes[new_theme])
-        sys.stdout.flush()
+            self.LOG.info("Current color theme is '{}'.".format(
+                current_theme if current_theme in theme_list else theme_list[0]))
+            self.LOG.info("Use '--help' to get usage information.")
 
 
 def run(): #pragma: no cover
