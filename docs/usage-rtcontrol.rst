@@ -134,7 +134,7 @@ You might want to add the following alias definitions to your
 .. code-block:: bash
 
     alias rt2days="rtcontrol -scompleted -ocompleted,is_open,up.sz,ratio,alias,name completed=-2d"
-    alias rtls="rtcontrol -qo '{{chr(10).join([d.directory+chr(47)+x.path for x in d.files])}}'"
+    alias rtls="rtcontrol -qo '{{chr(10).join([d.directory+chr(47)+x.path for x in d.files])|h.subst(chr(47)+chr(43),chr(47))}}'"
 
 ``rt2days`` gives the completion history of the last 48 hours,
 and ``rtls`` lets you create lists of files just like ``ls``:
