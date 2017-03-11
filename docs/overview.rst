@@ -16,7 +16,7 @@ collection of tools for the :ref:`bt-protocol` and especially the
     the standard tools.
 
 See the
-`ScreenShotGallery <https://github.com/pyroscope/pyroscope/blob/wiki/ScreenShotGallery.md>`_
+`ScreenShotGallery <https://github.com/pyroscope/rtorrent-ps/blob/master/docs/ScreenShotGallery.md>`_
 if you want to get a first impression without installing the software.
 
 To get in contact and share your experiences with other users of
