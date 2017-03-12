@@ -8,7 +8,8 @@
     There are compensation mechanisms in both projects, but there are limits to those
     — scan the respective changelogs for breaking changes.
 
-    *pyrocore* 0.5 will be the last version to support the old syntax.
+    *pyrocore* 0.5+ will no longer support the old syntax, and thus not work
+    with *rTorrent* 0.8.x versions.
     *rTorrent* 0.9.6 has the old commands disabled by default, and only a
     special command line switch will enable them again, *for now*.
     Also, this documentation uses the new syntax (mostly).
