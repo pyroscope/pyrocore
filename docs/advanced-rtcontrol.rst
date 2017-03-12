@@ -41,6 +41,9 @@ Unlabelled items go to the ``_NOLABEL`` folder.
         --spawn "mkdir -p \"$target/"'{{item.fetch(1) or \"_NOLABEL\"}}"' \
         --spawn 'cp {{item.sessionfile}} "'"$target"'/{{item.fetch(1) or \"_NOLABEL\"}}/{{item.name}}-{{item.hash[:7]}}.torrent"'
 
+The copied metafiles themselves are renamed to the contained name of the item's data,
+plus a small part of the infohash to make these names unique.
+
 
 .. _rtcontrol-exec:
 
