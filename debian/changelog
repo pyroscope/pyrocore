@@ -37,6 +37,7 @@ pyrocore (0.5.1) precise; urgency=low
   * UI: The '|' key updates the current category view
   * UI: Show uptime and other info by pressing 'u'
   * UI: Send a manual scrape for the current item with '&'
+  * UI: Helper commands `tag.add`, `tag.rm`, and `tag.show` (bound to Ctrl-G)
   * API: added 'subst' templating helper
   * API: 'connect()' helper for easy interactive use
   * API: added 'h.' helper namespace to templating

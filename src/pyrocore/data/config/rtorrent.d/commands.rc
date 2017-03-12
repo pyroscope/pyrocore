@@ -8,6 +8,21 @@ method.insert = f, simple|private,\
 
 # UI/CMD: Housekeeping (delete item + data)
 method.insert = purge, simple|private,\
-    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--purge,--yes,\"$cat=hash=,$d.hash=\""
+    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--purge,--yes,--from-view,$d.hash=,//"
 method.insert = cull, simple|private,\
-    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--cull,--yes,\"$cat=hash=,$d.hash=\""
+    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",-q,--detach,--cull,--yes,--from-view,$d.hash=,//"
+
+# UI/CMD: Add, remove, and show tags
+method.insert = tag.show, simple|private,\
+    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,-otag_show,--from-view,$d.hash=,//,--flush"
+#method.insert = tag.show, simple|private,\
+#    "print=\"Tags: \",$d.custom=tags"
+
+method.insert = tag.add, simple|private,\
+    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,-otag_show,--flush,--yes,--from-view,$d.hash=,//,--tag,$argument.0="
+
+method.insert = tag.rm, simple|private,\
+    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,-otag_show,--flush,--yes,--from-view,$d.hash=,//,--tag,\"$cat=-,$argument.0=\""
+
+# UI/Key: Ctrl-G shows the tags of the current item
+pyro.bind_key = tag_show, ^G, "tag.show="
