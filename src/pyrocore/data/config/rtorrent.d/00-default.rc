@@ -6,6 +6,9 @@ branch=pyro.extended=,\
 # COMMAND: Return startup time (can be used to calculate uptime)
 method.insert = startup_time, value|const, $system.time=
 
+# COMMAND: Return path to session file
+method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
+
 # COMMAND: Nicer key binds (hide technical complications)
 method.insert = pyro._bind_schedule, private|simple,\
     "schedule=(argument.0), 0, 0, (argument.1)"
