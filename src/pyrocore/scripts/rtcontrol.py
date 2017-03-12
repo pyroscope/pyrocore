@@ -360,7 +360,10 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Dump to selected target
         if to_log:
-            self.LOG.info(item_text)
+            if callable(to_log):
+                to_log(item_text)
+            else:
+                self.LOG.info(item_text)
         elif self.options.nul:
             sys.stdout.write(item_text + '\0')
             sys.stdout.flush()
