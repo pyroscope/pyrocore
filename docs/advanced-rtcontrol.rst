@@ -31,13 +31,15 @@ call is aborted with an error.
 
 Here's a practical example for using ``--spawn``, it copies all your loaded metafiles
 from the session directory into a folder structure categorized by the *ruTorrent* label.
-Unlabelled items are simply ignored.
+Unlabelled items go to the ``_NOLABEL`` folder.
 
 .. code-block:: bash
 
-    rtcontrol 'custom_1=!' \
-        --spawn "mkdir -p /tmp/metafiles/{{item.fetch(1)}}" \
-        --spawn "cp $HOME/rtorrent/.session/{{item.hash}}.torrent /tmp/metafiles/{{item.fetch(1)}}/{{item.name}}-{{item.hash[:7]}}.torrent"
+    target="/tmp/metafiles"
+    rm -rf "$target"
+    rtcontrol // \
+        --spawn "mkdir -p \"$target/"'{{item.fetch(1) or \"_NOLABEL\"}}"' \
+        --spawn 'cp {{item.sessionfile}} "'"$target"'/{{item.fetch(1) or \"_NOLABEL\"}}/{{item.name}}-{{item.hash[:7]}}.torrent"'
 
 
 .. _rtcontrol-exec:
