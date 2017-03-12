@@ -502,6 +502,8 @@ class TorrentProxy(object):
         accessor=lambda o: os.path.realpath(o.datapath()))
     metafile = ConstantField(fmt.to_unicode, "metafile", "path to torrent file", matcher=matching.PatternFilter,
         accessor=lambda o: os.path.expanduser(fmt.to_unicode(o._fields["metafile"])))
+    sessionfile = ConstantField(fmt.to_unicode, "sessionfile", "path to session file", matcher=matching.PatternFilter,
+        accessor=lambda o: os.path.expanduser(fmt.to_unicode(o.fetch("session_file"))))
     files = OnDemandField(list, "files", "list of files in this item",
         matcher=matching.FilesFilter, formatter=_fmt_files)
     fno = OnDemandField(int, "fno", "number of files in this item", matcher=matching.FloatFilter, engine_name="size_files")
