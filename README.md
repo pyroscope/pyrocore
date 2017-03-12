@@ -9,8 +9,8 @@ They enable you to filter rTorrent's item list for displaying or changing select
 also creating, inspecting and changing ``.torrent`` files, and much more.
 
 An optional daemon process (``pyrotorque``) can add flexible queue management for rTorrent,
-starting items added in bulk slowly over time according to customizable rules,
-and also watch a directory tree recursively for new metafiles using inotify,
+starting items added in bulk slowly over time according to customizable rules.
+The same daemon can also watch one or more directory trees recursively for new metafiles using inotify,
 resulting in instantaneous loading without any polling and no extra configuration for nested directories.
 
 ![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
