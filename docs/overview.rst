@@ -19,12 +19,9 @@ See the
 `ScreenShotGallery <https://github.com/pyroscope/rtorrent-ps/blob/master/docs/ScreenShotGallery.md>`_
 if you want to get a first impression without installing the software.
 
-To get in contact and share your experiences with other users of
-*PyroScope*, join the `pyroscope-users`_ mailing list or the inofficial
-``##rtorrent`` channel on ``irc.freenode.net``.
+.. include:: include-contacts.rst
 
 .. _`PyroScope`: https://github.com/pyroscope
-.. _`pyroscope-users`: http://groups.google.com/group/pyroscope-users
 
 
 .. _glossary:

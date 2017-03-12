@@ -15,8 +15,10 @@ also creating, inspecting and changing ``.torrent`` files, and much more.
 
 An optional daemon process named ``pyrotorque`` can add flexible queue management for rTorrent,
 starting items added in bulk slowly over time according to customizable rules.
-It can also watch a directory tree recursively for new metafiles using *inotify*,
-resulting in instantaneous loading without any polling and no extra configuration for nested directories.
+
+It can also watch a directory tree recursively for new metafiles using *inotify*.
+That means ``.torrent`` files you drop anywhere into that watched tree are loaded instantaneously,
+without any polling and no extra configuration for nested directories.
 
 .. note::
 
