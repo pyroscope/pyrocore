@@ -268,7 +268,7 @@ class RtorrentItem(engine.TorrentProxy):
         tags = tags.lower()
         previous = self.tagged
         tagset = previous.copy()
-        for tag in tags.split():
+        for tag in tags.replace(',', ' ').split():
             if tag.startswith('-'):
                 tagset.discard(tag[1:])
             elif tag.startswith('+'):
