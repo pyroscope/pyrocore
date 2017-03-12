@@ -48,11 +48,13 @@ them at the default location ``~/.pyroscope``, simply call this command:
 
     pyroadmin --create-config
 
-Note that you can delete anything you don't want changed,
-since the defaults are *always* loaded first.
+Note that you can delete any defult setting from ``config.ini`` that you don't want changed.
+These defaults are *always* loaded before your own settings, from a copy the software keeps and updates.
+
 Deleting unchanged defaults has the advantage that on software updates,
-you'll automatically get the newer version of settings, if they're
-updated.
+you'll automatically get the newer version of settings, as soon as they're
+updated. The created ``config.ini.default`` file is just for reference,
+and will be overwritten on updates.
 
 If you need several distinct configuration sets, just add the
 ``--config-dir`` option to commands like so:
@@ -82,10 +84,19 @@ a new set of files.
 
 .. note::
 
-    Each configuration file is accompanied by a matching ``*.default`` file
+    Each *PyroScope* configuration file is accompanied by a matching ``*.default`` file
     that contains the system defaults at the time you last called the
     ``pyroadmin --create-config`` command. These are over-written on repeated
     calls (unlike the real config files), and are for informational purposes only.
+
+    For the *rTorrent* configuration files (``rtorrent-pyro.rc[.default]`` and
+    files in ``rtorrent.d``), the rules are different. These files change frequently,
+    so the ``*.default`` versions are loaded usually, and you get an up-to-date version
+    on a *rTorrent* restart.
+
+    You can ignore specific files in ``rtorrent.d`` if they don't fit or you want to
+    provide your own version under *another* name.
+    See the files themselves for instructions.
 
 
 Setting values in 'config.ini'
