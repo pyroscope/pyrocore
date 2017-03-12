@@ -26,7 +26,7 @@ from collections import defaultdict
 
 from pyrobase.parts import Bunch, DefaultBunch
 from pyrocore import config, error
-from pyrocore.util import os, fmt, osmagic, pymagic, matching
+from pyrocore.util import os, fmt, osmagic, pymagic, matching, xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine, formatting
 
@@ -659,7 +659,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             for item in matches:
                 if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
                     continue
-                if self.options.output_format and str(self.options.output_format) != "-":
+                if (self.options.output_format and not self.options.view_only
+                        and str(self.options.output_format) != "-"):
                     self.emit(item, defaults, to_log=self.options.cron)
 
                 args = tuple([output_formatter(i, ns=dict(item=item)) for i in template_args])
@@ -671,6 +672,9 @@ class RtorrentControl(ScriptBaseWithConfig):
                     getattr(item, action.method)(*args)
                     if self.options.flush:
                         item.flush()
+                    if self.options.view_only:
+                        show_in_client = lambda x: config.engine.open().log(xmlrpc.NOHASH, x)
+                        self.emit(item, defaults, to_log=show_in_client)
 
         # Show in ncurses UI?
         elif not self.options.tee_view and (self.options.to_view or self.options.view_only):
