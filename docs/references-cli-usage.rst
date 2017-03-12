@@ -5,7 +5,7 @@
 
 .. note::
 
-    The help output presented here applies to version ``0.5.1.dev20170227`` of the tools.
+    The help output presented here applies to version ``0.5.1.dev20170312`` of the tools.
 
 .. _cli-usage-chtor:
 
@@ -190,6 +190,8 @@ pyroadmin
       -D KEY=VAL [-D ...], --define=KEY=VAL [-D ...]
                             override configuration attributes
       --create-config       create default configuration
+      --remove-all-rc-files
+                            write new versions of BOTH .rc and .rc.default files, and remove stale ones
       --dump-config         pretty-print configuration including all defaults
       --create-import=GLOB-PATTERN
                             create import file for a '.d' directory
@@ -298,10 +300,10 @@ rtcontrol
                             specify display format (use '-o-' to disable item display)
       -O FILE, --output-template=FILE
                             pass control of output formatting to the specified template
-      -s [-]FIELD[,...], --sort-fields=[-]FIELD[,...]
+      -s [-]FIELD[,...] [-s...], --sort-fields=[-]FIELD[,...] [-s...]
                             fields used for sorting, descending if prefixed with a '-'; '-s*' uses output field list
       -r, --reverse-sort    reverse the sort order
-      -A MODE, --anneal=MODE
+      -A MODE [-A...], --anneal=MODE [-A...]
                             modify result set using some pre-defined methods
       -/ [N-]M, --select=[N-]M
                             select result subset by item position (counting from 1)
@@ -363,6 +365,7 @@ rtcontrol
       ratio                 normalized ratio (1:1 = 1.0)
       realpath              real path to download data
       seedtime              total seeding time after completion
+      sessionfile           path to session file
       size                  data size
       started               time download was FIRST started
       stopped               time download was last stopped or paused
