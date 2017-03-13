@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+import time
+
 from pyrocore import error, config
 from pyrocore.util import os, fmt, xmlrpc, pymagic
 from pyrocore.torrent import engine, matching, formatting
@@ -36,6 +38,7 @@ class QueueManager(object):
         """
         self.config = config or {}
         self.proxy = None
+        self.last_start = 0
         self.LOG = pymagic.get_class_logger(self)
         self.LOG.debug("Queue manager created with config %r" % self.config)
 
@@ -64,6 +67,18 @@ class QueueManager(object):
         startable = [i for i in items if self.config.startable.match(i)]
         if not startable:
             self.LOG.debug("Checked %d item(s), none startable" % (len(items),))
+            return
+
+        # Check intermission delay
+        now = time.time()
+        if now < self.last_start:
+            # compensate for summer time and other oddities
+            self.last_start = now
+        delayed = int(self.last_start + self.config.intermission - now)
+        if delayed > 0:
+            self.LOG.debug("Delaying start of {:d} item(s),"
+                           " due to {:d}s intermission with {:d}s left"
+                           .format(len(startable), self.config.intermission, delayed))
             return
 
         # TODO: sort by priority, then loaded time
@@ -99,6 +114,7 @@ class QueueManager(object):
                     break
 
             # If we made it here, start it!
+            self.last_start = now
             downloading.append(item)
             self.LOG.info("%s '%s' [%s, #%s]" % (
                 "WOULD start" if self.config.dry_run else "Starting",

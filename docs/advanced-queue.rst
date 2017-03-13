@@ -76,6 +76,8 @@ only changing a few values from the defaults to demonstrate key features:
     [TORQUE]
     # Queue manager
     job.queue.active            = True
+    job.queue.schedule          = second=*/5
+    job.queue.intermission      = 60
     job.queue.downloading_max   = 3
     job.queue.startable         = is_ignored=0 message= prio>0
             [ prio>2 OR [ NOT [ traits=audio kind_25=jpg,png,tif,bmp ] ] ]
@@ -127,7 +129,18 @@ Other queue parameters are the minimum number of
 items in 'downloading' state named ``downloading_min``, which trumps
 ``start_at_once``, the maximum number of items to start in one run of the job.
 Both default to ``1``. Since the default schedule is ``second=*/15``,
-that means at most one item is started every 15 seconds.
+that means at most one item would be started every 15 seconds.
+
+But that default is changed using the following two lines:
+
+.. code-block:: ini
+
+    job.queue.schedule          = second=*/5
+    job.queue.intermission      = 60
+
+This makes the queue manager check more often whether there is something startable,
+but prevents it from starting the next batch of items
+when the last start was less than ``intermission`` seconds ago.
 
 The ``startable`` condition (repeated below for reference) prevents ignored items,
 ones having a non-empty message,
