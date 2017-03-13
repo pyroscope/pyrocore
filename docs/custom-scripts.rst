@@ -124,7 +124,7 @@ does for you otherwise).
         """
         try:
             load_config.ConfigLoader().load()
-        except error.LoggableError, exc:
+        except error.LoggableError as exc:
             # Handle accordingly...
         else:
             # Do some other stuff...
