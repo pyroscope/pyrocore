@@ -10,7 +10,17 @@
 #
 #   python-pyrocore -m pyrocore.ui.theming -a -t default-256,solarized-blue,solarized-yellow,happy-pastel -l
 
+# UI/Key: Bind theme rotation to '~'
 pyro.bind_key = rotate_theme, ~,\
     "try_import=(execute.capture_nothrow, (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.theming, -qn)"
 
-try_import=(execute.capture_nothrow, (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.theming, -qc)
+# HELPER: This is used within theme files, currently just announces the switch
+method.insert = pyro.color_theme.name, private|simple,\
+    "print = (cat, \"Switched to '\", (argument.0), \"' color theme\")"
+
+# HELPER: Load the currently active theme (on startup)
+method.insert = pyro._load_current_theme, private|simple,\
+    "try_import=(execute.capture_nothrow, (cat,(pyro.bin_dir),python-pyrocore), -m, pyrocore.ui.theming, -qc)"
+
+# Load @ startup
+branch=(pyro.extended), ((pyro._load_current_theme))
