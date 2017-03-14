@@ -37,8 +37,9 @@ echo "Updating your installation..."
 if test -d .git; then
     git pull --ff-only
 else
-    git clone "https://github.com/pyroscope/pyrocore.git" pyroscope
-    cd pyroscope
+    git clone "https://github.com/pyroscope/pyrocore.git" tmp
+    mv tmp/???* tmp/.??* .; rmdir tmp
+    MY_SUM="let's start over"
 fi
 
 if test "$MY_SUM" != $(md5sum "$0" | cut -f1 -d' '); then
