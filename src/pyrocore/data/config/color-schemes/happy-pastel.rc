@@ -1,4 +1,7 @@
 # Color scheme for 256 xterm colors - Happy Pastel (less harsh default colors with a happy touch)
+
+pyro.color_theme.name    = "Happy Pastel"
+
 ui.color.alarm.set       = "bold 250 on 124"
 ui.color.complete.set    = "41"
 ui.color.even.set        = "on 234"
