@@ -37,7 +37,7 @@ The following is how to install the *full* set of dependencies:
 
 .. code-block:: shell
 
-    ~/lib/pyroscope/bin/pip install -r ~/lib/pyroscope/requirements-torque.txt
+    ~/.local/pyroscope/bin/pip install -r ~/.local/pyroscope/requirements-torque.txt
 
 Watch out for any errors, since this installs several Python extensions that *might*
 need some ``*-dev`` OS packages available that you don't have on your machine.

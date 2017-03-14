@@ -79,13 +79,13 @@ To do that, use the following commands:
 
 .. code-block:: shell
 
-    mkdir -p ~/bin ~/lib
-    git clone "https://github.com/pyroscope/pyrocore.git" ~/lib/pyroscope
+    mkdir -p ~/bin ~/.local
+    git clone "https://github.com/pyroscope/pyrocore.git" ~/.local/pyroscope
 
     # Pass "/usr/bin/python2", or whatever else fits, to the script as its
     # 1st argument, if the default of "/usr/bin/python" is not a suitable
     # version.
-    ~/lib/pyroscope/update-to-head.sh
+    ~/.local/pyroscope/update-to-head.sh
 
     # Check success
     pyroadmin --version  # call "exec $SHELL -l" if this fails, and retry

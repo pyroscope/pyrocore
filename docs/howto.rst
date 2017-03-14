@@ -14,7 +14,7 @@ like in this example:
 .. code-block:: shell
 
     cd ~/rtorrent
-    ~/lib/pyroscope/src/scripts/add-categories.sh books hdtv movies
+    ~/.local/pyroscope/src/scripts/add-categories.sh books hdtv movies
 
 It is recommended to stick to alphanumeric category names,
 and use ``_`` for word separation.
@@ -31,7 +31,7 @@ you already have (and that also fit the *alphanumeric* constraint), call this:
 .. code-block:: shell
 
     cd ~/rtorrent
-    ~/lib/pyroscope/src/scripts/add-categories.sh \
+    ~/.local/pyroscope/src/scripts/add-categories.sh \
         $(rtcontrol custom_1=\! -qo custom_1 | egrep '^[_a-zA-Z0-9]+$' | sort -u)
 
 

@@ -55,7 +55,7 @@ XMLRPC
     .. code-block:: bash
 
         $ ldd $(command which rtorrent) | grep libxmlrpc.so
-                libxmlrpc.so.3 => /home/pyroscope/lib/rtorrent-0.9.6/lib/libxmlrpc.so.3 …
+                libxmlrpc.so.3 => /home/pyroscope/.local/rtorrent/0.9.6-PS-1.0/lib/libxmlrpc.so.3 …
 
 
 Quick Start Guide

@@ -4,12 +4,16 @@
 #
 
 export RT_HOME="${RT_HOME:-$HOME/rtorrent}"
+
+INSTALL_ROOT="$(command cd $(dirname "$0") >/dev/null && pwd)"
+INSTALL_ROOT="$(dirname $(dirname "$INSTALL_ROOT"))"
+
 mkdir -p "$RT_HOME"
 command cd "$RT_HOME"
 
 # Create "rtorrent.rc"
 echo "*** Creating 'rtorrent.rc' in '$RT_HOME'..."
-sed -e "s:RT_HOME:$RT_HOME:" <~/lib/pyroscope/docs/examples/rtorrent.rc >$RT_HOME/rtorrent.rc
+sed -e "s:RT_HOME:$RT_HOME:" <"$INSTALL_ROOT/docs/examples/rtorrent.rc" >"$RT_HOME/rtorrent.rc"
 
 # Download pimp-my-box source
 echo "*** Downloading 'rtorrent.d' snippets..."

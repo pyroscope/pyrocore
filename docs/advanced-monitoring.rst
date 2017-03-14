@@ -56,8 +56,8 @@ need to be installed, which are not part of the core distribution.
 
    .. code-block:: shell
 
-      ~/lib/pyroscope/update-to-head.sh
-      ~/lib/pyroscope/bin/pip install -r ~/lib/pyroscope/requirements-torque.txt
+      ~/.local/pyroscope/update-to-head.sh
+      ~/.local/pyroscope/bin/pip install -r ~/.local/pyroscope/requirements-torque.txt
 
 #. Activate the web server option by adding this to your ``~/.pyroscope/torque.ini``:
 

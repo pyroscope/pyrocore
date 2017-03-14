@@ -27,7 +27,7 @@ These steps should make a copy of pretty much anything important:
     .. code-block:: bash
 
         tar cvfz /tmp/pyroscope-backup-$USER-$(date +'%Y-%m-%d').tgz \
-            ~/.pyroscope/ ~/lib/pyroscope/
+            ~/.pyroscope/ ~/.local/pyroscope/
 
  #. Depending on how you install rTorrent, make a copy of the rTorrent
     executable. Note that the ``rTorrent-PS`` build script installs into
@@ -80,7 +80,7 @@ Then to **update** an existing installation, use these commands:
 
 .. code-block:: bash
 
-    cd ~/lib/pyroscope
+    cd ~/.local/pyroscope
     ./update-to-head.sh
 
 
@@ -123,7 +123,7 @@ these commands (assuming the standard installation paths):
 
 .. code-block:: bash
 
-    cd ~/lib/pyroscope
+    cd ~/.local/pyroscope
     source bin/activate
     svn update
     git clone git://github.com/pyroscope/pyrobase.git pyrobase
