@@ -83,21 +83,22 @@ rm -f "$HOME/.pyroscope/rtorrent.d"/view-zz-collapse.rc* 2>/dev/null || :
 ./bin/pyroadmin --create-config
 ./bin/pyroadmin --create-import "~/.pyroscope/rtorrent.d/*.rc.default"
 
-# Relocate to ~/.local?
-if test "$PROJECT_ROOT" = "$HOME/lib/pyroscope"; then
-    echo
-    echo "*****************************************************************************"
-    echo "The default install location has changed, consider moving to the new path"
-    echo "at '~/.local/pyroscope'!"
-    echo
-    cat <<'EOF'
-mkdir -p ~/.local/pyroscope
-cp -p ~/lib/pyroscope/update-to-head.sh ~/.local/pyroscope
-~/.local/pyroscope/update-to-head.sh
+# Relocate to ~/.local
+test "$PROJECT_ROOT" != "$HOME/lib/pyroscope" || cat <<'EOF'
+
+*****************************************************************************
+The default install location has changed, consider moving to the new path at
+'~/.local/pyroscope'!
+
+Call these commands:
+
+    mkdir -p ~/.local/pyroscope
+    cp -p ~/lib/pyroscope/update-to-head.sh ~/.local/pyroscope
+    ~/.local/pyroscope/update-to-head.sh
+
+*****************************************************************************
+
 EOF
-    echo "*****************************************************************************"
-    echo
-fi
 
 # Make sure PATH is decent
 ( echo $PATH | tr : \\n | egrep "^$HOME/bin/?\$" >/dev/null ) || echo "$HOME/bin is NOT on your PATH, you need to fix that"'!'
