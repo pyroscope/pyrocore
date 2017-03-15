@@ -31,6 +31,7 @@ pyrocore (0.5.1) precise; urgency=low
   * pyroadmin: added '--create-import' action
   * rtorrent config: added 'tagged' view handling
   * rtorrent config: 'd.timestamp.downloaded' attribute (thanks @chros73)
+  * rtorrent config: 'd.data_path' attribute (never empty, unlike 'd.base_path')
   * pyroadmin: added '--remove-all-rc-files' option
   * UI: Rotate through color schemes with the '~' key
   * UI: Rotate through category views using '<' and '>'
@@ -42,7 +43,7 @@ pyrocore (0.5.1) precise; urgency=low
   * API: 'connect()' helper for easy interactive use
   * API: added 'h.' helper namespace to templating
 
- -- pyroscope <pyroscope.project@gmail.com>  Mon, 06 Mar 2017 14:58:45 +0100
+ -- pyroscope <pyroscope.project@gmail.com>  Wed, 15 Mar 2017 22:42:17 +0100
 
 pyrocore (0.4.2) jaunty; urgency=low
 
