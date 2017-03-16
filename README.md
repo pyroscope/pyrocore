@@ -30,6 +30,10 @@ Further information can be found in the
  * [Installation instructions](http://pyrocore.readthedocs.org/en/latest/installation.html)
  * [Full API documentation](http://pyrocore.readthedocs.org/en/latest/api.html)
 
+You can also add your own content to the
+[project's wiki](https://github.com/pyroscope/pyrocore/wiki#community-documentation),
+to help out other users, and show to the world you're awesome.
+
 To get in contact and share your experiences with other users of *PyroScope*, join the
 [pyroscope-users](http://groups.google.com/group/pyroscope-users)
 mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
