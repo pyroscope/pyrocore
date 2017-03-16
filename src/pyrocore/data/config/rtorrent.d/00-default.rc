@@ -6,9 +6,12 @@ branch=pyro.extended=,\
 # COMMAND: Return startup time (can be used to calculate uptime)
 method.insert = startup_time, value|const, $system.time=
 
-# COMMAND: Return path to item data (never empty, unlike `d.base_path`)
+# COMMAND: Return path to item data (never empty, unlike `d.base_path`);
+#          multi-file items return a path ending with a '/'.
 method.insert = d.data_path, simple,\
-    "if=(d.is_multi_file), (cat, (d.directory)), (cat, (d.directory), /, (d.name))"
+    "if=(d.is_multi_file),\
+        (cat, (d.directory), /),\
+        (cat, (d.directory), /, (d.name))"
 
 # COMMAND: Return path to session file
 method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
