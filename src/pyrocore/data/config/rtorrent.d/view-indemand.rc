@@ -7,4 +7,4 @@ view.filter = indemand, ((d.is_open))
 view.filter_on = indemand,event.download.closed,event.download.opened
 
 view.sort_current = indemand, greater=d.last_active=
-schedule = sort_indemand, 22, 33, "view.filter = indemand,d.is_open= ;view.sort=indemand"
+schedule2 = sort_indemand, 22, 33, "view.filter = indemand,d.is_open= ;view.sort=indemand"

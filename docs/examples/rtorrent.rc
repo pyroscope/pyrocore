@@ -26,7 +26,7 @@ network.scgi.open_local = RT_HOME/.scgi_local
 ##network.scgi.open_port = localhost:5099
 
 # SCHEDULE: Make SCGI socket group-writable and secure
-schedule = scgi_permission,0,0,"execute.nothrow=chmod,\"g+w,o=\",RT_HOME/.scgi_local"
+schedule2 = scgi_permission,0,0,"execute.nothrow=chmod,\"g+w,o=\",RT_HOME/.scgi_local"
 
 
 #
@@ -35,7 +35,7 @@ schedule = scgi_permission,0,0,"execute.nothrow=chmod,\"g+w,o=\",RT_HOME/.scgi_l
 # Prefer to put your own custom settings into additional files in that directory!
 #
 
-execute = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,(cat,(cfg.basedir),"rtorrent.d/*.rc")
+execute2 = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,(cat,(cfg.basedir),"rtorrent.d/*.rc")
 import = (cat,(cfg.basedir),"rtorrent.d/.import.rc")
 
 

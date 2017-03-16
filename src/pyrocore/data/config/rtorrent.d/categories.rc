@@ -41,7 +41,7 @@ method.insert = pyro.category.update, simple,\
 #
 # This allows you to add concise labelled watches like this:
 #
-#   schedule = watch_hdtv,123,10,((load.category.normal,hdtv))
+#   schedule2 = watch_hdtv, 123, 10, ((load.category.normal, hdtv))
 #
 # Metafiles are loaded from a subdir with the given category
 # name, in the normal watch folder (cfg.watch).

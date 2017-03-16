@@ -4,7 +4,7 @@
 pyro.collapsed_view.add = pyrotorque
 
 view.filter = pyrotorque, ((false))
-schedule = filter_pyrotorque, 1, 15,\
+schedule2 = filter_pyrotorque, 1, 15,\
     "view.filter = pyrotorque,\"or={d.up.rate=,d.down.rate=,d.peers_connected=,not=$d.complete=}\""
 
 pyro.bind_key = pyrotorque_view, Q, "ui.current_view.set=pyrotorque"
