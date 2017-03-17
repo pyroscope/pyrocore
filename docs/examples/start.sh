@@ -34,12 +34,12 @@ if test -n "$RT_BINDIR"; then
     RT_BINDIR="${RT_BINDIR%/}/"
 
     # Try usual suspects if config is wrong
-    test -x ${RT_BINDIR}rtorrent || RT_BINDIR="$HOME/bin/"
-    test -x ${RT_BINDIR}rtorrent || RT_BINDIR="/opt/rtorrent/bin/"
-    test -x ${RT_BINDIR}rtorrent || RT_BINDIR="/usr/local/bin/"
-    test -x ${RT_BINDIR}rtorrent || RT_BINDIR="/usr/bin/"
-    test -x ${RT_BINDIR}rtorrent || RT_BINDIR=""
+    test -x "${RT_BINDIR}rtorrent" || RT_BINDIR="$HOME/bin/"
+    test -x "${RT_BINDIR}rtorrent" || RT_BINDIR="/opt/rtorrent/bin/"
+    test -x "${RT_BINDIR}rtorrent" || RT_BINDIR="/usr/local/bin/"
+    test -x "${RT_BINDIR}rtorrent" || RT_BINDIR="/usr/bin/"
+    test -x "${RT_BINDIR}rtorrent" || RT_BINDIR=""
 fi
 #RT_BINDIR="$HOME/src/rtorrent-ps/rtorrent-0.9.6/src/"
-export RT_BIN=${RT_BINDIR}rtorrent
-$RT_BIN "${RT_OPTS[@]}"
+export RT_BIN="${RT_BINDIR}rtorrent"
+"$RT_BIN" "${RT_OPTS[@]}"
