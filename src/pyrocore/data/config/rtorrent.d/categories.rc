@@ -50,8 +50,9 @@ method.insert = pyro.category.update, simple,\
 # as is "custom1" (the ruTorrent label). Use either in your
 # completion handler to create target paths.
 #
-# Alternatively, you can set `pyro.category.separated = 1` to
-# set the download path immediately to a categorized one.
+# Alternatively, you can add `pyro.category.separated.set = 1` to
+# your custom config, which causes the download path to be set
+# immediately to a categorized one (`…/work/‹category›`).
 #
 
 method.insert.value = pyro.category.separated, 0
