@@ -49,13 +49,36 @@ method.insert = pyro.category.update, simple,\
 # The "category" custom attribute is set to the given label,
 # as is "custom1" (the ruTorrent label). Use either in your
 # completion handler to create target paths.
+#
+# Alternatively, you can set `pyro.category.separated = 1` to
+# set the download path immediately to a categorized one.
+#
 
-method.insert = d.category.set, private|simple,\
-    "d.custom1.set=(argument.0) ; pyro.category.update=(d.custom,category) ; d.custom.set=category,(argument.0) ; pyro.category.update=(argument.0)"
+method.insert.value = pyro.category.separated, 0
+
+method.insert = d.category.set, simple,\
+    "d.custom1.set = (argument.0) ;\
+     pyro.category.update = (d.custom,category) ;\
+     d.custom.set = category,(argument.0) ;\
+     pyro.category.update = (argument.0)"
+
+method.insert = pyro._category.path, private|simple,\
+    "cat = (directory.default), /, (argument.0)"
+method.insert = pyro._category.check_set_dir, private|simple,\
+    "branch = (pyro.category.separated),\
+        ((d.directory.set, (pyro._category.path, (argument.0))))"
 
 method.insert = load.category.normal, private|simple,\
-    "load.normal=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0)) ; pyro.category.update=(argument.0)"
+    "load.verbose =\
+        (cat,(cfg.watch),(argument.0),/*.torrent),\
+        (cat, d.category.set=, (argument.0)),\
+        (cat, pyro._category.check_set_dir=, (argument.0)) ;\
+     pyro.category.update=(argument.0)"
 method.insert = load.category.start, private|simple,\
-    "load.start=(cat,(cfg.watch),(argument.0),/*.torrent),(cat,d.category.set=,(argument.0)) ; pyro.category.update=(argument.0)"
+    "load.start_verbose =\
+        (cat, (cfg.watch), (argument.0), /*.torrent),\
+        (cat, d.category.set=, (argument.0)),\
+        (cat, pyro._category.check_set_dir=, (argument.0)) ;\
+     pyro.category.update = (argument.0)"
 
 # END categories
