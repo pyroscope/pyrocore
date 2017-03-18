@@ -27,7 +27,8 @@ pyro.bind_key = category_view_next, >,\
 
 # HELPER: Add a category
 method.insert = pyro.category.add, private|simple,\
-    "view.add=(cat, category_, (argument.0)) ; pyro.view.collapsed.toggle=(cat, category_, (argument.0))"
+    "view.add = (cat, category_, (argument.0)) ;\
+     pyro.view.collapsed.toggle = (cat, category_, (argument.0))"
 
 # HELPER: Compare item category (label) to a given text (arg.0), for filtering
 method.insert = pyro._in_category, simple|private, "equal={d.custom1=,argument.0=}"
