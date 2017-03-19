@@ -95,18 +95,37 @@ comprehensive listing of all the current options.
 mktor
 ^^^^^
 
-:ref:`cli-usage-mktor` creates ``*.torrent`` files (metafiles), given the path to a
-file, directory, or named pipe (more on that below) and a tracker URL or
-alias name (see UserConfiguration on how to define them). Optionally,
-you can also set an additional comment and a different name for the
+:ref:`cli-usage-mktor` creates ``*.torrent`` files (metafiles), given the **path to the data** in a
+file, directory, or named pipe (more on that below) and a **tracker URL or alias name**
+(see :ref:`config-ini` on how to define aliases).
+Optionally, you can also set an additional comment and a different name for the
 resulting torrent file. Peer exchange and DHT can be disabled by using
 the ``--private`` option.
 
-If you create torrents for different trackers, they're automatically
-enabled for cross-seeding, i.e. you can load several torrents for
+If you want to create metafiles in bulk, use one of the many options
+a Linux shell offers you, among them:
+
+ * *Anything* in the current directory:
+
+   .. code-block:: shell
+
+      ls -1 | xargs -d$'\n' -I{} mktor -p -o /tmp "{}" "$ANNOUNCE_URL"
+
+ * Just for directories:
+
+   .. code-block:: shell
+
+      find . -mindepth 1 -maxdepth 1 -type d \! -name ".*" -print0 | sort -z \
+          | xargs -0I{} mktor -p "{}" "$ANNOUNCE_URL"
+
+If you create torrents for different trackers, they're
+*automatically enabled for cross-seeding*, i.e. you can load several torrents for
 exactly the same data into your client. For the technically inclined,
 this is done by adding a unique key so that the info hash is always
 different.
+Use the ``--no-cross-seed`` option to disable this.
+You can also set the ‘source’ field many trackers use for unique info hashes,
+use ``-s info.source=LABEL`` for that.
 
 To exclude files stored on disk from the resulting torrent, use the
 ``--exclude`` option to extend the list of standard glob patterns that

@@ -99,6 +99,8 @@ a new set of files.
     See the files themselves for instructions.
 
 
+.. _config-ini:
+
 Setting values in 'config.ini'
 ------------------------------
 
