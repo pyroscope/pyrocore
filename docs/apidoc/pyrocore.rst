@@ -14,6 +14,7 @@ Subpackages
     pyrocore.daemon
     pyrocore.scripts
     pyrocore.torrent
+    pyrocore.ui
     pyrocore.util
 
 Submodules
