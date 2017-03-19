@@ -18,11 +18,12 @@ method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
 
 # COMMAND: Nicer key binds (hide technical complications)
 method.insert = pyro._bind_schedule, private|simple,\
-    "schedule2=(argument.0), 0, 0, (argument.1)"
-method.insert = pyro._bind_command, private|simple,\
+    "schedule2=(argument.0), 1, 0, (argument.1)"
+method.insert = pyro._bind_key_command, private|simple,\
     "cat=\"ui.bind_key=download_list,\",$argument.0=,\",\\\"\",$argument.1=, \"\\\"\""
 method.insert = pyro.bind_key, private|simple,\
-    "branch=(pyro.extended), ((pyro._bind_schedule, (argument.0), (pyro._bind_command, (argument.1), (argument.2))))"
+    "branch=(pyro.extended),\
+        ((pyro._bind_schedule, (argument.0), (pyro._bind_key_command, (argument.1), (argument.2))))"
 
 # COMMAND: Safely toggle collapsed state of views
 method.insert = pyro.view.collapsed.toggle, private|simple,\
