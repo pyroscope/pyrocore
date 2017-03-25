@@ -219,15 +219,20 @@ class AdminTool(ScriptBaseWithConfig):
             # XXX This is a heuristic and might break in newer rTorrent versions!
             builtins = set(methods[:methods.index('view.sort_new')+1])
             methods = set(methods)
+            plain_re = re.compile(r'^[a-zA-Z0-9_.]+$')
 
             def is_method(name):
                 'Helper'
                 prefixes = ('d.', 'f.', 'p.', 't.', 'choke_group.', 'session.',
                     'system.', 'throttle.', 'trackers.', 'ui.', 'view.')
 
-                return name in methods or any(name.startswith(x) for x in prefixes)
+                if name.endswith('='):
+                    name = name[:-1]
+                return plain_re.match(name) and (
+                    name in methods or
+                    any(name.startswith(x) for x in prefixes))
 
-            def rc_quoted(text, in_brace=False, plain=re.compile(r'^[a-zA-Z0-9_.]+$')):
+            def rc_quoted(text, in_brace=False):
                 'Helper'
                 if isinstance(text, list):
                     fmt = '{%s}'
@@ -244,7 +249,7 @@ class AdminTool(ScriptBaseWithConfig):
                     return text.replace('))))', ')) ))')
                 elif isinstance(text, int):
                     return '{:d}'.format(text)
-                elif plain.match(text):
+                elif plain_re.match(text) or is_method(text):
                     return text
                 else:
                     return '"{}"'.format(text.replace('\\', '\\\\').replace('"', '\\"'))
