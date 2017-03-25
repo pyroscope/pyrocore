@@ -30,6 +30,7 @@ pyrocore (0.5.1) precise; urgency=low
   * rtxmlrpc: added '--as-import' option to call private commands
   * pyrotorque: added queue manager and tree watch features
   * pyroadmin: added '--create-import' action
+  * pyroadmin: added '--dump-rc' action
   * rtorrent config: added 'tagged' view handling
   * rtorrent config: 'd.timestamp.downloaded' attribute (thanks @chros73)
   * rtorrent config: 'd.data_path' attribute (never empty, unlike 'd.base_path')
