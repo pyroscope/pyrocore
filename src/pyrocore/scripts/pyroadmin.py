@@ -19,12 +19,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+import re
 import sys
 import glob
 import shutil
 import pprint
 import fnmatch
 import urllib2
+import xmlrpclib
 from zipfile import ZipFile
 from StringIO import StringIO
 from contextlib import closing
@@ -47,6 +49,8 @@ class AdminTool(ScriptBaseWithConfig):
 
     OPTIONAL_CFG_FILES = ["torque.ini"]
 
+    RC_CONTINUATION_THRESHOLD = 55
+
 
     def add_options(self):
         """ Add program options.
@@ -62,6 +66,8 @@ class AdminTool(ScriptBaseWithConfig):
         self.add_value_option("--create-import", "GLOB-PATTERN",
             action="append", default=[],
             help="create import file for a '.d' directory")
+        self.add_bool_option("--dump-rc",
+            help="pretty-print dynamic commands defined in 'rtorrent.rc'")
         self.add_value_option("-o", "--output", "KEY,KEY1.KEY2=DEFAULT,...",
             action="append", default=[],
             help="select fields to print, output is separated by TABs;"
@@ -204,6 +210,99 @@ class AdminTool(ScriptBaseWithConfig):
                 self.LOG.info("Creating %r..." % (folder + '/.import.rc',))
                 with open(os.path.expanduser(folder + '/.import.rc'), 'wt') as handle:
                     handle.write('\n'.join(conf_rc + ['']))
+
+        elif self.options.dump_rc:
+            # list all dynamic commands
+            proxy = config.engine.open()
+            methods = proxy.system.listMethods()
+
+            # XXX This is a heuristic and might break in newer rTorrent versions!
+            builtins = set(methods[:methods.index('view.sort_new')+1])
+            methods = set(methods)
+
+            def is_method(name):
+                'Helper'
+                prefixes = ('d.', 'f.', 'p.', 't.', 'choke_group.', 'session.',
+                    'system.', 'throttle.', 'trackers.', 'ui.', 'view.')
+
+                return name in methods or any(name.startswith(x) for x in prefixes)
+
+            def rc_quoted(text, in_brace=False, plain=re.compile(r'^[a-zA-Z0-9_.]+$')):
+                'Helper'
+                if isinstance(text, list):
+                    fmt = '{%s}'
+                    try:
+                        method_name = text[0] + ""
+                    except (TypeError, IndexError):
+                        pass
+                    else:
+                        if is_method(method_name):
+                            fmt = '(%s)' if in_brace else '((%s))'
+                            if '.set' not in method_name and len(text) == 2 and text[1] == 0:
+                                text = text[:1]
+                    text = fmt % ', '.join([rc_quoted(x, in_brace=(fmt[0] == '{')) for x in text])
+                    return text.replace('))))', ')) ))')
+                elif isinstance(text, int):
+                    return '{:d}'.format(text)
+                elif plain.match(text):
+                    return text
+                else:
+                    return '"{}"'.format(text.replace('\\', '\\\\').replace('"', '\\"'))
+
+            group = None
+            for name in sorted(methods):
+                try:
+                    value = proxy.method.get('', name, fail_silently=True)
+                    const = bool(proxy.method.const('', name, fail_silently=True))
+                except xmlrpclib.Fault as exc:
+                    if exc.faultCode == -503 and exc.faultString == 'Key not found.':
+                        continue
+                    raise
+                else:
+                    group, old_group = name.split('.', 1)[0], group
+                    if group == 'event':
+                        group = name
+                    if group != old_group:
+                        print('')
+
+                    definition = None
+                    objtype = type(value)
+                    if objtype is list:
+                        value = [rc_quoted(x) for x in value]
+                        fmt = '((%s))' if value and is_method(value[0]) else '{%s}'
+                        definition = fmt % ', '.join(value)
+                    elif objtype is dict:
+                        print('method.insert = {}, multi|rlookup|static'.format(name))
+                        for key, val in sorted(value.items()):
+                            val = rc_quoted(val)
+                            if len(val) > self.RC_CONTINUATION_THRESHOLD:
+                                val = '\\\n    ' + val
+                            print('method.set_key = {}, {}, {}'.format(name, key, val))
+                    elif objtype is str:
+                        definition = rc_quoted(value)
+                    elif objtype is int:
+                        definition = '{:d}'.format(value)
+                    else:
+                        self.LOG.error("Cannot handle {!r} definition of method {}".format(objtype, name))
+                        continue
+
+                    if definition:
+                        if name in builtins:
+                            print('{}.set = {}'.format(name, definition))
+                        else:
+                            rctype = {str: 'string', int: 'value', long: 'value'}.get(objtype, 'simple')
+                            if const:
+                                rctype += '|const'
+                                const = None
+                            if len(definition) > self.RC_CONTINUATION_THRESHOLD:
+                                definition = '\\\n    ' + definition
+                            definition = (definition
+                                .replace(" ;     ", " ;\\\n     ")
+                                .replace(",    ", ",\\\n    ")
+                            )
+                            print('method.insert = {}, {}, {}'.format(name, rctype, definition))
+                    if const:
+                        print('method.const.enable = {}'.format(name))
 
         elif self.options.screenlet:
             # Create screenlet stub
