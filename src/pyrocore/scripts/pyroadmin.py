@@ -235,17 +235,17 @@ class AdminTool(ScriptBaseWithConfig):
             def rc_quoted(text, in_brace=False):
                 'Helper'
                 if isinstance(text, list):
-                    fmt = '{%s}'
+                    wrap_fmt = '{%s}'
                     try:
                         method_name = text[0] + ""
                     except (TypeError, IndexError):
                         pass
                     else:
                         if is_method(method_name):
-                            fmt = '(%s)' if in_brace else '((%s))'
+                            wrap_fmt = '(%s)' if in_brace else '((%s))'
                             if '.set' not in method_name and len(text) == 2 and text[1] == 0:
                                 text = text[:1]
-                    text = fmt % ', '.join([rc_quoted(x, in_brace=(fmt[0] == '{')) for x in text])
+                    text = wrap_fmt % ', '.join([rc_quoted(x, in_brace=(wrap_fmt[0] == '{')) for x in text])
                     return text.replace('))))', ')) ))')
                 elif isinstance(text, int):
                     return '{:d}'.format(text)
@@ -274,8 +274,8 @@ class AdminTool(ScriptBaseWithConfig):
                     objtype = type(value)
                     if objtype is list:
                         value = [rc_quoted(x) for x in value]
-                        fmt = '((%s))' if value and is_method(value[0]) else '{%s}'
-                        definition = fmt % ', '.join(value)
+                        wrap_fmt = '((%s))' if value and is_method(value[0]) else '{%s}'
+                        definition = wrap_fmt % ', '.join(value)
                     elif objtype is dict:
                         print('method.insert = {}, multi|rlookup|static'.format(name))
                         for key, val in sorted(value.items()):
