@@ -27,6 +27,7 @@ pyrocore (0.5.1) precise; urgency=low
   * mktor: added '--no-cross-seed' option
   * mktor: '-X @entropy' for non-deterministic infohash
   * rtxmlrpc: allow passing of binary data via '@-' and '@filename'
+  * rtxmlrpc: added '--as-import' option to call private commands
   * pyrotorque: added queue manager and tree watch features
   * pyroadmin: added '--create-import' action
   * rtorrent config: added 'tagged' view handling

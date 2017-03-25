@@ -20,6 +20,7 @@
 import os
 import sys
 import logging
+import tempfile
 import xmlrpclib
 from pprint import pformat
 
@@ -50,6 +51,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         # basic options
         self.add_bool_option("-r", "--repr", help="show Python pretty-printed response")
         self.add_bool_option("-x", "--xml", help="show XML response")
+        self.add_bool_option("-i", "--as-import",
+            help="execute each argument as a private command using 'import'")
 
         # TODO: Tempita with "result" object in namespace
         #self.add_value_option("-o", "--output-format", "FORMAT",
@@ -65,60 +68,76 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         if self.options.repr and self.options.xml:
             self.parser.error("You cannot combine --repr and --xml!")
 
-        # Preparation
-        method = self.args[0]
-
-        raw_args = self.args[1:]
-        if '=' in method:
-            if raw_args:
-                self.parser.error("Please don't mix rTorrent and shell argument styles!")
-            method, raw_args = method.split('=', 1)
-            raw_args = raw_args.split(',')
-
-        args = []
-        for arg in raw_args:
-            # TODO: use the xmlrpc-c type indicators instead / additionally
-            if arg and arg[0] in "+-":
-                try:
-                    arg = int(arg, 10)
-                except (ValueError, TypeError), exc:
-                    self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
-            elif arg and arg[0] == '[':
-                arg = arg[1:].split(',')
-                if all(i.isdigit() for i in arg):
-                    arg = [int(i, 10) for i in arg]
-            elif arg and arg[0] == '@':
-                if arg == '@-':
-                    arg = sys.stdin.read()
-                else:
-                    with open(os.path.expanduser(arg[1:]), 'rb') as handle:
-                        arg = handle.read()
-                arg = xmlrpclib.Binary(arg)
-            args.append(arg)
-
-        # Open proxy
-        if not config.scgi_url:
-            config.engine.load_config()
-        if not config.scgi_url:
-            self.LOG.error("You need to configure a XMLRPC connection, read"
-                " https://pyrocore.readthedocs.io/en/latest/setup.html")
-        proxy = xmlrpc.RTorrentProxy(config.scgi_url)
-        proxy._set_mappings()
-
-        # Make the call
+        # Check for "import" style call
+        tmp_import = None
         try:
-            result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
-        except xmlrpc.ERRORS, exc:
-            self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
-            self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
-        else:
-            if not self.options.quiet:
-                if self.options.repr:
-                    # Pretty-print if requested, or it's a collection and not a scalar
-                    result = pformat(result)
-                elif hasattr(result, "__iter__"):
-                    result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
-                print fmt.to_console(result)
+            if self.options.as_import:
+                with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
+                    handle.write('\n'.join(self.args + ['']))
+                    tmp_import = handle.name
+
+                method = 'import'
+                args = (xmlrpc.NOHASH, tmp_import)
+
+            else:
+                # Preparation
+                method = self.args[0]
+
+                raw_args = self.args[1:]
+                if '=' in method:
+                    if raw_args:
+                        self.parser.error("Please don't mix rTorrent and shell argument styles!")
+                    method, raw_args = method.split('=', 1)
+                    raw_args = raw_args.split(',')
+
+                args = []
+                for arg in raw_args:
+                    # TODO: use the xmlrpc-c type indicators instead / additionally
+                    if arg and arg[0] in "+-":
+                        try:
+                            arg = int(arg, 10)
+                        except (ValueError, TypeError), exc:
+                            self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
+                    elif arg and arg[0] == '[':
+                        arg = arg[1:].split(',')
+                        if all(i.isdigit() for i in arg):
+                            arg = [int(i, 10) for i in arg]
+                    elif arg and arg[0] == '@':
+                        if arg == '@-':
+                            arg = sys.stdin.read()
+                        else:
+                            with open(os.path.expanduser(arg[1:]), 'rb') as handle:
+                                arg = handle.read()
+                        arg = xmlrpclib.Binary(arg)
+                    args.append(arg)
+
+            # Open proxy
+            if not config.scgi_url:
+                config.engine.load_config()
+            if not config.scgi_url:
+                self.LOG.error("You need to configure a XMLRPC connection, read"
+                    " https://pyrocore.readthedocs.io/en/latest/setup.html")
+            proxy = xmlrpc.RTorrentProxy(config.scgi_url)
+            proxy._set_mappings()
+
+            # Make the call
+            try:
+                result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
+            except xmlrpc.ERRORS, exc:
+                self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
+                self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
+            else:
+                if not self.options.quiet:
+                    if self.options.repr:
+                        # Pretty-print if requested, or it's a collection and not a scalar
+                        result = pformat(result)
+                    elif hasattr(result, "__iter__"):
+                        result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
+                    print fmt.to_console(result)
+
+        finally:
+            if tmp_import and os.path.exists(tmp_import):
+                os.remove(tmp_import)
 
         # XMLRPC stats
         self.LOG.debug("XMLRPC stats: %s" % proxy)
