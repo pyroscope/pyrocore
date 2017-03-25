@@ -595,10 +595,12 @@ class RtorrentEngine(engine.TorrentEngine):
             # Parse the file
             self.LOG.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
             with closing(open(rtorrent_rc)) as handle:
+                continued = False
                 for line in handle.readlines():
-                    # Skip comments and empty lines
+                    # Skip comments, continuations, and empty lines
                     line = line.strip()
-                    if not line or line.startswith("#"):
+                    continued, was_continued = line.endswith('\\'), continued
+                    if not line or was_continued or line.startswith("#"):
                         continue
 
                     # Be lenient about errors, after all it's not our own config file
