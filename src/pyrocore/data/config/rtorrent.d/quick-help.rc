@@ -1,0 +1,21 @@
+# UI: Show quick help resources
+#
+# To disable this, use
+#
+#   echo >>~/.pyroscope/rtorrent.d/.rcignore "quick-help.rc.default"
+
+method.insert = pyro.print_help, multi|rlookup|static
+method.set_key = pyro.print_help, !!intro1, ((print, ""))
+method.set_key = pyro.print_help, !!intro2, ((print, ((cat,\
+    "rTorrent QUICK HELP RESOURCES" )) ))
+method.set_key = pyro.print_help, !!intro3, ((print, ((cat,\
+    "=============================" )) ))
+method.set_key = pyro.print_help, !10handbook, ((print, ((cat,\
+    "rTorrent Handbook            http://rtorrent-docs.readthedocs.io/" )) ))
+method.set_key = pyro.print_help, !10wiki, ((print, ((cat,\
+    "rTorrent Wiki                https://github.com/rakshasa/rtorrent/wiki" )) ))
+method.set_key = pyro.print_help, !20pyrocore, ((print, ((cat,\
+    "pyrocore Manual (rtcontrol)  https://pyrocore.readthedocs.io/" )) ))
+
+# Bind to F2
+pyro.bind_key = quick_help, 0412, "pyro.print_help="
