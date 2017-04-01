@@ -364,7 +364,8 @@ fields), you have three possible options to specify the value:
 
        Example: ``+1281876597``
 
-See :ref:`useful-filter-conditions` for some concrete examples with an explanation what they do.
+See :ref:`useful-filter-conditions` for some concrete examples with an explanation of what they do.
+
 
 Annealing Results
 """""""""""""""""

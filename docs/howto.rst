@@ -146,7 +146,7 @@ and finally start everything again.
 
 By changing the first ``rtcontrol`` command that populates the ``tagged`` view,
 you can change this to move data for any criteria you can think of — within the
-limits of ``rtcontrol`` filters. Also, if you run *rTorrent-PS*, you can manually
+limits of ``rtcontrol`` :ref:`filter-conditions`. Also, if you run *rTorrent-PS*, you can manually
 remove items from the ``tagged`` view by using the ``.`` key, before applying the
 rest of the commands.
 
