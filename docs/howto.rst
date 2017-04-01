@@ -153,6 +153,14 @@ rest of the commands.
 Also see the :ref:`advanced-rtcontrol` section that explains
 the ``--spawn`` and ``--exec`` options in more depth.
 
+.. note::
+
+    The ``tagged`` view is used here solely for the purpose of allowing
+    manual manipulation of the search result after step 1, when using *rTorrent-PS*.
+    It is *not* related to the ``tagged`` *field* in any way.
+
+    They're just different ways to tag items, one of them visually in the *rTorrent-PS* UI.
+
 
 Using Tags or Flag Files to Control Item Processing
 ---------------------------------------------------
