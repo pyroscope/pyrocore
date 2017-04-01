@@ -183,6 +183,9 @@ The basic pattern works like this:
         rtcontrol -q --from-view $hash // --tag "$guard" --flush --yes --cron
     done
 
+The ``--from-view $hash //`` is an efficient way to select a specific item by hash,
+in case you wondered. ``hash=‹infohash›`` in contrast loads all items, then filters out just one.
+
 A variant of this is to use a flag file in the download's directory –
 such a file can be created and checked by simply poking the file system, which
 can have advantages in some situations. To check for the existance

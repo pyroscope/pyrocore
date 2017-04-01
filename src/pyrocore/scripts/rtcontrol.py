@@ -259,7 +259,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_bool_option("--tee-view",
             help="ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)")
         self.add_value_option("--from-view", "NAME",
-            help="select only items that are on view NAME")
+            help="select only items that are on view NAME (NAME can be an info hash to quickly select a single item)")
         self.add_value_option("-M", "--modify-view", "NAME",
             help="get items from given view and write result back to it (short-cut to combine --from-view and --to-view)")
         self.add_value_option("--call", "CMD",
