@@ -541,8 +541,10 @@ class TorrentProxy(object):
         accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1], formatter=fmt.iso_datetime_optional)
 
     # Classification
-    tagged = DynamicField(set, "tagged", "has certain tags?", matcher=matching.TaggedAsFilter,
-        accessor=lambda o: set(o.fetch("custom_tags").lower().split()), formatter=_fmt_tags)
+    tagged = DynamicField(set, "tagged", "has certain tags? (not related to the 'tagged' view)",
+        matcher=matching.TaggedAsFilter,
+        accessor=lambda o: set(o.fetch("custom_tags").lower().split()),
+        formatter=_fmt_tags)
     views = OnDemandField(set, "views", "views this item is attached to",
         matcher=matching.TaggedAsFilter, formatter=_fmt_tags, engine_name="=views")
     kind = DynamicField(set, "kind", "ALL kinds of files in this item (the same as kind_0)",
