@@ -6,7 +6,7 @@
 Useful Filter Conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following conditions give you a hint on what you can do, and some
+The following :ref:`rtcontrol` :ref:`filter-conditions` give you a hint on what you can do, and some
 building blocks for more complex conditions.
 
 ``*HDTV*``
