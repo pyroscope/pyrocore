@@ -421,10 +421,23 @@ rules, i.e. where you would use ``^X throttle_down=slow,120`` in
 rTorrent you just list the arguments in the usual shell way
 (``rtxmlrpc throttle_down slow 120``). The rTorrent format is also
 recognized though, but without any escaping rules (i.e. you cannot have
-a '``,``' in your arguments then).
+a ``,`` in your arguments then).
+
+Remember that almost all commands require a ‘target’ as the first parameter
+in newer rTorrent versions, and you have to provide that explicitly.
+Thus, it must be ``rtxmlrpc view.size '' main``, with an extra empty argument
+– otherwise you'll get a ``Unsupported target type found`` fault.
+
+There are some special ways to write arguments of certain types:
+``+‹number›`` and ``-‹number›`` send an integer value,
+``@‹filename›`` or ``@-`` (for stdin) reads the file's content into a XMLRPC binary,
+and finally ``[‹item1›〈,‹item2›,…〉`` produces an array of strings.
+These typed arguments only cover some common use-cases,
+at some point you have to write Python code to build up more intricate data structures.
+
 
 To get a list of available methods, just call ``rtxmlrpc system.listMethods``.
-:ref:`RtXmlRpcExamples` shows some typical examples for querying global information
+The :ref:`RtXmlRpcExamples` section shows some typical examples for querying global information
 and controlling rTorrent behaviour.
 
 
