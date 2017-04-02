@@ -58,7 +58,7 @@ method.insert = pyro._last_scrape.poll, simple|private,\
 # SCHEDULE: Check for elapsed intervals every 5 minutes, and update scrape info
 #           for active items and idle/stopped ones accoding to their interval settings.
 schedule2 = pyro_last_scrape_check, 333, 300,\
-    ((d.multicall2,main,\
+    ((d.multicall2,default,\
         "branch=\"or={d.up.rate=,d.down.rate=,}\",\
             pyro._last_scrape.poll=$pyro.scrape_interval.active=,\
             pyro._last_scrape.poll=$pyro.scrape_interval.idle="))

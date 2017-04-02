@@ -9,7 +9,7 @@ view.persistent = tagged
 method.insert = pyro.view.toggle_visible, simple,\
     "branch=d.views.has=$argument.0=,view.set_not_visible=$argument.0=,view.set_visible=$argument.0="
 method.insert = pyro.view_tagged_clear, simple|private,\
-    "view.filter=tagged,false= ;d.multicall2=main,d.views.remove=tagged"
+    "view.filter=tagged,false= ;d.multicall2=default,d.views.remove=tagged"
 
 pyro.bind_key = tagged_toggle, ., "pyro.view.toggle_visible=tagged"
 pyro.bind_key = tagged_clear,  T, "pyro.view_tagged_clear="
