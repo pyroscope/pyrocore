@@ -69,6 +69,11 @@ class Filter(object):
     """ Base class for all filters.
     """
 
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        return ''
+
     def match(self, item):
         """ Return True if filter matches item.
         """
@@ -90,6 +95,13 @@ class CompoundFilterAll(CompoundFilterBase):
     def __str__(self):
         return ' '.join(str(i) for i in self)
 
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        result = [x.pre_filter() for x in self if not isinstance(x, CompoundFilterBase)]
+        result = [x for x in result if x]
+        return 'and={%s}' % ','.join(result) if result else ''
+
     def match(self, item):
         """ Return True if filter matches item.
         """
@@ -105,6 +117,13 @@ class CompoundFilterAny(CompoundFilterBase):
             return "%s,%s" % (str(self[0]), ','.join(i._condition for i in self[1:]))
         else:
             return "[ %s ]" % ' OR '.join(str(i) for i in self)
+
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        result = [x.pre_filter() for x in self if not isinstance(x, CompoundFilterBase)]
+        result = [x for x in result if x]
+        return 'or={%s}' % ','.join(result) if result else ''
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -127,6 +146,12 @@ class NegateFilter(Filter):
         else:
             return "[ NOT %s ]" % str(self._inner)
 
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        inner = self._inner.pre_filter()
+        return 'not=' + inner if inner else ''
+
     def match(self, item):
         """ Return True if filter matches item.
         """
@@ -137,6 +162,8 @@ class FieldFilter(Filter):
     """ Base class for all field filters.
     """
 
+    PRE_FILTER_FIELDS = set(('name',))
+
     def __init__(self, name, value):
         """ Store field name and filter value for later evaluations.
         """
@@ -144,10 +171,8 @@ class FieldFilter(Filter):
         self._condition = self._value = fmt.to_unicode(value)
         self.validate()
 
-
     def __str__(self):
         return fmt.to_utf8("%s=%s" % (self._name, self._condition))
-
 
     def validate(self):
         """ Validate filter condition (template method).
@@ -176,11 +201,35 @@ class PatternFilter(FieldFilter):
         """
         super(PatternFilter, self).validate()
         self._value = self._value.lower()
-        if self._value.startswith('/') and self._value.endswith('/'):
+        self._is_regex = self._value.startswith('/') and self._value.endswith('/')
+        if self._is_regex:
             self._matcher = re.compile(self._value[1:-1]).search
         else:
             self._matcher = lambda val: fnmatch.fnmatchcase(val, self._value)
 
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        if not self._value or self._name not in self.PRE_FILTER_FIELDS:
+            return ''
+
+        needle = ''
+        if self._is_regex:
+            # TODO: filter for 'good' chars, especially no quotes, "{},=()", whitespace and regex metas
+            #       take longest sequence
+            needle = self._value[1:-1].split()[0]
+            if re.escape(needle) != needle:
+                needle = ''
+
+        if needle:
+            try:
+                needle.encode('ascii')
+            except UnicodeEncodeError:
+                return ''
+            else:
+                return '(string.contains_i,(d.{}),{})'.format(self._name, needle)
+
+        return ''
 
     def match(self, item):
         """ Return True if filter matches item.

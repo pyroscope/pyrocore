@@ -104,8 +104,8 @@ class RTorrentMethod(object):
         try:
             # Map multicall arguments
             if not self._proxy._use_deprecated:
-                if self._method_name.endswith(".multicall"):
-                    if self._method_name == "d.multicall":
+                if self._method_name.endswith(".multicall") or self._method_name.endswith(".multicall.filtered"):
+                    if self._method_name in ("d.multicall", "d.multicall.filtered"):
                         args = (0,) + args
                     if config.debug:
                         self._proxy.LOG.debug("BEFORE MAPPING: %r" % (args,))

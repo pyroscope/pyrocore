@@ -31,7 +31,7 @@ from contextlib import closing
 
 from pyrobase.parts import Bunch
 from pyrocore import config, error
-from pyrocore.util import os, xmlrpc, load_config, traits, fmt
+from pyrocore.util import os, xmlrpc, load_config, traits, fmt, matching
 from pyrocore.torrent import engine
 
 
@@ -787,6 +787,12 @@ class RtorrentEngine(engine.TorrentEngine):
                 else:
                     multi_call = self.open().d.multicall
                     args = [view.viewname] + [field if '=' in field else field + '=' for field in args]
+                    if view.matcher and matching.truth(config.optimize_queries, 'config::optimize_queries'):
+                        pre_filter = view.matcher.pre_filter()
+                        self.LOG.info("!!! pre-filter: {}".format(pre_filter or 'N/A'))
+                        if pre_filter:
+                            multi_call = self.open().d.multicall.filtered
+                            args.insert(1, pre_filter)
                     raw_items = multi_call(*tuple(args))
 
                 ##self.LOG.debug("multicall %r" % (args,))

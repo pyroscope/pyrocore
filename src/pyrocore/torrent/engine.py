@@ -23,7 +23,7 @@ import operator
 from collections import defaultdict
 
 from pyrocore import config, error
-from pyrocore.util import os, pymagic, fmt, traits, matching, metafile
+from pyrocore.util import os, pymagic, fmt, traits, matching, metafile, xmlrpc
 
 
 #
@@ -593,7 +593,8 @@ class TorrentView(object):
     def size(self):
         """ Total unfiltered size of view.
         """
-        return len(self._fetch_items())
+        #return len(self._fetch_items())
+        return self.engine.open().view.size(xmlrpc.NOHASH, self.viewname)
 
 
     def items(self):
