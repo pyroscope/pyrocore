@@ -746,7 +746,7 @@ class RtorrentEngine(engine.TorrentEngine):
         # (filter: $d.hash == hashvalue)
 
         if view is None:
-            view = engine.TorrentView(self, "main")
+            view = engine.TorrentView(self, "default")
         elif isinstance(view, basestring):
             view = engine.TorrentView(self, self._resolve_viewname(view))
         else:

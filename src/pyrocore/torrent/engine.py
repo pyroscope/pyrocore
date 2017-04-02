@@ -576,7 +576,7 @@ class TorrentView(object):
         """ Initialize view on torrent items.
         """
         self.engine = engine
-        self.viewname = viewname or "main"
+        self.viewname = viewname or "default"
         self.matcher = matcher
         self._items = None
 

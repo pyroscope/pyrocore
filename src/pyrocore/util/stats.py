@@ -24,7 +24,8 @@ import time
 def engine_data(engine):
     """ Get important performance data and metadata from rTorrent.
     """
-    views = ("main", "started", "stopped", "complete", "incomplete", "seeding", "leeching", "active", "messages")
+    views = ("default", "main", "started", "stopped", "complete",
+             "incomplete", "seeding", "leeching", "active", "messages")
     methods = [
         "get_up_rate", "get_upload_rate",
         "get_down_rate", "get_download_rate",
