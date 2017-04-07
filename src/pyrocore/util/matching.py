@@ -206,6 +206,10 @@ class PatternFilter(FieldFilter):
     """ Case-insensitive pattern filter, either a glob or a /regex/ pattern.
     """
 
+    CLEAN_PRE_VAL_RE = re.compile(r'(?:\[.*?]\])|(?:\(.*?]\))|(?:{.*?]})|(?:\\)')
+    SPLIT_PRE_VAL_RE = re.compile(r'[^a-zA-Z0-9/_]+')
+    SPLIT_PRE_GLOB_RE = re.compile(r'[?*]+')
+
     def validate(self):
         """ Validate filter condition (template method).
         """
@@ -223,13 +227,14 @@ class PatternFilter(FieldFilter):
         if not self._value or self._name not in self.PRE_FILTER_FIELDS:
             return ''
 
-        needle = ''
         if self._is_regex:
-            # TODO: filter for 'good' chars, especially no quotes, "{},=()", whitespace and regex metas
-            #       take longest sequence
-            needle = self._value[1:-1].split()[0]
-            if re.escape(needle) != needle:
-                needle = ''
+            needle = self._value[1:-1]
+            needle = self.CLEAN_PRE_VAL_RE.sub(' ', needle)
+            needle = self.SPLIT_PRE_VAL_RE.split(needle)
+        else:
+            needle = self.CLEAN_PRE_VAL_RE.sub(' ', self._value)
+            needle = self.SPLIT_PRE_GLOB_RE.split(needle)
+        needle = list(sorted(needle, key=len))[-1]
 
         if needle:
             try:
@@ -237,7 +242,8 @@ class PatternFilter(FieldFilter):
             except UnicodeEncodeError:
                 return ''
             else:
-                return '(string.contains_i,({}),{})'.format(self.PRE_FILTER_FIELDS[self._name], needle)
+                return '"string.contains_i=${}=,{}"'.format(
+                       self.PRE_FILTER_FIELDS[self._name], needle)
 
         return ''
 
@@ -334,12 +340,15 @@ class NumericFilterBase(FieldFilter):
 
         if self._value.startswith('+'):
             self._cmp = operator.gt
+            self._rt_cmp = 'greater'
             self._value = self._value[1:]
         elif self._value.startswith('-'):
             self._cmp = operator.lt
+            self._rt_cmp = 'less'
             self._value = self._value[1:]
         else:
             self._cmp = operator.eq
+            self._rt_cmp = 'equal'
 
 
     def match(self, item):
@@ -484,6 +493,14 @@ class ByteSizeFilter(NumericFilterBase):
     """ Filter size and bandwidth values.
     """
     UNITS = dict(b=1, k=1024, m=1024**2, g=1024**3)
+
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        if self._name in self.PRE_FILTER_FIELDS:
+            return '"{}={}=,value={}"'.format(
+                   self._rt_cmp, self.PRE_FILTER_FIELDS[self._name], int(self._value))
+        return ''
 
     def validate(self):
         """ Validate filter condition (template method).
