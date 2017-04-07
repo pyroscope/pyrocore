@@ -20,5 +20,6 @@ entries = set(i
 entries -= set(os.path.basename(d.realpath)
     for d in matches 
     if d.realpath.startswith(checked_dir))
-}}{{for i in sorted(entries)}}{{i}}
+}}{{for i in sorted(entries)}}{{#
+    }}{{checked_dir}}{{i}}
 {{endfor}}
