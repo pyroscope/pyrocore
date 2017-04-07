@@ -162,7 +162,17 @@ class FieldFilter(Filter):
     """ Base class for all field filters.
     """
 
-    PRE_FILTER_FIELDS = set(('name',))
+    PRE_FILTER_FIELDS = dict(
+        name = "d.name",
+        path = "d.base_path",
+        metafile = "d.tied_to_file",
+        size = "d.size_bytes",
+        prio = "d.priority",
+        throttle = "d.throttle_name",
+        custom_tm_completed = "d.custom=tm_completed",
+        custom_tm_loaded = "d.custom=tm_loaded",
+        custom_tm_started = "d.custom=tm_started",
+    )
 
     def __init__(self, name, value):
         """ Store field name and filter value for later evaluations.
@@ -227,7 +237,7 @@ class PatternFilter(FieldFilter):
             except UnicodeEncodeError:
                 return ''
             else:
-                return '(string.contains_i,(d.{}),{})'.format(self._name, needle)
+                return '(string.contains_i,({}),{})'.format(self.PRE_FILTER_FIELDS[self._name], needle)
 
         return ''
 
