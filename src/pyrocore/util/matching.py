@@ -98,9 +98,12 @@ class CompoundFilterAll(CompoundFilterBase):
     def pre_filter(self):
         """ Return rTorrent condition to speed up data transfer.
         """
-        result = [x.pre_filter() for x in self if not isinstance(x, CompoundFilterBase)]
-        result = [x for x in result if x]
-        return 'and={%s}' % ','.join(result) if result else ''
+        if len(self) == 1:
+            return self[0].pre_filter()
+        else:
+            result = [x.pre_filter() for x in self if not isinstance(x, CompoundFilterBase)]
+            result = [x for x in result if x]
+            return 'and={%s}' % ','.join(result) if result else ''
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -150,7 +153,14 @@ class NegateFilter(Filter):
         """ Return rTorrent condition to speed up data transfer.
         """
         inner = self._inner.pre_filter()
-        return 'not=' + inner if inner else ''
+        if inner:
+            if inner.startswith('"'):
+                inner = '"$' + inner[1:]
+            else:
+                inner = '$' + inner
+            return 'not=' + inner
+        else:
+            return ''
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -163,19 +173,50 @@ class FieldFilter(Filter):
     """
 
     PRE_FILTER_FIELDS = dict(
+        # alias = "",
+        hash = "d.hash=",
         name = "d.name=",
-        path = "d.base_path=",
+        message = "d.message=",
         metafile = "d.tied_to_file=",
-        size = "d.size_bytes=",
-        prio = "d.priority=",
+        path = "d.base_path=",
+        # realpath = "=",
         throttle = "d.throttle_name=",
+        # tracker = "=",
+
+        #done = "=",
+        #down = "=",
+        # fno = "=",
+        prio = "d.priority=",
+        # ratio = "=",
+        size = "d.size_bytes=",
+        #up = "=",
+        #uploaded = "=",
+
         completed = "d.custom=tm_completed",
         loaded = "d.custom=tm_loaded",
         started = "d.custom=tm_started",
+        # stopped = "",
         custom_tm_completed = "d.custom=tm_completed",
         custom_tm_loaded = "d.custom=tm_loaded",
         custom_tm_started = "d.custom=tm_started",
     )
+
+        #active                last time a peer was connected
+        #directory             directory containing download data
+        #files                 list of files in this item
+        #is_active             download active?
+        #is_complete           download complete?
+        #is_ghost              has no data file or directory?
+        #is_ignored            ignore commands?
+        #is_multi_file         single- or multi-file download?
+        #is_open               download open?
+        #is_private            private flag set (no DHT/PEX)?
+        #leechtime             time taken from start to completion
+        #seedtime              total seeding time after completion
+        #tagged                has certain tags? (not related to the 'tagged' view)
+        #traits                automatic classification of this item (audio, video, tv, movie, etc.)
+        #views                 views this item is attached to
+        #xfer                  transfer rate
 
     def __init__(self, name, value):
         """ Store field name and filter value for later evaluations.
@@ -227,8 +268,10 @@ class PatternFilter(FieldFilter):
     def pre_filter(self):
         """ Return rTorrent condition to speed up data transfer.
         """
-        if not self._value or self._name not in self.PRE_FILTER_FIELDS:
+        if self._name not in self.PRE_FILTER_FIELDS:
             return ''
+        if not self._value:
+            return '"equal={},cat="'.format(self.PRE_FILTER_FIELDS[self._name])
 
         if self._is_regex:
             needle = self._value[1:-1]
