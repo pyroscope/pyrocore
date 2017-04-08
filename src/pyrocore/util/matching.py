@@ -163,12 +163,15 @@ class FieldFilter(Filter):
     """
 
     PRE_FILTER_FIELDS = dict(
-        name = "d.name",
-        path = "d.base_path",
-        metafile = "d.tied_to_file",
-        size = "d.size_bytes",
-        prio = "d.priority",
-        throttle = "d.throttle_name",
+        name = "d.name=",
+        path = "d.base_path=",
+        metafile = "d.tied_to_file=",
+        size = "d.size_bytes=",
+        prio = "d.priority=",
+        throttle = "d.throttle_name=",
+        completed = "d.custom=tm_completed",
+        loaded = "d.custom=tm_loaded",
+        started = "d.custom=tm_started",
         custom_tm_completed = "d.custom=tm_completed",
         custom_tm_loaded = "d.custom=tm_loaded",
         custom_tm_started = "d.custom=tm_started",
@@ -242,7 +245,7 @@ class PatternFilter(FieldFilter):
             except UnicodeEncodeError:
                 return ''
             else:
-                return '"string.contains_i=${}=,{}"'.format(
+                return '"string.contains_i=${},{}"'.format(
                        self.PRE_FILTER_FIELDS[self._name], needle)
 
         return ''
@@ -396,6 +399,17 @@ class TimeFilter(NumericFilterBase):
         r"(?:(?P<%s>\d+)[%s%s])?" % (i, i, i.upper()) for i in "ymwdhis"
     ))
 
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        if self._name in self.PRE_FILTER_FIELDS:
+            # Adding a day of fuzz to avoid any possible timezone problems
+            timestamp = self._value + (
+                -86400 if self._rt_cmp == 'greater' else
+                86400 if self._rt_cmp == 'less' else 0)
+            return '"{}=value=${},value={}"'.format(
+                   self._rt_cmp, self.PRE_FILTER_FIELDS[self._name], int(timestamp))
+        return ''
 
     def validate(self, duration=False):
         """ Validate filter condition (template method).
@@ -425,8 +439,10 @@ class TimeFilter(NumericFilterBase):
                     # Invert logic for time deltas (+ = older; - = within the delta range)
                     if self._cmp == operator.lt:
                         self._cmp = operator.gt
+                        self._rt_cmp = 'greater'
                     elif self._cmp == operator.gt:
                         self._cmp = operator.lt
+                        self._rt_cmp = 'less'
             else:
                 # Assume it's an absolute date
                 if '/' in self._value:
@@ -498,7 +514,7 @@ class ByteSizeFilter(NumericFilterBase):
         """ Return rTorrent condition to speed up data transfer.
         """
         if self._name in self.PRE_FILTER_FIELDS:
-            return '"{}={}=,value={}"'.format(
+            return '"{}={},value={}"'.format(
                    self._rt_cmp, self.PRE_FILTER_FIELDS[self._name], int(self._value))
         return ''
 
