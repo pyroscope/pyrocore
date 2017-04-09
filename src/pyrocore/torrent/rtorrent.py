@@ -789,11 +789,7 @@ class RtorrentEngine(engine.TorrentEngine):
                     multi_call = self.open().d.multicall
                     args = [view.viewname] + [field if '=' in field else field + '=' for field in args]
                     if view.matcher and matching.truth(config.optimize_queries, 'config::optimize_queries'):
-                        pre_filter = view.matcher.pre_filter()
-                        if pre_filter.startswith('"') and pre_filter.endswith('"'):
-                            # Unquote outer level
-                            pre_filter = pre_filter[1:-1]
-                            pre_filter = re.sub(r'[\\]+', lambda x: x.group(0)[:len(x.group(0)) // 2], pre_filter)
+                        pre_filter = matching.unquote_pre_filter(view.matcher.pre_filter())
                         self.LOG.info("!!! pre-filter: {}".format(pre_filter or 'N/A'))
                         if pre_filter:
                             multi_call = self.open().d.multicall.filtered

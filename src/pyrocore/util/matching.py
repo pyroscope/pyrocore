@@ -60,6 +60,17 @@ def _time_ym_delta(timestamp, delta, months):
     return time.mktime(timestamp)
 
 
+def unquote_pre_filter(pre_filter, _regex=re.compile(r'[\\]+')):
+    """ Unquote a pre-filter condition.
+    """
+    if pre_filter.startswith('"') and pre_filter.endswith('"'):
+        # Unquote outer level
+        pre_filter = pre_filter[1:-1]
+        pre_filter = _regex.sub(lambda x: x.group(0)[:len(x.group(0)) // 2], pre_filter)
+
+    return pre_filter
+
+
 class FilterError(error.UserError):
     """ (Syntax) error in filter.
     """
