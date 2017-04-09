@@ -154,7 +154,9 @@ class NegateFilter(Filter):
         """
         inner = self._inner.pre_filter()
         if inner:
-            if inner.startswith('"'):
+            if inner.startswith('"not=$') and inner.endswith('"') and '\\' not in inner:
+                return inner[6:-1]  # double negation, return inner command
+            elif inner.startswith('"'):
                 inner = '"$' + inner[1:]
             else:
                 inner = '$' + inner
@@ -205,6 +207,8 @@ class FieldFilter(Filter):
         custom_tm_completed = "d.custom=tm_completed",
         custom_tm_loaded = "d.custom=tm_loaded",
         custom_tm_started = "d.custom=tm_started",
+
+        tagged = "d.custom=tags",
     )
 
         #active                last time a peer was connected
@@ -214,7 +218,6 @@ class FieldFilter(Filter):
         #is_private            private flag set (no DHT/PEX)?
         #leechtime             time taken from start to completion
         #seedtime              total seeding time after completion
-        #tagged                has certain tags? (not related to the 'tagged' view)
         #traits                automatic classification of this item (audio, video, tv, movie, etc.)
         #views                 views this item is attached to
         #xfer                  transfer rate
@@ -322,6 +325,20 @@ class TaggedAsFilter(FieldFilter):
     """ Case-insensitive tags filter. Tag fields are white-space separated lists
         of tags.
     """
+
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        if self._name in self.PRE_FILTER_FIELDS:
+            if not self._value:
+                return '"not=${}"'.format(self.PRE_FILTER_FIELDS[self._name])
+            else:
+                val = self._value
+                if self._exact:
+                    val = val.copy().pop()
+                return '"string.contains_i=${},{}"'.format(
+                       self.PRE_FILTER_FIELDS[self._name], val)
+        return ''
 
     def validate(self):
         """ Validate filter condition (template method).
