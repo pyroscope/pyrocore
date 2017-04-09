@@ -183,14 +183,20 @@ class FieldFilter(Filter):
         throttle = "d.throttle_name=",
         # tracker = "=",
 
-        #done = "=",
-        #down = "=",
+        is_active = "d.is_active=",
+        is_complete = "d.complete=",
+        is_ignored = "d.ignore_commands=",
+        is_multi_file = "d.is_multi_file=",
+        is_open = "d.is_open=",
+
+        # done = "=",
+        down = "d.down.rate=",
         # fno = "=",
         prio = "d.priority=",
         ratio = "d.ratio=",
         size = "d.size_bytes=",
-        #up = "=",
-        #uploaded = "=",
+        up = "d.up.rate=",
+        uploaded = "d.up.total=",
 
         completed = "d.custom=tm_completed",
         loaded = "d.custom=tm_loaded",
@@ -204,12 +210,7 @@ class FieldFilter(Filter):
         #active                last time a peer was connected
         #directory             directory containing download data
         #files                 list of files in this item
-        #is_active             download active?
-        #is_complete           download complete?
         #is_ghost              has no data file or directory?
-        #is_ignored            ignore commands?
-        #is_multi_file         single- or multi-file download?
-        #is_open               download open?
         #is_private            private flag set (no DHT/PEX)?
         #leechtime             time taken from start to completion
         #seedtime              total seeding time after completion
@@ -356,6 +357,14 @@ class TaggedAsFilter(FieldFilter):
 class BoolFilter(FieldFilter):
     """ Filter boolean values.
     """
+
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        if self._name in self.PRE_FILTER_FIELDS:
+            return '"equal={},value={}"'.format(
+                   self.PRE_FILTER_FIELDS[self._name], int(self._value))
+        return ''
 
     def validate(self):
         """ Validate filter condition (template method).
