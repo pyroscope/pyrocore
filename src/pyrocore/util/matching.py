@@ -187,7 +187,7 @@ class FieldFilter(Filter):
         #down = "=",
         # fno = "=",
         prio = "d.priority=",
-        # ratio = "=",
+        ratio = "d.ratio=",
         size = "d.size_bytes=",
         #up = "=",
         #uploaded = "=",
@@ -413,6 +413,19 @@ class NumericFilterBase(FieldFilter):
 class FloatFilter(NumericFilterBase):
     """ Filter float values.
     """
+
+    FIELD_SCALE = dict(
+        ratio = 1000,
+    )
+
+    def pre_filter(self):
+        """ Return rTorrent condition to speed up data transfer.
+        """
+        if self._name in self.PRE_FILTER_FIELDS:
+            val = int(self._value * self.FIELD_SCALE.get(self._name, 1))
+            return '"{}=value=${},value={}"'.format(
+                   self._rt_cmp, self.PRE_FILTER_FIELDS[self._name], val)
+        return ''
 
     def validate(self):
         """ Validate filter condition (template method).
