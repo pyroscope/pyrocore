@@ -23,7 +23,7 @@ import shlex
 import fnmatch
 import operator
 
-from pyrocore import error
+from pyrocore import error, config
 from pyrocore.util import fmt, pymagic
 
 log = pymagic.get_lazy_logger(__name__)
@@ -114,7 +114,13 @@ class CompoundFilterAll(CompoundFilterBase):
         else:
             result = [x.pre_filter() for x in self if not isinstance(x, CompoundFilterBase)]
             result = [x for x in result if x]
-            return 'and={%s}' % ','.join(result) if result else ''
+            if result:
+                if int(config.fast_query) == 1:
+                    return result[0]  # using just one simple expression is safer
+                else:
+                    # TODO: make this purely value-based (is.nz=…)
+                    return 'and={%s}' % ','.join(result)
+        return ''
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -135,9 +141,10 @@ class CompoundFilterAny(CompoundFilterBase):
     def pre_filter(self):
         """ Return rTorrent condition to speed up data transfer.
         """
-        result = [x.pre_filter() for x in self if not isinstance(x, CompoundFilterBase)]
-        result = [x for x in result if x]
-        return 'or={%s}' % ','.join(result) if result else ''
+        if len(self) == 1:
+            return self[0].pre_filter()
+        # TODO: Find a safe way to do 'or' expressions
+        return ''
 
     def match(self, item):
         """ Return True if filter matches item.
@@ -219,6 +226,8 @@ class FieldFilter(Filter):
         custom_tm_loaded = "d.custom=tm_loaded",
         custom_tm_started = "d.custom=tm_started",
 
+        # XXX: bad result: rtcontrol -Q2 -o- -v tagged='!'new,foo
+        #       use a 'd.is_tagged=tag' command?
         tagged = "d.custom=tags",
     )
 
