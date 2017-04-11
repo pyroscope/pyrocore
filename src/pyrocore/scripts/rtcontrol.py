@@ -263,8 +263,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_value_option("-M", "--modify-view", "NAME",
             help="get items from given view and write result back to it (short-cut to combine --from-view and --to-view)")
         self.add_value_option("-Q", "--fast-query", "LEVEL",
-            type='choice', default='0', choices=('0', '1', '2'),
-            help="enable query optimization (0 = off; 1 = safe; 2 = danger seeker)")
+            type='choice', default='=', choices=('=', '0', '1', '2'),
+            help="enable query optimization (=: use config; 0: off; 1: safe; 2: danger seeker)")
         self.add_value_option("--call", "CMD",
             help="call an OS command pattern in the shell")
         self.add_value_option("--spawn", "CMD [--spawn ...]",
@@ -568,7 +568,8 @@ class RtorrentControl(ScriptBaseWithConfig):
 #        print repr(config.engine)
 
         # Preparation steps
-        config.fast_query = int(self.options.fast_query)
+        if self.options.fast_query != '=':
+            config.fast_query = int(self.options.fast_query)
         raw_output_format = self.options.output_format
         default_output_format = "default"
         if actions:
