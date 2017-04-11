@@ -21,6 +21,7 @@ pyrocore (0.5.1) precise; urgency=low
   * rtcontrol: actions with arguments (like --custom) now allow templating
   * rtcontrol: added 'json' formatter (main use case: files.raw.json)
   * rtcontrol: added '--json' to dump items as a JSON array
+  * rtcontrol: added '--fast-query' option and config setting for query optimizer
   * rtcontrol: also added new default template 'json' for '-O json'
   * chtor: added '--regex' option
   * chtor: replacing {} with the torrent name in --hashed path

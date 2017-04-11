@@ -788,7 +788,7 @@ class RtorrentEngine(engine.TorrentEngine):
                 else:
                     multi_call = self.open().d.multicall
                     args = [view.viewname] + [field if '=' in field else field + '=' for field in args]
-                    if view.matcher and matching.truth(config.optimize_queries, 'config::optimize_queries'):
+                    if view.matcher and int(config.fast_query):
                         pre_filter = matching.unquote_pre_filter(view.matcher.pre_filter())
                         self.LOG.info("!!! pre-filter: {}".format(pre_filter or 'N/A'))
                         if pre_filter:
