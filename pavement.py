@@ -224,6 +224,17 @@ def dist_docs():
     print docs_package
 
 
+def watchdog_pid():
+    """Get watchdog PID via ``netstat``."""
+    result = sh('netstat -tulpn 2>/dev/null | grep 127.0.0.1:{:d}'
+                .format(SPHINX_AUTOBUILD_PORT), capture=True, ignore_error=True)
+    pid = result.strip()
+    pid = pid.split()[-1] if pid else None
+    pid = pid.split('/', 1)[0] if pid and pid != '-' else None
+
+    return pid
+
+
 @task
 @needs("stopdocs")
 def autodocs():
@@ -243,14 +254,12 @@ def autodocs():
 
     for i in range(25):
         time.sleep(2.5)
-        pid = sh('netstat -tulpn 2>/dev/null | grep 127.0.0.1:%d' % (SPHINX_AUTOBUILD_PORT,),
-                 capture=True, ignore_error=True)
+        pid = watchdog_pid()
         if pid:
             sh("touch docs/index.rst")
-            pid, _ = pid.split()[-1].split('/', 1)
-            sh('ps %s' % pid)
-            url = 'http://localhost:%d/' % SPHINX_AUTOBUILD_PORT
-            print "\n*** Open '%s' in your browser..." % url
+            sh('ps {}'.format(pid))
+            url = 'http://localhost:{port:d}/'.format(port=SPHINX_AUTOBUILD_PORT)
+            print("\n*** Open '{}' in your browser...".format(url))
             break
 
 
@@ -258,13 +267,11 @@ def autodocs():
 def stopdocs():
     "stop Sphinx watchdog"
     for i in range(4):
-        pid = sh('netstat -tulpn 2>/dev/null | grep 127.0.0.1:%d' % (SPHINX_AUTOBUILD_PORT,),
-                 capture=True, ignore_error=True).strip()
+        pid = watchdog_pid()
         if pid:
-            pid, _ = pid.split()[-1].split('/', 1)
             if not i:
-                sh('ps %s' % pid)
-            sh('kill %s' % pid)
+                sh('ps {}'.format(pid))
+            sh('kill {}'.format(pid))
             time.sleep(.5)
         else:
             break
