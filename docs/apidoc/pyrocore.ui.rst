@@ -1,5 +1,5 @@
-pyrocore.ui package
-===================
+pyrocore\.ui package
+====================
 
 .. automodule:: pyrocore.ui
     :members:
@@ -9,16 +9,16 @@ pyrocore.ui package
 Submodules
 ----------
 
-pyrocore.ui.categories module
------------------------------
+pyrocore\.ui\.categories module
+-------------------------------
 
 .. automodule:: pyrocore.ui.categories
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore.ui.theming module
---------------------------
+pyrocore\.ui\.theming module
+----------------------------
 
 .. automodule:: pyrocore.ui.theming
     :members:
