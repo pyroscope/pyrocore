@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import sys
 import time
 import errno
@@ -43,7 +45,7 @@ def check_process(pidfile):
     # Check pid file
     try:
         handle = open(pidfile, 'r')
-    except IOError, exc:
+    except IOError as exc:
         if exc.errno == errno.ENOENT:
             # pid file disappeared
             return False, 0
@@ -51,15 +53,15 @@ def check_process(pidfile):
 
     try:
         pid = int(handle.read().strip(), 10)
-    except (TypeError, ValueError), exc:
+    except (TypeError, ValueError) as exc:
         raise EnvironmentError("Invalid PID file '%s' (%s), won't start!" % (pidfile, exc))
     finally:
         handle.close()
-    
+
     # Check process
     try:
         os.kill(pid, 0)
-    except EnvironmentError, exc:
+    except EnvironmentError as exc:
         return False, pid
     else:
         return True, pid
@@ -86,10 +88,10 @@ def guard(pidfile, guardfile=None):
 
 def daemonize(pidfile=None, logfile=None, sync=True):
     """ Fork the process into the background.
-    
+
         @param pidfile: Optional PID file path.
-        @param sync: Wait for parent process to disappear?  
-        @param logfile: Optional name of stdin/stderr log file or stream.  
+        @param sync: Wait for parent process to disappear?
+        @param logfile: Optional name of stdin/stderr log file or stream.
     """
     log = logging.getLogger("daemonize")
     ppid = os.getpid()
@@ -99,7 +101,7 @@ def daemonize(pidfile=None, logfile=None, sync=True):
         if pid > 0:
             log.debug("Parent exiting (PID %d, CHILD %d)" % (ppid, pid))
             sys.exit(0)
-    except OSError, e:
+    except OSError as e:
         log.critical("fork #1 failed (PID %d): (%d) %s\n" % (os.getpid(), e.errno, e.strerror))
         sys.exit(1)
 
@@ -112,7 +114,7 @@ def daemonize(pidfile=None, logfile=None, sync=True):
         if pid > 0:
             log.debug("Session leader exiting (PID %d, PPID %d, DEMON %d)" % (os.getpid(), ppid, pid))
             sys.exit(0)
-    except OSError, e:
+    except OSError as e:
         log.critical("fork #2 failed (PID %d): (%d) %s\n" % (os.getpid(), e.errno, e.strerror))
         sys.exit(1)
 

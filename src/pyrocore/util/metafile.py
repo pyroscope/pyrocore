@@ -16,6 +16,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import re
 import sys
@@ -127,10 +129,10 @@ def check_info(info):
     if not ALLOWED_ROOT_NAME.match(name):
         raise ValueError("name %s disallowed for security reasons" % name)
 
-    if info.has_key("files") == info.has_key("length"):
+    if ("files" in info) == ("length" in info):
         raise ValueError("single/multiple file mix")
 
-    if info.has_key("length"):
+    if "length" in info:
         length = info.get("length")
         if not isinstance(length, (int, long)) or length < 0:
             raise ValueError("bad metainfo - bad length")
@@ -230,7 +232,7 @@ def sanitize(meta):
                     continue
         else:
             # Broken beyond anything reasonable
-            return unicode(text, 'utf-8', 'replace').replace(u'\ufffd', '_').encode("utf-8")
+            return str(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
 
     # Go through all string fields and check them
     for field in ("comment", "created by"):
@@ -271,7 +273,7 @@ def assign_fields(meta, assignments):
             for key in keypath[:-1]:
                 # Create missing dicts as we go...
                 namespace = namespace.setdefault(key, {})
-        except (KeyError, IndexError, TypeError, ValueError), exc:
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
             if val is None:
@@ -338,7 +340,7 @@ def data_size(metadata):
     """
     info = metadata['info']
 
-    if info.has_key('length'):
+    if 'length' in info:
         # Single file
         total_size = info['length']
     else:
@@ -362,7 +364,7 @@ def checked_open(filename, log=None, quiet=False):
         check_meta(data)
         if raw_data != bencode.bencode(data):
             raise ValueError("Bad bencoded data - dict keys out of order?")
-    except ValueError, exc:
+    except ValueError as exc:
         if log:
             # Warn about it, unless it's a quiet value query
             if not quiet:
@@ -643,7 +645,7 @@ class Metafile(object):
             if created_by:
                 meta["created by"] = created_by
             if not no_date:
-                meta["creation date"] = long(time.time())
+                meta["creation date"] = int(time.time())
             if callback:
                 callback(meta)
 
@@ -715,9 +717,9 @@ class Metafile(object):
 
         result.extend([
             "",
-            "FILE LISTING%s" % ("" if info.has_key('length') else " [%d file(s)]" % len(info['files']),),
+            "FILE LISTING%s" % ("" if 'length' in info else " [%d file(s)]" % len(info['files']),),
         ])
-        if info.has_key('length'):
+        if 'length' in info:
             # Single file
             result.append("%-69s%9s" % (
                     info['name'],

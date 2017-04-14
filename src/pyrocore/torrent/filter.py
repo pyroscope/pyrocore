@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
 
 from pyrocore import error
 from pyrocore.util import xmlrpc, pymagic
@@ -44,7 +45,7 @@ class FilterJobBase(object):
             # TODO: select view into items
             items = []
             self.run_filter(items)
-        except (error.LoggableError, xmlrpc.ERRORS), exc:
+        except (error.LoggableError, xmlrpc.ERRORS) as exc:
             self.LOG.warn(str(exc))
 
 

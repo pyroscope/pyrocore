@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import re
 import random
 
@@ -100,7 +102,7 @@ class MetafileCreator(ScriptBaseWithConfig):
 
         try:
             bencode.bwrite(meta_path, meta)
-        except EnvironmentError, exc:
+        except EnvironmentError as exc:
             self.fatal("Error writing magnet-uri metafile %r (%s)" % (meta_path, exc,))
             raise
 
@@ -157,7 +159,7 @@ class MetafileCreator(ScriptBaseWithConfig):
         if self.options.hashed:
             try:
                 metafile.add_fast_resume(meta, datapath)
-            except EnvironmentError, exc:
+            except EnvironmentError as exc:
                 self.fatal("Error making fast-resume data (%s)" % (exc,))
                 raise
 
@@ -165,7 +167,7 @@ class MetafileCreator(ScriptBaseWithConfig):
             self.LOG.info("Writing fast-resume metafile %r..." % (hashed_path,))
             try:
                 bencode.bwrite(hashed_path, meta)
-            except EnvironmentError, exc:
+            except EnvironmentError as exc:
                 self.fatal("Error writing fast-resume metafile %r (%s)" % (hashed_path, exc,))
                 raise
 

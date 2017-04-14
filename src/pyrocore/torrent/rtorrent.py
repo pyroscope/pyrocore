@@ -18,6 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
+from __future__ import absolute_import
 
 import re
 import sys
@@ -74,7 +75,7 @@ class RtorrentItem(engine.TorrentProxy):
                 result = getattr(namespace, call)(*args)
                 if observer:
                     observer(result)
-        except xmlrpc.ERRORS, exc:
+        except xmlrpc.ERRORS as exc:
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
 
@@ -98,7 +99,7 @@ class RtorrentItem(engine.TorrentProxy):
             for attr in (attrs or []):
                 f_params.append("f.%s=" % attr)
             rpc_result = f_multicall(*tuple(f_params))
-        except xmlrpc.ERRORS, exc:
+        except xmlrpc.ERRORS as exc:
             raise error.EngineError("While %s torrent #%s: %s" % (
                 "getting files for", self._fields["hash"], exc))
         else:
@@ -190,7 +191,7 @@ class RtorrentItem(engine.TorrentProxy):
                         val = getattr(self._engine._rpc.d, "get_custom"+key)(self._fields["hash"])
                     else:
                         val = self._engine._rpc.d.custom(self._fields["hash"], key)
-                except xmlrpc.ERRORS, exc:
+                except xmlrpc.ERRORS as exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
             else:
                 getter_name = engine_name if engine_name else RtorrentEngine.PYRO2RT_MAPPING.get(name, name)
@@ -202,7 +203,7 @@ class RtorrentItem(engine.TorrentProxy):
 
                 try:
                     val = getter(self._fields["hash"])
-                except xmlrpc.ERRORS, exc:
+                except xmlrpc.ERRORS as exc:
                     raise error.EngineError("While accessing field %r: %s" % (name, exc))
 
             # TODO: Currently, NOT caching makes no sense; in a demon, it does!
@@ -229,7 +230,7 @@ class RtorrentItem(engine.TorrentProxy):
         """
         try:
             response = self._engine._rpc.t.multicall(self._fields["hash"], 0, "t.url=", "t.is_enabled=")
-        except xmlrpc.ERRORS, exc:
+        except xmlrpc.ERRORS as exc:
             raise error.EngineError("While getting announce URLs for #%s: %s" % (self._fields["hash"], exc))
 
         if response:
@@ -317,7 +318,7 @@ class RtorrentItem(engine.TorrentProxy):
         if value is None:
             try:
                 key, value = key.split('=', 1)
-            except (ValueError, TypeError), exc:
+            except (ValueError, TypeError) as exc:
                 raise error.UserError("Bad custom field assignment %r, probably missing a '=' (%s)" % (key, exc))
 
         # Check identifier rules
@@ -353,7 +354,7 @@ class RtorrentItem(engine.TorrentProxy):
             try:
                 method, args = command.split('=', 1)
                 args = tuple(CommaLexer(args))
-            except (ValueError, TypeError), exc:
+            except (ValueError, TypeError) as exc:
                 raise error.UserError("Bad command %r, probably missing a '=' (%s)" % (command, exc))
 
             def print_result(data):
@@ -424,7 +425,7 @@ class RtorrentItem(engine.TorrentProxy):
                 if not dry_run:
                     try:
                         (os.rmdir if is_dir else os.remove)(path)
-                    except OSError, exc:
+                    except OSError as exc:
                         if exc.errno == errno.ENOENT:
                             # Seems this disappeared somehow inbetween (race condition)
                             self._engine.LOG.info("Path '%s%s' disappeared before it could be deleted"
@@ -488,7 +489,7 @@ class RtorrentItem(engine.TorrentProxy):
                     if not dry_run:
                         try:
                             os.remove(waif)
-                        except EnvironmentError, exc:
+                        except EnvironmentError as exc:
                             self._engine.LOG.warn("Problem deleting waif '%s' (%s)" % (waif, exc))
 
                 ##self._engine.LOG.debug("Deleting empty directory '%s'" % (path,))
@@ -668,7 +669,7 @@ class RtorrentEngine(engine.TorrentEngine):
             try:
                 # Only works with rTorrent-PS at this time!
                 viewname = self.open().ui.current_view()
-            except xmlrpc.ERRORS, exc:
+            except xmlrpc.ERRORS as exc:
                 raise error.EngineError("Can't get name of current view: %s" % (exc))
 
         return viewname
@@ -731,7 +732,7 @@ class RtorrentEngine(engine.TorrentEngine):
     def item(self, infohash, prefetch=None, cache=False):
         """ Fetch a single item by its info hash.
         """
-        return self.items(infohash, prefetch, cache).next()
+        return next(self.items(infohash, prefetch, cache))
 
 
     def items(self, view=None, prefetch=None, cache=True):
@@ -808,7 +809,7 @@ class RtorrentEngine(engine.TorrentEngine):
                         [self.RT2PYRO_MAPPING.get(i, i) for i in prefetch], item
                     )))
                     yield items[-1]
-            except xmlrpc.ERRORS, exc:
+            except xmlrpc.ERRORS as exc:
                 raise error.EngineError("While getting download items from %r: %s" % (self, exc))
 
             # Everything yielded, store for next iteration

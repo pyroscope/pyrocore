@@ -18,6 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
+from __future__ import absolute_import
 
 # TODO: Re-tie metafiles when they're moved in the tree
 
@@ -35,7 +36,7 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 try:
     import pyinotify
-except ImportError, exc:
+except ImportError as exc:
     pyinotify = Bunch(WatchManager=None, ProcessEvent=object, _import_error=str(exc)) # bogus pylint: disable=C0103
 
 
@@ -64,12 +65,12 @@ class MetafileHandler(object):
                 self.job.LOG.warn("Ignoring 0-byte metafile '%s'" % (self.ns.pathname,))
                 return
             self.metadata = metafile.checked_open(self.ns.pathname)
-        except EnvironmentError, exc:
+        except EnvironmentError as exc:
             self.job.LOG.error("Can't read metafile '%s' (%s)" % (
                 self.ns.pathname, str(exc).replace(": '%s'" % self.ns.pathname, ""),
             ))
             return
-        except ValueError, exc:
+        except ValueError as exc:
             self.job.LOG.error("Invalid metafile '%s': %s" % (self.ns.pathname, exc))
             return
 
@@ -82,7 +83,7 @@ class MetafileHandler(object):
             name = self.job.proxy.d.name(self.ns.info_hash, fail_silently=True)
         except xmlrpc.HashNotFound:
             pass
-        except xmlrpc.ERRORS, exc:
+        except xmlrpc.ERRORS as exc:
             if exc.faultString != "Could not find info-hash.":
                 self.job.LOG.error("While checking for #%s: %s" % (self.ns.info_hash, exc))
                 return
@@ -132,7 +133,7 @@ class MetafileHandler(object):
         for key, cmd in sorted(self.job.custom_cmds.items()):
             try:
                 self.ns.commands.append(formatting.expand_template(cmd, self.ns))
-            except error.LoggableError, exc:
+            except error.LoggableError as exc:
                 self.job.LOG.error("While expanding '%s' custom command: %s" % (key, exc))
 
 
@@ -194,7 +195,7 @@ class MetafileHandler(object):
             #   could also be done automatically from the path, see above under "flags" (autolabel = True)
             #   and add traits to the flags, too, in that case
 
-        except xmlrpc.ERRORS, exc:
+        except xmlrpc.ERRORS as exc:
             self.job.LOG.error("While loading #%s: %s" % (self.ns.info_hash, exc))
 
 

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import sys
 import time
 import xmlrpclib
@@ -204,10 +206,10 @@ class RTorrentProxy(object):
 
         # Statistics (traffic w/o HTTP overhead)
         self._requests = 0
-        self._outbound = 0L
-        self._outbound_max = 0L
-        self._inbound = 0L
-        self._inbound_max = 0L
+        self._outbound = 0
+        self._outbound_max = 0
+        self._inbound = 0
+        self._inbound_max = 0
         self._latency = 0.0
         self._net_latency = 0.0
 
@@ -243,7 +245,7 @@ class RTorrentProxy(object):
                         self.LOG.debug("MAPPING for %r added: %r" % (map_version, val))
                     self._mapping.update(val)
             self._fix_mappings()
-        except ERRORS, exc:
+        except ERRORS as exc:
             raise error.LoggableError("Can't connect to %s (%s)" % (self._url, exc))
 
         return self._versions, self._version_info

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import re
 import copy
 import time
@@ -43,7 +45,7 @@ def replace_fields(meta, patterns):
                 namespace = namespace[key]
 
             namespace[keypath[-1]] = re.sub(regex, subst, namespace[keypath[-1]])
-        except (KeyError, IndexError, TypeError, ValueError), exc:
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise error.UserError("Bad substitution '%s' (%s)!" % (pattern, exc))
 
     return meta
@@ -144,7 +146,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                 idx = int(idx, 10)
                 _, tracker_url = config.lookup_announce_alias(tracker_alias)
                 self.options.reannounce = tracker_url[idx]
-            except (KeyError, IndexError, TypeError, ValueError), exc:
+            except (KeyError, IndexError, TypeError, ValueError) as exc:
                 raise error.UserError("Unknown tracker alias or bogus URL %r (%s)!" % (
                     self.options.reannounce, exc))
 
@@ -156,14 +158,14 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Read and remember current content
                 metainfo = bencode.bread(filename)
                 old_metainfo = bencode.bencode(metainfo)
-            except (EnvironmentError, KeyError, bencode.BencodeError), exc:
+            except (EnvironmentError, KeyError, bencode.BencodeError) as exc:
                 self.LOG.warning("Skipping bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
                 bad += 1
             else:
                 # Check metafile integrity
                 try:
                     metafile.check_meta(metainfo)
-                except ValueError, exc:
+                except ValueError as exc:
                     self.LOG.warn("Metafile %r failed integrity check: %s" % (filename, exc,))
                     if not self.options.no_skip:
                         continue
@@ -232,7 +234,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                     elif "comment" in metainfo:
                         del metainfo["comment"]
                 if self.options.bump_date:
-                    metainfo["creation date"] = long(time.time())
+                    metainfo["creation date"] = int(time.time())
                 if self.options.no_date and "creation date" in metainfo:
                     del metainfo["creation date"]
 
@@ -240,7 +242,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                 if self.options.hashed:
                     try:
                         metafile.add_fast_resume(metainfo, self.options.hashed.replace("{}", metainfo["info"]["name"]))
-                    except EnvironmentError, exc:
+                    except EnvironmentError as exc:
                         self.fatal("Error making fast-resume data (%s)" % (exc,))
                         raise
 
@@ -282,7 +284,7 @@ class MetafileChanger(ScriptBaseWithConfig):
 
                             try:
                                 os.rename(tempname, filename)
-                            except EnvironmentError, exc:
+                            except EnvironmentError as exc:
                                 # TODO: Try to write directly, keeping a backup!
                                 raise error.LoggableError("Can't rename tempfile %r to %r (%s)" % (
                                     tempname, filename, exc

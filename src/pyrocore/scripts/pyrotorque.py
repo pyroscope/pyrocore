@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import sys
 import time
 import shlex
@@ -142,7 +144,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             if params.active:
                 try:
                     params.handler = pymagic.import_name(params.handler)
-                except ImportError, exc:
+                except ImportError as exc:
                     self.fatal("Bad handler name '%s' for job '%s':\n    %s" % (params.handler, name, exc))
 
 
@@ -198,10 +200,10 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 if tick > 0:
                     # wait POLL_TIMEOUT at most (robust against time shifts)
                     time.sleep(min(tick, self.POLL_TIMEOUT))
-            except KeyboardInterrupt, exc:
+            except KeyboardInterrupt as exc:
                 self.LOG.info("Termination request received (%s)" % exc)
                 break
-            except SystemExit, exc:
+            except SystemExit as exc:
                 self.return_code = exc.code or 0
                 self.LOG.info("System exit (RC=%r)" % self.return_code)
                 break
@@ -264,7 +266,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         # Check for guard file and running daemon, abort if not OK
         try:
             osmagic.guard(self.options.pid_file, self.options.guard_file)
-        except EnvironmentError, exc:
+        except EnvironmentError as exc:
             self.LOG.debug(str(exc))
             self.return_code = error.EX_TEMPFAIL
             return
@@ -296,7 +298,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
             if self.options.pid_file:
                 try:
                     os.remove(self.options.pid_file)
-                except EnvironmentError, exc:
+                except EnvironmentError as exc:
                     self.LOG.warn("Failed to remove pid file '%s' (%s)" % (self.options.pid_file, exc))
                     self.return_code = error.EX_IOERR
 

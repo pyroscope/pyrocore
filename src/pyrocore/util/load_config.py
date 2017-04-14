@@ -20,6 +20,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
+from __future__ import absolute_import
 
 import re
 import glob
@@ -175,7 +176,7 @@ class ConfigLoader(object):
 
             try:
                 defaults = pymagic.resource_string("pyrocore", "data/config/" + cfg_file) #@UndefinedVariable
-            except IOError, exc:
+            except IOError as exc:
                 if idx and exc.errno == errno.ENOENT:
                     continue
                 raise
@@ -204,7 +205,7 @@ class ConfigLoader(object):
         """
         if config_file and os.path.isfile(config_file):
             self.LOG.debug("Loading %r..." % (config_file,))
-            execfile(config_file, vars(config), namespace)
+            exec(compile(open(config_file).read(), config_file, 'exec'), vars(config), namespace)
         else:
             self.LOG.warning("Configuration file %r not found!" % (config_file,))
 
@@ -238,7 +239,7 @@ class ConfigLoader(object):
 
             for callback in namespace["config_validator_callbacks"]:
                 callback()
-        except ConfigParser.ParsingError, exc:
+        except ConfigParser.ParsingError as exc:
             raise error.UserError(exc)
 
         # Ready to go...

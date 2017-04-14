@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import os
 import re
 import json
@@ -98,11 +100,11 @@ class JsonController(object):
             if isinstance(resp, (dict, list)):
                 try:
                     resp = json.dumps(resp, sort_keys=True)
-                except (TypeError, ValueError, IndexError, AttributeError), json_exc:
+                except (TypeError, ValueError, IndexError, AttributeError) as json_exc:
                     raise exc.HTTPInternalServerError("JSON serialization error (%s)" % json_exc)
             if isinstance(resp, basestring):
                 resp = Response(body=resp, content_type="application/json")
-        except exc.HTTPException, http_exc:
+        except exc.HTTPException as http_exc:
             resp = http_exc
         return resp
 
@@ -112,7 +114,7 @@ class JsonController(object):
         """
         try:
             return func(*args, **kwargs)
-        except (EnvironmentError, error.LoggableError, xmlrpc.ERRORS), g_exc:
+        except (EnvironmentError, error.LoggableError, xmlrpc.ERRORS) as g_exc:
             if func.__name__ not in self.ERRORS_LOGGED:
                 self.LOG.warn("While calling '%s': %s" % (func.__name__, g_exc))
                 self.ERRORS_LOGGED.add(func.__name__)
@@ -124,7 +126,7 @@ class JsonController(object):
         """
         try:
             return stats.engine_data(config.engine)
-        except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
+        except (error.LoggableError, xmlrpc.ERRORS) as torrent_exc:
             raise exc.HTTPInternalServerError(str(torrent_exc))
 
 
@@ -264,7 +266,7 @@ def module_test():
         print("%s - %s" % (engine.engine_id, engine.open()))
         pprint.pprint(stats.engine_data(engine))
         print("%s - %s" % (engine.engine_id, engine.open()))
-    except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
+    except (error.LoggableError, xmlrpc.ERRORS) as torrent_exc:
         print("ERROR: %s" % torrent_exc)
 
 

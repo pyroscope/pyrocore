@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
 
 import re
 import sys
@@ -206,7 +207,7 @@ class OutputMapping(algo.AttributeMapping):
             val = super(OutputMapping, self).__getitem__(key)
             try:
                 return formatter(val) if formatter else val
-            except (TypeError, ValueError, KeyError, IndexError, AttributeError), exc:
+            except (TypeError, ValueError, KeyError, IndexError, AttributeError) as exc:
                 raise error.LoggableError("While formatting %s=%r: %s" % (key, val, exc))
 
 
@@ -215,7 +216,7 @@ def preparse(output_format):
     """
     try:
         return templating.preparse(output_format, lambda path: os.path.join(config.config_dir, "templates", path))
-    except ImportError, exc:
+    except ImportError as exc:
         if "tempita" in str(exc):
             raise error.UserError("To be able to use Tempita templates, install the 'tempita' package (%s)\n"
                 "    Possibly USING THE FOLLOWING COMMAND:\n"
@@ -254,7 +255,7 @@ def expand_template(template, namespace):
     try:
         template = preparse(template)
         return template.substitute(**variables)
-    except (AttributeError, ValueError, NameError, TypeError), exc:
+    except (AttributeError, ValueError, NameError, TypeError) as exc:
         hint = ''
         if "column" in str(exc):
             try:

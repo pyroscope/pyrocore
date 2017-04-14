@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+
 import logging
 from collections import defaultdict
 
@@ -87,7 +89,7 @@ class RtorrentMove(ScriptBaseWithConfig):
         if not self.options.dry_run:
             try:
                 call(*args)
-            except (EnvironmentError, UnicodeError), exc:
+            except (EnvironmentError, UnicodeError) as exc:
                 self.fatal('%s(%s) failed [%s]' % (
                     call.__name__, ', '.join([pretty_path(i) for i in args]), exc,
                 ))
@@ -135,7 +137,7 @@ class RtorrentMove(ScriptBaseWithConfig):
             realpath = None
             try:
                 realpath = os.path.realpath(item.path)
-            except (EnvironmentError, UnicodeError), exc:
+            except (EnvironmentError, UnicodeError) as exc:
                 self.LOG.warning("Cannot realpath %r (%s)" % (item.path, exc))
 
             # Look if item matches a source path

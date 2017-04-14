@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
 
 from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
@@ -50,13 +51,13 @@ class MetafileChecker(ScriptBaseWithConfig):
         metapath = self.args[0]
         try:
             metainfo = bencode.bread(metapath)
-        except (KeyError, bencode.BencodeError), exc:
+        except (KeyError, bencode.BencodeError) as exc:
             self.LOG.error("Bad metafile %r (%s: %s)" % (metapath, type(exc).__name__, exc))
         else:
             # Check metafile integrity
             try:
                 metafile.check_meta(metainfo)
-            except ValueError, exc:
+            except ValueError as exc:
                 self.LOG.error("Metafile %r failed integrity check: %s" % (metapath, exc,))
             else:
                 if len(self.args) > 1:

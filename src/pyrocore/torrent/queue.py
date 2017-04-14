@@ -18,6 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
+from __future__ import absolute_import
 
 import time
 
@@ -144,6 +145,6 @@ class QueueManager(object):
             # Handle found items
             self._start(items)
             self.LOG.debug("%s - %s" % (config_ini.engine.engine_id, self.proxy))
-        except (error.LoggableError, xmlrpc.ERRORS), exc:
+        except (error.LoggableError, xmlrpc.ERRORS) as exc:
             # only debug, let the statistics logger do its job
             self.LOG.debug(str(exc))

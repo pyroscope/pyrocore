@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import re
 import time
 import operator
@@ -140,7 +143,7 @@ def _fmt_files(filelist):
     """ Produce a file listing.
     """
     depth = max(i.path.count('/') for i in filelist)
-    pad = [u'\uFFFE'] * depth
+    pad = ['\uFFFE'] * depth
 
     base_indent = ' ' * 38
     indent = 0
@@ -164,7 +167,7 @@ def _fmt_files(filelist):
                 result.append("%s%s/" % (base_indent, ' ' * indent))
 
             for dirname in path[common:]:
-                if dirname == u'\uFFFE':
+                if dirname == '\uFFFE':
                     break
                 result.append("%s%s\\ %s" % (base_indent, ' ' * indent, dirname))
                 indent += 1
@@ -521,23 +524,23 @@ class TorrentProxy(object):
         accessor=lambda o: o._fields["throttle"] or "NONE")
 
     # Lifecyle
-    loaded = DynamicField(long, "loaded", "time metafile was loaded", matcher=matching.TimeFilterNotNull,
-        accessor=lambda o: long(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime_optional)
-    started = DynamicField(long, "started", "time download was FIRST started", matcher=matching.TimeFilterNotNull,
-        accessor=lambda o: long(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime_optional)
+    loaded = DynamicField(int, "loaded", "time metafile was loaded", matcher=matching.TimeFilterNotNull,
+        accessor=lambda o: int(o.fetch("custom_tm_loaded") or "0", 10), formatter=fmt.iso_datetime_optional)
+    started = DynamicField(int, "started", "time download was FIRST started", matcher=matching.TimeFilterNotNull,
+        accessor=lambda o: int(o.fetch("custom_tm_started") or "0", 10), formatter=fmt.iso_datetime_optional)
     leechtime = DynamicField(untyped, "leechtime", "time taken from start to completion", matcher=matching.DurationFilter,
         accessor=lambda o: _interval_sum(o, end=o.completed, context=o.name)
                         or _duration(o.started, o.completed),
         formatter=_fmt_duration)
-    completed = DynamicField(long, "completed", "time download was finished", matcher=matching.TimeFilterNotNull,
-        accessor=lambda o: long(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime_optional)
+    completed = DynamicField(int, "completed", "time download was finished", matcher=matching.TimeFilterNotNull,
+        accessor=lambda o: int(o.fetch("custom_tm_completed") or "0", 10), formatter=fmt.iso_datetime_optional)
     seedtime = DynamicField(untyped, "seedtime", "total seeding time after completion", matcher=matching.DurationFilter,
         accessor=lambda o: _interval_sum(o, start=o.completed, context=o.name)
                            if o.is_complete else None,
         formatter=_fmt_duration)
-    active = DynamicField(long, "active", "last time a peer was connected", matcher=matching.TimeFilter,
-        accessor=lambda o: long(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
-    stopped = DynamicField(long, "stopped", "time download was last stopped or paused", matcher=matching.TimeFilterNotNull,
+    active = DynamicField(int, "active", "last time a peer was connected", matcher=matching.TimeFilter,
+        accessor=lambda o: int(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
+    stopped = DynamicField(int, "stopped", "time download was last stopped or paused", matcher=matching.TimeFilterNotNull,
         accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1], formatter=fmt.iso_datetime_optional)
 
     # Classification
