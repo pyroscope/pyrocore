@@ -427,7 +427,8 @@ class RtorrentItem(engine.TorrentProxy):
                     except OSError, exc:
                         if exc.errno == errno.ENOENT:
                             # Seems this disappeared somehow inbetween (race condition)
-                            self._engine.LOG.info("Path '%s%s' disappeared before it could be deleted" % (path, '/' if is_dir else ''))
+                            self._engine.LOG.info("Path '%s%s' disappeared before it could be deleted"
+                                                  % (path, '/' if is_dir else ''))
                         else:
                             raise
 
@@ -443,7 +444,8 @@ class RtorrentItem(engine.TorrentProxy):
                 " you might want to add a filter 'directory=!'" % (self._fields["hash"],))
         if not os.path.isabs(base_path):
             raise error.EngineError("Directory '%s' for item #%s is not absolute, which is a bad idea;"
-                " fix your .rtorrent.rc, and use 'directory.default.set = /...' with rTorrent 0.8.7+" % (self.directory, self._fields["hash"],))
+                " fix your .rtorrent.rc, and use 'directory.default.set = /...'"
+                % (self.directory, self._fields["hash"],))
         if self.fetch("=is_multi_file") and os.path.isdir(self.directory):
             dirs.add(self.directory)
 
@@ -542,19 +544,19 @@ class RtorrentEngine(engine.TorrentEngine):
 
     # mapping of our names to rTorrent names (only those that differ)
     PYRO2RT_MAPPING = dict(
-        is_complete = "complete",
-        is_ignored = "ignore_commands",
-        down = "down_rate",
-        up = "up_rate",
-        path = "base_path",
-        metafile = "tied_to_file",
-        size = "size_bytes",
-        prio = "priority",
-        throttle = "throttle_name",
-        custom_m_alias = "custom=m_alias",
-        custom_tm_completed = "custom=tm_completed",
-        custom_tm_loaded = "custom=tm_loaded",
-        custom_tm_started = "custom=tm_started",
+        is_complete="complete",
+        is_ignored="ignore_commands",
+        down="down_rate",
+        up="up_rate",
+        path="base_path",
+        metafile="tied_to_file",
+        size="size_bytes",
+        prio="priority",
+        throttle="throttle_name",
+        custom_m_alias="custom=m_alias",
+        custom_tm_completed="custom=tm_completed",
+        custom_tm_loaded="custom=tm_loaded",
+        custom_tm_started="custom=tm_started",
     )
 
     # inverse mapping of rTorrent names to ours
@@ -781,8 +783,8 @@ class RtorrentEngine(engine.TorrentEngine):
 
                 if infohash:
                     multi_call = self.open().system.multicall
-                    args = [dict(methodName=field.rsplit('=',1)[0],
-                                 params=[infohash] + (field.rsplit('=',1)[1].split(',') if '=' in field else []))
+                    args = [dict(methodName=field.rsplit('=', 1)[0],
+                                 params=[infohash] + (field.rsplit('=', 1)[1].split(',') if '=' in field else []))
                             for field in args]
                     raw_items = [[i[0] for i in multi_call(args)]]
                 else:

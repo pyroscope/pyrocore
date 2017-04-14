@@ -49,9 +49,9 @@ class MetafileHandler(object):
         self.job = job
         self.metadata = None
         self.ns = Bunch(
-            pathname = os.path.abspath(pathname),
-            info_hash = None,
-            tracker_alias = None,
+            pathname=os.path.abspath(pathname),
+            info_hash=None,
+            tracker_alias=None,
         )
 
 

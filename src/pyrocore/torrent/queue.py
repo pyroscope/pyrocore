@@ -21,8 +21,9 @@ from __future__ import with_statement
 
 import time
 
-from pyrocore import error, config
-from pyrocore.util import os, fmt, xmlrpc, pymagic
+from pyrocore import error
+from pyrocore import config as config_ini
+from pyrocore.util import fmt, xmlrpc, pymagic
 from pyrocore.torrent import engine, matching, formatting
 
 
@@ -131,10 +132,10 @@ class QueueManager(object):
         """ Queue manager job callback.
         """
         try:
-            self.proxy = config.engine.open()
+            self.proxy = config_ini.engine.open()
 
             # Get items from 'pyrotorque' view
-            items = list(config.engine.items(self.VIEWNAME, cache=False))
+            items = list(config_ini.engine.items(self.VIEWNAME, cache=False))
 
             if self.sort_key:
                 items.sort(key=self.sort_key)
@@ -142,7 +143,7 @@ class QueueManager(object):
 
             # Handle found items
             self._start(items)
-            self.LOG.debug("%s - %s" % (config.engine.engine_id, self.proxy))
+            self.LOG.debug("%s - %s" % (config_ini.engine.engine_id, self.proxy))
         except (error.LoggableError, xmlrpc.ERRORS), exc:
             # only debug, let the statistics logger do its job
             self.LOG.debug(str(exc))

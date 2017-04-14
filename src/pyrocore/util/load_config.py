@@ -40,7 +40,7 @@ def validate(key, val):
     if key == "output_header_frequency":
         return int(val, 10)
     if key.endswith("_ecma48"):
-        return eval("'%s'" % val.replace("'", r"\'"))
+        return eval("'%s'" % val.replace("'", r"\'"))  # pylint: disable=eval-used
 
     return val
 
@@ -82,7 +82,7 @@ class ConfigLoader(object):
         self._loaded = False
 
 
-    def _update_config(self, namespace):
+    def _update_config(self, namespace):  # pylint: disable=no-self-use
         """ Inject the items from the given dict into the configuration.
         """
         for key, val in namespace.items():
@@ -280,5 +280,5 @@ class ConfigLoader(object):
                 config_trail.append('')
             for i in config_trail:
                 with closing(open(config_file + i, "w")) as handle:
-                    handle.write(text)
+                    handle.write(text)  # pylint: disable=no-member
                 self.LOG.info("Configuration file %r written!" % (config_file + i,))

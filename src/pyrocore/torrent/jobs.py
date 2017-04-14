@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011
+# pylint: disable=
 """ rTorrent Daemon Jobs.
 
     Copyright (c) 2012 The PyroScope Project <pyroscope.project@gmail.com>
@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-import time
 
 try:
     import json
@@ -122,14 +120,14 @@ class InfluxDBStats(object):
                 config_ini.engine.open()
                 data, views = _flux_engine_data(config_ini.engine)
                 fluxdata.append(dict(
-                    name = self.config.series,
-                    columns = data.keys(),
-                    points = [data.values()]
+                    name=self.config.series,
+                    columns=data.keys(),
+                    points=[data.values()]
                 ))
                 fluxdata.append(dict(
-                    name = self.config.series + '_views',
-                    columns = views.keys(),
-                    points = [views.values()]
+                    name=self.config.series + '_views',
+                    columns=views.keys(),
+                    points=[views.values()]
                 ))
             except (error.LoggableError, xmlrpc.ERRORS), exc:
                 self.LOG.warn("InfluxDB stats: {0}".format(exc))

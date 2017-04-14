@@ -271,21 +271,21 @@ def expand_template(template, namespace):
         ))
 
 
-def format_item(format, item, defaults=None):
+def format_item(format_spec, item, defaults=None):
     """ Format an item according to the given output format.
         The format can be gioven as either an interpolation string,
         or a Tempita template (which has to start with "E{lb}E{lb}"),
 
-        @param format: The output format.
+        @param format_spec: The output format.
         @param item: The object, which is automatically wrapped for interpolation.
         @param defaults: Optional default values.
     """
-    template_engine = getattr(format, "__engine__", None)
+    template_engine = getattr(format_spec, "__engine__", None)
 
     # TODO: Make differences between engines transparent
-    if template_engine == "tempita" or (not template_engine and format.startswith("{{")):
+    if template_engine == "tempita" or (not template_engine and format_spec.startswith("{{")):
         # Set item, or field names for column titles
-        namespace = dict(headers = not bool(item))
+        namespace = dict(headers=not bool(item))
         if item:
             namespace["d"] = item
         else:
@@ -299,18 +299,18 @@ def format_item(format, item, defaults=None):
                 if name.startswith("fmt_")
             )
 
-        return expand_template(format, namespace)
+        return expand_template(format_spec, namespace)
     else:
         # Interpolation
-        format = getattr(format, "fmt", format)
+        format_spec = getattr(format_spec, "fmt", format_spec)
 
         if item is None:
             # For headers, ensure we only have string formats
-            format = re.sub(
+            format_spec = re.sub(
                 r"(\([_.a-zA-Z0-9]+\)[-#+0 ]?[0-9]*?)[.0-9]*[diouxXeEfFgG]",
-                lambda m: m.group(1) + 's', format)
+                lambda m: m.group(1) + 's', format_spec)
 
-        return format % OutputMapping(item, defaults)
+        return format_spec % OutputMapping(item, defaults)
 
 
 def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
@@ -336,9 +336,9 @@ def validate_field_list(fields, allow_fmt_specs=False, name_filter=None):
         if allow_fmt_specs and '.' in name:
             fullname = name
             name, fmtspecs = name.split('.', 1)
-            for fmt in fmtspecs.split('.'):
-                if fmt not in formats and fmt != "raw":
-                    raise error.UserError("Unknown format specification %r in %r" % (fmt, fullname))
+            for fmtspec in fmtspecs.split('.'):
+                if fmtspec not in formats and fmtspec != "raw":
+                    raise error.UserError("Unknown format specification %r in %r" % (fmtspec, fullname))
 
         if name not in engine.FieldDefinition.FIELDS and not engine.TorrentProxy.add_manifold_attribute(name):
             raise error.UserError("Unknown field name %r" % (name,))
@@ -378,11 +378,10 @@ def validate_sort_fields(sort_fields):
         def __lt__(self, other):
             "Compare to other key"
             for field in sort_fields:
-                a, b = getattr(self.obj, field), getattr(other.obj, field)
-                #print field in descending, field, a, b
-                if a == b:
+                lhs, rhs = getattr(self.obj, field), getattr(other.obj, field)
+                if lhs == rhs:
                     continue
-                return b < a if field in descending else a < b
+                return rhs < lhs if field in descending else lhs < rhs
             return False
 
     return Key

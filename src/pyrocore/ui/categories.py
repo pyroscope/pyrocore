@@ -18,11 +18,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import sys
-
 from pyrocore import config, error
-from pyrocore.util import os, xmlrpc
-from pyrocore.torrent import engine, matching
+from pyrocore.util import xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
