@@ -150,7 +150,7 @@ class JsonController(object):
             swap_usage  = self.guarded(psutil.swap_memory),
             disk_usage  = (disk_used, disk_total, disk_detail) if disk_total else None,
             disk_io     = self.guarded(psutil.disk_io_counters),
-            net_io      = self.guarded(psutil.network_io_counters),
+            net_io      = self.guarded(psutil.net_io_counters),
         )
         return data
 
