@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011
+# pylint: disable=bad-whitespace
 """ Statistics data.
 
     Copyright (c) 2014 The PyroScope Project <pyroscope.project@gmail.com>

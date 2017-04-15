@@ -22,7 +22,6 @@ import time
 import shlex
 import logging
 import subprocess
-from collections import defaultdict
 
 from pyrobase.parts import Bunch, DefaultBunch
 from pyrocore import config, error
@@ -155,7 +154,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
     # additional values for output formatting
     FORMATTER_DEFAULTS = dict(
-        now = time.time(),
+        now=time.time(),
     )
 
     # choices for --ignore
@@ -637,12 +636,12 @@ class RtorrentControl(ScriptBaseWithConfig):
         def output_formatter(templ, ns=None):
             "Output formatting helper"
             full_ns = dict(
-                version = self.version,
-                proxy = config.engine.open(),
-                view = view,
-                query = matcher,
-                matches = matches,
-                summary = summary
+                version=self.version,
+                proxy=config.engine.open(),
+                view=view,
+                query=matcher,
+                matches=matches,
+                summary=summary
             )
             full_ns.update(ns or {})
             return formatting.expand_template(templ, full_ns)

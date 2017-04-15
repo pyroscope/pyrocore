@@ -19,11 +19,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import absolute_import
 
-import sys
 import time
 import shlex
 import signal
-import logging
 import asyncore
 from collections import defaultdict
 
@@ -35,7 +33,7 @@ from pyrocore.util import os, pymagic, osmagic, matching
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
-def _raise_interrupt(signo, dummy):
+def _raise_interrupt(signo, dummy_):
     """ Helper for signal handling.
     """
     raise KeyboardInterrupt("Caught signal #%d" % signo)
@@ -95,8 +93,8 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         """ Handle and check configuration.
         """
         groups = dict(
-            job = defaultdict(Bunch),
-            httpd = defaultdict(Bunch),
+            job=defaultdict(Bunch),
+            httpd=defaultdict(Bunch),
         )
 
         for key, val in config.torque.items():
@@ -125,7 +123,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
         if self.httpd.active:
             if self.httpd.waitress.url_scheme not in ("http", "https"):
                 self.fatal("HTTP URL scheme must be either 'http' or 'https'")
-            if type(self.httpd.waitress.port) != int or not(1024 <= self.httpd.waitress.port < 65536):
+            if not isinstance(self.httpd.waitress.port, int) or not(1024 <= self.httpd.waitress.port < 65536):
                 self.fatal("HTTP port must be a 16 bit number >= 1024")
 
         # Validate jobs

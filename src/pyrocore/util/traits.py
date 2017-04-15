@@ -52,32 +52,32 @@ _TV_TRAIL = (
 _DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
 
 TV_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
-    ( "Normal TV Episodes",
+    ("Normal TV Episodes",
         r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})[xE](?P<episode>\d{2}(?:-?E\d{2})?)"
         r"(?:[._ ](?P<title>.+?[a-zA-Z]{1,2}.+?))?"
         + _TV_TRAIL
     ),
-    ( "Normal TV Episodes (all-numeric season+episode)",
+    ("Normal TV Episodes (all-numeric season+episode)",
         r"^(?P<show>.+?)[._ ](?P<season>\d)(?P<episode>\d{2})"
         r"(?:[._ ](?P<title>.+?[a-zA-Z]{1,2}.+?))?"
         + _TV_TRAIL
     ),
-    ( "Daily Shows",
+    ("Daily Shows",
         r"^(?P<show>.+?)[._ ](?P<date>\d{4}\.\d{2}\.\d{2})"
         r"(?:[._ ](?P<title>.+?[a-zA-Z]{1,2}.+?))?"
         + _TV_TRAIL
     ),
-    ( "Full Seasons",
+    ("Full Seasons",
         r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})" + _TV_TRAIL
     ),
-    ( "Mini Series",
+    ("Mini Series",
         r"^(?P<show>.+?)"
         r"(?:[._ ](?:Part(?P<part>\d+?)|Pilot)){1,2}"
         #         (?P<year>\d{4})| creates false positives for movies!
         r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"
         + _TV_TRAIL
     ),
-    ( "Mini Series (Roman numerals)",
+    ("Mini Series (Roman numerals)",
         r"^(?P<show>.+?)"
         r"(?:[._ ]Pa?r?t[._ ](?P<part>[ivxIVX]{1,3}?))"
         r"(?:[._ ](?P<title>.+?[a-z]{1,2}.+?))??"

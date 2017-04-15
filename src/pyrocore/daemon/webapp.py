@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=
+# pylint: disable=bad-whitespace
 """ rTorrent web apps.
 
     Copyright (c) 2013 The PyroScope Project <pyroscope.project@gmail.com>
@@ -130,7 +130,7 @@ class JsonController(object):
             raise exc.HTTPInternalServerError(str(torrent_exc))
 
 
-    def json_charts(self, req):  # pylint: disable=bad-whitespace
+    def json_charts(self, req):
         """ Return charting data.
         """
         disk_used, disk_total, disk_detail = 0, 0, []

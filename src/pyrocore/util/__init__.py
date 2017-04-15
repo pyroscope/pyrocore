@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=
+# pylint: disable=invalid-name
 """ Utility Modules.
 
     Copyright (c) 2010 The PyroScope Project <pyroscope.project@gmail.com>

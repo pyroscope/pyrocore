@@ -193,42 +193,42 @@ class FieldFilter(Filter):
     """
 
     PRE_FILTER_FIELDS = dict(
-        # alias = "",
-        hash = "d.hash=",
-        name = "d.name=",
-        message = "d.message=",
-        metafile = "d.tied_to_file=",
-        path = "d.base_path=",
-        # realpath = "=",
-        throttle = "d.throttle_name=",
-        # tracker = "=",
+        # alias="",
+        hash="d.hash=",
+        name="d.name=",
+        message="d.message=",
+        metafile="d.tied_to_file=",
+        path="d.base_path=",
+        # realpath="=",
+        throttle="d.throttle_name=",
+        # tracker="=",
 
-        is_active = "d.is_active=",
-        is_complete = "d.complete=",
-        is_ignored = "d.ignore_commands=",
-        is_multi_file = "d.is_multi_file=",
-        is_open = "d.is_open=",
+        is_active="d.is_active=",
+        is_complete="d.complete=",
+        is_ignored="d.ignore_commands=",
+        is_multi_file="d.is_multi_file=",
+        is_open="d.is_open=",
 
-        # done = "=",
-        down = "d.down.rate=",
-        # fno = "=",
-        prio = "d.priority=",
-        ratio = "d.ratio=",
-        size = "d.size_bytes=",
-        up = "d.up.rate=",
-        uploaded = "d.up.total=",
+        # done="=",
+        down="d.down.rate=",
+        # fno="=",
+        prio="d.priority=",
+        ratio="d.ratio=",
+        size="d.size_bytes=",
+        up="d.up.rate=",
+        uploaded="d.up.total=",
 
-        completed = "d.custom=tm_completed",
-        loaded = "d.custom=tm_loaded",
-        started = "d.custom=tm_started",
-        # stopped = "",
-        custom_tm_completed = "d.custom=tm_completed",
-        custom_tm_loaded = "d.custom=tm_loaded",
-        custom_tm_started = "d.custom=tm_started",
+        completed="d.custom=tm_completed",
+        loaded="d.custom=tm_loaded",
+        started="d.custom=tm_started",
+        # stopped="",
+        custom_tm_completed="d.custom=tm_completed",
+        custom_tm_loaded="d.custom=tm_loaded",
+        custom_tm_started="d.custom=tm_started",
 
         # XXX: bad result: rtcontrol -Q2 -o- -v tagged='!'new,foo
         #       use a 'd.is_tagged=tag' command?
-        tagged = "d.custom=tags",
+        tagged="d.custom=tags",
     )
 
         #active                last time a peer was connected
@@ -461,7 +461,7 @@ class FloatFilter(NumericFilterBase):
     """
 
     FIELD_SCALE = dict(
-        ratio = 1000,
+        ratio=1000,
     )
 
     def pre_filter(self):
@@ -489,13 +489,13 @@ class TimeFilter(NumericFilterBase):
     """
 
     TIMEDELTA_UNITS = dict(
-        y = lambda t, d: _time_ym_delta(t, -d, False),
-        m = lambda t, d: _time_ym_delta(t, -d, True),
-        w = lambda t, d: t - d * 7 * 86400,
-        d = lambda t, d: t - d * 86400,
-        h = lambda t, d: t - d * 3600,
-        i = lambda t, d: t - d * 60,
-        s = lambda t, d: t - d,
+        y=lambda t, d: _time_ym_delta(t, -d, False),
+        m=lambda t, d: _time_ym_delta(t, -d, True),
+        w=lambda t, d: t - d * 7 * 86400,
+        d=lambda t, d: t - d * 86400,
+        h=lambda t, d: t - d * 3600,
+        i=lambda t, d: t - d * 60,
+        s=lambda t, d: t - d,
     )
     TIMEDELTA_RE = re.compile("^%s$" % ''.join(
         r"(?:(?P<%s>\d+)[%s%s])?" % (i, i, i.upper()) for i in "ymwdhis"

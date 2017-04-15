@@ -25,9 +25,10 @@ import time
 import errno
 import random
 import textwrap
-import pkg_resources
 import logging.config
 from optparse import OptionParser
+
+import pkg_resources
 
 from pyrocore import error, config
 from pyrocore.util import os, fmt, pymagic, load_config

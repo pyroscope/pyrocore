@@ -101,8 +101,8 @@ def daemonize(pidfile=None, logfile=None, sync=True):
         if pid > 0:
             log.debug("Parent exiting (PID %d, CHILD %d)" % (ppid, pid))
             sys.exit(0)
-    except OSError as e:
-        log.critical("fork #1 failed (PID %d): (%d) %s\n" % (os.getpid(), e.errno, e.strerror))
+    except OSError as exc:
+        log.critical("fork #1 failed (PID %d): (%d) %s\n" % (os.getpid(), exc.errno, exc.strerror))
         sys.exit(1)
 
     ##os.chdir("/")
@@ -114,8 +114,8 @@ def daemonize(pidfile=None, logfile=None, sync=True):
         if pid > 0:
             log.debug("Session leader exiting (PID %d, PPID %d, DEMON %d)" % (os.getpid(), ppid, pid))
             sys.exit(0)
-    except OSError as e:
-        log.critical("fork #2 failed (PID %d): (%d) %s\n" % (os.getpid(), e.errno, e.strerror))
+    except OSError as exc:
+        log.critical("fork #2 failed (PID %d): (%d) %s\n" % (os.getpid(), exc.errno, exc.strerror))
         sys.exit(1)
 
     if pidfile:
