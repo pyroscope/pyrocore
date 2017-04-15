@@ -70,6 +70,7 @@ scgi_port = ""
 scgi_url = ""
 throttle_names = set(("NONE", "NULL"))
 engine = Bunch(open=lambda: None)
+fast_query = 0
 formats = {}
 sort_fields = ""
 announce = {}
