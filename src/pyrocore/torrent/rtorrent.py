@@ -29,7 +29,6 @@ import socket
 import fnmatch
 import logging
 import operator
-from contextlib import closing
 
 from pyrobase.parts import Bunch
 from pyrocore import config, error
@@ -598,7 +597,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
             # Parse the file
             self.LOG.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
-            with closing(open(rtorrent_rc)) as handle:
+            with open(rtorrent_rc) as handle:
                 continued = False
                 for line in handle.readlines():
                     # Skip comments, continuations, and empty lines

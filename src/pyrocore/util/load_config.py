@@ -27,7 +27,6 @@ import glob
 import errno
 import StringIO
 import ConfigParser
-from contextlib import closing
 
 from pyrocore import config, error
 from pyrocore.util import os, pymagic
@@ -280,6 +279,6 @@ class ConfigLoader(object):
             else:
                 config_trail.append('')
             for i in config_trail:
-                with closing(open(config_file + i, "w")) as handle:
-                    handle.write(text)  # pylint: disable=no-member
+                with open(config_file + i, "w") as handle:
+                    handle.write(text)
                 self.LOG.info("Configuration file %r written!" % (config_file + i,))

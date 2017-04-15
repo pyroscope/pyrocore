@@ -95,10 +95,10 @@ class AdminTool(ScriptBaseWithConfig):
         self.LOG.info("Downloading '%s' to '%s'..." % (download_url, target))
         with closing(urllib2.urlopen(download_url)) as url_handle:
             if download_url.endswith(".zip"):
-                with closing(ZipFile(StringIO(url_handle.read()))) as zip_handle:
-                    zip_handle.extractall(target)
+                with closing(ZipFile(StringIO(url_handle.read()))) as zip_handle:  # pylint: disable=no-member
+                    zip_handle.extractall(target)  # pylint: disable=no-member
             else:
-                with closing(open(os.path.join(target, guard), "wb")) as file_handle:
+                with open(os.path.join(target, guard), "wb") as file_handle:
                     shutil.copyfileobj(url_handle, file_handle)
 
 
@@ -319,7 +319,7 @@ class AdminTool(ScriptBaseWithConfig):
             shutil.copytree(stub_template, stub_dir)
 
             py_stub = os.path.join(stub_dir, "PyroScopeScreenlet.py")
-            with closing(open(py_stub, "w")) as handle:
+            with open(py_stub, "w") as handle:
                 handle.write('\n'.join([
                     "#! %s" % sys.executable,
                     "from pyrocore.screenlet.rtorrent import PyroScopeScreenlet, run",

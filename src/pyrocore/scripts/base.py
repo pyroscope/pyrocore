@@ -28,7 +28,6 @@ import textwrap
 import pkg_resources
 import logging.config
 from optparse import OptionParser
-from contextlib import closing
 
 from pyrocore import error, config
 from pyrocore.util import os, fmt, pymagic, load_config
@@ -106,7 +105,7 @@ class ScriptBase(object):
                             self.LOG.warn("Found %d candidate versions" % len(pkg_path))
                             pkg_path = None
                     if pkg_path:
-                        with closing(open(os.path.join(pkg_path, "PKG-INFO"))) as handle:
+                        with open(os.path.join(pkg_path, "PKG-INFO")) as handle:
                             pkg_info = handle.read()
                     else:
                         self.LOG.warn("Software version cannot be determined!")

@@ -22,8 +22,6 @@ from __future__ import with_statement
 import pprint
 import hashlib
 
-from contextlib import closing
-
 from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase
 from pyrocore.util import metafile
