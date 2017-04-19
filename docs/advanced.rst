@@ -38,11 +38,3 @@ Using the Tree Watch Job
 ------------------------
 
 .. include:: advanced-tree-watch.rst
-
-
-.. _monitoring:
-
-Using the Monitoring Web Service
---------------------------------
-
-.. include:: advanced-monitoring.rst
