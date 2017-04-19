@@ -1,10 +1,64 @@
 Experimental Features
 =====================
 
-.. earning::
+.. warning::
 
     The features described here are *unfinished* and in an alpha
     or beta stage.
+
+
+Query Optimization
+------------------
+
+You can provide the ``--fast-query`` option of ``rtcontrol`` to set a level of optimization
+to use when querying *rTorrent* for items. The default for that option is set via the
+``fast_query`` config parameter, and is ``0`` if not changed. That means optimization is normally
+off, and can be activated via ``-Q1``. It is recommended to keep it that way for now, and
+use ``-Q1`` only in scripts and other background processing to reduce the load they generate.
+Only activating it in scripts usually means the filters used don't change that much, i.e. you can be pretty
+sure the optimization does what you expect it to do.
+
+Level 1 is less aggressive and safe by definition (i.e. produces correct results in all cases, unless there's a bug),
+while ``-Q2`` is highly experimental and in some circumstances
+likely produces results that are too small or empty.
+
+Optimization works by giving a *pre-filter* condition to *rTorrent*, to reduce the overhead involved in
+sending items over XMLRPC and then processing them, only to be then discarded in the ``rtcontrol`` filter
+machinery. That pre-filter evaluation needs features of *rTorrent-PS* 1.1 or later, and will produce
+errors when used with anything else.
+
+This goal of reducing the number of items sent to ``rtcontrol`` is best achieved if you put
+a highly selective condition first in a series of conditions combined by ``AND``. For cron-type jobs,
+this can often be achieved by only looking at recent items only – older items should already be processed
+by previous runs. Even a very lenient window like “last week” drastically reduces items
+that need to be processed.
+
+Consider this example:
+
+.. code-block:: shell
+
+    $ rtcontrol loaded=-6w is_ignored=0 // -o- -v -Q0
+    DEBUG    Matcher is: loaded=-6w is_ignored=no name=//
+    DEBUG    Got 131 items with 20 attributes …
+    INFO     Filtered 13 out of 131 torrents.
+    DEBUG    XMLRPC stats: 25 req, out 5.6 KiB [1.4 KiB max], in 104.9 KiB [101.5 KiB max], …
+    INFO     Total time: 0.056 seconds.
+
+    $ rtcontrol loaded=-6w is_ignored=0 // -o- -v -Q1
+    INFO     !!! pre-filter: greater=value=$d.custom=tm_loaded,value=1488920876
+    DEBUG    Got 17 items with 20 attributes …
+    INFO     Filtered 13 out of 131 torrents.
+    DEBUG    XMLRPC stats: 25 req, out 5.7 KiB [1.5 KiB max], in 16.6 KiB [13.2 KiB max], …
+    INFO     Total time: 0.028 seconds.
+
+You can see that the 2nd command executes faster (the effect is larger with more overall items),
+and only looks at 17 items to select the final 13 ones, while with ``-Q0`` all 131 items
+need to be looked at, and thus transferred via XMLRPC. That means 105 KiB instead of only 16.6 KiB need
+to be serialized, read, and parsed again.
+
+Be careful when mixing ``--anneal`` and ``--fast-query``, since most of the post-processing steps also look
+at deselected items, and produce unexpected results if they are missing due to pre-filtering. Put another way,
+always include ``-Q0`` when you use ``--anneal``, to be on the safe side.
 
 
 Connecting via SSH
