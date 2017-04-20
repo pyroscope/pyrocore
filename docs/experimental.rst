@@ -14,7 +14,7 @@ You can provide the ``--fast-query`` option of ``rtcontrol`` to set a level of o
 to use when querying *rTorrent* for items. The default for that option is set via the
 ``fast_query`` config parameter, and is ``0`` if not changed. That means optimization is normally
 off, and can be activated via ``-Q1``. It is recommended to keep it that way for now, and
-use ``-Q1`` only in scripts and other background processing to reduce the load they generate.
+use ``-Q1`` explicitly in scripts and other background processing to reduce the load they generate.
 Only activating it in scripts usually means the filters used don't change that much, i.e. you can be pretty
 sure the optimization does what you expect it to do.
 
@@ -23,13 +23,13 @@ while ``-Q2`` is highly experimental and in some circumstances
 likely produces results that are too small or empty.
 
 Optimization works by giving a *pre-filter* condition to *rTorrent*, to reduce the overhead involved in
-sending items over XMLRPC and then processing them, only to be then discarded in the ``rtcontrol`` filter
+sending items over XMLRPC and processing them, only to be then discarded in the ``rtcontrol`` filter
 machinery. That pre-filter evaluation needs features of *rTorrent-PS* 1.1 or later, and will produce
 errors when used with anything else.
 
 This goal of reducing the number of items sent to ``rtcontrol`` is best achieved if you put
 a highly selective condition first in a series of conditions combined by ``AND``. For cron-type jobs,
-this can often be achieved by only looking at recent items only – older items should already be processed
+this can often be achieved by looking at recent items only – older items should already be processed
 by previous runs. Even a very lenient window like “last week” drastically reduces items
 that need to be processed.
 
