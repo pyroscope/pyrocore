@@ -32,7 +32,7 @@ class MetafileChecker(ScriptBaseWithConfig):
     ARGS_HELP = "<metafile> [<data-dir-or-file>]"
 
 
-    def add_options(self):
+    def add_options(self):  # pylint: disable=useless-super-delegation
         """ Add program options.
         """
         super(MetafileChecker, self).add_options()

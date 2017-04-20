@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=no-self-use
 """ rTorrent Control.
 
     Copyright (c) 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -633,7 +635,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                     for item in matches:
                         summary.add(field, getattr(item, field))
 
-        def output_formatter(templ, ns=None):
+        def output_formatter(templ, namespace=None):
             "Output formatting helper"
             full_ns = dict(
                 version=self.version,
@@ -643,7 +645,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                 matches=matches,
                 summary=summary
             )
-            full_ns.update(ns or {})
+            full_ns.update(namespace or {})
             return formatting.expand_template(templ, full_ns)
 
         # Execute action?
@@ -667,7 +669,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                         and str(self.options.output_format) != "-"):
                     self.emit(item, defaults, to_log=self.options.cron)
 
-                args = tuple([output_formatter(i, ns=dict(item=item)) for i in template_args])
+                args = tuple([output_formatter(i, namespace=dict(item=item)) for i in template_args])
 
                 if self.options.dry_run:
                     if self.options.debug:
@@ -698,7 +700,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                                           for i in shlex.split(str(cmd))])
 
             for item in matches:
-                cmds = [[output_formatter(i, ns=dict(item=item)) for i in k] for k in template_cmds]
+                cmds = [[output_formatter(i, namespace=dict(item=item)) for i in k] for k in template_cmds]
                 cmds = [[i.encode('utf-8') if isinstance(i, unicode) else i for i in k] for k in cmds]
 
                 if self.options.dry_run:
@@ -756,12 +758,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
             # Print summary?
             if matches and summary:
-                self.emit(None, stencil=stencil,
-                    #item_formatter=None if self.options.summary
-                    #    # TODO: this can be done better!
-                    #    else lambda i: re.sub("[^ \t]", "=", i)
-                    #    #else lambda i: re.sub("=[ \t]+", lambda k: "=" * len(k.group(0)) + k.group(0)[-1], re.sub("[^ \t]", "=", i))
-                )
+                self.emit(None, stencil=stencil)
                 self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM of %d item(s)]" % len(matches))
                 self.emit(summary.min, item_formatter=lambda i: i.rstrip() + " [MIN of %d item(s)]" % len(matches))
                 self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG of %d item(s)]" % len(matches))

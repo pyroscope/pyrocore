@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=
+# pylint: disable=attribute-defined-outside-init
 """ rTorrent queue manager & daemon.
 
     Copyright (c) 2012 The PyroScope Project <pyroscope.project@gmail.com>
@@ -132,7 +132,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 if key not in params:
                     self.fatal("Job '%s' is missing the required 'job.%s.%s' parameter" % (name, name, key))
 
-            bool_param = lambda key, default: matching.truth(params.get(key, default), "job.%s.%s" % (name, key))
+            bool_param = lambda k, default, p=params: matching.truth(p.get(k, default), "job.%s.%s" % (name, k))
 
             params.job_name = name
             params.dry_run = bool_param("dry_run", False) or self.options.dry_run

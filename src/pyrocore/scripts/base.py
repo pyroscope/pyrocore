@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011
+# pylint: disable=
 """ Command Line Script Support.
 
     Copyright (c) 2009, 2010 The PyroScope Project <pyroscope.project@gmail.com>
@@ -183,7 +183,7 @@ class ScriptBase(object):
 
         # Set logging levels
         if self.options.cron:
-            self.STD_LOG_LEVEL = logging.DEBUG
+            self.STD_LOG_LEVEL = logging.DEBUG  # pylint: disable=invalid-name
         if self.options.verbose and self.options.quiet:
             self.parser.error("Don't know how to be quietly verbose!")
         elif self.options.quiet:
@@ -301,8 +301,7 @@ class ScriptBase(object):
         raise NotImplementedError()
 
 
-
-class ScriptBaseWithConfig(ScriptBase):
+class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
     """ CLI tool with configuration support.
     """
     OPTIONAL_CFG_FILES = []

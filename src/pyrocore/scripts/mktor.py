@@ -83,7 +83,8 @@ class MetafileCreator(ScriptBaseWithConfig):
     def make_magnet_meta(self, magnet_uri):
         """ Create a magnet-uri torrent.
         """
-        import cgi, re, hashlib
+        import cgi
+        import hashlib
 
         if magnet_uri.startswith("magnet:"):
             magnet_uri = magnet_uri[7:]
