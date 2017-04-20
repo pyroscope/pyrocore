@@ -37,14 +37,14 @@ Consider this example:
 
 .. code-block:: shell
 
-    $ rtcontrol loaded=-6w is_ignored=0 // -o- -v -Q0
+    $ rtcontrol loaded=-6w is_ignored=0 -o- -v -Q0
     DEBUG    Matcher is: loaded=-6w is_ignored=no name=//
     DEBUG    Got 131 items with 20 attributes …
     INFO     Filtered 13 out of 131 torrents.
     DEBUG    XMLRPC stats: 25 req, out 5.6 KiB [1.4 KiB max], in 104.9 KiB [101.5 KiB max], …
     INFO     Total time: 0.056 seconds.
 
-    $ rtcontrol loaded=-6w is_ignored=0 // -o- -v -Q1
+    $ rtcontrol loaded=-6w is_ignored=0 -o- -v -Q1
     INFO     !!! pre-filter: greater=value=$d.custom=tm_loaded,value=1488920876
     DEBUG    Got 17 items with 20 attributes …
     INFO     Filtered 13 out of 131 torrents.
@@ -55,6 +55,15 @@ You can see that the 2nd command executes faster (the effect is larger with more
 and only looks at 17 items to select the final 13 ones, while with ``-Q0`` all 131 items
 need to be looked at, and thus transferred via XMLRPC. That means 105 KiB instead of only 16.6 KiB need
 to be serialized, read, and parsed again.
+
+Putting the right condition first is quite important, as you can see when the conditions are swapped
+and the less selective one is used for the pre-filter:
+
+.. code-block:: shell
+
+    $ rtcontrol is_ignored=0 loaded=-6w -o- -v -Q1
+    INFO     !!! pre-filter: equal=d.ignore_commands=,value=0
+    DEBUG    Got 117 items with 20 attributes …
 
 Be careful when mixing ``--anneal`` and ``--fast-query``, since most of the post-processing steps also look
 at deselected items, and produce unexpected results if they are missing due to pre-filtering. Put another way,
