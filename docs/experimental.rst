@@ -38,7 +38,7 @@ Consider this example:
 .. code-block:: shell
 
     $ rtcontrol loaded=-6w is_ignored=0 -o- -v -Q0
-    DEBUG    Matcher is: loaded=-6w is_ignored=no name=//
+    DEBUG    Matcher is: loaded=-6w is_ignored=no
     DEBUG    Got 131 items with 20 attributes …
     INFO     Filtered 13 out of 131 torrents.
     DEBUG    XMLRPC stats: 25 req, out 5.6 KiB [1.4 KiB max], in 104.9 KiB [101.5 KiB max], …
@@ -104,7 +104,7 @@ For example, the following queries the remote instance ID using ``rtxmlrpc``:
 
 .. code-block:: shell
 
-    rtxmlrpc -v -Dscgi_url=scgi+ssh://user@example.com/~/rtorrent/.scgi_local get_name
+    rtxmlrpc -v -Dscgi_url=scgi+ssh://user@example.com/var/torrent/.scgi_local session.name
 
 This typically takes several seconds due to the necessary authentication.
 
