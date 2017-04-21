@@ -32,10 +32,11 @@ pyrocore (0.5.1) precise; urgency=low
   * pyrotorque: added queue manager and tree watch features
   * pyroadmin: added '--create-import' action
   * pyroadmin: added '--dump-rc' action
+  * pyroadmin: added '--remove-all-rc-files' option
+  * config.py: feature to add custom template helpers
   * rtorrent config: added 'tagged' view handling
   * rtorrent config: 'd.timestamp.downloaded' attribute (thanks @chros73)
   * rtorrent config: 'd.data_path' attribute (never empty, unlike 'd.base_path')
-  * pyroadmin: added '--remove-all-rc-files' option
   * UI: Rotate through color schemes with the '~' key
   * UI: Rotate through category views using '<' and '>'
   * UI: The '|' key updates the current category view

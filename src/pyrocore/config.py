@@ -76,6 +76,7 @@ sort_fields = ""
 announce = {}
 config_validator_callbacks = []
 custom_field_factories = []
+custom_template_helpers = Bunch()
 xmlrpc = {}
 output_header_ecma48 = ""
 output_header_frequency = 1

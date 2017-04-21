@@ -245,7 +245,7 @@ def expand_template(template, namespace):
     helpers.update(formatters)
 
     # Default templating namespace
-    variables = dict(h=helpers)
+    variables = dict(h=helpers, c=config.custom_template_helpers)
     variables.update(formatters)  # redundant, for backwards compatibility
 
     # Provided namespace takes precedence
