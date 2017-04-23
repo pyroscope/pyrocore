@@ -101,7 +101,7 @@ class MaskingPrettyPrinter(pprint.PrettyPrinter):
     def format(self, obj, context, maxlevels, level):
         """ Mask obj if it looks like an URL, then pass it to the super class.
         """
-        if isinstance(obj, basestring) and "://" in obj:
+        if isinstance(obj, basestring) and "://" in fmt.to_unicode(obj):
             obj = mask_keys(obj)
         return pprint.PrettyPrinter.format(self, obj, context, maxlevels, level)
 
