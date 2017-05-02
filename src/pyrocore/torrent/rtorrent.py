@@ -768,17 +768,7 @@ class RtorrentEngine(engine.TorrentEngine):
                     for field in prefetch
                 ]
 
-                infohash = None
-                if view.viewname.startswith('#'):
-                    infohash = view.viewname[1:]
-                elif len(view.viewname) == 40:
-                    try:
-                        int(view.viewname, 16)
-                    except (TypeError, ValueError):
-                        pass
-                    else:
-                        infohash = view.viewname
-
+                infohash = view._check_hash_view()
                 if infohash:
                     multi_call = self.open().system.multicall
                     args = [dict(methodName=field.rsplit('=', 1)[0],

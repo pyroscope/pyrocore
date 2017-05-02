@@ -593,11 +593,30 @@ class TorrentView(object):
         return self._items
 
 
+    def _check_hash_view(self):
+        """ Return infohash if view name refers to a single item, else None.
+        """
+        infohash = None
+        if self.viewname.startswith('#'):
+            infohash = self.viewname[1:]
+        elif len(self.viewname) == 40:
+            try:
+                int(self.viewname, 16)
+            except (TypeError, ValueError):
+                pass
+            else:
+                infohash = self.viewname
+        return infohash
+
+
     def size(self):
         """ Total unfiltered size of view.
         """
         #return len(self._fetch_items())
-        return self.engine.open().view.size(xmlrpc.NOHASH, self.viewname)
+        if self._check_hash_view():
+            return 1
+        else:
+            return self.engine.open().view.size(xmlrpc.NOHASH, self.viewname)
 
 
     def items(self):
