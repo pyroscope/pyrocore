@@ -162,6 +162,22 @@ the ``--spawn`` and ``--exec`` options in more depth.
     They're just different ways to tag items, one of them visually in the *rTorrent-PS* UI.
 
 
+Tag Episodes in rT-PS, Then Delete Their Whole Season
+-----------------------------------------------------
+
+The command below allows you to delete all items that belong to the same season of a TV series,
+where single episodes were tagged as a stand-ins for that season.
+The tagging can be done interactively in rTorrent-PS, using the ``.`` key.
+
+.. code-block:: shell
+
+    rtcontrol --from tagged -s* -qoname "/\\.S[0-9][0-9]E[0-9][0-9]\\./" \
+        | sed -re 's/(.+\.[sS]..[eE])..\..+/\1/' | uniq | \
+        | xargs -I# -d$'\n' rtcontrol '/^#/' --cull --yes -A dupes- loaded=+2w
+
+The culling command call also protects any item younger than 2 weeks.
+
+
 Using Tags or Flag Files to Control Item Processing
 ---------------------------------------------------
 
