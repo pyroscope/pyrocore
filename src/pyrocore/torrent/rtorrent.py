@@ -127,7 +127,7 @@ class RtorrentItem(engine.TorrentProxy):
             value = cached
         else:
             value = getter(*args, **kwargs)
-            self._make_it_so("caching %s=%r for" % (name, value,), ["set_custom"], field[7:], value)
+            self._make_it_so("caching %s=%r for" % (name, value,), ["custom.set"], field[7:], value)
             self._fields[field] = value
         return value
 
@@ -150,7 +150,7 @@ class RtorrentItem(engine.TorrentProxy):
 
             # Set custom cache field with value formatted like "80%_flac 20%_jpg" (sorted by percentage)
             histo_str = ' '.join(("%d%%_%s" % i).replace(' ', '_') for i in histo)
-            self._make_it_so("setting kind cache %r on" % (histo_str,), ["set_custom"], "kind", histo_str)
+            self._make_it_so("setting kind cache %r on" % (histo_str,), ["custom.set"], "kind", histo_str)
             self._fields["custom_kind"] = histo_str
 
         # Return all non-empty extensions that make up at least <limit>% of total size
@@ -279,7 +279,7 @@ class RtorrentItem(engine.TorrentProxy):
         tagset.discard('')
         if tagset != previous:
             tagset = ' '.join(sorted(tagset))
-            self._make_it_so("setting tags %r on" % (tagset,), ["set_custom"], "tags", tagset)
+            self._make_it_so("setting tags %r on" % (tagset,), ["custom.set"], "tags", tagset)
             self._fields["custom_tags"] = tagset
 
 
@@ -302,7 +302,7 @@ class RtorrentItem(engine.TorrentProxy):
         if active:
             self._engine.LOG.debug("Torrent #%s stopped for throttling" % (self._fields["hash"],))
             self.stop()
-        self._make_it_so("setting throttle %r on" % (name,), ["set_throttle_name"], name)
+        self._make_it_so("setting throttle %r on" % (name,), ["throttle_name.set"], name)
         if active:
             self._engine.LOG.debug("Torrent #%s restarted after throttling" % (self._fields["hash"],))
             self.start()
@@ -322,11 +322,11 @@ class RtorrentItem(engine.TorrentProxy):
         if not key:
             raise error.UserError("Custom field name cannot be empty!")
         elif len(key) == 1 and key in "12345":
-            method, args = "set_custom"+key, (value,)
+            method, args = "custom"+key+".set", (value,)
         elif not (key[0].isalpha() and key.replace("_", "").isalnum()):
             raise error.UserError("Bad custom field name %r (must only contain a-z, A-Z, 0-9 and _)" % (key,))
         else:
-            method, args = "set_custom", (key, value)
+            method, args = "custom.set", (key, value)
 
         # Make the assignment
         self._make_it_so("setting custom_%s = %r on" % (key, value), [method], *args)
@@ -500,7 +500,7 @@ class RtorrentItem(engine.TorrentProxy):
     def flush(self):
         """ Write volatile data to disk.
         """
-        self._make_it_so("saving session data of", ["save_session"])
+        self._make_it_so("saving session data of", ["save_full_session"])
 
 
 class RtorrentEngine(engine.TorrentEngine):
