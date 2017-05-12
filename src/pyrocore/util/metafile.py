@@ -528,7 +528,7 @@ class Metafile(object):
 
         # Build the meta dict
         metainfo = {
-            "pieces": "".join(pieces),
+            "pieces": b"".join(pieces),
             "piece length": piece_size,
             "name": os.path.basename(self.datapath),
         }
