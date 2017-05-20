@@ -29,6 +29,10 @@ Unlike ``--call``, where you can use shell syntax to call several commands, ``--
 passed several times for executing a sequence of commands. If any called command fails, the ``rtcontrol``
 call is aborted with an error.
 
+
+Copy Session Metafiles by Category
+""""""""""""""""""""""""""""""""""
+
 Here's a practical example for using ``--spawn``, it copies all your loaded metafiles
 from the session directory into a folder structure categorized by the *ruTorrent* label.
 Unlabelled items go to the ``_NOLABEL`` folder.
@@ -43,6 +47,8 @@ Unlabelled items go to the ``_NOLABEL`` folder.
 
 The copied metafiles themselves are renamed to the contained name of the item's data,
 plus a small part of the infohash to make these names unique.
+
+Replace the ``item.fetch(1)`` by ``item.‹fieldname›`` to categorize by other values, e.g. ``item.alias`` for ‘by tracker’.
 
 
 .. _rtcontrol-exec:
