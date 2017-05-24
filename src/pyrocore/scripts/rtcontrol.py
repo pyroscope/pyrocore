@@ -594,11 +594,6 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.options.from_view = self.options.to_view = self.options.modify_view
 
         # Find matching torrents
-        # TODO: this could get speedier quite a bit when we pre-select
-        # a subset of all items in rtorrent itself, via a dynamic view!
-        # Or sort them just the right way, and then abort after we cannot
-        # possibly find more matches.
-        #
         view = config.engine.view(self.options.from_view, matcher)
         matches = list(view.items())
         orig_matches = matches[:]
