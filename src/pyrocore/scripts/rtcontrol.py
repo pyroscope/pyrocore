@@ -598,9 +598,16 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches = list(view.items())
         orig_matches = matches[:]
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
-        for mode in self.options.anneal:
-            if self.anneal(mode, matches, orig_matches):
-                matches.sort(key=sort_key, reverse=self.options.reverse_sort)
+
+        if self.options.anneal:
+            if self.options.from_view not in (None, 'default'):
+                self.LOG.warn("Mixing --anneal with a view other than 'default' might yield unexpected results!")
+            if int(config.fast_query):
+                self.LOG.warn("Using --anneal together with the query optimizer might yield unexpected results!")
+            for mode in self.options.anneal:
+                if self.anneal(mode, matches, orig_matches):
+                    matches.sort(key=sort_key, reverse=self.options.reverse_sort)
+
         if selection:
             matches = matches[selection[0]-1:selection[1]]
 
