@@ -31,8 +31,10 @@ External Links
 --------------
 
 * `User Mailing List <http://groups.google.com/group/pyroscope-users>`_
-* `rTorrent Homepage <http://libtorrent.rakshasa.no/>`_
-* `rTorrent Community Wiki <http://community.rutorrent.org/PyroScope>`_
+* The `rTorrent <https://github.com/rakshasa/rtorrent>`_
+  and `libtorrent <https://github.com/rakshasa/libtorrent>`_ projects
+* `rTorrent Community Wiki <https://github.com/rtorrent-community/rtorrent-community.github.io/wiki>`_
+  and the `rTorrent Handbook <http://rtorrent-docs.rtfd.io/>`_
 * `Open HUB <https://www.openhub.net/p/pyroscope/>`_
 * `free(code) <http://freecode.com/projects/pyrocore>`_
 * `Bintray <https://bintray.com/pkg/show/general/pyroscope/rtorrent-ps/rtorrent-ps>`_
