@@ -14,7 +14,7 @@ Defining Custom Fields
 .. include:: custom-fields.rst
 
 
-.. _CustomFields:
+.. _custom-template-helpers:
 
 Adding Custom Template Helpers
 ------------------------------

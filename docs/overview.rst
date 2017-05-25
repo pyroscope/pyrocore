@@ -89,10 +89,11 @@ Further Information & Customization
   * Using :doc:`advanced` requires some knowledge in the area Linux,
     Bash, and Python beyond a novice level, but they enable you to
     customize your setup even further and handle very specific use-cases.
-    For example, :ref:`CustomFields` describes adding user-defined fields,
-    available in ``rtcontrol`` just like built-in ones.
-  * :ref:`scripts` is an easy way to automate anything
+  * :doc:`custom` tells you about :ref:`scripts` as an easy way to automate anything
     that the standard commands can't do.
+    There are more ways for adding your own custom logic,
+    amongst them :ref:`CustomFields` for adding user-defined fields,
+    available in ``rtcontrol`` just like built-in ones.
   * :doc:`updating` explains how to get newer versions
     of this software after the initial installation.
   * :doc:`references` provides details on technical background topics
