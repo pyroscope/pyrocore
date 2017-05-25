@@ -7,6 +7,15 @@ setup provided by the `pimp-my-box`_ project, which will install all
 you need for a fully working torrenting setup including a default
 configuration.
 
+.. contents:: These are the steps for a manual installation:
+    :local:
+
+As you can see, installing the software package itself can be done in two ways,
+choose one of them.
+Afterwards, the freshly installed software *must* be provided with a configuration,
+as described in the :doc:`setup`.
+
+
 .. note::
 
     Unless otherwise indicated by using ``sudo`` or mentioning it in the text,
@@ -25,6 +34,9 @@ configuration.
 
 Preparing Your Host
 -------------------
+
+Installing Dependency Packages
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before installing *pyrocore*, some software packages need to be available
 on your machine, Python 2 among them.
@@ -55,11 +67,14 @@ this software does anything malicious — if it did, it'd be contained in that
 account. It also makes deinstallation or start-from-zero way less of a hassle.
 
 
-Installing Python
-^^^^^^^^^^^^^^^^^
+Installing Python2
+^^^^^^^^^^^^^^^^^^
 
-Your Linux usually comes equipped with a Python 2.7 interpreter, but on very new
-releases, Python 3 may be the default and Python 2.7 just an option.
+For *Debian* and derivatives, the ``apt-get`` command in the previous section
+already took care of everything.
+
+Other Linux distributions usually come equipped with a Python 2.7 interpreter,
+but on very new releases, Python 3 may be the default and Python 2.7 just an option.
 In case you need to install Python 2, refer to `Installing Python on Linux`_ and
 consider using `pyenv`_.
 
@@ -77,8 +92,27 @@ Try calling ``/usr/bin/python2`` in case the above shows a ``3.*`` version.
 .. _`pyenv`: https://github.com/yyuu/pyenv#simple-python-version-management-pyenv
 
 
-Installing From Source
-----------------------
+Installing the `pyrocore` Package
+---------------------------------
+
+Installing the software package itself can be done in two ways,
+choose one of them.
+
+.. warning::
+
+    If you want to switch over from an old installation to one in ``~/.local``,
+    then *move that old directory away*, before installation! Like this:
+
+    .. code-block:: shell
+
+        ( cd ~/lib && mv pyroscope pyroscope-$(date +'%Y-%m-%d').bak )
+
+    Your existing configuration and data is not affected by this, but
+    make sure you read the **migration instructions** in :doc:`updating`.
+
+
+Option 1: Installing from GitHub
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The recommended way to install this software is directly from its GitHub repository.
 To do that, use the following commands:
@@ -106,14 +140,11 @@ to register it in the ``PATH`` of your current terminal session
 
 If everything went OK, continue with the :doc:`setup`.
 
-.. warning::
 
-    If you want to switch over from an old installation based on
-    subversion source (from `Google code <https://code.google.com/p/pyroscope/>`_),
-    then *move that old directory away*, before installation! Like this:
 
-    .. code-block:: shell
+Option 2: Installing from PyPI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-        ( cd ~/lib && mv pyroscope pyroscope-$(date +'%Y-%m-%d').bak )
 
-    Your configuration and data is not affected by this.
+
+If everything went OK, continue with the :doc:`setup`.
