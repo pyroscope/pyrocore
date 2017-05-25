@@ -16,7 +16,7 @@ resulting in instantaneous loading without any polling and no extra configuratio
 
 ![rtcontrol + curses demo](https://raw.githubusercontent.com/pyroscope/pyroscope/master/pyrocore/docs/videos/rtcontrol-curses.gif)
 
-The `PyroScope` command line utilities are *not* the same as
+The `PyroScope` command line utilities are *not* the same as the sibling project
 [rTorrent-PS](https://github.com/pyroscope/rtorrent-ps),
 and they work perfectly fine without it;
 the same is true the other way 'round.
