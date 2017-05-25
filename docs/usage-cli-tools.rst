@@ -407,6 +407,16 @@ unique
     not *all* loaded items.
 
 
+.. warning::
+
+    If you use options that cause ``rtcontrol`` to request only a subset of
+    all loaded items, then all ``dupes*`` methods will produce results that
+    might be unexpected, since they look at *all* available items, not just
+    the selected ones. And ‘all’ is different if you change the view, or
+    use the ``-Q`` option – for that reason, you'll get a warning if you mix
+    ``-A`` with these.
+
+
 .. _rtxmlrpc:
 
 rtxmlrpc
