@@ -14,6 +14,10 @@ configuration.
     user account, or else one you specifically created for installing *rTorrent*
     and ``pyrocore``.
 
+    When commands *and* their output are both contained in a code box, ``$``
+    represents the command prompt of your shell, followed by the command you are
+    supposed to enter. Do **not** enter the leading ``$``!
+
 .. include:: include-xmlrpc-dialects.rst
 
 .. _`pimp-my-box`: https://github.com/pyroscope/pimp-my-box#pimp-my-box
