@@ -60,3 +60,38 @@ mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
 ``13–Mar–2010`` | [pyrocore 0.3.1](http://pypi.python.org/pypi?:action=display&name=pyrocore&version=0.3.1) released, adding filtering, sorting and output formatting to `rtcontrol`.
 ``08–Mar–2010`` | [pyrocore 0.2.1](http://pypi.python.org/pypi?:action=display&name=pyrocore&version=0.2.1) released, with new tools `chtor` and `pyroadmin`, and a finished configuration system.
 ``19–Feb–2010`` | First release of `pyrocore` ([v0.1.1](http://pypi.python.org/pypi?:action=display&name=pyrocore&version=0.1.1)), containing the `lstor` and `mktor` utilities.
+
+
+## Performing a Release
+
+1. Check for and fix ``pylint`` violations:
+
+        paver lint -m
+
+1. Verify ``debian/changelog`` for completeness and the correct version, and bump the release date:
+
+        dch -r
+
+1. Remove ‘dev’ version tagging from ``setup.cfg``, and perform a release check:
+
+        sed -i -re 's/^(tag_[a-z ]+=)/##\1/' setup.cfg
+        paver release
+
+1. Commit and tag the release:
+
+        git status  # check all is committed
+        tag="v$(dpkg-parsechangelog | grep '^Version:' | awk '{print $2}')"
+        git tag -a "$tag" -m "Release $tag"
+
+1. Build the final release and upload it to PyPI:
+
+        paver dist_clean sdist bdist_wheel
+        twine upload dist/*.{zip,whl}
+
+1. Create the ZIP file with the API documentation:
+
+        paver dist_docs
+
+1. Upload the docs from the ``dist`` directory to ``pythonhosted.org``:
+
+        xdg-open "https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyrocore" &
