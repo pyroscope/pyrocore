@@ -71,6 +71,8 @@ sample output is from *Ubuntu 15.04*):
     $ /usr/bin/python --version
     Python 2.7.9
 
+Try calling ``/usr/bin/python2`` in case the above shows a ``3.*`` version.
+
 .. _`Installing Python on Linux`: http://docs.python-guide.org/en/latest/starting/install/linux/
 .. _`pyenv`: https://github.com/yyuu/pyenv#simple-python-version-management-pyenv
 
