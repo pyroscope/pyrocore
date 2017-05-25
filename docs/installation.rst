@@ -145,6 +145,30 @@ If everything went OK, continue with the :doc:`setup`.
 Option 2: Installing from PyPI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+If you chose to install a release version from the Python package repository (PyPI),
+the *most simple but not best way* is calling ``pip install --user -U pyrocore``,
+and make sure ``$HOME/.local/bin`` is in your ``$PATH``.
 
+The **recommended way using a dedicated virtualenv** goes like this:
+
+.. code-block:: shell
+
+    mkdir -p ~/bin ~/.local
+    /usr/bin/virtualenv --no-site-packages $_/pyroscope
+    cd $_
+    ln -nfs python bin/python-pyrocore
+    ln -nfs $PWD/bin/python-pyrocore ~/bin
+    . bin/activate
+    xargs -n1 pip install -U <<<"pip setuptools wheel"
+    pip uninstall -y distribute 2>/dev/null
+    pip install -U pyrocore
+    ln -nfs $(egrep -l '(from.pyrocore.scripts|entry_point.*pyrocore.*console_scripts)' $PWD/bin/*) ~/bin
+
+    # Check success
+    pyroadmin --version  # call "exec $SHELL -l" if this fails, and retry
+
+If you previously had no ``~/bin`` directory, call ``exec $SHELL -l``
+to register it in the ``PATH`` of your current terminal session
+– especially if you see an error message like ``pyroadmin: command not found``.
 
 If everything went OK, continue with the :doc:`setup`.
