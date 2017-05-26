@@ -155,6 +155,7 @@ def check_info(info):
             for part in path:
                 if not isinstance(part, basestring):
                     raise ValueError("bad metainfo - bad path dir")
+                part = fmt.to_unicode(part)
                 if part == '..':
                     raise ValueError("relative path in %s disallowed for security reasons" % '/'.join(path))
                 if part and not ALLOWED_PATH_NAME.match(part):
@@ -488,7 +489,7 @@ class Metafile(object):
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
             file_list.append({
                 "length": filesize,
-                "path": filepath.replace(os.sep, '/').split('/'),
+                "path": [fmt.to_utf8(x) for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
             })
             self.LOG.debug("Hashing %r, size %d..." % (filename, filesize))
 
@@ -691,7 +692,7 @@ class Metafile(object):
 
         # Build result
         result = [
-            "NAME %s" % (os.path.basename(self.filename)),
+            "NAME %s" % (os.path.basename(fmt.to_unicode(self.filename))),
             "SIZE %s (%i * %s + %s)" % (
                 fmt.human_size(total_size).strip(),
                 piece_number, fmt.human_size(piece_length).strip(),
@@ -721,16 +722,16 @@ class Metafile(object):
         if 'length' in info:
             # Single file
             result.append("%-69s%9s" % (
-                    info['name'],
+                    fmt.to_unicode(info['name']),
                     fmt.human_size(total_size),
             ))
         else:
             # Directory structure
-            result.append("%s/" % info['name'])
+            result.append("%s/" % fmt.to_unicode(info['name']))
             oldpaths = [None] * 99
             for entry in info['files']:
                 # Remove crap that certain PHP software puts in paths
-                entry_path = [i for i in entry["path"] if i]
+                entry_path = [fmt.to_unicode(i) for i in entry["path"] if i]
 
                 for idx, item in enumerate(entry_path[:-1]):
                     if item != oldpaths[idx]:
