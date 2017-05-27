@@ -36,11 +36,15 @@ method.set_key = event.download.inserted_new, set_downloaded_date, ((pyro._tm_do
 
 # SCHEDULE: Set "last_active" custom field for items that have peers
 method.insert = d.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
-schedule2 = update_last_active, 24, 42,\
-    "d.multicall2=started,\"branch=$d.peers_connected=,\\\"d.custom.set=last_active,$cat=$system.time=\\\"\""
+method.insert = d.last_active.update, simple|private,\
+    "d.custom.set=last_active,$cat=$system.time= ; branch=argument.0=,d.save_session="
+
+schedule2 = pyro_update_last_active, 24, 42,\
+    "d.multicall2=started,\"branch=$d.peers_connected=,d.last_active.update=\""
+
+method.set_key = event.download.resumed, last_active,\
+    "branch=\"or={d.peers_connected=,not=$d.custom=last_active}\", d.last_active.update=1"
+method.set_key = event.download.finished, last_active, "d.last_active.update=1"
+
 method.insert = d.last_active.print, simple|private,\
     "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
-method.set_key = event.download.resumed, last_active,\
-    "d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
-method.set_key = event.download.finished, last_active,\
-    "d.custom.set=last_active,$cat=$system.time= ;d.save_full_session="
