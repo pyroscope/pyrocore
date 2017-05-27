@@ -1,3 +1,9 @@
+pyrocore (0.6.1) precise; urgency=low
+
+  * Next
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sat, 27 May 2017 19:23:30 +0200
+
 pyrocore (0.5.1) precise; urgency=medium
 
   * Docs: Brand new docs on 'readthedocs.io'
