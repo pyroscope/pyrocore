@@ -206,17 +206,21 @@ def gendocs():
 
 
 @task
-@needs("docs")
 def dist_docs():
     "create a documentation bundle"
     dist_dir = path("dist")
+    html_dir = path("docs/_build/html")
     docs_package = path("%s/%s-%s-docs.zip" % (dist_dir.abspath(), options.setup.name, options.setup.version))
+
+    if not html_dir.exists():
+        error("\n*** ERROR: Please build the HTML docs!")
+        sys.exit(1)
 
     dist_dir.exists() or dist_dir.makedirs()
     docs_package.exists() and docs_package.remove()
 
-    sh(r'cd docs/_build/html && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
-       ' | zip -qr -@ %s' % (docs_package,))
+    sh(r'cd %s && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
+       ' | zip -qr -@ %s' % (html_dir, docs_package,))
 
     print
     print "Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,)
