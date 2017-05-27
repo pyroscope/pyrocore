@@ -1,16 +1,31 @@
 # Hints for building the source distribution
 # See http://docs.python.org/distutils/sourcedist.html
 
-include bootstrap.sh
-include setup.py
-include pavement.py
-include paver-minilib.zip
-include LICENSE
+include bootstrap.sh update-to-head.sh util.sh
+include setup.py requirements*.txt pavement.py paver-minilib.zip
+include LICENSE CONTRIBUTING.rst
+include .env .gitignore .travis.yml pylint.cfg
 
-recursive-include debian changelog
+recursive-include debian changelog control
+
+recursive-include assets *.html
+recursive-include assets/video *.ogg
+
+recursive-include docs *.rst *.py Makefile requirements.txt
+recursive-include docs/_static *.ico *.png
+recursive-include docs/examples rt-backseat rt_cron_throttle_seed *.conf *.png *.rc *.sh
+recursive-include docs/videos *.gif
+
+recursive-include src/tests *.py *.sh *.cfg *.torrent
 recursive-include src/scripts *.sh *.sed
-recursive-include src/pyrocore/data/config rtorrent-*.rc
+recursive-include src/pyrocore/data/config rtorrent-*.rc *.ini *.py bash-completion
+recursive-include src/pyrocore/data/config/color-schemes *.rc
+recursive-include src/pyrocore/data/config/rtorrent.d *.rc
+recursive-include src/pyrocore/data/config/templates *.txt *.html conkyrc json
+recursive-include src/pyrocore/data/htdocs *.css *.ico *.png *.html *.js
+recursive-include src/pyrocore/data/screenlet *.png *.conf
+recursive-include src/pyrocore/data/img *.png
 
-#recursive-include examples *.txt *.py
-#prune directory/pattern
+prune docs/build
 
+# END of MANIFEST
