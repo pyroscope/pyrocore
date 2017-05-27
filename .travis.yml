@@ -14,5 +14,6 @@ install:
   - pip install -r requirements-dev.txt
   - paver develop -U
 script:
+  - paver test
   - paver functest
   - paver installtest
