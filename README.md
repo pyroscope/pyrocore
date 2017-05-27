@@ -90,6 +90,8 @@ mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
 
 1. Create the ZIP file with the API documentation:
 
+        paver autodocs
+        # Make sure docs are built OK
         paver dist_docs
 
 1. Upload the docs from the ``dist`` directory to ``pythonhosted.org``:
