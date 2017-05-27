@@ -215,7 +215,7 @@ def dist_docs():
     dist_dir.exists() or dist_dir.makedirs()
     docs_package.exists() and docs_package.remove()
 
-    sh(r'cd docs && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
+    sh(r'cd docs/_build/html && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
        ' | zip -qr -@ %s' % (docs_package,))
 
     print
