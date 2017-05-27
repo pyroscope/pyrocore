@@ -5,7 +5,7 @@
 
     This is the core package and basic command line tools subproject.
 
-    Copyright (c) 2010 - 2017 The PyroScope Project <pyroscope.project@gmail.com>
+    Copyright (c) 2009 - 2017 The PyroScope Project <pyroscope.project@gmail.com>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -340,6 +340,9 @@ def release():
     if any(".dev" in i for i in wheels):
         error("\n*** ERROR: You're still using a 'dev' version!")
         sys.exit(1)
+
+    # Check docs version
+    sh("grep '^version = .%s.$' docs/conf.py" % version)
 
     # Check that source distribution can be built and is complete
     print
