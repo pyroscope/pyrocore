@@ -161,7 +161,7 @@ The **recommended way using a dedicated virtualenv** goes like this:
     . bin/activate
     xargs -n1 pip install -U <<<"pip setuptools wheel"
     pip uninstall -y distribute 2>/dev/null
-    pip install -U pyrocore
+    pip install -U "pyrocore[templating]"
     ln -nfs $(egrep -l '(from.pyrocore.scripts|entry_point.*pyrocore.*console_scripts)' $PWD/bin/*) ~/bin
 
     # Check success
