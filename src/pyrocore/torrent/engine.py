@@ -379,7 +379,7 @@ class TorrentProxy(object):
         raise NotImplementedError()
 
 
-    def announce_urls(self):
+    def announce_urls(self, default=[]):  # pylint: disable=dangerous-default-value
         """ Get a list of all announce URLs.
         """
         raise NotImplementedError()
@@ -643,7 +643,7 @@ class TorrentEngine(object):
         self.engine_software = "N/A"    # Name and version of software
 
 
-    def load_config(self, namespace=None):
+    def load_config(self, namespace=None, rcfile=None):
         """ Load engine configuration file.
         """
         raise NotImplementedError()

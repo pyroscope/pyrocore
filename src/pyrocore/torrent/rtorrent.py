@@ -48,11 +48,11 @@ class RtorrentItem(engine.TorrentProxy):
     """ A single download item.
     """
 
-    def __init__(self, engine, fields):
+    def __init__(self, engine_, fields):
         """ Initialize download item.
         """
         super(RtorrentItem, self).__init__()
-        self._engine = engine
+        self._engine = engine_
         self._fields = dict(fields)
 
 
@@ -221,7 +221,7 @@ class RtorrentItem(engine.TorrentProxy):
         return os.path.expanduser(fmt.to_unicode(path))
 
 
-    def announce_urls(self, default=[]):
+    def announce_urls(self, default=[]):  # pylint: disable=dangerous-default-value
         """ Get a list of all announce URLs.
             Returns `default` if no trackers are found at all.
         """
@@ -355,6 +355,7 @@ class RtorrentItem(engine.TorrentProxy):
                 raise error.UserError("Bad command %r, probably missing a '=' (%s)" % (command, exc))
 
             def print_result(data):
+                "Helper to print XMLRPC call results"
                 args_list = ''
                 if args:
                     args_list = '"' + '","'.join(args) + '"'
@@ -416,17 +417,17 @@ class RtorrentItem(engine.TorrentProxy):
 
             # Remove the link chain, starting at the real path
             # (this prevents losing the chain when there's permission problems)
-            for path in reversed(rm_paths):
-                is_dir = os.path.isdir(path) and not os.path.islink(path)
-                self._engine.LOG.debug("Deleting '%s%s'" % (path, '/' if is_dir else ''))
+            for rm_path in reversed(rm_paths):
+                is_dir = os.path.isdir(rm_path) and not os.path.islink(rm_path)
+                self._engine.LOG.debug("Deleting '%s%s'" % (rm_path, '/' if is_dir else ''))
                 if not dry_run:
                     try:
-                        (os.rmdir if is_dir else os.remove)(path)
+                        (os.rmdir if is_dir else os.remove)(rm_path)
                     except OSError as exc:
                         if exc.errno == errno.ENOENT:
                             # Seems this disappeared somehow inbetween (race condition)
                             self._engine.LOG.info("Path '%s%s' disappeared before it could be deleted"
-                                                  % (path, '/' if is_dir else ''))
+                                                  % (rm_path, '/' if is_dir else ''))
                         else:
                             raise
 
@@ -573,8 +574,8 @@ class RtorrentEngine(engine.TorrentEngine):
         self._item_cache = {}
 
 
-    def load_config(self, namespace=None, rtorrent_rc=None):
-        """ Load file given in "rtorrent_rc".
+    def load_config(self, namespace=None, rcfile=None):
+        """ Load file given in "rcfile".
         """
         def cfgkey(key):
             "Sanitize rtorrent config keys"
@@ -586,16 +587,16 @@ class RtorrentEngine(engine.TorrentEngine):
         # Only load when needed (also prevents multiple loading)
         if not all(getattr(namespace, key, False) for key in self.RTORRENT_RC_KEYS):
             # Get and check config file name
-            if not rtorrent_rc:
-                rtorrent_rc = getattr(config, "rtorrent_rc", None)
-            if not rtorrent_rc:
+            if not rcfile:
+                rcfile = getattr(config, "rtorrent_rc", None)
+            if not rcfile:
                 raise error.UserError("No 'rtorrent_rc' path defined in configuration!")
-            if not os.path.isfile(rtorrent_rc):
-                raise error.UserError("Config file %r doesn't exist!" % (rtorrent_rc,))
+            if not os.path.isfile(rcfile):
+                raise error.UserError("Config file %r doesn't exist!" % (rcfile,))
 
             # Parse the file
-            self.LOG.debug("Loading rtorrent config from %r" % (rtorrent_rc,))
-            with open(rtorrent_rc) as handle:
+            self.LOG.debug("Loading rtorrent config from %r" % (rcfile,))
+            with open(rcfile) as handle:
                 continued = False
                 for line in handle.readlines():
                     # Skip comments, continuations, and empty lines
@@ -608,7 +609,7 @@ class RtorrentEngine(engine.TorrentEngine):
                     try:
                         key, val = line.split("=", 1)
                     except ValueError:
-                        self.LOG.warning("Ignored invalid line %r in %r!" % (line, rtorrent_rc))
+                        self.LOG.warning("Ignored invalid line %r in %r!" % (line, rcfile))
                         continue
                     key, val = key.strip(), val.strip()
                     key = self.RTORRENT_RC_ALIASES.get(key, key)
@@ -660,7 +661,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
 
     def _resolve_viewname(self, viewname):
-        """
+        """ Check for special view names and return existing rTorrent one.
         """
         if viewname == "-":
             try:
@@ -833,8 +834,6 @@ class RtorrentEngine(engine.TorrentEngine):
 def run():
     """ Module level test.
     """
-    from pyrocore.util import load_config
-
     logging.basicConfig(level=logging.DEBUG)
     load_config.ConfigLoader().load()
     config.debug = True

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=I0011,W0201,W0212
+# pylint: disable=
 """ Torrent Item Filters.
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -80,7 +80,7 @@ class Filter(object):
     """ Base class for all filters.
     """
 
-    def pre_filter(self):
+    def pre_filter(self):  # pylint: disable=no-self-use
         """ Return rTorrent condition to speed up data transfer.
         """
         return ''
@@ -513,8 +513,8 @@ class TimeFilter(NumericFilterBase):
                    self._rt_cmp, self.PRE_FILTER_FIELDS[self._name], int(timestamp))
         return ''
 
-    def validate(self, duration=False):
-        """ Validate filter condition (template method).
+    def validate_time(self, duration=False):
+        """ Validate filter condition (template method) for timestamps and durations.
         """
         super(TimeFilter, self).validate()
         timestamp = now = time.time()
@@ -549,21 +549,21 @@ class TimeFilter(NumericFilterBase):
                 # Assume it's an absolute date
                 if '/' in self._value:
                     # U.S.
-                    fmt = "%m/%d/%Y"
+                    dtfmt = "%m/%d/%Y"
                 elif '.' in self._value:
                     # European
-                    fmt = "%d.%m.%Y"
+                    dtfmt = "%d.%m.%Y"
                 else:
                     # Fall back to ISO
-                    fmt = "%Y-%m-%d"
+                    dtfmt = "%Y-%m-%d"
 
                 val = str(self._value).upper().replace(' ', 'T')
                 if 'T' in val:
                     # Time also given
-                    fmt += "T%H:%M:%S"[:3+3*val.count(':')]
+                    dtfmt += "T%H:%M:%S"[:3+3*val.count(':')]
 
                 try:
-                    timestamp = time.mktime(time.strptime(val, fmt))
+                    timestamp = time.mktime(time.strptime(val, dtfmt))
                 except (ValueError), exc:
                     raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))
 
@@ -574,6 +574,11 @@ class TimeFilter(NumericFilterBase):
         ##print time.time() - self._value
         ##print time.localtime(time.time())
         ##print time.localtime(self._value)
+
+    def validate(self):
+        """ Validate filter condition (template method).
+        """
+        self.validate_time(duration=False)
 
 
 class TimeFilterNotNull(TimeFilter):
@@ -594,7 +599,7 @@ class DurationFilter(TimeFilter):
     def validate(self):
         """ Validate filter condition (template method).
         """
-        super(DurationFilter, self).validate(duration=True)
+        super(DurationFilter, self).validate_time(duration=True)
 
 
     def match(self, item):

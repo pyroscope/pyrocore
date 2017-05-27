@@ -36,7 +36,7 @@ KIND_DOCS = set(("chm", "pdf", "cbr", "cbz", "odt", "ods", "doc", "xls", "ppt", 
 KIND_ARCHIVE = set(("rar", "zip", "tgz", "bz2", "iso", "bin"))
 
 # Regex matchers for names
-_VIDEO_EXT = '|'.join(re.escape('.' + i) for i in KIND_VIDEO)
+_VIDEO_EXT = '|'.join(re.escape('.' + _i) for _i in KIND_VIDEO)
 _TV_TRAIL = (
     r"(?:[._ ](?P<release_tags>PREAIR|READNFO))?"
     r"(?:[._ ](?P<release>REPACK|PROPER|REAL|REALPROPER|INTERNAL))?"
@@ -49,9 +49,9 @@ _TV_TRAIL = (
     r"(?:[._ ](?P<codec2>[XH]\.?264|XviD|VTS|ISO|NTSC|PAL))?"
     r"(?:[-. ](?P<group>.+?))?(?P<extension>" + _VIDEO_EXT + ")?$"
 )
-_DEFINITELY_TV = [".%s." % i.lower() for i in ("HDTV", "PDTV", "DSR")]
+_DEFINITELY_TV = [".%s." % _i.lower() for _i in ("HDTV", "PDTV", "DSR")]
 
-TV_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
+TV_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
     ("Normal TV Episodes",
         r"^(?P<show>.+?)[._ ]S?(?P<season>\d{1,2})[xE](?P<episode>\d{2}(?:-?E\d{2})?)"
         r"(?:[._ ](?P<title>.+?[a-zA-Z]{1,2}.+?))?"
@@ -85,8 +85,8 @@ TV_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
     ),
 )]
 
-MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
-    ( "Scene tagged movie",
+MOVIE_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
+    ("Scene tagged movie",
         r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|L[iI]M[iI]TED))*"
         r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i|2160p))?"
@@ -98,7 +98,7 @@ MOVIE_PATTERNS = [(k, re.compile(i, re.I)) for k, i in (
         r"(?:[-.](?P<group>.+?))?"
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
-    ( "Blu-ray movie",
+    ("Blu-ray movie",
         r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|MULTI|L[iI]M[iI]TED))*"
         r"(?:[._ ](?P<format0>720p|1080p|1080i|2160p))?"
@@ -121,7 +121,7 @@ BAD_TITLE_WORDS = set((
     "mp3", "ac3", "dts",
 ))
 
-del k, i
+del _k, _i
 
 
 def get_filetypes(filelist, path=None, size=os.path.getsize):
@@ -172,7 +172,7 @@ def name_trait(name, add_info=False):
         # Regex checks
         re_name = '.'.join([i.lstrip('[(').rstrip(')]') for i in name.split(' .')])
         for trait, patterns, title_group in trait_patterns:
-            matched = None
+            matched, patname = None, None
 
             for patname, pattern in patterns:
                 matched = pattern.match(re_name)

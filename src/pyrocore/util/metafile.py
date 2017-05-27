@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# pylint: disable=
 """ Metafile Support.
 
     Copyright (c) 2009, 2010, 2011 The PyroScope Project <pyroscope.project@gmail.com>
@@ -48,7 +50,7 @@ PASSKEY_RE = re.compile(r"(?<=[/=])[-_0-9a-zA-Z]{5,64}={0,3}(?=[/&]|$)")
 PASSKEY_OK = ("announce", "TrackerServlet",)
 
 # List of all standard keys in a metafile
-METAFILE_STD_KEYS = [i.split('.') for i in (
+METAFILE_STD_KEYS = [_i.split('.') for _i in (
     "announce",
     "announce-list", # BEP-0012
     "comment",
@@ -66,7 +68,7 @@ METAFILE_STD_KEYS = [i.split('.') for i in (
     "info.files.path",
 )]
 
-del i
+del _i  # pylint: disable=undefined-loop-variable
 
 
 def console_progress():
@@ -74,6 +76,7 @@ def console_progress():
         stdout is a tty.
     """
     def progress(totalhashed, totalsize):
+        "Helper"
         msg = " " * 30
         if totalhashed < totalsize:
             msg = "%5.1f%% complete" % (totalhashed * 100.0 / totalsize)
@@ -98,7 +101,7 @@ class MaskingPrettyPrinter(pprint.PrettyPrinter):
     """ A PrettyPrinter that masks strings in the object tree.
     """
 
-    def format(self, obj, context, maxlevels, level):
+    def format(self, obj, context, maxlevels, level):  # pylint: disable=arguments-differ
         """ Mask obj if it looks like an URL, then pass it to the super class.
         """
         if isinstance(obj, basestring) and "://" in fmt.to_unicode(obj):
@@ -481,6 +484,7 @@ class Metafile(object):
         # Start a new piece
         sha1sum = hashlib.sha1()
         done = 0
+        filename = None
 
         # Hash all files
         for filename in walker:
@@ -637,7 +641,7 @@ class Metafile(object):
             self.LOG.info("Creating %r for %s %r..." % (
                 output_name, "filenames read from" if self._fifo else "data in", self.datapath,
             ))
-            meta, totalhashed = self._make_meta(tracker_url, root_name, private, progress)
+            meta, _ = self._make_meta(tracker_url, root_name, private, progress)
 
             # Add optional fields
             if comment:
@@ -669,7 +673,7 @@ class Metafile(object):
             check_piece.piece_index += 20
         check_piece.piece_index = 0
 
-        datameta, totalhashed = self._make_info(int(metainfo["info"]["piece length"]), progress,
+        datameta, _ = self._make_info(int(metainfo["info"]["piece length"]), progress,
             [datapath] if "length" in metainfo["info"] else
             (os.path.join(*([datapath] + i["path"])) for i in metainfo["info"]["files"]),
             piece_callback=check_piece
@@ -684,7 +688,7 @@ class Metafile(object):
         metainfo = sanitize(bencode.bread(self.filename))
         announce = metainfo['announce']
         info = metainfo['info']
-        info_hash = hashlib.sha1(bencode.bencode(info))
+        infohash = hashlib.sha1(bencode.bencode(info))
 
         total_size = data_size(metainfo)
         piece_length = info['piece length']
@@ -703,7 +707,7 @@ class Metafile(object):
                 fmt.human_size(len(info["pieces"])).strip(),
                 100.0 * len(info["pieces"]) / os.path.getsize(self.filename),
             ),
-            "HASH %s" % (info_hash.hexdigest().upper()),
+            "HASH %s" % (infohash.hexdigest().upper()),
             "URL  %s" % (mask_keys if masked else str)(announce),
             "PRV  %s" % ("YES (DHT/PEX disabled)" if info.get("private") else "NO (DHT/PEX enabled)"),
             "TIME %s" % ("N/A" if "creation date" not in metainfo else
