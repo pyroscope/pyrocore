@@ -25,11 +25,11 @@ and some features *do* only work when both are present.
 
 
 Further information can be found in the
-[documentation](http://pyrocore.readthedocs.org/), specifically:
+[documentation](http://pyrocore.readthedocs.io/), specifically:
 
- * [A feature overview](http://pyrocore.readthedocs.org/en/latest/overview.html)
- * [Installation instructions](http://pyrocore.readthedocs.org/en/latest/installation.html)
- * [Full API documentation](http://pyrocore.readthedocs.org/en/latest/api.html)
+ * [A feature overview](http://pyrocore.readthedocs.io/en/latest/overview.html)
+ * [Installation instructions](http://pyrocore.readthedocs.io/en/latest/installation.html)
+ * [Full API documentation](http://pyrocore.readthedocs.io/en/latest/api.html)
 
 You can also add your own content to the
 [project's wiki](https://github.com/pyroscope/pyrocore/wiki#community-documentation),
@@ -46,7 +46,7 @@ mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
 :-------------------: | :----
 ``27–May–2017`` | [pyrocore 0.5.1](https://github.com/pyroscope/pyrocore/releases/tag/v0.5.1) released.
 ``05–Mar–2017`` | Moving and over-hauling the docs finally done, including rTorrent-PS wiki pages and so on.
-``02–May–2015`` | Started to move the documenation to [Read The Docs](http://pyrocore.readthedocs.org/).
+``02–May–2015`` | Started to move the documenation to [Read The Docs](http://pyrocore.readthedocs.io/).
 ``14–Mar–2015`` | Moved from [Google Code](https://code.google.com/p/pyroscope/ ) to [GitHub](https://github.com/pyroscope/pyroscope). Documentation will be in a limbo state and spread over both sites for some time, I'll try to reasonably cross-link.
 ``05–Jun–2011`` | [pyrocore 0.4.2](http://freshmeat.net/projects/pyrocore/releases/332769) released.
 ``17–Apr–2011`` | [pyrocore 0.4.1](http://freshmeat.net/projects/pyrocore/releases/331021) released.
