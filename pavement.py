@@ -28,6 +28,7 @@ import re
 import sys
 import glob
 import time
+import subprocess
 import webbrowser
 
 from paver.easy import *
@@ -344,8 +345,7 @@ def release():
 
     # Check that source distribution can be built and is complete
     print
-    print "~" * 78
-    print "TESTING SOURCE BUILD"
+    print "~~~ TESTING SOURCE BUILD".ljust(78, '~')
     sh( "{ command cd dist/ && unzip -q %s-%s.zip && command cd %s-%s/"
         "  && /usr/bin/python setup.py sdist >/dev/null"
         "  && if { unzip -ql ../%s-%s.zip; unzip -ql dist/%s-%s.zip; }"
@@ -355,6 +355,14 @@ def release():
         % tuple([project["name"], version] * 4)
     )
     path("dist/%s-%s" % (project["name"], version)).rmtree()
+    print "~" * 78
+
+    print
+    print "~~~ sdist vs. git ".ljust(78, '~')
+    subprocess.call(
+        "unzip -v dist/pyrocore-*.zip | egrep '^ .+/' | cut -f2- -d/ | sort >./build/ls-sdist.txt"
+        " && git ls-files | sort >./build/ls-git.txt"
+        " && diff -U0 ./build/ls-sdist.txt ./build/ls-git.txt || true", shell=True)
     print "~" * 78
 
     print
