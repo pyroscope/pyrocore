@@ -11,7 +11,7 @@ pyrocore (0.5.1) precise; urgency=medium
   * Migration: Read the docs, take note of "rtorrent-pyro.rc"
   * rTorrent: Removed support for anything but 0.9.2+
   * Python: Removed support for 2.5 and 2.6
-  * rtcontrol: added '--select' option ('1-/')
+  * rtcontrol: added '--select' option ('-/')
   * rtcontrol: added '--shell' option
   * rtcontrol: added '--modify-view' option
   * rtcontrol: resolve '-' as a viewname to the current view (needs rT-PS)
