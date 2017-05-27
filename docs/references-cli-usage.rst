@@ -5,7 +5,7 @@
 
 .. note::
 
-    The help output presented here applies to version ``0.5.1.dev20170312`` of the tools.
+    The help output presented here applies to version ``0.5.1`` of the tools.
 
 .. _cli-usage-chtor:
 
@@ -195,6 +195,7 @@ pyroadmin
       --dump-config         pretty-print configuration including all defaults
       --create-import=GLOB-PATTERN
                             create import file for a '.d' directory
+      --dump-rc             pretty-print dynamic commands defined in 'rtorrent.rc'
       -o KEY,KEY1.KEY2=DEFAULT,..., --output=KEY,KEY1.KEY2=DEFAULT,...
                             select fields to print, output is separated by TABs; default values can be provided after the key
       --reveal              show config internals and full announce URL including keys
@@ -310,9 +311,11 @@ rtcontrol
       -V, --view-only       show search result only in default ncurses view
       --to-view=NAME        show search result only in named ncurses view
       --tee-view            ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)
-      --from-view=NAME      select only items that are on view NAME
+      --from-view=NAME      select only items that are on view NAME (NAME can be an info hash to quickly select a single item)
       -M NAME, --modify-view=NAME
                             get items from given view and write result back to it (short-cut to combine --from-view and --to-view)
+      -Q LEVEL, --fast-query=LEVEL
+                            enable query optimization (=: use config; 0: off; 1: safe; 2: danger seeker) [=]
       --call=CMD            call an OS command pattern in the shell
       --spawn=CMD [--spawn ...]
                             execute OS command pattern(s) directly
@@ -369,7 +372,7 @@ rtcontrol
       size                  data size
       started               time download was FIRST started
       stopped               time download was last stopped or paused
-      tagged                has certain tags?
+      tagged                has certain tags? (not related to the 'tagged' view)
       throttle              throttle group name (NULL=unlimited, NONE=global)
       tracker               first in the list of announce URLs
       traits                automatic classification of this item (audio, video, tv, movie, etc.)
@@ -484,3 +487,4 @@ rtxmlrpc
                             override configuration attributes
       -r, --repr            show Python pretty-printed response
       -x, --xml             show XML response
+      -i, --as-import       execute each argument as a private command using 'import'
