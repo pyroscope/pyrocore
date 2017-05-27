@@ -1,4 +1,4 @@
-pyrocore (0.5.1) precise; urgency=low
+pyrocore (0.5.1) precise; urgency=medium
 
   * Docs: Brand new docs on 'readthedocs.io'
   * Project: Moved to GitHub
@@ -47,7 +47,7 @@ pyrocore (0.5.1) precise; urgency=low
   * API: 'connect()' helper for easy interactive use
   * API: added 'h.' helper namespace to templating
 
- -- pyroscope <pyroscope.project@gmail.com>  Wed, 15 Mar 2017 22:42:17 +0100
+ -- pyroscope <pyroscope.project@gmail.com>  Sat, 27 May 2017 12:12:25 +0200
 
 pyrocore (0.4.2) jaunty; urgency=low
 
