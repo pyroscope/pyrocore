@@ -113,8 +113,6 @@ project = Bunch(
     keywords = "bittorrent rtorrent cli python",
     classifiers = [
         # see http://pypi.python.org/pypi?:action=list_classifiers
-        #"Development Status :: 3 - Alpha",
-        #"Development Status :: 4 - Beta",
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: End Users/Desktop",
@@ -122,7 +120,7 @@ project = Bunch(
         "License :: OSI Approved :: GNU General Public License (GPL)",
         "Natural Language :: English",
         "Operating System :: POSIX",
-        "Programming Language :: Python :: 2.5",
+        "Programming Language :: Python :: 2.7",
         "Topic :: Communications :: File Sharing",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
