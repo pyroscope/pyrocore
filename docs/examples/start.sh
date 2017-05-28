@@ -45,6 +45,7 @@ export RT_BIN="${RT_BINDIR}rtorrent"
 
 if which objdump >/dev/null; then
     RUNPATH=$(objdump -x "$RT_BIN" | grep RPATH | sed -re 's/ *RPATH *//')
+    test -n "$RUNPATH" || RUNPATH=$(objdump -x "$RT_BIN" | grep RUNPATH | sed -re 's/ *RUNPATH *//')
     test -z "$RUNPATH" || LD_LIBRARY_PATH="$RUNPATH${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH}"
 fi
 
