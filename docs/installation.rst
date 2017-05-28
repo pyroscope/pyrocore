@@ -148,6 +148,9 @@ Option 2: Installing from PyPI
 If you chose to install a release version from the Python package repository (PyPI),
 the *most simple but not best way* is calling ``pip install --user -U pyrocore``,
 and make sure ``$HOME/.local/bin`` is in your ``$PATH``.
+This way is OK if you just want to use the tools for metafile handling,
+i.e. ``mktor``,  ``chtor``,  and ``lstor``, but not the *rTorrent* tools.
+
 
 The **recommended way using a dedicated virtualenv** goes like this:
 
