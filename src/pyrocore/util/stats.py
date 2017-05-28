@@ -28,8 +28,8 @@ def engine_data(engine):
     views = ("default", "main", "started", "stopped", "complete",
              "incomplete", "seeding", "leeching", "active", "messages")
     methods = [
-        "get_up_rate", "get_upload_rate",
-        "get_down_rate", "get_download_rate",
+        "throttle.global_up.rate", "throttle.global_up.max_rate",
+        "throttle.global_down.rate", "throttle.global_down.max_rate",
     ]
 
     # Get data via multicall
