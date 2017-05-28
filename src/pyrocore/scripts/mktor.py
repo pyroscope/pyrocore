@@ -68,7 +68,8 @@ class MetafileCreator(ScriptBaseWithConfig):
         self.add_bool_option("--no-cross-seed",
             help="do not automatically add a field to the info dict ensuring unique info hashes")
         self.add_value_option("-X", "--cross-seed", "LABEL",
-            help="set additional explicit label for cross-seeding (changes info hash)")
+            help="set additional explicit label for cross-seeding"
+                 " (changes info hash, use '@entropy' to randomize it)")
         self.add_bool_option("-H", "--hashed", "--fast-resume",
             help="create second metafile containing libtorrent fast-resume information")
 # TODO: Optionally pass torrent directly to rTorrent (--load / --start)
