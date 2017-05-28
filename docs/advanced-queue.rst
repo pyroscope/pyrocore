@@ -88,9 +88,10 @@ only changing a few values from the defaults to demonstrate key features:
     job.treewatch.load_mode     = start
     job.treewatch.queued        = True
     job.treewatch.path          = /var/torrent/watch
-    job.treewatch.cmd.jpg       = f.multicall=*.jpg,f.set_priority=2
-    job.treewatch.cmd.png       = f.multicall=*.png,f.set_priority=2
-    job.treewatch.cmd.tif       = f.multicall=*.tif,f.set_priority=0
+    job.treewatch.cmd.nfo       = f.multicall=*.nfo,f.priority.set=2
+    job.treewatch.cmd.jpg       = f.multicall=*.jpg,f.priority.set=2
+    job.treewatch.cmd.png       = f.multicall=*.png,f.priority.set=2
+    job.treewatch.cmd.tif       = f.multicall=*.tif,f.priority.set=0
     job.treewatch.cmd.target    = {{# set target path
         }}d.custom.set=targetdir,/var/torrent/done/{{label}}/{{relpath}}
 
@@ -242,13 +243,14 @@ They're added in the alphabetic order of their names.
 
 .. code-block:: ini
 
-    job.treewatch.cmd.jpg       = f.multicall=*.jpg,f.set_priority=2
-    job.treewatch.cmd.png       = f.multicall=*.png,f.set_priority=2
-    job.treewatch.cmd.tif       = f.multicall=*.tif,f.set_priority=0
+    job.treewatch.cmd.nfo       = f.multicall=*.nfo,f.priority.set=2
+    job.treewatch.cmd.jpg       = f.multicall=*.jpg,f.priority.set=2
+    job.treewatch.cmd.png       = f.multicall=*.png,f.priority.set=2
+    job.treewatch.cmd.tif       = f.multicall=*.tif,f.priority.set=0
     job.treewatch.cmd.target    = {{# set target path
         }}d.custom.set=targetdir,/var/torrent/done/{{label}}/{{relpath}}
 
-The above example shows how to set any JPG and PNG images to high priority,
+The above example shows how to set any NFO files and JPG/PNG images to high priority,
 and prevent downloading any TIF images by default.
 
 Commands can be templates, see :ref:`tree-watch` for further details
