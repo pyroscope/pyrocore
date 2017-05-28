@@ -42,4 +42,10 @@ if test -n "$RT_BINDIR"; then
 fi
 #RT_BINDIR="$HOME/src/rtorrent-ps/rtorrent-0.9.6/src/"
 export RT_BIN="${RT_BINDIR}rtorrent"
+
+if which objdump >/dev/null; then
+    RUNPATH=$(objdump -x "$RT_BIN" | grep RPATH | sed -re 's/ *RPATH *//')
+    test -z "$RUNPATH" || LD_LIBRARY_PATH="$RUNPATH${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH}"
+fi
+
 "$RT_BIN" "${RT_OPTS[@]}"
