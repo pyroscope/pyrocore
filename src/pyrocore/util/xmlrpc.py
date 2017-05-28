@@ -173,7 +173,13 @@ class RTorrentMethod(object):
                         handle.close()
                 raise
             else:
-                return sum(result, []) if flatten else result
+                try:
+                    return sum(result, []) if flatten else result
+                except TypeError:
+                    if result and isinstance(result, list) and isinstance(result[0], dict) and 'faultCode' in result[0]:
+                        raise error.LoggableError("XMLRPC error in multicall: " + repr(result[0]))
+                    else:
+                        raise
         finally:
             # Calculate latency
             self._latency = time.time() - start
