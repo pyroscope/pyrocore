@@ -61,7 +61,7 @@ class SeedThrottle(base.ScriptBaseWithConfig):
             self.parser.error("Bad nice rate %r (%s)" % (nice_rate, exc))
 
         # Check for manually changed seed rate
-        current_rate = proxy.get_throttle_up_max(throttle_name)
+        current_rate = proxy.throttle.up.max(throttle_name)
         self.LOG.debug("Current '%s' rate is %s/s" % (
             throttle_name, fmt.human_size(current_rate).strip()
         ))
@@ -79,10 +79,10 @@ class SeedThrottle(base.ScriptBaseWithConfig):
         # Set chosen bandwidth, if different
         rate = nice_rate if prioritized else full_rate
         if current_rate != rate:
-            proxy.throttle_up(throttle_name, str(rate // 1024))
+            proxy.throttle.up(throttle_name, str(rate // 1024))
             self.LOG.info("THROTTLE '%s' up=%s/s [%d prioritized]" % (
                 throttle_name,
-                fmt.human_size(proxy.get_throttle_up_max(throttle_name)).strip(),
+                fmt.human_size(proxy.throttle.up.max(throttle_name)).strip(),
                 len(prioritized),
             ))
 
