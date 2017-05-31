@@ -1,8 +1,11 @@
 pyrocore (0.5.2) precise; urgency=high
 
   * Fix: Use `d.save_resume` to flush session
+  * Fix: Updated a few more places to use new command names
+  * start script: Use RPATH/RUNPATH as LD_LIBRARY_PATH
+    (fixes rTorrent-PS runtime linking on newer systems)
 
- -- pyroscope <pyroscope.project@gmail.com>  Sat, 27 May 2017 19:23:30 +0200
+ -- pyroscope <pyroscope.project@gmail.com>  Wed, 31 May 2017 19:51:02 +0200
 
 pyrocore (0.5.1) precise; urgency=medium
 

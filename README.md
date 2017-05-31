@@ -44,6 +44,7 @@ mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
 
 ``Date   ``| Description
 :-------------------: | :----
+``31–May–2017`` | [pyrocore 0.5.2](https://github.com/pyroscope/pyrocore/releases/tag/v0.5.2) released.
 ``27–May–2017`` | [pyrocore 0.5.1](https://github.com/pyroscope/pyrocore/releases/tag/v0.5.1) released.
 ``05–Mar–2017`` | Moving and over-hauling the docs finally done, including rTorrent-PS wiki pages and so on.
 ``02–May–2015`` | Started to move the documenation to [Read The Docs](http://pyrocore.readthedocs.io/).
@@ -67,7 +68,7 @@ mailing list or the inofficial ``##rtorrent`` channel on ``irc.freenode.net``.
 
 1. Check for and fix ``pylint`` violations:
 
-        paver lint -m
+        paver lint -m | egrep -v 'TODO|Too.many'
 
 1. Verify ``debian/changelog`` for completeness and the correct version, and bump the release date:
 
