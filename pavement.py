@@ -370,9 +370,6 @@ def release():
         error("\n*** ERROR: You're still using a 'dev' version!")
         sys.exit(1)
 
-    # Check docs version
-    sh("grep '^version = .%s.$' docs/conf.py" % version)
-
     # Check that source distribution can be built and is complete
     print
     print "~~~ TESTING SOURCE BUILD".ljust(78, '~')
