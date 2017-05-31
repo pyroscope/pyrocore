@@ -1,6 +1,6 @@
-pyrocore (0.6.1) precise; urgency=low
+pyrocore (0.5.2) precise; urgency=high
 
-  * Next
+  * Fix: Use `d.save_resume` to flush session
 
  -- pyroscope <pyroscope.project@gmail.com>  Sat, 27 May 2017 19:23:30 +0200
 

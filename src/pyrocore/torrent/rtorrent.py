@@ -501,7 +501,7 @@ class RtorrentItem(engine.TorrentProxy):
     def flush(self):
         """ Write volatile data to disk.
         """
-        self._make_it_so("saving session data of", ["save_full_session"])
+        self._make_it_so("saving session data of", ["save_resume"])
 
 
 class RtorrentEngine(engine.TorrentEngine):

@@ -39,7 +39,7 @@ method.insert = pyro._last_scrape.print, simple|private,\
 
 # HELPER: Set current time in a custom field (tm_last_scrape) and save session
 method.insert = pyro._last_scrape.bump, simple|private,\
-    "d.custom.set=tm_last_scrape, $cat=$system.time= ; d.save_full_session="
+    "d.custom.set=tm_last_scrape, $cat=$system.time= ; d.save_resume="
 
 # COMMAND: Send the scrape request, set 'tm_last_scrape' timestamp, and save session
 method.insert = d.tracker.bump_scrape, simple,\
