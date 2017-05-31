@@ -185,7 +185,7 @@ class RtorrentItem(engine.TorrentProxy):
                 key = name[7:]
                 try:
                     if len(key) == 1 and key in "12345":
-                        val = getattr(self._engine._rpc.d, "get_custom"+key)(self._fields["hash"])
+                        val = getattr(self._engine._rpc.d, "custom"+key)(self._fields["hash"])
                     else:
                         val = self._engine._rpc.d.custom(self._fields["hash"], key)
                 except xmlrpc.ERRORS as exc:
