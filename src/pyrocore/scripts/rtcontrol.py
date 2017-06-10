@@ -600,7 +600,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         matches.sort(key=sort_key, reverse=self.options.reverse_sort)
 
         if self.options.anneal:
-            if not self.options.quiet:
+            if not self.options.quiet and set(self.options.anneal).difference(
+                                          set(['invert', 'unique'])):
                 if self.options.from_view not in (None, 'default'):
                     self.LOG.warn("Mixing --anneal with a view other than 'default' might yield unexpected results!")
                 if int(config.fast_query):
