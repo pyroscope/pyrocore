@@ -50,9 +50,9 @@ class ScriptBase(object):
     ADDITIONAL_HELP = []
 
     # Can be empty or None in derived classes
-    COPYRIGHT = "Copyright (c) 2009 - 2016 Pyroscope Project"
+    COPYRIGHT = "Copyright (c) 2009 - 2017 Pyroscope Project"
 
-    # Can be made explicit in derived classes
+    # Can be made explicit in derived classes (for external tools)
     VERSION = None
 
 
@@ -75,6 +75,45 @@ class ScriptBase(object):
         logging.getLogger().debug("Logging config read from '%s'" % logging_cfg)
 
 
+    def _get_pkg_meta(self):
+        """ Try to find package metadata.
+        """
+        pkg_info = "Version: 0.0.0\n"
+        for info_ext, info_name in (('.egg-info', 'PKG-INFO'), ('.dist-info', 'METADATA')):
+            try:
+                # Development setup
+                pkg_path = os.path.join(
+                    __file__.split(__name__.replace('.', os.sep))[0], # containing path
+                    __name__.split(".")[0] # package name
+                )
+                if os.path.exists(pkg_path + info_ext):
+                    pkg_path += info_ext
+                else:
+                    globbed_paths = glob.glob(pkg_path + "-*-py%d.%d" % sys.version_info[:2] + info_ext)
+                    if len(globbed_paths) == 1:
+                        pkg_path = globbed_paths[0]
+                    elif globbed_paths:
+                        self.LOG.warn("Found %d release-specific candidate versions" % len(globbed_paths))
+                        pkg_path = None
+                    else:
+                        globbed_paths = glob.glob(pkg_path + "-*" + info_ext)
+                        if len(globbed_paths) == 1:
+                            pkg_path = globbed_paths[0]
+                        else:
+                            self.LOG.warn("Found %d candidate versions" % len(globbed_paths))
+                            pkg_path = None
+                if pkg_path:
+                    with open(os.path.join(pkg_path, info_name)) as handle:
+                        pkg_info = handle.read()
+                    break
+                else:
+                    self.LOG.warn("Software version cannot be determined!")
+            except IOError:
+                self.LOG.warn("Software version cannot be determined!")
+
+        return pkg_info
+
+
     def __init__(self):
         """ Initialize CLI.
         """
@@ -86,50 +125,31 @@ class ScriptBase(object):
         if not self.version:
             # Take version from package
             provider = pkg_resources.get_provider(__name__)
-            pkg_info = provider.get_metadata("PKG-INFO")
-
-            if not pkg_info:
-                pkg_info = "Version: 0.0.0\n"
-                try:
-                    # Development setup
-                    pkg_path = os.path.join(
-                        __file__.split(__name__.replace('.', os.sep))[0], # containing path
-                        __name__.split(".")[0] # package name
-                    )
-                    if os.path.exists(pkg_path + ".egg-info"):
-                        pkg_path += ".egg-info"
-                    else:
-                        pkg_path = glob.glob(pkg_path + "-*-py%d.%d.egg-info" % sys.version_info[:2])
-                        if len(pkg_path) == 1:
-                            pkg_path = pkg_path[0]
-                        else:
-                            self.LOG.warn("Found %d candidate versions" % len(pkg_path))
-                            pkg_path = None
-                    if pkg_path:
-                        with open(os.path.join(pkg_path, "PKG-INFO")) as handle:
-                            pkg_info = handle.read()
-                    else:
-                        self.LOG.warn("Software version cannot be determined!")
-                except IOError:
-                    self.LOG.warn("Software version cannot be determined!")
-
-            pkg_info = dict(line.split(": ", 1)
-                for line in pkg_info.splitlines()
+            pkg_meta = (provider.get_metadata("PKG-INFO")
+                        or provider.get_metadata("METADATA")
+                        or self._get_pkg_meta())
+            pkg_dict = dict(line.split(": ", 1)
+                for line in pkg_meta.splitlines()
                 if ": " in line
             )
-            self.version = pkg_info.get("Version", "DEV")
+            self.version = pkg_dict.get("Version", "DEV")
+
+        where = os.path.commonprefix([__file__, os.path.realpath(sys.argv[0]), sys.prefix])
+        where = (where + os.sep).replace(os.path.expanduser('~' + os.sep), '~' + os.sep).rstrip(os.sep)
+        self.version_info = '{}{}{} on Python {}'.format(
+           self.version, ' from ' if where else '', where, sys.version.split()[0])
 
         self.args = None
         self.options = None
         self.return_code = 0
         self.parser = OptionParser(
             "%prog [options] " + self.ARGS_HELP + "\n\n"
-            "%prog " + self.version + (", " + self.COPYRIGHT if self.COPYRIGHT else "") + "\n\n"
+            "%prog " + self.version_info + ('\n' + self.COPYRIGHT if self.COPYRIGHT else "") + "\n\n"
             + textwrap.dedent(self.__doc__.rstrip()).lstrip('\n')
             + '\n'.join(self.ADDITIONAL_HELP)
             + "\n\nFor more details, see the full documentation at"
             + "\n\n    https://pyrocore.readthedocs.io/",
-            version="%prog " + self.version)
+            version="%prog " + self.version_info)
 
 
     def add_bool_option(self, *args, **kwargs):
