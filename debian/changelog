@@ -1,3 +1,9 @@
+pyrocore (0.6.1) precise; urgency=low
+
+  * ...
+
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 11 Jun 2017 15:40:48 +0200
+
 pyrocore (0.5.3) precise; urgency=medium
 
   * issue#53: Use a live check to validate throttle names
