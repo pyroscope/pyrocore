@@ -389,7 +389,7 @@ def release():
     subprocess.call(
         "unzip -v dist/pyrocore-*.zip | egrep '^ .+/' | cut -f2- -d/ | sort >./build/ls-sdist.txt"
         " && git ls-files | sort >./build/ls-git.txt"
-        " && diff -U0 ./build/ls-sdist.txt ./build/ls-git.txt || true", shell=True)
+        " && $(which colordiff || echo diff) -U0 ./build/ls-sdist.txt ./build/ls-git.txt || true", shell=True)
     print "~" * 78
 
     print

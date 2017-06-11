@@ -4,7 +4,7 @@ pyrocore (0.5.3) precise; urgency=medium
   * issue#52: Fixed version detection when installed from PyPI
   * Include install path and Python release in version info
 
- -- pyroscope <pyroscope.project@gmail.com>  Sun, 11 Jun 2017 14:17:47 +0200
+ -- pyroscope <pyroscope.project@gmail.com>  Sun, 11 Jun 2017 15:17:36 +0200
 
 pyrocore (0.5.2) precise; urgency=high
 
