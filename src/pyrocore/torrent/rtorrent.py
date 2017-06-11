@@ -564,6 +564,7 @@ class RtorrentEngine(engine.TorrentEngine):
         """
         super(RtorrentEngine, self).__init__()
         self.versions = (None, None)
+        self.version_info = (0,)
         self.startup = time.time()
         self._rpc = None
         self._session_dir = None
