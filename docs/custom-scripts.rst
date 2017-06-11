@@ -16,6 +16,7 @@ See for yourself:
 .. code-block:: python
 
     #! /usr/bin/env python-pyrocore
+    # -*- coding: utf-8 -*-
 
     # Enter the magic kingdom
     from pyrocore import config
@@ -30,6 +31,11 @@ See for yourself:
         # argument description for the usage information
         ARGS_HELP = "<arg_1>... <arg_n>"
 
+        # set your own version
+        VERSION = '1.0'
+
+        # (optionally) define your licensing
+        COPYRIGHT = u'Copyright (c) …'
 
         def add_options(self):
             """ Add program options.
