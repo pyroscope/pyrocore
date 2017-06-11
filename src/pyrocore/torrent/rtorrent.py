@@ -289,10 +289,13 @@ class RtorrentItem(engine.TorrentProxy):
         if name.lower() == "null":
             name = "NULL"
         if name.lower() == "none":
-            name = ""
+            name = ''
 
-        if (name or "NONE") not in config.throttle_names:
-            raise error.UserError("Unknown throttle name %r" % (name or "NONE",))
+        if name not in self._engine.known_throttle_names:
+            if self._engine._rpc.throttle.up.max(xmlrpc.NOHASH, name) == -1:
+                if self._engine._rpc.throttle.down.max(xmlrpc.NOHASH, name) == -1:
+                    raise error.UserError("Unknown throttle name '{}'".format(name))
+            self._engine.known_throttle_names.add(name)
 
         if (name or "NONE") == self.throttle:
             self._engine.LOG.debug("Keeping throttle %r on torrent #%s" % (self.throttle, self._fields["hash"]))
@@ -507,20 +510,14 @@ class RtorrentItem(engine.TorrentProxy):
 class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
-    # throttling config keys
-    RTORRENT_RC_THROTTLE_KEYS = ("throttle_up", "throttle_down", "throttle_ip", )
-
     # keys we read from rTorrent's configuration
-    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", "log.execute") + RTORRENT_RC_THROTTLE_KEYS
+    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", "log.execute")
 
     # mapping from new to old commands, and thus our config keys
     RTORRENT_RC_ALIASES = {
         "network.scgi.open_local": "scgi_local",
         "network.scgi.open_port": "scgi_port",
         #"log.execute": "",
-        "throttle.up": "throttle_up",
-        "throttle.down": "throttle_down",
-        "throttle.ip": "throttle_ip",
     }
 
     # rTorrent names of fields that never change
@@ -572,6 +569,7 @@ class RtorrentEngine(engine.TorrentEngine):
         self._session_dir = None
         self._download_dir = None
         self._item_cache = {}
+        self.known_throttle_names = {'', 'NULL'}
 
 
     def load_config(self, namespace=None, rcfile=None):
@@ -615,11 +613,7 @@ class RtorrentEngine(engine.TorrentEngine):
                     key = self.RTORRENT_RC_ALIASES.get(key, key)
 
                     # Copy values we're interested in
-                    if key in self.RTORRENT_RC_THROTTLE_KEYS:
-                        val = val.split(',')[0].strip()
-                        self.LOG.debug("rtorrent.rc: added throttle %r" % (val,))
-                        namespace.throttle_names.add(val)
-                    elif key in self.RTORRENT_RC_KEYS and not getattr(namespace, cfgkey(key), None):
+                    if key in self.RTORRENT_RC_KEYS and not getattr(namespace, cfgkey(key), None):
                         self.LOG.debug("rtorrent.rc: %s = %s" % (key, val))
                         setattr(namespace, cfgkey(key), val)
 
