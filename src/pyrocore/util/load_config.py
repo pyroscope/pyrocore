@@ -204,7 +204,8 @@ class ConfigLoader(object):
         """
         if config_file and os.path.isfile(config_file):
             self.LOG.debug("Loading %r..." % (config_file,))
-            exec(compile(open(config_file).read(), config_file, 'exec'), vars(config), namespace)
+            exec(compile(open(config_file).read(), config_file, 'exec'),  # pylint: disable=exec-used
+                 vars(config), namespace)
         else:
             self.LOG.warning("Configuration file %r not found!" % (config_file,))
 
