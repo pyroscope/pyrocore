@@ -32,8 +32,10 @@ from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 class RtorrentXmlRpc(ScriptBaseWithConfig):
     ### Keep things wrapped to fit under this comment... ##############################
     """
-        Perform raw rTorrent XMLRPC calls, like "rtxmlrpc throttle.up.rate ''".
+        Perform raw rTorrent XMLRPC calls, like "rtxmlrpc throttle.global_up.max_rate".
+
         Start arguments with "+" or "-" to indicate they're numbers (type i4 or i8).
+        Use "[1,2,..." for arrays.
     """
 
     # log level for user-visible standard logging
