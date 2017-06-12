@@ -236,5 +236,6 @@ It's safe to call them repeatedly, since existing values are kept unchanged.
 To check, use the command ``rtcontrol completed=-1d -scompleted`` which should now
 show your completed downloads of the last 24 hours, in order.
 
+Continue with the :doc:`usage` to get to know all the commands.
 
 .. _`rtorrent-ps`: https://github.com/pyroscope/rtorrent-ps
