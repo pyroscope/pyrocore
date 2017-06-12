@@ -177,6 +177,7 @@ you do **not** need *rTorrent-PS* for them to work.
 In any case, **make a backup** of your configuration and scripts,
 as mentioned at the start of this chapter. After creating the new configuration,
 merge in what's missing from your old configuration, but `migrate to the new syntax`_ first.
+For adding your custom settings, you can use your own files in the ``~/rtorrent/rtorrent.d`` directory.
 
 
 Migrating to Version 0.6.1 (UNRELEASED)
