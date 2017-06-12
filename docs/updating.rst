@@ -14,26 +14,28 @@ a new release version or git revision.
 
 These steps should make a copy of pretty much anything important:
 
- #. Copy your rTorrent session data (rTorrent needs to be running):
+ #. Copy your *rTorrent* session data and configuration (``rtorrent`` needs to be running):
 
     .. code-block:: bash
 
         rtxmlrpc -q session.save
-        tar cvfz /tmp/session-backup-$USER-$(date +'%Y-%m-%d').tgz \
-            $(echo $(rtxmlrpc session.path)/ | tr -s / /)*.torrent
+        tar cvfz /tmp/instance-backup-$USER-$(date +'%Y-%m-%d').tgz \
+            $(echo $(rtxmlrpc session.path)/ | tr -s / /)*.torrent \
+            ~/rtorrent/*.rc ~/rtorrent/rtorrent.d ~/rtorrent/start
 
- #. Backup your current PyroScope virtualenv and configuration:
+ #. Backup your current *PyroScope* virtualenv and configuration
+    (use ``~/lib`` instead of ``~/.local`` for installations before ``0.5.1``):
 
     .. code-block:: bash
 
         tar cvfz /tmp/pyroscope-backup-$USER-$(date +'%Y-%m-%d').tgz \
             ~/.pyroscope/ ~/.local/pyroscope/
 
- #. Depending on how you install rTorrent, make a copy of the rTorrent
-    executable. Note that the ``rTorrent-PS`` build script installs into
-    versioned directories, i.e. using that you don't have to worry if
-    changing the rTorrent version ­— the old one is still available, and
-    you can switch back easily.
+ #. Depending on how you installed *rTorrent*, make a copy of the ``rtorrent``
+    executable and ``libtorrent*.so*``.
+    Note that the `rTorrent-PS`_ build script installs into versioned directories,
+    i.e. using that you don't have to worry if changing to a new *rTorrent* version
+    ­— the old one is still available, and you can switch back easily.
 
 
 .. _software-update:
@@ -57,15 +59,19 @@ How to Do a Release Version Software Update
 Remember to read the **migration instructions** further below, and the `changelog`_,
 **BEFORE** installing any new version.
 
-Then to **update** an existing installation, use this command **if** you
-used the instructions on the InstallReleaseVersion page:
+Then to **update** an existing installation, use these commands
+(but note the ``0.5.1`` update is different, see below):
 
 .. code-block:: bash
 
-    sudo easy_install --prefix /usr/local -U pyrocore
+    cd ~/.local/pyroscope
+    bin/pip install -U "pyrocore[templating]"
+    ln -nfs $(egrep -l '(from.pyrocore.scripts|entry_point.*pyrocore.*console_scripts)' $PWD/bin/*) ~/bin
+
+If you used ``pip install --user -U pyrocore`` without creating a virtualenv, just repeat that command.
 
 Now **skip** the next section describing a source installation upgrade,
-and go to the configuration update further below.
+and go to the :ref:`configuration update <config-update>` further below.
 
 
 .. _software-update-from-source:
@@ -76,12 +82,13 @@ How to Update a Source Installation to the Newest Code
 **BEFORE** any update, remember to read the **migration instructions**
 further below, the `changelog`_ and the `list of commits`_.
 
-Then to **update** an existing installation, use these commands:
+Then to **update** an existing installation, use this command:
 
 .. code-block:: bash
 
-    cd ~/.local/pyroscope
-    ./update-to-head.sh
+    ~/.local/pyroscope/update-to-head.sh
+
+Continue with any tasks regarding configuration changes from the next section.
 
 
 .. _config-update:
@@ -89,98 +96,59 @@ Then to **update** an existing installation, use these commands:
 Updating Your Configuration
 ---------------------------
 
-After you installed a new version of the software, you can easily check
-whether the default configuration files changed by calling the
-``pyroadmin --create-config`` command. Since this will never overwrite
-existing configuration files, the files ``config.ini.default`` and
-``config.py.default`` will be created instead.
+After you installed a new version of the software,
+you have to check for necessary changes to the default configuration,
+after calling the ``pyroadmin --create-config`` or the ``update-to-head.sh`` command.
 
+Note that only the ``*.default`` files (``config.ini.default``, ``config.py.default``,
+and so on) will be overwritten, they are a literal copy of
+the defaults packaged into the software, and are there for informational purposes only.
 You can then use the ``diff`` tool to check for the differences between
 your current configuration and the new default one, and add any changes
-you want to adopt. Also note that sections of the configuration you
+you want to adopt.
+
+Also note that sections of the configuration you
 leave out, and keys that you do not overwrite, are automatically taken
-from the defaults, which greatly simplifies any update — so having a
-minimal configuration with just the changes and additions you actually
-want is recommended.
+from the defaults, which greatly simplifies any update.
+That is the reason why it is recommended to have a minimal configuration
+with just your customizations, in addition to the defaults.
 
-And remember to **always read the `changelog`_**!
+The file ``~/.pyroscope/rtorrent-pyro.rc.default``,
+and those contained in ``~/.pyroscope/rtorrent.d``, are a different story.
+They change quite often, and since there is no merging of ``*.rc.default`` with
+``*.rc`` files, the default ones are normally used.
+You can still disable those default files one by one using the ``rtorrent.d/.rcignore`` file,
+in order to provide your own versions or simply disable certain features.
+That is way better than switching altogether to ``*.rc`` files,
+again for the reason updates become way more painless.
+See the comments at the start of files in ``rtorrent.d`` for details.
+
+And remember to **always** read the `changelog`_!
 
 
-Migrating to Version 0.4.1
+Migrating to Version 0.5.x
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There is a new dependency on the ``pyrobase`` package, and for **release
-version installations**, it will be managed transparently — you have
-nothing to worry about, just follow the updating instructions from
-InstallReleaseVersion, and then see below for the required steps after
-updating.
-
-On the other hand, if you have an **installation from source**, it's
-important that you add the new dependency *also* from source, because
-otherwise your installation will break during further development (since
-then, you'd remain on the *released* version of ``pyrobase``). So, call
-these commands (assuming the standard installation paths):
-
-.. code-block:: bash
-
-    cd ~/.local/pyroscope
-    source bin/activate
-    svn update
-    git clone git://github.com/pyroscope/pyrobase.git pyrobase
-    ( cd pyrocore && source bootstrap.sh )
-
-In addition, follow these steps: 1. You **must** add the new
-``startup_time`` command, and you *should* add the ``cull`` command (see
-*Extending your ``.rtorrent.rc``* on the UserConfiguration page). 1.
-Call ``pyroadmin --create-config`` to add the new builtin `Tempita
-templates <OutputTemplates.md>`_ to your configuration. 1. To get bash
-completion for the PyroScope commands, see the instructions on the
-BashCompletion page.
-
-
-Migrating to Version 0.4.2
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Release 0.4.2 not only contains some additions to the PyroScope
-commands, but also offers you to run an `extended rTorrent
-distribution <RtorrentExtended.md>`_ with many user interface and
-command improvements. You need to decide whether you want to run that
-version, it involves compiling your own rTorrent executable, but there
-is a build script that mostly automates the process.
-
-But first, to upgrade your existing installation, follow these steps: 1.
-For people that run a source code installation. use the new
-``update-to-head.sh`` script as outlined further up on this page. 1.
-Call ``pyroadmin --create-config`` to update the ``.default``
-configuration examples, and also to create the new ``.rtorrent.rc``
-include (see next step). 1. Read the section *Extending your
-``.rtorrent.rc``* on the UserConfiguration page again! There is a new
-standard configuration include, which greatly simplifies integrating
-additional PyroScope settings into your main configuration. Add that
-include as shown there, and take care to remove anything from the main
-``.rtorrent.rc`` that's already added by the include, else you get error
-messages on startup, or worse, inconsistent behaviour. 1. Restart
-rTorrent and try to do a search using ``^X s=x264`` or another keyword
-you expect some hits on. If that works, you can be pretty sure
-everything's OK
-
-The new stable version 0.8.9 of rTorrent is now supported by this
-release, see RtXmlRpcMigration for details.
-
-
-Migrating to Version 0.5.1 (UNRELEASED)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The ``0.5.1`` release adds a queue manager,
+The ``0.5.x`` release line adds a queue manager,
 watching a directory tree for loading metafiles,
 and removes support for ancient versions of *Python* and *rTorrent*.
+More details on the contained changes can be found at `GitHub releases`_ and the `changelog`_.
+Install at least version ``0.5.3``, which has a few important fixes.
 
 To upgrade your existing installation, follow these steps:
 
-#. For people that run a source code installation. use the ``update-to-head.sh``
-   script as usual, outlined further up on this page.
+#. For people that run a source code installation, just use the ``update-to-head.sh``
+   script as described in :ref:`Installing from GitHub <install-from-github>`.
+   When your old installation is still in ``~/lib``, you'll be presented with
+   the necessary commands to move to ``~/.local`` *after* calling
+   ``~/lib/pyroscope/update-to-head.sh``.
+   Since all the documentation now points to ``~/.local`` paths, you should switch over.
+
+   For PyPI installs, just do a :ref:`fresh install <install-from-pypi>` to the new location
+   at ``~/.local``.
 #. Call ``pyroadmin --create-config`` to update the ``.default`` configuration
-   examples.
+   examples, and create the new ``rtorrent.d`` directory.
+#. In your *rTorrent* instance, `update the start script`_ (and save a copy of the old one before that).
 #. You also **MUST** change the ``import`` command in your ``rtorrent.rc``
    that loads the PyroScope configuration include:
 
@@ -194,6 +162,33 @@ To upgrade your existing installation, follow these steps:
    and/or the tree watch feature; both are inactive by default and need to be
    enabled. You also need to add the new ``pyro_watchdog`` schedule into your
    configuration, as shown in the :doc:`setup`.
+#. Remember to restart *rTorrent* after any configutation changes.
 
+When you have a rather aged configuration, also consider switching to the new
+set of configuration files as found in the ``pimp-by-box`` project, that use
+the new command names through-out and are thus way more future-proof.
+
+There is an easy to use ``make-rtorrent-config.sh`` script, see
+`rTorrent Configuration`_ on how to use it.
+At the same time, `update the start script`_.
+Note that these configuration files also work with a plain vanilla *rTorrent* version,
+you do **not** need *rTorrent-PS* for them to work.
+
+In any case, **make a backup** of your configuration and scripts,
+as mentioned at the start of this chapter. After creating the new configuration,
+merge in what's missing from your old configuration, but `migrate to the new syntax`_ first.
+
+
+Migrating to Version 0.6.1 (UNRELEASED)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+…
+
+
+.. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps#rtorrent-ps
+.. _`migrate to the new syntax`: https://github.com/rakshasa/rtorrent/wiki/RPC-Migration-0.9
+.. _`rTorrent Configuration`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/DebianInstallFromSource.md#rtorrent-configuration
+.. _`update the start script`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/DebianInstallFromSource.md#rtorrent-startup-script
+.. _`GitHub releases`: https://github.com/pyroscope/pyrocore/releases
 .. _`changelog`: https://github.com/pyroscope/pyrocore/blob/master/debian/changelog
 .. _`list of commits`: https://github.com/pyroscope/pyrocore/commits/master
