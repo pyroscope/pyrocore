@@ -67,6 +67,8 @@ this software does anything malicious — if it did, it'd be contained in that
 account. It also makes deinstallation or start-from-zero way less of a hassle.
 
 
+.. _install-python:
+
 Installing Python2
 ^^^^^^^^^^^^^^^^^^
 
@@ -92,6 +94,8 @@ Try calling ``/usr/bin/python2`` in case the above shows a ``3.*`` version.
 .. _`pyenv`: https://github.com/yyuu/pyenv#simple-python-version-management-pyenv
 
 
+.. _install-pyrocore:
+
 Installing the `pyrocore` Package
 ---------------------------------
 
@@ -110,6 +114,8 @@ choose one of them.
     Your existing configuration and data is not affected by this, but
     make sure you read the **migration instructions** in :doc:`updating`.
 
+
+.. _install-from-github:
 
 Option 1: Installing from GitHub
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -141,6 +147,7 @@ to register it in the ``PATH`` of your current terminal session
 If everything went OK, continue with the :doc:`setup`.
 
 
+.. _install-from-pypi:
 
 Option 2: Installing from PyPI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
