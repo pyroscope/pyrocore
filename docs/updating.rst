@@ -162,7 +162,7 @@ To upgrade your existing installation, follow these steps:
    and/or the tree watch feature; both are inactive by default and need to be
    enabled. You also need to add the new ``pyro_watchdog`` schedule into your
    configuration, as shown in the :doc:`setup`.
-#. Remember to restart *rTorrent* after any configutation changes.
+#. Remember to restart *rTorrent* after any configuration changes.
 
 When you have a rather aged configuration, also consider switching to the new
 set of configuration files as found in the ``pimp-by-box`` project, that use
