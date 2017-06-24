@@ -161,6 +161,8 @@ Change ``REMOTEHOST`` to the name of the remote host, and make sure you
 have public key login enabled.
 
 
+.. _orphans:
+
 Listing all orphans in your download directory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -169,7 +171,18 @@ information out of the client that is otherwise not directly available.
 The `orphans.txt`_ template lists all paths in the download directory
 *not* loaded into the client, and can be called like this::
 
-    rtcontrol -qO orphans.txt \*
+    rtcontrol -qO orphans.txt.default //
+
+To check a specific directory, set the ``dir`` config value
+– in this case the current working directory is checked::
+
+    rtcontrol -qO orphans.txt.default // -Ddir=$PWD
+
+Finally, pass found paths to ``du`` to get some statistics on the space used up by orphans::
+
+    rtcontrol -qO orphans.txt.default // | xargs -d$'\n' -- du -sch
+
+Use ``mv -n -t ‹directory›`` instead of the ``du`` command to move orphans away to a different directory.
 
 
 .. _orphans.txt: https://github.com/pyroscope/pyrocore/blob/master/src/pyrocore/data/config/templates/orphans.txt
