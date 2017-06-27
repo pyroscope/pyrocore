@@ -22,7 +22,8 @@ for cmd in $PYTHON git; do
 done
 
 # People never read docs anyway, so let the machine check...
-test $(id -u) -ne 0 || { echo "Do NOT install as root! $rtfm"; exit 1; }
+test -f /proc/1/cgroup -a $(grep -c :/docker /proc/1/cgroup) -gt 0 && in_docker=1 || in_docker=0
+test $(id -u) -ne 0 -o $in_docker -eq 1 || { echo "Do NOT install as root! $rtfm"; exit 1; }
 test -f ./bin/activate && vpy=$PWD/bin/python || vpy=$PYTHON
 cat <<'.' | $vpy
 import sys
