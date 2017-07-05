@@ -41,6 +41,27 @@ If you connect via ``network.scgi.open_port``, touch a file in ``/tmp`` in your
 startup script and use that for uptime checking.
 
 
+.. _load-with-datapath:
+
+Load Metafile with a Specific Data Path
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following shows how to load a metafile from any path in ``$metafile``, not only a watch directory,
+with the data downloaded to ``$data_dir`` by adding a ``d.directory_base.set`` on-load command.
+You might need to change that to ``d.directory.set`` depending on your exact use-case.
+
+.. code-block:: shell
+
+    rtxmlrpc -q load.normal '' "$metafile" \
+        "d.directory_base.set=\"$data_dir\"" "d.priority.set=1"
+
+Use ``load.start`` to start that item immediately.
+If the metafile has fast-resume information and the data is already there, no extra hashing is done.
+
+And just to show you can add more on-load commands, the priority of the new item is set to ``low``.
+Other common on-load commands are those that set custom values, e.g. the *ruTorrent* label.
+
+
 General maintenance tasks
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
