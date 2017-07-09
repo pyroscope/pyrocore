@@ -4,3 +4,4 @@ ProxyTypes==0.9
 #pyrobase>=0.3
 -e git+https://github.com/pyroscope/pyrobase.git#egg=pyrobase
 auvyon>=0.1
+requests>=2.8,<3

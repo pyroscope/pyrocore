@@ -440,11 +440,18 @@ Thus, it must be ``rtxmlrpc view.size '' main``, with an extra empty argument
 
 There are some special ways to write arguments of certain types:
 ``+‹number›`` and ``-‹number›`` send an integer value,
-``@‹filename›`` or ``@-`` (for stdin) reads the file's content into a XMLRPC binary,
+``@‹filename›``, ``@‹URL›``, or ``@-`` (for stdin) reads the argument's content into a XMLRPC binary value,
 and finally ``[‹item1›〈,‹item2›,…〉`` produces an array of strings.
 These typed arguments only cover some common use-cases,
 at some point you have to write Python code to build up more intricate data structures.
 
+The ``@‹URL›`` form supports ``http``, ``https``, and ``ftp``, here is an example call:
+
+.. code-block:: console
+
+    $ rtxmlrpc load.raw_verbose '' \
+      @"https://cdimage.debian.org/debian-cd/current/amd64/bt-cd/debian-9.0.0-amd64-netinst.iso.torrent"
+    0
 
 To get a list of available methods, just call ``rtxmlrpc system.listMethods``.
 The :ref:`RtXmlRpcExamples` section shows some typical examples for querying global information

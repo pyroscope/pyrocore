@@ -24,9 +24,35 @@ import tempfile
 import xmlrpclib
 from pprint import pformat
 
+try:
+    import requests
+except ImportError:
+    requests = None
+
 from pyrocore import config, error
 from pyrocore.util import fmt, xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+
+
+def read_blob(arg):
+    """Read a BLOB from given ``@arg``."""
+    result = None
+    if arg == '@-':
+        result = sys.stdin.read()
+    elif any(arg.startswith('@{}://'.format(x)) for x in {'http', 'https', 'ftp', 'file'}):
+        if not requests:
+            raise error.UserError("You must 'pip install requests' to support @URL arguments.")
+        try:
+            response = requests.get(arg[1:])
+            response.raise_for_status()
+            result = response.content
+        except requests.RequestException as exc:
+            raise error.UserError(str(exc))
+    else:
+        with open(os.path.expanduser(arg[1:]), 'rb') as handle:
+            result = handle.read()
+
+    return result
 
 
 class RtorrentXmlRpc(ScriptBaseWithConfig):
@@ -105,12 +131,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                         if all(i.isdigit() for i in arg):
                             arg = [int(i, 10) for i in arg]
                     elif arg and arg[0] == '@':
-                        if arg == '@-':
-                            arg = sys.stdin.read()
-                        else:
-                            with open(os.path.expanduser(arg[1:]), 'rb') as handle:
-                                arg = handle.read()
-                        arg = xmlrpclib.Binary(arg)
+                        arg = xmlrpclib.Binary(read_blob(arg))
                     args.append(arg)
 
             # Open proxy
