@@ -48,7 +48,7 @@ them at the default location ``~/.pyroscope``, simply call this command:
 
     pyroadmin --create-config
 
-Note that you can delete any defult setting from ``config.ini`` that you don't want changed.
+Note that you can delete any default setting from ``config.ini`` that you don't want changed.
 These defaults are *always* loaded before your own settings, from a copy the software keeps and updates.
 
 Deleting unchanged defaults has the advantage that on software updates,
