@@ -78,6 +78,7 @@ class ScriptBase(object):
     def _get_pkg_meta(self):
         """ Try to find package metadata.
         """
+        logger = logging.getLogger('pyrocore.scripts.base.version_info')
         pkg_info = "Version: 0.0.0\n"
         for info_ext, info_name in (('.egg-info', 'PKG-INFO'), ('.dist-info', 'METADATA')):
             try:
@@ -93,23 +94,23 @@ class ScriptBase(object):
                     if len(globbed_paths) == 1:
                         pkg_path = globbed_paths[0]
                     elif globbed_paths:
-                        self.LOG.warn("Found %d release-specific candidate versions" % len(globbed_paths))
+                        logger.warn("Found %d release-specific candidate versions" % len(globbed_paths))
                         pkg_path = None
                     else:
                         globbed_paths = glob.glob(pkg_path + "-*" + info_ext)
                         if len(globbed_paths) == 1:
                             pkg_path = globbed_paths[0]
                         else:
-                            self.LOG.warn("Found %d candidate versions" % len(globbed_paths))
+                            logger.warn("Found %d candidate versions" % len(globbed_paths))
                             pkg_path = None
                 if pkg_path:
                     with open(os.path.join(pkg_path, info_name)) as handle:
                         pkg_info = handle.read()
                     break
                 else:
-                    self.LOG.warn("Software version cannot be determined!")
+                    logger.warn("Software version cannot be determined!")
             except IOError:
-                self.LOG.warn("Software version cannot be determined!")
+                logger.warn("Software version cannot be determined!")
 
         return pkg_info
 
