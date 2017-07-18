@@ -122,6 +122,8 @@ class AdminTool(ScriptBaseWithConfig):
                 self.download_resource(config.torque["httpd.download_url.smoothie"], "htdocs/js", "smoothie.js")
 
         elif self.options.dump_config or self.options.output:
+            config.engine.load_config()
+
             # Get public config attributes
             public = dict((key, val)
                 for key, val in vars(config).items()

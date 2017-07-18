@@ -575,59 +575,53 @@ class RtorrentEngine(engine.TorrentEngine):
     def load_config(self, namespace=None, rcfile=None):
         """ Load file given in "rcfile".
         """
-        def cfgkey(key):
-            "Sanitize rtorrent config keys"
-            return key.replace('.', '_')
-
         if namespace is None:
             namespace = config
+        if namespace.scgi_url:
+            return  # already have the connection to rTorrent
 
-        # Only load when needed (also prevents multiple loading)
-        if not all(getattr(namespace, key, False) for key in self.RTORRENT_RC_KEYS):
-            # Get and check config file name
-            if not rcfile:
-                rcfile = getattr(config, "rtorrent_rc", None)
-            if not rcfile:
-                raise error.UserError("No 'rtorrent_rc' path defined in configuration!")
-            if not os.path.isfile(rcfile):
-                raise error.UserError("Config file %r doesn't exist!" % (rcfile,))
+        # Get and check config file name
+        if not rcfile:
+            rcfile = getattr(config, "rtorrent_rc", None)
+        if not rcfile:
+            raise error.UserError("No 'rtorrent_rc' path defined in configuration!")
+        if not os.path.isfile(rcfile):
+            raise error.UserError("Config file %r doesn't exist!" % (rcfile,))
 
-            # Parse the file
-            self.LOG.debug("Loading rtorrent config from %r" % (rcfile,))
-            with open(rcfile) as handle:
-                continued = False
-                for line in handle.readlines():
-                    # Skip comments, continuations, and empty lines
-                    line = line.strip()
-                    continued, was_continued = line.endswith('\\'), continued
-                    if not line or was_continued or line.startswith("#"):
-                        continue
+        # Parse the file
+        self.LOG.debug("Loading rtorrent config from %r" % (rcfile,))
+        rc_vals = Bunch(scgi_local='', scgi_port = '')
+        with open(rcfile) as handle:
+            continued = False
+            for line in handle.readlines():
+                # Skip comments, continuations, and empty lines
+                line = line.strip()
+                continued, was_continued = line.endswith('\\'), continued
+                if not line or was_continued or line.startswith("#"):
+                    continue
 
-                    # Be lenient about errors, after all it's not our own config file
-                    try:
-                        key, val = line.split("=", 1)
-                    except ValueError:
-                        self.LOG.warning("Ignored invalid line %r in %r!" % (line, rcfile))
-                        continue
-                    key, val = key.strip(), val.strip()
-                    key = self.RTORRENT_RC_ALIASES.get(key, key)
+                # Be lenient about errors, after all it's not our own config file
+                try:
+                    key, val = line.split("=", 1)
+                except ValueError:
+                    self.LOG.warning("Ignored invalid line %r in %r!" % (line, rcfile))
+                    continue
+                key, val = key.strip(), val.strip()
+                key = self.RTORRENT_RC_ALIASES.get(key, key).replace('.', '_')
 
-                    # Copy values we're interested in
-                    if key in self.RTORRENT_RC_KEYS and not getattr(namespace, cfgkey(key), None):
-                        self.LOG.debug("rtorrent.rc: %s = %s" % (key, val))
-                        setattr(namespace, cfgkey(key), val)
+                # Copy values we're interested in
+                if key in self.RTORRENT_RC_KEYS:
+                    self.LOG.debug("rtorrent.rc: %s = %s" % (key, val))
+                    rc_vals[key] = val
 
         # Validate fields
-        for key in self.RTORRENT_RC_KEYS:
-            key = cfgkey(key)
-            setattr(namespace, key, load_config.validate(key, getattr(namespace, key, None)))
-        if config.scgi_local and config.scgi_local.startswith("/"):
-            config.scgi_local = "scgi://" + config.scgi_local
-        if config.scgi_port and not config.scgi_port.startswith("scgi://"):
-            config.scgi_port = "scgi://" + config.scgi_port
+        if rc_vals.scgi_local and rc_vals.scgi_local.startswith("/"):
+            rc_vals.scgi_local = "scgi://" + rc_vals.scgi_local
+        if rc_vals.scgi_port and not rc_vals.scgi_port.startswith("scgi://"):
+            rc_vals.scgi_port = "scgi://" + rc_vals.scgi_port
 
         # Prefer UNIX domain sockets over TCP sockets
-        config.scgi_url = config.scgi_local or config.scgi_port
+        namespace.scgi_url = rc_vals.scgi_local or rc_vals.scgi_port
 
 
     def __repr__(self):

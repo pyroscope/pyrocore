@@ -96,6 +96,13 @@ Just pass the option ``-D rtorrent_rc=PATH_TO/rtorrent.rc`` to either
 than the default one. For convenient use on the command line, you can add
 shell aliases to you profile.
 
+Alternatively, you can also set the ``scgi_url`` value directly, like in this example:
+
+.. code-block:: shell
+
+    rtxmlrpc -D scgi_url=scgi:///var/run/rtorrent/instance01 session.name
+
+
 Customizing the Default Configuration per Instance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

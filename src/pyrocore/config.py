@@ -65,8 +65,6 @@ _PREDEFINED = tuple(_ for _ in globals() if not _.startswith('_'))
 # these later get overwritten by loading the config
 debug = False
 config_dir = None
-scgi_local = ""
-scgi_port = ""
 scgi_url = ""
 engine = Bunch(open=lambda: None)
 fast_query = 0
