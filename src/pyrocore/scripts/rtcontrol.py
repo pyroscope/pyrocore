@@ -584,7 +584,8 @@ class RtorrentControl(ScriptBaseWithConfig):
         # This MUST happen before the next step, when we connect to the torrent client
         if self.options.detach:
             config.engine.load_config()
-            osmagic.daemonize(logfile=config.log_execute)
+            daemon_log = os.path.join(config.config_dir, "log", "rtcontrol.log")
+            osmagic.daemonize(logfile=daemon_log if os.path.exists(os.path.dirname(daemon_log)) else None)
             time.sleep(.05) # let things settle a little
 
         # View handling

@@ -511,13 +511,12 @@ class RtorrentEngine(engine.TorrentEngine):
     """ The rTorrent backend proxy.
     """
     # keys we read from rTorrent's configuration
-    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port", "log.execute")
+    RTORRENT_RC_KEYS = ("scgi_local", "scgi_port")
 
     # mapping from new to old commands, and thus our config keys
     RTORRENT_RC_ALIASES = {
         "network.scgi.open_local": "scgi_local",
         "network.scgi.open_port": "scgi_port",
-        #"log.execute": "",
     }
 
     # rTorrent names of fields that never change
