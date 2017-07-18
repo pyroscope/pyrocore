@@ -119,7 +119,7 @@ the data into a path based on the loaded metafile's location.
 
 Change the values in the second block to suit your needs. As given,
 an item loaded from ``…/sorted/watch/movies/*.torrent``
-would end up in the ``…/sorted/movies`` directorey
+would end up in the ``…/sorted/movies`` directory
 (with the filename coming from inside the metafile as usual),
 and it won't start by itself.
 
