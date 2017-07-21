@@ -124,6 +124,7 @@ project = Bunch(
         "FlexGet": ["flexget>=1.0"],
         "http": ['requests'],
         "https": ['requests[security]'],
+        "repl": ['prompt-toolkit'],
     },
 
     # tests

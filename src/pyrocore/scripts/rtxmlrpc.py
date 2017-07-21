@@ -21,6 +21,7 @@ import os
 import sys
 import logging
 import tempfile
+import textwrap
 import xmlrpclib
 from pprint import pformat
 
@@ -87,12 +88,113 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         #    help="pass result to a template for formatting")
 
 
+    def open(self):
+        """Open connection and return proxy."""
+        if not config.scgi_url:
+            config.engine.load_config()
+        if not config.scgi_url:
+            self.LOG.error("You need to configure a XMLRPC connection, read"
+                " https://pyrocore.readthedocs.io/en/latest/setup.html")
+        proxy = xmlrpc.RTorrentProxy(config.scgi_url)
+        proxy._set_mappings()
+        return proxy
+
+
+    def cooked(self, raw_args):
+        """Return interpreted / typed list of args."""
+        args = []
+        for arg in raw_args:
+            # TODO: use the xmlrpc-c type indicators instead / additionally
+            if arg and arg[0] in "+-":
+                try:
+                    arg = int(arg, 10)
+                except (ValueError, TypeError), exc:
+                    self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
+            elif arg and arg[0] == '[':
+                arg = arg[1:].split(',')
+                if all(i.isdigit() for i in arg):
+                    arg = [int(i, 10) for i in arg]
+            elif arg and arg[0] == '@':
+                arg = xmlrpclib.Binary(read_blob(arg))
+            args.append(arg)
+
+        return args
+
+
+    def execute(self, proxy, method, args):
+        """Execute given XMLRPC call."""
+        try:
+            result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
+        except xmlrpc.ERRORS as exc:
+            self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
+            self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
+        else:
+            if not self.options.quiet:
+                if self.options.repr:
+                    # Pretty-print if requested, or it's a collection and not a scalar
+                    result = pformat(result)
+                elif hasattr(result, "__iter__"):
+                    result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
+                print fmt.to_console(result)
+
+
+    def repl_usage(self):
+        """Print a short REPL usage summary."""
+        print(textwrap.dedent("""
+            rTorrent XMLRPC REPL Help Summary
+            =================================
+
+            ? / help            Show this help text.
+            Ctrl-D              Exit the REPL and show call stats.
+            stats               Show current call stats.
+            cmd=arg1,arg2,..    Call a XMLRPC command.
+        """.strip('\n')))
+
+
+    def repl(self):
+        """REPL for rTorrent XMLRPC commands."""
+        from prompt_toolkit import prompt
+
+        self.options.quiet = False
+        proxy = self.open()
+        ps1 = proxy.session.name() + u'> '
+
+        while True:
+            try:
+                cmd = prompt(ps1)
+                if not cmd:
+                    print("Enter '?' or 'help' for usage information.")
+
+                if cmd in {'?', 'help'}:
+                    self.repl_usage()
+                    continue
+                elif cmd in {'', 'stats'}:
+                    print(repr(proxy).split(None, 1)[1])
+                    continue
+
+                try:
+                    method, raw_args = cmd.split('=', 1)
+                except ValueError:
+                    print("ERROR: '=' not found")
+                    continue
+
+                raw_args = raw_args.split(',')
+                args = self.cooked(raw_args)
+                self.execute(proxy, method, args)
+            except EOFError:
+                print('Bye from {!r}'.format(proxy))
+                break
+
+
     def mainloop(self):
         """ The main loop.
         """
-        # Print usage if not enough args or bad options
+        # Enter REPL if no args
         if len(self.args) < 1:
-            self.parser.error("No method given!")
+            #self.parser.error("No method given!")
+            return self.repl()
+
+        # Check for bad options
         if self.options.repr and self.options.xml:
             self.parser.error("You cannot combine --repr and --xml!")
 
@@ -118,46 +220,11 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     method, raw_args = method.split('=', 1)
                     raw_args = raw_args.split(',')
 
-                args = []
-                for arg in raw_args:
-                    # TODO: use the xmlrpc-c type indicators instead / additionally
-                    if arg and arg[0] in "+-":
-                        try:
-                            arg = int(arg, 10)
-                        except (ValueError, TypeError), exc:
-                            self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
-                    elif arg and arg[0] == '[':
-                        arg = arg[1:].split(',')
-                        if all(i.isdigit() for i in arg):
-                            arg = [int(i, 10) for i in arg]
-                    elif arg and arg[0] == '@':
-                        arg = xmlrpclib.Binary(read_blob(arg))
-                    args.append(arg)
-
-            # Open proxy
-            if not config.scgi_url:
-                config.engine.load_config()
-            if not config.scgi_url:
-                self.LOG.error("You need to configure a XMLRPC connection, read"
-                    " https://pyrocore.readthedocs.io/en/latest/setup.html")
-            proxy = xmlrpc.RTorrentProxy(config.scgi_url)
-            proxy._set_mappings()
+                args = self.cooked(raw_args)
 
             # Make the call
-            try:
-                result = getattr(proxy, method)(raw_xml=self.options.xml, *tuple(args))
-            except xmlrpc.ERRORS, exc:
-                self.LOG.error("While calling %s(%s): %s" % (method, ", ".join(repr(i) for i in args), exc))
-                self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
-            else:
-                if not self.options.quiet:
-                    if self.options.repr:
-                        # Pretty-print if requested, or it's a collection and not a scalar
-                        result = pformat(result)
-                    elif hasattr(result, "__iter__"):
-                        result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
-                    print fmt.to_console(result)
-
+            proxy = self.open()
+            self.execute(proxy, method, args)
         finally:
             if tmp_import and os.path.exists(tmp_import):
                 os.remove(tmp_import)
