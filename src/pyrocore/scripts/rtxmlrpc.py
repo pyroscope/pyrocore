@@ -154,16 +154,22 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     def repl(self):
         """REPL for rTorrent XMLRPC commands."""
         from prompt_toolkit import prompt
+        from prompt_toolkit.contrib.completers import WordCompleter
 
         self.options.quiet = False
         proxy = self.open()
         ps1 = proxy.session.name() + u'> '
+        words = ['help', 'stats', 'exit']
+        words += [x + '=' for x in proxy.system.listMethods()]
 
         while True:
             try:
-                cmd = prompt(ps1)
+                try:
+                    cmd = prompt(ps1, completer=WordCompleter(words))
+                except KeyboardInterrupt:
+                    cmd = ''
                 if not cmd:
-                    print("Enter '?' or 'help' for usage information.")
+                    print("Enter '?' or 'help' for usage information, 'Ctrl-D' to exit.")
 
                 if cmd in {'?', 'help'}:
                     self.repl_usage()
@@ -171,6 +177,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 elif cmd in {'', 'stats'}:
                     print(repr(proxy).split(None, 1)[1])
                     continue
+                elif cmd in {'exit'}:
+                    raise EOFError()
 
                 try:
                     method, raw_args = cmd.split('=', 1)
