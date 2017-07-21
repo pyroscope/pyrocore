@@ -154,6 +154,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     def repl(self):
         """REPL for rTorrent XMLRPC commands."""
         from prompt_toolkit import prompt
+        from prompt_toolkit.history import FileHistory
         from prompt_toolkit.contrib.completers import WordCompleter
 
         self.options.quiet = False
@@ -161,11 +162,13 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         ps1 = proxy.session.name() + u'> '
         words = ['help', 'stats', 'exit']
         words += [x + '=' for x in proxy.system.listMethods()]
+        history_file = os.path.join(config.config_dir, '.rtxmlrpc_history')
 
         while True:
             try:
                 try:
-                    cmd = prompt(ps1, completer=WordCompleter(words))
+                    cmd = prompt(ps1, completer=WordCompleter(words),
+                                 history=FileHistory(history_file))
                 except KeyboardInterrupt:
                     cmd = ''
                 if not cmd:
