@@ -16,7 +16,7 @@ For simple setups, you only need to edit the plain text file
 control over complex setups, at the price of you knowing at least the
 basics of the Python programming language. See :doc:`advanced` for that.
 
-.. note::
+.. important::
 
     For a fresh installation of this software in addition to an *existing*
     rTorrent one, you will also need to back-fill some data that your already

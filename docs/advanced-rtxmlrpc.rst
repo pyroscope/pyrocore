@@ -28,7 +28,7 @@ The ``rtuptime`` script shows you essential information about your
 
 When called, it prints something like this:
 
-.. code-block:: shell
+.. code-block:: console
 
     $ rtuptime
     rTorrent 0.9.6/0.13.6, up 189:00:28 [315 loaded; U: 177.292 GiB; S: 891.781 GiB],
@@ -80,14 +80,14 @@ Setting and checking throttles
 To set the speed of the ``slow`` throttle, and then check your new limit
 and print the current download rate, use:
 
-.. code-block:: shell
+.. code-block:: console
 
-    rtxmlrpc throttle.down '' slow 120
-    # 0
-    rtxmlrpc throttle.down.max '' slow
-    # 122880
-    rtxmlrpc throttle.down.rate '' slow
-    # 0
+    $ rtxmlrpc throttle.down '' slow 120
+    0
+    $ rtxmlrpc throttle.down.max '' slow
+    122880
+    $ rtxmlrpc throttle.down.rate '' slow
+    0
 
 Note that the speed is specified in KiB/s as a string when setting it
 but returned in bytes/s as an integer on queries.
