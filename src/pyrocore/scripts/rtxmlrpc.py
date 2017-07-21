@@ -155,6 +155,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         """REPL for rTorrent XMLRPC commands."""
         from prompt_toolkit import prompt
         from prompt_toolkit.history import FileHistory
+        from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
         from prompt_toolkit.contrib.completers import WordCompleter
 
         self.options.quiet = False
@@ -168,6 +169,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             try:
                 try:
                     cmd = prompt(ps1, completer=WordCompleter(words),
+                                 auto_suggest=AutoSuggestFromHistory(),
                                  history=FileHistory(history_file))
                 except KeyboardInterrupt:
                     cmd = ''
