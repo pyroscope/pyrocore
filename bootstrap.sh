@@ -1,6 +1,8 @@
 # This script has to be sourced in a shell and is thus NOT executable.
 #
-# Copyright (c) 2010-2013 The PyroScope Project <pyroscope.project@gmail.com>
+# Set up project
+#
+# Copyright (c) 2010-2017 The PyroScope Project <pyroscope.project@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +24,7 @@ test "$SCRIPTNAME" != "-bash" -a "$SCRIPTNAME" != "-/bin/bash" || SCRIPTNAME="${
 export DEBFULLNAME=pyroscope
 export DEBEMAIL=pyroscope.project@gmail.com
 
-deactivate 2>/dev/null
+deactivate 2>/dev/null || true
 test -z "$PYTHON" -a -x "/usr/bin/python2" && PYTHON="/usr/bin/python2"
 test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
@@ -40,6 +42,9 @@ grep DEBFULLNAME bin/activate >/dev/null || cat >>bin/activate <<EOF
 export DEBFULLNAME=$DEBFULLNAME
 export DEBEMAIL=$DEBEMAIL
 EOF
+
+"$PROJECT_ROOT"/bin/python -c "import distribute" 2>/dev/null \
+    && "$PROJECT_ROOT"/bin/pip uninstall -y distribute || true
 
 # tools
 pip_install -U "setuptools>=0.6c11"
@@ -71,9 +76,9 @@ done
 this_paver="$PWD/bin/paver"
 for project in $git_projects; do
     if test -f ../$project/setup.py; then
-        ( builtin cd ../$project && $this_paver -q develop -U)
+        ( builtin cd ../$project && $this_paver -q develop -U )
     elif test -f $project/setup.py; then
-        ( builtin cd $project && $this_paver -q develop -U)
+        ( builtin cd $project && $this_paver -q develop -U )
     else
         abend "Project '$project' is not initialized!"
         return 1
