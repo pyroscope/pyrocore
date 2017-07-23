@@ -54,11 +54,11 @@ class DownloadStats(base.ScriptBaseWithConfig):
         stalled_rate = max(
             self.MIN_STALLED_RATE,
             self.STALLED_PERCENT / 100 * sum(good_rates) / len(good_rates) if good_rates else 0)
-        stalled = sum(d.down_rate < stalled_rate for d in items)
+        stalled_count = sum(d.down_rate < stalled_rate for d in items)
         down_rate = proxy.throttle.global_down.rate()
 
         stalled_info = ', {} stalled below {}/s'.format(
-            stalled, fmt.human_size(stalled_rate).strip()) if stalled else ''
+            stalled_count, fmt.human_size(stalled_rate).strip()) if stalled_count else ''
         print("Size left to download: ", fmt.human_size(total_left_bytes))
         print("Overall download speed:", fmt.human_size(down_rate) + '/s')
         print("ETA (min / max):       ",
