@@ -147,8 +147,8 @@ Code snippets
     the ``mainloop`` of the script skeleton found in :ref:`intro`.
 
 
-Accessing the files in a download item
-""""""""""""""""""""""""""""""""""""""
+Accessing files in download items
+"""""""""""""""""""""""""""""""""
 
 To get all the files for several items at once, we combine
 ``system.multicall`` and ``f.multicall`` to one big efficient mess.
@@ -182,3 +182,42 @@ To get all the files for several items at once, we combine
         print ("~~~ %s [%d file(s)] " % (infohash, len(files))).ljust(78, '~')
         pprint(files)
     self.LOG.info("Multicall stats: %s" % multicall)
+
+
+Core stats of active downloads
+""""""""""""""""""""""""""""""
+
+The ``rt-down-stats`` script prints some statistics about currently active downloads,
+particularly the range of expected arrival times.
+
+It shows how you can nicely handle the result of a ``multicall`` using Python's ``namedtuple``,
+defined like this:
+
+.. literalinclude:: examples/rt-down-stats.py
+   :language: python
+   :start-after: STALLED_RATE =
+   :end-before: add_options
+
+The first few lines of the ``mainloop`` then use the ``Download`` type to make accessing
+the result list actually readable.
+So instead of obscuring intent with numerical indexes or similar,
+the actual names of the fetched attributes are used to access them.
+
+.. literalinclude:: examples/rt-down-stats.py
+   :language: python
+   :pyobject: DownloadStats.mainloop
+
+See the `full rt-down-stats script`_ for all the details.
+If you call it, this is what you get:
+
+.. code-block:: console
+
+   $ docs/examples/rt-down-stats.py -q
+   Size left to download:   214.8 MiB
+   Overall download speed:   69.9 KiB/s
+   ETA (min / max):        29m 58s … 1h 15m [2 item(s)]
+
+
+.. _`full rt-down-stats script`: https://github.com/pyroscope/pyrocore/blob/master/docs/examples/rt-down-stats.py
+
+.. End custom-scripts

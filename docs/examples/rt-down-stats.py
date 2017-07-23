@@ -27,6 +27,7 @@ class DownloadStats(base.ScriptBaseWithConfig):
 
     STALLED_RATE = 5 * 1024
     FIELDS = ('is_active', 'left_bytes', 'down.rate')
+    COMMANDS = tuple('d.{}='.format(x) for x in FIELDS)
     Download = namedtuple('Download', [x.replace('.', '_') for x in FIELDS])
 
     def add_options(self):
@@ -36,7 +37,7 @@ class DownloadStats(base.ScriptBaseWithConfig):
 
     def mainloop(self):
         proxy = config.engine.open()
-        items = proxy.d.multicall("incomplete", *tuple('d.{}='.format(x) for x in self.FIELDS))
+        items = proxy.d.multicall("incomplete", *self.COMMANDS)
         items = [self.Download(*x) for x in items]
         items = [d for d in items if d.is_active]
 
@@ -50,7 +51,7 @@ class DownloadStats(base.ScriptBaseWithConfig):
         print("Overall download speed:", fmt.human_size(down_rate) + '/s')
         print("ETA (min / max):       ",
             fmt_duration(eta_min), '…', fmt_duration(eta_max),
-            '[{} items'.format(len(items))
+            '[{} item(s)'.format(len(items))
             + (', {} stalled'.format(stalled) if stalled else '') + ']',
         )
 
