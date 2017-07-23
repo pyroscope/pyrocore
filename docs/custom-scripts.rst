@@ -191,15 +191,15 @@ The ``rt-down-stats`` script prints some statistics about currently active downl
 particularly the range of expected arrival times.
 
 It shows how you can nicely handle the result of a ``multicall`` using Python's ``namedtuple``,
-defined like this:
+based on a simple field list like this:
 
 .. literalinclude:: examples/rt-down-stats.py
    :language: python
    :start-after: VERSION
    :end-before: add_options
 
-The first few lines of the ``mainloop`` then use the ``Download`` type to make accessing
-the result list actually readable.
+The first few lines of the ``mainloop`` then use the ``multicall`` helper method
+to make accessing the result list actually readable.
 So instead of obscuring intent with numerical indexes or similar,
 the actual names of the fetched attributes are used to access them.
 
@@ -213,9 +213,9 @@ If you call it, this is what you get:
 .. code-block:: console
 
    $ docs/examples/rt-down-stats.py -q
-   Size left to download:   214.8 MiB
-   Overall download speed:   69.9 KiB/s
-   ETA (min / max):        29m 58s … 1h 15m [2 item(s)]
+   Size left to download:   997.0 MiB of 1.1 GiB
+   Overall download speed:   70.8 KiB/s
+   ETA (min / max):        3h 11m … 4h 40m [3 item(s)]
 
 
 .. _`full rt-down-stats script`: https://github.com/pyroscope/pyrocore/blob/master/docs/examples/rt-down-stats.py

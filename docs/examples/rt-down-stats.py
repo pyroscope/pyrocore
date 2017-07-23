@@ -25,10 +25,7 @@ class DownloadStats(base.ScriptBaseWithConfig):
     # set your own version
     VERSION = '1.0'
 
-    FIELDS = ('is_active', 'left_bytes', 'down.rate')
-    COMMANDS = tuple('d.{}='.format(x) for x in FIELDS)
-    Download = namedtuple('Download', [x.replace('.', '_') for x in FIELDS])
-
+    FIELDS = ('is_active', 'left_bytes', 'size_bytes', 'down.rate')
     MIN_STALLED_RATE = 5 * 1024
     STALLED_PERCENT = 10
 
@@ -39,9 +36,7 @@ class DownloadStats(base.ScriptBaseWithConfig):
 
     def mainloop(self):
         proxy = config.engine.open()
-        items = proxy.d.multicall("incomplete", *self.COMMANDS)
-        items = [self.Download(*x) for x in items]
-        items = [d for d in items if d.is_active]
+        items = [d for d in config.engine.multicall("incomplete", self.FIELDS) if d.is_active]
         if not items:
             print("No active downloads!")
             return
@@ -53,13 +48,15 @@ class DownloadStats(base.ScriptBaseWithConfig):
         stalled_count = sum(d.down_rate < stalled_rate for d in items)
         global_down_rate = proxy.throttle.global_down.rate()
 
-        total_left_bytes = sum(d.left_bytes for d in items)
+        total_size = sum(d.size_bytes for d in items)
+        total_left = sum(d.left_bytes for d in items)
         eta_min = min(d.left_bytes / d.down_rate for d in items if d.down_rate > stalled_rate)
         eta_max = max(d.left_bytes / d.down_rate for d in items if d.down_rate > stalled_rate)
 
         stalled_info = ', {} stalled below {}/s'.format(
             stalled_count, fmt.human_size(stalled_rate).strip()) if stalled_count else ''
-        print("Size left to download: ", fmt.human_size(total_left_bytes))
+        print("Size left to download: ",
+            fmt.human_size(total_left), 'of', fmt.human_size(total_size).strip())
         print("Overall download speed:", fmt.human_size(global_down_rate) + '/s')
         print("ETA (min / max):       ",
             fmt_duration(eta_min), '…', fmt_duration(eta_max),
