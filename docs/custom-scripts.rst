@@ -195,7 +195,7 @@ defined like this:
 
 .. literalinclude:: examples/rt-down-stats.py
    :language: python
-   :start-after: STALLED_RATE =
+   :start-after: VERSION
    :end-before: add_options
 
 The first few lines of the ``mainloop`` then use the ``Download`` type to make accessing
