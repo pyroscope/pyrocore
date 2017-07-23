@@ -138,8 +138,11 @@ does for you otherwise).
     plugin.register(my_rtorrent_plugin)
 
 
-Code snippets
-^^^^^^^^^^^^^
+Example Scripts
+^^^^^^^^^^^^^^^
+
+.. contents::
+    :local:
 
 .. note::
 
