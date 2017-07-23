@@ -27,6 +27,7 @@ import shlex
 import fnmatch
 import logging
 import operator
+from collections import namedtuple
 
 from pyrobase.parts import Bunch
 from pyrocore import config, error
@@ -707,6 +708,18 @@ class RtorrentEngine(engine.TorrentEngine):
         # Return connection
         self.LOG.debug(repr(self))
         return self._rpc
+
+
+    def multicall(self, viewname, fields):
+        """ Query the given fields of items in the given view.
+
+            The result list contains named tuples,
+            so you can access the fields directly by their name.
+        """
+        commands = tuple('d.{}='.format(x) for x in fields)
+        result_type = namedtuple('DownloadItem', [x.replace('.', '_') for x in fields])
+        items = self.open().d.multicall(viewname, *commands)
+        return [result_type(*x) for x in items]
 
 
     def log(self, msg):
