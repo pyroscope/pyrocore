@@ -46,21 +46,21 @@ class DownloadStats(base.ScriptBaseWithConfig):
             print("No active downloads!")
             return
 
-        total_left_bytes = sum(d.left_bytes for d in items)
-        eta_min = min(d.left_bytes / d.down_rate for d in items if d.down_rate)
-        eta_max = max(d.left_bytes / d.down_rate for d in items if d.down_rate)
-
         good_rates = [d.down_rate for d in items if d.down_rate > self.MIN_STALLED_RATE]
         stalled_rate = max(
             self.MIN_STALLED_RATE,
             self.STALLED_PERCENT / 100 * sum(good_rates) / len(good_rates) if good_rates else 0)
         stalled_count = sum(d.down_rate < stalled_rate for d in items)
-        down_rate = proxy.throttle.global_down.rate()
+        global_down_rate = proxy.throttle.global_down.rate()
+
+        total_left_bytes = sum(d.left_bytes for d in items)
+        eta_min = min(d.left_bytes / d.down_rate for d in items if d.down_rate > stalled_rate)
+        eta_max = max(d.left_bytes / d.down_rate for d in items if d.down_rate > stalled_rate)
 
         stalled_info = ', {} stalled below {}/s'.format(
             stalled_count, fmt.human_size(stalled_rate).strip()) if stalled_count else ''
         print("Size left to download: ", fmt.human_size(total_left_bytes))
-        print("Overall download speed:", fmt.human_size(down_rate) + '/s')
+        print("Overall download speed:", fmt.human_size(global_down_rate) + '/s')
         print("ETA (min / max):       ",
             fmt_duration(eta_min), '…', fmt_duration(eta_max),
             '[{} item(s){}]'.format(len(items), stalled_info),
