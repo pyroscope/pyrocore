@@ -616,8 +616,10 @@ class RtorrentEngine(engine.TorrentEngine):
                     rc_vals[key] = val
 
         # Validate fields
-        if rc_vals.scgi_local and rc_vals.scgi_local.startswith("/"):
-            rc_vals.scgi_local = "scgi://" + rc_vals.scgi_local
+        if rc_vals.scgi_local:
+            rc_vals.scgi_local = os.path.expanduser(rc_vals.scgi_local)
+            if rc_vals.scgi_local.startswith('/'):
+                rc_vals.scgi_local = "scgi://" + rc_vals.scgi_local
         if rc_vals.scgi_port and not rc_vals.scgi_port.startswith("scgi://"):
             rc_vals.scgi_port = "scgi://" + rc_vals.scgi_port
 
