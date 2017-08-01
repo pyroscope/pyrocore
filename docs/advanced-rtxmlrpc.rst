@@ -4,27 +4,8 @@ Querying system information
 The ``rtuptime`` script shows you essential information about your
 *rTorrent* instance:
 
-.. code-block:: shell
-
-    #! /bin/bash
-    SCGI_SOCKET=~/rtorrent/.scgi_local
-
-    if test ! -S $SCGI_SOCKET; then
-        echo >&2 "rTorrent is not running (no socket $SCGI_SOCKET)"
-        exit 1
-    fi
-
-    echo -n rTorrent $(rtxmlrpc system.client_version)/$(rtxmlrpc system.library_version)
-    echo -n , up $(rtxmlrpc to_elapsed_time $(ls -l --time-style '+%s' $SCGI_SOCKET | awk '{print $6}'))
-    echo -n \ [$(rtcontrol -qo"1 %(uploaded)s %(size)s" \* | \
-        awk '{ TOT += $1; UP += $2; SUM += $3} END { print TOT " loaded; U: " UP/1024/1024/1024 " GiB; S: " SUM/1024/1024/1024 }') GiB]
-    echo -n , D: $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_down.total))
-    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_down.rate))/s
-    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_down.max_rate))/s
-    echo -n , U: $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_up.total))
-    echo -n \ @ $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_up.rate))/s
-    echo -n \ of $(rtxmlrpc to_xb $(rtxmlrpc throttle.global_up.max_rate))/s
-    echo
+.. literalinclude:: examples/rtuptime
+   :language: shell
 
 When called, it prints something like this:
 
