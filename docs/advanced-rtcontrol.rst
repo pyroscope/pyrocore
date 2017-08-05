@@ -82,10 +82,11 @@ Let's start with an easy example of using ``--exec``, where no templating is nee
 .. code-block:: bash
 
     rtcontrol --exec 'stop= ; close= ; f.multicall=,f.set_create_queued=0,f.set_resize_queued=0 ; check_hash=' \
-              --from stopped -/1
+              --from stopped // -/1
 
-This command simulates pressing ``^K^E^R`` in the curses UI (which cleans the state of stuck / damaged items)
-and only affects the first stopped item.
+This command simulates pressing ``^K^E^R`` in the curses UI (which cleans the state of stuck / damaged items),
+and as written above only affects the first stopped item.
+
 Use different filter arguments after ``--exec`` to select other items.
 Afterwards, use ``--start`` to start these items again.
 
