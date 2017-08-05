@@ -185,6 +185,8 @@ The tagging can be done interactively in rTorrent-PS, using the ``.`` key.
 The culling command call also protects any item younger than 2 weeks.
 
 
+.. _guard-tags:
+
 Using Tags or Flag Files to Control Item Processing
 ---------------------------------------------------
 
@@ -198,7 +200,7 @@ The basic pattern works like this:
     guard="handled"
     …
 
-    rtcontrol --from-view complete -qohash tagged=\!$guard | \
+    rtcontrol --from-view complete -qohash --anneal unique tagged=\!$guard | \
     while read hash; do
         …
 
@@ -208,6 +210,8 @@ The basic pattern works like this:
 
 The ``--from-view $hash //`` is an efficient way to select a specific item by hash,
 in case you wondered. ``hash=‹infohash›`` in contrast loads all items, then filters out just one.
+And ``--anneal unique`` prevents items duplicated by name to be processed several times
+(by ignoring the duplicates).
 
 A variant of this is to use a flag file in the download's directory –
 such a file can be created and checked by simply poking the file system, which
@@ -229,6 +233,7 @@ of that file, add a custom field to your ``config.py`` as follows::
 The condition ``is_synced=no`` is then used instead of the ``tagged`` one in the bash snippet above,
 and setting the flag is a simple ``touch``. Add a ``rsync`` call to the ``while`` loop in the example
 and you have a cron job that can be used to transfer completed items to another host *exactly once*.
-Note that this only works for multi-file items, since a data directory is assumed –
+
+Note that the flag file code as presented only works for multi-file items, since a data directory is assumed –
 supporting single-file items is left as an exercise for the reader.
 See :ref:`CustomFields` for more details regarding custom fields.
