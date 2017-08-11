@@ -12,7 +12,7 @@ checked_dir = getattr(config, 'dir', proxy.directory.default())
 checked_dir = os.path.realpath(checked_dir.rstrip(os.sep)) + os.sep
 
 # List all non-symlinked entries in given directory
-entries = set(i 
+entries = set(i.decode('utf8')
     for i in os.listdir(checked_dir)
     if not os.path.islink(os.path.join(checked_dir, i)))
 
