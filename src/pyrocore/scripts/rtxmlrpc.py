@@ -63,7 +63,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         To enter a XMLRPC REPL, pass no arguments at all.
 
         Start arguments with "+" or "-" to indicate they're numbers (type i4 or i8).
-        Use "[1,2,..." for arrays.
+        Use "[1,2,..." for arrays. Use "@" to indicate binary data, which can be
+        followed by a file path (e.g. "@/path/to/file"), a URL (https, http, ftp,
+        and file are supported), or '-' to read from stdin.
     """
 
     # log level for user-visible standard logging
