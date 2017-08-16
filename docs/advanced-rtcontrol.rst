@@ -91,6 +91,27 @@ Use different filter arguments after ``--exec`` to select other items.
 Afterwards, use ``--start`` to start these items again.
 
 
+Manually Triggering Events
+""""""""""""""""""""""""""
+
+Since rTorrent events are merely multi-call commands, you can trigger them manually
+by calling them on selected items. This calls `event.download.finished` (again) on
+complete items loaded in the last 10 minutes:
+
+.. code-block:: bash
+
+    rtcontrol --exec ":event.download.finished=" loaded=-10i done=100
+
+The ``:`` prefix prevents ``rtcontrol`` from assuming this is a ``d.`` item command.
+
+Make sure that the registered handlers do not have adverse effects when called repeatedly,
+i.e. know what you're doing. The handlers for an event can be listed like so:
+
+.. code-block:: bash
+
+    rtxmlrpc --repr method.get '' event.download.finished
+
+
 Relocating Download Data
 """"""""""""""""""""""""
 
