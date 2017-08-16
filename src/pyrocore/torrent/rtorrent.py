@@ -66,11 +66,11 @@ class RtorrentItem(engine.TorrentProxy):
             for call in calls:
                 self._engine.LOG.debug("%s%s torrent #%s (%s)" % (
                     command[0].upper(), command[1:], self._fields["hash"], call))
-                if call[:2].endswith('.'):
+                if call.startswith(':') or call[:2].endswith('.'):
                     namespace = self._engine._rpc
                 else:
                     namespace = self._engine._rpc.d
-                result = getattr(namespace, call)(*args)
+                result = getattr(namespace, call.lstrip(':'))(*args)
                 if observer:
                     observer(result)
         except xmlrpc.ERRORS as exc:
@@ -363,11 +363,12 @@ class RtorrentItem(engine.TorrentProxy):
                 args_list = ''
                 if args:
                     args_list = '"' + '","'.join(args) + '"'
-                namespace = '' if method[:2].endswith('.') else 'd.'
-                print('%s\t%s\t%s%s=%s' % (self._fields["hash"], data, namespace, method, args_list))
+                print('%s\t%s\t%s=%s' % (self._fields["hash"], data, method.lstrip(':'), args_list))
 
             observer = print_result if method.startswith('>') else None
             method = method.lstrip('>')
+            if not (method.startswith(':') or method[:2].endswith('.')):
+                method = 'd.' + method
             self._make_it_so("executing command on", [method], *args, observer=observer)
 
 
