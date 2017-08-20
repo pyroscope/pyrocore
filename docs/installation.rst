@@ -102,9 +102,9 @@ Installing the `pyrocore` Package
 Installing the software package itself can be done in two ways,
 choose one of them.
 
-.. warning::
+.. important::
 
-    If you want to switch over from an old installation to one in ``~/.local``,
+    If you want to *switch over from an old installation* to one in ``~/.local``,
     then *move that old directory away*, before installation! Like this:
 
     .. code-block:: shell
