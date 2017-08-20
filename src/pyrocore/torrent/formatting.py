@@ -222,6 +222,8 @@ def preparse(output_format):
                 "    Possibly USING THE FOLLOWING COMMAND:\n"
                 "        %s/easy_install tempita" % (exc, os.path.dirname(sys.executable)))
         raise
+    except IOError as exc:
+        raise error.LoggableError("Cannot read template: {}".format(exc))
 
 
 # TODO: All constant stuff should be calculated once, make this a class or something
