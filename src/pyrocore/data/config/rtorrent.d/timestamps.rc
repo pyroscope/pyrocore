@@ -8,21 +8,21 @@ method.insert = pyro.tm_started.now, simple|private,\
 method.insert = pyro.tm_completed.now, simple|private,\
     "d.custom.set=tm_completed,$cat=$system.time= ; d.save_resume="
 
-method.set_key = event.download.resumed, time_stamp,\
+method.set_key = event.download.resumed, !time_stamp,\
     "branch=d.custom=tm_started,false=,pyro.tm_started.now="
-method.set_key = event.download.inserted_new, time_stamp,\
+method.set_key = event.download.inserted_new, !time_stamp,\
     "d.custom.set=tm_loaded,$cat=$system.time= ; d.save_resume="
-method.set_key = event.download.finished, time_stamp,\
+method.set_key = event.download.finished, !time_stamp,\
     "pyro.tm_completed.now="
-method.set_key = event.download.hash_done,time_stamp,\
+method.set_key = event.download.hash_done, !time_stamp,\
     "branch=\"and={d.complete=,not=$d.custom=tm_completed}\", pyro.tm_completed.now="
 
 
 # EVENTS: Activation intervals
 method.insert = pyro.activations.append, simple|private,\
     "d.custom.set=activations,\"$cat=$d.custom=activations,$argument.0=,$system.time=\" ; d.save_resume="
-method.set_key = event.download.paused, activations, "pyro.activations.append=P"
-method.set_key = event.download.resumed, activations, "pyro.activations.append=R"
+method.set_key = event.download.paused, !activations, "pyro.activations.append=P"
+method.set_key = event.download.resumed, !activations, "pyro.activations.append=R"
 
 
 # EVENTS: Timestamp 'tm_downloaded' (time when meta (torrent) file was downloaded)
@@ -42,9 +42,9 @@ method.insert = d.last_active.update, simple|private,\
 schedule2 = pyro_update_last_active, 24, 42,\
     "d.multicall2=started,\"branch=$d.peers_connected=,d.last_active.update=\""
 
-method.set_key = event.download.resumed, last_active,\
+method.set_key = event.download.resumed, !last_active,\
     "branch=\"or={d.peers_connected=,not=$d.custom=last_active}\", d.last_active.update=1"
-method.set_key = event.download.finished, last_active, "d.last_active.update=1"
+method.set_key = event.download.finished, !last_active, "d.last_active.update=1"
 
 method.insert = d.last_active.print, simple|private,\
     "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
