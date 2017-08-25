@@ -18,13 +18,23 @@ See :doc:`usage` for more details on how to use these commands.
 rTorrent XMLRPC
 ---------------
 
-**TODO**
+See the `Commands Reference`_ in the *rTorrent Handbook* for a list of available commands and what they do.
+The `Scripting Guide`_ explains how all these fit together.
 
+.. _`Commands Reference`: https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html
+.. _`Scripting Guide`: https://rtorrent-docs.readthedocs.io/en/latest/scripting.html
 
 XMLRPC Migration
 ----------------
 
-**TODO**
+The syntax of XMLRPC commands changed with rTorrent version 0.8.9,
+and continues to change. The old command names and behavior were
+replaced with aliases and marked for deprecation, so they still work for now,
+but don't rely on that and use the new names instead.
+
+See `XMLRPC Migration`_ in the GitHub wiki for details.
+
+.. _`XMLRPC Migration`: https://github.com/rakshasa/rtorrent/wiki/RPC-Migration-0.9
 
 
 External Links
