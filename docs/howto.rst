@@ -173,7 +173,7 @@ Tag Episodes in rT-PS, Then Delete Their Whole Season
 -----------------------------------------------------
 
 The command below allows you to delete all items that belong to the same season of a TV series,
-where single episodes were tagged as a stand-ins for that season.
+where single episodes were tagged as a stand-in for their season.
 The tagging can be done interactively in rTorrent-PS, using the ``.`` key.
 
 .. code-block:: shell
