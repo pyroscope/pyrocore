@@ -20,7 +20,7 @@ The ``handler``, ``schedule``, and ``active`` settings are used by the core,
 the rest is passed to the ``handler`` class for customization and depends on the job type.
 
 To locate the job implementation, ``handler`` contains a ``module.path:ClassName`` coordinate of its class.
-So ``job.foo.handler = my.code::FooJob`` registers ``FooJob`` under the name ``foo``.
+So ``job.foo.handler = my.code:FooJob`` registers ``FooJob`` under the name ``foo``.
 This means a job can be scheduled several times,
 given the right configuration and if the job implementation is designed for it.
 The given module must be importable of course,
