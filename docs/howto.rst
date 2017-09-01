@@ -205,9 +205,14 @@ into that. The last command lists the results.
 
     # Create ".metadata" hidden folders in those directories
     rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I+ mkdir -p "+/.metadata"
+        | xargs -0I# mkdir -p "#/.metadata"
 
     # Save all metafiles per path
+    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
+        | xargs -0I# rm -f "#/.metadata/_all-items"
+    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
+        | xargs -0I# rtcontrol realpath='/^#(/[^/]+|)$/' \
+            --call 'echo "{{item.hash}}:{{item.name}}:{{item.realpath | pathbase}}" >>"#/.metadata/_all-items"'
     rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
         | xargs -0I# rtcontrol realpath='/^#(/[^/]+|)$/' \
             --spawn 'cp {{item.sessionfile}} "#/.metadata/{{item.name}}-{{item.hash}}.torrent"' \
