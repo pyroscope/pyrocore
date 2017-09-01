@@ -172,3 +172,35 @@ and then adds a new one:
         "tracker=http://old.example.com/announce"
 
 The ``tracker.insert`` also shows that arguments to commands can be quoted.
+
+
+.. _rtcontrol-filter-templates:
+
+Using Templates as Filter Values
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As mentioned in :ref:`filter-conditions`, you can compare a string field to a template.
+This can be a brain twister, so just look at the following example, which replaces
+any download path in an item by the real storage path, but only if they differ.
+
+.. code-block:: bash
+
+    # List any differences
+    rtcontrol path='!' is_multi_file=y 'directory=!{{d.realpath}}' \
+        -qo directory,realpath
+    rtcontrol path='!' is_multi_file=n 'directory=!{{d.realpath | pathdir}}' \
+        -qo directory,realpath.pathdir
+
+    # Fix any differences (i.e. resolve all symlinks for good)
+    rtcontrol path='!' is_multi_file=y 'directory=!{{d.realpath}}' \
+        --exec 'directory_base.set={{item.realpath}}'
+    rtcontrol path='!' is_multi_file=n 'directory=!{{d.realpath | pathdir}}' \
+        --exec 'directory.set={{item.realpath | pathdir}}'
+
+As so often, ‘multi’ and ‘single’ items need a slighty different treatment.
+
+Note that ``[`` characters are escaped to ``[[]`` after the template expansion,
+so that things like ``[2017]`` in a filename do not lead to unexpected results.
+``*`` and ``?`` though are kept intact and are used for glob matching as normal,
+because they match their own literal form if they appear in the field value
+(on the righ-hand side).

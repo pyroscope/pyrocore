@@ -1,5 +1,6 @@
 pyrocore (0.6.1) precise; urgency=low
 
+  * rtcontol: templating in glob filter values
   * rtcontol: `--exec` takes prefixed `:global.cmd=`
   * rtxmlrpc: Added a REPL with auto-completion and stuff
   * rtxmlrpc: Load BLOBs from URLs (rtxmlrpc ... @URL)

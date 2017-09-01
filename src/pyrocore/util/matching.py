@@ -281,18 +281,30 @@ class PatternFilter(FieldFilter):
     def validate(self):
         """ Validate filter condition (template method).
         """
+        from pyrocore.torrent import formatting
+
         super(PatternFilter, self).validate()
         self._value = self._value.lower()
+        self._template = None
         self._is_regex = self._value.startswith('/') and self._value.endswith('/')
         if self._is_regex:
             self._matcher = re.compile(self._value[1:-1]).search
+        elif self._value.startswith('{{') or self._value.endswith('}}'):
+            def _template_globber(val, item):
+                """Helper."""
+                pattern = formatting.format_item(self._template, item).replace('[', '[[]')
+                ##print('!!!', val, '~~~', pattern, '???')
+                return fnmatch.fnmatchcase(val, pattern.lower())
+
+            self._template = formatting.preparse(self._value)
+            self._matcher = _template_globber
         else:
-            self._matcher = lambda val: fnmatch.fnmatchcase(val, self._value)
+            self._matcher = lambda val, _: fnmatch.fnmatchcase(val, self._value)
 
     def pre_filter(self):
         """ Return rTorrent condition to speed up data transfer.
         """
-        if self._name not in self.PRE_FILTER_FIELDS:
+        if self._name not in self.PRE_FILTER_FIELDS or self._template:
             return ''
         if not self._value:
             return '"equal={},cat="'.format(self.PRE_FILTER_FIELDS[self._name])
@@ -321,9 +333,11 @@ class PatternFilter(FieldFilter):
         """ Return True if filter matches item.
         """
         val = (getattr(item, self._name) or '').lower()
-        #log.debug("%r for %r ~ %r, name %r, item %r" % (
-        #    self._matcher(val), val, self._value, self._name, item))
-        return self._matcher(val)
+        result = self._matcher(val) if self._is_regex else self._matcher(val, item)
+        if 0:
+            log.debug("%r for %r ~ %r, name %r, item %r" % (
+                result, val, self._value, self._name, item))
+        return result
 
 
 class FilesFilter(PatternFilter):

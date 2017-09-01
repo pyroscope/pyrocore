@@ -333,6 +333,10 @@ anchoring the match at the head (``^``) or tail (``$``), they're by
 default of the 'contains' type.
 All string comparisons are case-ignoring.
 
+If a string field's filter value starts with ``{{`` or ends with ``}}``,
+it is evaluated as a template for each item before matching it with the current field value.
+See :ref:`rtcontrol-filter-templates` for a practical use of that.
+
 For numeric fields, a leading ``+`` means greater than, a leading
 ``-`` means less than (just like with the standard ``find`` command).
 
