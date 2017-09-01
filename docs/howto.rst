@@ -209,7 +209,7 @@ into that. The last command lists the results.
 
     # Save all metafiles per path
     rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I# rtcontrol realpath='/^#(/.+|)$/' \
+        | xargs -0I# rtcontrol realpath='/^#(/[^/]+|)$/' \
             --spawn 'cp {{item.sessionfile}} "#/.metadata/{{item.name}}-{{item.hash}}.torrent"' \
             --spawn 'cp {{item.sessionfile}}.rtorrent "#/.metadata/{{item.name}}-{{item.hash}}.torrent.rtorrent"' \
             --spawn 'cp {{item.sessionfile}}.libtorrent_resume "#/.metadata/{{item.name}}-{{item.hash}}.torrent.libtorrent_resume"'
