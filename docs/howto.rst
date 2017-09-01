@@ -169,6 +169,61 @@ the ``--spawn`` and ``--exec`` options in more depth.
     They're just different ways to tag items, one of them visually in the *rTorrent-PS* UI.
 
 
+.. _host-move:
+
+Host Migration of Data Folders
+------------------------------
+
+If you want to move items and their data to another host,
+there are endless ways with different grades of difficulty
+and how much state is carried over.
+
+The way described here allows you to move items per directory
+they are stored in.
+This way you can split the existing data if you need to, or just move a subset.
+If you vary the commands, you can adapt this to your needs,
+e.g. move all items at once.
+
+This first command lists all the unique storage paths you have,
+and how many items they hold:
+
+.. code-block:: shell
+
+    # List all the storage paths containing download items
+    rtcontrol path='!' -qo realpath.pathdir | sort | uniq -c \
+        | awk -F' ' '{ print $0; sum += $1} END { printf "%7d ITEMS TOTAL\n", sum; }'
+
+Always call that initially to check if the output makes sense to you
+– otherwise you likely have some inconsistencies in your setup
+that need to be fixed first.
+
+The next series of commands creates a hidden ``.metadata`` folder
+in each storage path, and copies the session metafiles of contained items
+into that. The last command lists the results.
+
+.. code-block:: shell
+
+    # Create ".metadata" hidden folders in those directories
+    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
+        | xargs -0I+ mkdir -p "+/.metadata"
+
+    # Save all metafiles per path
+    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
+        | xargs -0I# rtcontrol realpath='/^#(/.+|)$/' \
+            --spawn 'cp {{item.sessionfile}} "#/.metadata/{{item.name}}-{{item.hash}}.torrent"' \
+            --spawn 'cp {{item.sessionfile}}.rtorrent "#/.metadata/{{item.name}}-{{item.hash}}.torrent.rtorrent"' \
+            --spawn 'cp {{item.sessionfile}}.libtorrent_resume "#/.metadata/{{item.name}}-{{item.hash}}.torrent.libtorrent_resume"'
+
+    # List the saved metadata files
+    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
+        | xargs -0I+ find "+/.metadata" | sort | less
+
+
+**TODO** rsync a folder
+
+**TODO** load items into target rTorrent instance
+
+
 Tag Episodes in rT-PS, Then Delete Their Whole Season
 -----------------------------------------------------
 
