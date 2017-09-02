@@ -175,7 +175,7 @@ Host Migration of Data Folders
 ------------------------------
 
 If you want to move items and their data to another host,
-there are endless ways with different grades of difficulty
+there are endless ways for that, with different grades of difficulty
 and how much state is carried over.
 
 The way described here allows you to move items per directory
@@ -189,7 +189,7 @@ and how many items they hold:
 
 .. code-block:: shell
 
-    # List all the storage paths containing download items
+    # List all the unique storage paths containing download items
     rtcontrol path='!' -qo realpath.pathdir | sort | uniq -c \
         | awk -F' ' '{ print $0; sum += $1} END { printf "%7d ITEMS TOTAL\n", sum; }'
 
@@ -198,30 +198,29 @@ Always call that initially to check if the output makes sense to you
 that need to be fixed first.
 
 The next series of commands creates a hidden ``.metadata`` folder
-in each storage path, and copies the session metafiles of contained items
-into that. The last command lists the results.
+in each storage path, and copies the session metafiles and
+other state of contained items into that.
+The last command lists the results.
 
 .. code-block:: shell
 
-    # Create ".metadata" hidden folders in those directories
-    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I# mkdir -p "#/.metadata"
+    alias foreachpath='rtcontrol path=! -qo realpath.pathdir -0 | sort -uz | xargs -0I#'
 
-    # Save all metafiles per path
-    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I# rm -f "#/.metadata/_all-items"
-    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I# rtcontrol realpath='/^#(/[^/]+|)$/' \
-            --call 'echo "{{item.hash}}:{{item.name}}:{{item.realpath | pathbase}}" >>"#/.metadata/_all-items"'
-    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I# rtcontrol realpath='/^#(/[^/]+|)$/' \
-            --spawn 'cp {{item.sessionfile}} "#/.metadata/{{item.name}}-{{item.hash}}.torrent"' \
-            --spawn 'cp {{item.sessionfile}}.rtorrent "#/.metadata/{{item.name}}-{{item.hash}}.torrent.rtorrent"' \
-            --spawn 'cp {{item.sessionfile}}.libtorrent_resume "#/.metadata/{{item.name}}-{{item.hash}}.torrent.libtorrent_resume"'
+    # Create ".metadata" hidden folders in those directories
+    foreachpath mkdir -p "#/.metadata"
+
+    # Save state and all metafiles per path
+    foreachpath rm -f "#/.metadata/_all-items"
+    foreachpath rtcontrol realpath='/^#(/[^/]+|)$/' \
+        --call 'echo "{{item.hash}}:{{item.name}}:{{item.realpath | pathbase}}" >>"#/.metadata/_all-items"'
+    for i in '' .rtorrent .libtorrent_resume; do
+        echo "~~~ session '*.torrent$i'"
+        foreachpath rtcontrol realpath='/^#(/[^/]+|)$/' \
+            --spawn 'cp {{item.sessionfile}}'$i' "#/.metadata/{{item.name}}-{{item.hash}}.torrent'$i'"'
+    done
 
     # List the saved metadata files
-    rtcontrol path='!' -qo realpath.pathdir -0 | sort -uz \
-        | xargs -0I+ find "+/.metadata" | sort | less
+    foreachpath find "#/.metadata" | sort | less
 
 
 **TODO** rsync a folder
