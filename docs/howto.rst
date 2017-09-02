@@ -300,9 +300,11 @@ The tagging can be done interactively in rTorrent-PS, using the ``.`` key.
 
     rtcontrol --from tagged -s* -qoname "/\\.S[0-9][0-9]E[0-9][0-9]\\./" \
         | sed -re 's/(.+\.[sS]..[eE])..\..+/\1/' | uniq | \
-        | xargs -I# -d$'\n' rtcontrol '/^#/' --cull --yes -A dupes- loaded=+2w
+        | xargs -I# -d$'\n' rtcontrol '/^#/' loaded=+2w -A dupes- --cull --yes
 
-The culling command call also protects any item younger than 2 weeks.
+The culling command call also protects any item younger than 2 weeks,
+and excludes any dupes that were not fully caught by the selection.
+Replace the ``--cull --yes`` with ``-V`` to preview what would be deleted.
 
 
 .. _guard-tags:
