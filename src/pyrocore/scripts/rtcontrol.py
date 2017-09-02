@@ -255,11 +255,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="select result subset by item position (counting from 1)")
         self.add_bool_option("-V", "--view-only",
             help="show search result only in default ncurses view")
-        self.add_value_option("--to-view", "NAME",
+        self.add_value_option("--to-view", "--to", "NAME",
             help="show search result only in named ncurses view")
-        self.add_bool_option("--tee-view",
+        self.add_bool_option("--tee-view", "--tee",
             help="ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)")
-        self.add_value_option("--from-view", "NAME",
+        self.add_value_option("--from-view", "--from", "NAME",
             help="select only items that are on view NAME (NAME can be an info hash to quickly select a single item)")
         self.add_value_option("-M", "--modify-view", "NAME",
             help="get items from given view and write result back to it (short-cut to combine --from-view and --to-view)")
