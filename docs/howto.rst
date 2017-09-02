@@ -184,6 +184,10 @@ This way you can split the existing data if you need to, or just move a subset.
 If you vary the commands, you can adapt this to your needs,
 e.g. move all items at once.
 
+.. important::
+
+    You need *git head* or v0.6.1 for this.
+
 This first command lists all the unique storage paths you have,
 and how many items they hold:
 
