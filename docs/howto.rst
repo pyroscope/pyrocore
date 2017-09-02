@@ -216,7 +216,8 @@ The last command lists the results.
     # Save state and all metafiles per path
     foreachpath rm -f "#/.metadata/_all-items"
     foreachpath rtcontrol realpath='/^#(/[^/]+|)$/' \
-        --call 'echo "{{item.hash}}:{{item.name}}:{{item.realpath | pathbase}}" >>"#/.metadata/_all-items"'
+        --call 'echo "{{item.hash}}:{{item.name}}:{{item.realpath | pathbase}}" \
+        >>"#/.metadata/_all-items"'
     for i in '' .rtorrent .libtorrent_resume; do
         echo "~~~ session '*.torrent$i'"
         foreachpath rtcontrol realpath='/^#(/[^/]+|)$/' \
@@ -226,8 +227,34 @@ The last command lists the results.
     # List the saved metadata files
     foreachpath find "#/.metadata" | sort | less
 
+To use the generated ``_all-items`` files, this is how you can read them:
 
-**TODO** rsync a folder
+.. code-block:: shell
+
+    while IFS=':' read h n f; do
+        echo -e "$h\\n  name = $n\\n  file = $f"
+    done <.metadata/_all-items
+
+While the name and the filename are usually identical,
+they *can* differ if you used
+`d.directory_base.set <https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html#term-d-directory-base-set>`_
+on an item.
+
+The best way to migrate the data is using ``rsync``,
+especially since it allows incremental updates,
+and setting bandwith limits.
+Change ``OTHERHOST`` to the domain name or ``~/.ssh/config`` alias of the target host.
+
+This command replicates all storage paths to the remote host,
+keeping the file system paths the same
+(that is not required though, prefix or replace the rightmost ``#`` at will).
+
+.. code-block:: shell
+
+    foreachpath rsync -avhP --stats --times --bwlimit=42000 "#/" "OTHERHOST:#"
+
+Add ``echo`` before ``rsync`` to just list the commands,
+e.g. to only sync one of the directories.
 
 **TODO** load items into target rTorrent instance
 
