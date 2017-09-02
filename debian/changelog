@@ -4,6 +4,8 @@ pyrocore (0.6.1) precise; urgency=low
   * rtcontol: `--exec` takes prefixed `:global.cmd=`
   * rtxmlrpc: Added a REPL with auto-completion and stuff
   * rtxmlrpc: Load BLOBs from URLs (rtxmlrpc ... @URL)
+  * rtxmlrpc: "-i @FILE" reads commands from a file
+    (use '@-' for stdin)
 
  -- pyroscope <pyroscope.project@gmail.com>  Fri, 21 Jul 2017 22:23:13 +0200
 

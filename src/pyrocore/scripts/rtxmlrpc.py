@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 import os
 import sys
 import logging
@@ -218,13 +219,19 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         tmp_import = None
         try:
             if self.options.as_import:
-                with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
-                    handle.write('\n'.join(self.args + ['']))
-                    tmp_import = handle.name
-
                 method = 'import'
-                args = (xmlrpc.NOHASH, tmp_import)
 
+                if self.args[0].startswith('@') and os.path.isfile(self.args[0][1:]):
+                    args = (xmlrpc.NOHASH, os.path.abspath(self.args[0][1:]))
+                else:
+                    script_text = '\n'.join(self.args + [''])
+                    if script_text == '@-\n':
+                        script_text = sys.stdin.read()
+
+                    with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
+                        handle.write(script_text)
+                        tmp_import = handle.name
+                    args = (xmlrpc.NOHASH, tmp_import)
             else:
                 # Preparation
                 method = self.args[0]
