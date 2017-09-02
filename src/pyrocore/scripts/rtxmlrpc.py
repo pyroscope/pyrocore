@@ -221,7 +221,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             if self.options.as_import:
                 method = 'import'
 
-                if self.args[0].startswith('@') and os.path.isfile(self.args[0][1:]):
+                if self.args[0].startswith('@') and self.args[0] != '@-':
+                    if not os.path.isfile(self.args[0][1:]):
+                        self.parser.error("File not found (or not a file): {}".format(self.args[0][1:]))
                     args = (xmlrpc.NOHASH, os.path.abspath(self.args[0][1:]))
                 else:
                     script_text = '\n'.join(self.args + [''])
