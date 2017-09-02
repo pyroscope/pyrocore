@@ -82,6 +82,8 @@ Here's an example:
 Working With Several rTorrent Instances
 ---------------------------------------
 
+.. _multi-instance:
+
 Switching to the 'rtorrent.rc' of an Instance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -171,18 +173,22 @@ the ``--spawn`` and ``--exec`` options in more depth.
 
 .. _host-move:
 
-Host Migration of Data Folders
+Host Migration of Data & State
 ------------------------------
 
 If you want to move items and their data to another host,
-there are endless ways for that, with different grades of difficulty
+there are endless ways to do that,
+with different grades of difficulty
 and how much state is carried over.
 
-The way described here allows you to move items per directory
-they are stored in.
-This way you can split the existing data if you need to, or just move a subset.
+The way described here allows you to move items
+per directory they are stored in,
+which fits nicely with typical hierarchies created by completion moving.
+
+In consequence, you can split the existing data if you need to, or just move a subset.
 If you vary the commands, you can adapt this to your needs,
 e.g. move all items at once.
+
 
 .. important::
 
@@ -256,7 +262,31 @@ keeping the file system paths the same
 Add ``echo`` before ``rsync`` to just list the commands,
 e.g. to only sync one of the directories.
 
+.. tip:: **Splitting items into several rTorrent instances**
+
+    If your leave out the ``rsync`` parts and replace them with moving
+    data to different instance's data directories,
+    you can nicely split up large volumes of data by the groups
+    your completion moving or storage path presets created anyway.
+
+    Loading the items then does not happen on a target host,
+    but into the target instances.
+    See :ref:`multi-instance` on how to select the targets
+    when you run them under just one user account.
+
+
 **TODO** load items into target rTorrent instance
+
+
+Finally, if everyhting looks OK on the target,
+you might remove the source data:
+
+.. code-block:: shell
+
+    rm -f /tmp/rt-cleanup-$USER.sh
+    foreachpath echo rm -rf \""#/"\" >>/tmp/rt-cleanup-$USER.sh
+    foreachpath rtcontrol realpath='/^#(/[^/]+|)$/' --cull
+    bash -x /tmp/rt-cleanup-$USER.sh  # optionally delete left-overs
 
 
 Tag Episodes in rT-PS, Then Delete Their Whole Season
