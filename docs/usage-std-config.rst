@@ -1,7 +1,7 @@
 .. included from usage.rst
 
 This section provides details on the use of the features that
-are added by the :ref:`standard configuraiton include <rtorrent-pyro-rc>`.
+are added by the :ref:`standard rTorrent configuraiton include <rtorrent-pyro-rc>`.
 Many of them work on a vanilla release of rTorrent – but see the note below.
 
 See also the `full list of additional features`_ in the rTorrent-PS documentation.
@@ -93,19 +93,10 @@ Within each group, they're sorted by download and then upload speed.
 
 .. _color-themes:
 
-Color Themes
-^^^^^^^^^^^^
-
-The ``~`` key rotates through all available color themes,
-or a user-selected subset of them.
-
-**TODO** Details (theme directory, theme selection, screen thumbs, …)
-
-
 .. _category-views:
 
 Category Views
-^^^^^^^^^^^^^^
+""""""""""""""
 
 The ``<`` and ``>`` keys rotate through all added category views
 (``pyro.category.add=‹name›``), with filtering based on the
@@ -117,10 +108,19 @@ category view.
 **TODO** Details (``load.category`` commands, …)
 
 
+Color Themes
+^^^^^^^^^^^^
+
+The ``~`` key rotates through all available color themes,
+or a user-selected subset of them.
+
+**TODO** Details (theme directory, theme selection, screen thumbs, …)
+
+
 .. _watch-start:
 
-Watches With Dynamic Start Behaviour
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Watches With Dynamic Start
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The new ``d.watch.startable`` and ``load.category`` commands allow you to easily change
 whether an item loaded by a watch is started immediately (the default), or not.
