@@ -6,6 +6,7 @@ from collections import namedtuple
 
 from pyrobase import fmt
 from pyrocore import config
+from pyrocore.util import os
 from pyrocore.scripts import base
 
 
@@ -14,9 +15,15 @@ def fmt_duration(secs):
     return ' '.join(fmt.human_duration(secs, 0, precision=2, short=True).strip().split())
 
 
+def disk_free(path):
+    """Return free bytes on partition holding `path`."""
+    stats = os.statvfs(path)
+    return stats.f_bavail * stats.f_frsize
+
+
 class DownloadStats(base.ScriptBaseWithConfig):
     """
-        Show stats about currently active downloads.
+        Show stats about currently active & pending downloads.
     """
 
     # argument description for the usage information
@@ -25,7 +32,7 @@ class DownloadStats(base.ScriptBaseWithConfig):
     # set your own version
     VERSION = '1.0'
 
-    FIELDS = ('is_active', 'left_bytes', 'size_bytes', 'down.rate')
+    FIELDS = ('is_active', 'left_bytes', 'size_bytes', 'down.rate', 'priority')
     MIN_STALLED_RATE = 5 * 1024
     STALLED_PERCENT = 10
 
@@ -36,7 +43,15 @@ class DownloadStats(base.ScriptBaseWithConfig):
 
     def mainloop(self):
         proxy = config.engine.open()
-        items = [d for d in config.engine.multicall("incomplete", self.FIELDS) if d.is_active]
+        all_items = list(config.engine.multicall("incomplete", self.FIELDS))
+
+        pending = [d for d in all_items if not d.is_active and d.priority > 0]
+        print("Queued items:          ",
+            fmt.human_size(sum(d.size_bytes for d in pending)),
+            'in', len(pending), 'item(s)',
+            '[{} free]'.format(fmt.human_size(disk_free(proxy.directory.default())).strip()))
+
+        items = [d for d in all_items if d.is_active]
         if not items:
             print("No active downloads!")
             return
