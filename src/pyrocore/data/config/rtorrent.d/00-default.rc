@@ -16,6 +16,12 @@ method.insert = d.data_path, simple,\
 # COMMAND: Return path to session file
 method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
 
+# COMMAND: Start command for watches, with dynamic behaviour
+method.insert.value = cfg.watch.start, 1
+method.insert = d.watch.start, simple, "branch=cfg.watch.start=, ((d.start))"
+method.insert = d.watch.startable, private|simple, "d.custom.set = watch_start, 1"
+method.set_key = event.download.inserted_new, ~watch_start, "branch=d.custom=watch_start,d.watch.start="
+
 # COMMAND: Nicer key binds (hide technical complications)
 method.insert = pyro._bind_schedule, private|simple,\
     "schedule2=(argument.0), 1, 0, (argument.1)"

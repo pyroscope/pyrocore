@@ -50,7 +50,7 @@ method.insert = pyro.category.update, simple,\
 #
 # This allows you to add concise labelled watches like this:
 #
-#   schedule2 = watch_hdtv, 123, 10, ((load.category.normal, hdtv))
+#   schedule2 = watch_hdtv, 123, 10, ((load.category, hdtv))
 #
 # Metafiles are loaded from a subdir with the given category
 # name, in the normal watch folder (cfg.watch).
@@ -59,9 +59,14 @@ method.insert = pyro.category.update, simple,\
 # as is "custom1" (the ruTorrent label). Use either in your
 # completion handler to create target paths.
 #
+# If you use "load.category", items are started immediately by
+# default, but you can change that with "cfg.watch.start.set = 0".
+# There are also variants with fixed behaviour, named
+# "load.category.start" and "load.category.start".
+#
 # Alternatively, you can add `pyro.category.separated.set = 1` to
-# your custom config, which causes the download path to be set
-# immediately to a categorized one (`…/work/‹category›`).
+# the END of your custom config, which causes the download path
+# to be set immediately to a categorized one (`…/work/‹category›`).
 #
 
 method.insert.value = pyro.category.separated, 0
@@ -78,6 +83,13 @@ method.insert = pyro._category.check_set_dir, private|simple,\
     "branch = (pyro.category.separated),\
         ((d.directory.set, (pyro._category.path, (argument.0))))"
 
+method.insert = load.category, private|simple,\
+    "load.verbose =\
+        (cat,(cfg.watch),(argument.0),/*.torrent),\
+        (cat, d.category.set=, (argument.0)),\
+        (cat, pyro._category.check_set_dir=, (argument.0)),\
+        (cat, d.watch.startable=) ;\
+     pyro.category.update=(argument.0)"
 method.insert = load.category.normal, private|simple,\
     "load.verbose =\
         (cat,(cfg.watch),(argument.0),/*.torrent),\
