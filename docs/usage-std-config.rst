@@ -114,7 +114,7 @@ ruTorrent label (``custom_1=‹name›``).
 ``|`` re-applies the category filter and thus updates the current
 category view.
 
-**TODO** Details
+**TODO** Details (``load.category`` commands, …)
 
 
 .. _watch-start:
@@ -122,17 +122,51 @@ category view.
 Watches With Dynamic Start Behaviour
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This is especially useful when combined with automatic downloaders
-like `FlexGet`_ or `autodl-irssi`_.
+The new ``d.watch.startable`` and ``load.category`` commands allow you to easily change
+whether an item loaded by a watch is started immediately (the default), or not.
+
+This is especially useful when combined with automatic downloaders like `FlexGet`_ or `autodl-irssi`_.
 Usually, newly added items are started immediately – that is the whole point of automation.
+
 In some cases though, you might want to disable that and delay downloading until later.
 Testing configuration changes is a typical reason, because an innocent mistake could
-swamp you with lots of downloads, which is easily fixed if they stay dormant at first.
+swamp you with lots of downloads. If they stay dormant at first, that is easily fixed.
 
 Just call ``rtxmlrpc -i cfg.watch.start.set=0`` and you get exactly that, *without* a rTorrent restart.
 If everything looks OK, re-enable instant downloading by changing the ``0`` to ``1`` again.
+Calling ``rtcontrol --from stopped done=0 custom_watch_start=1 --start`` will start anything added in the meantime.
 
-**TODO** Details
+To get such a watch directory, add a schedule like this to your configuration:
+
+.. code-block:: ini
+
+    schedule2 = watch_dynamic, 10, 10, \
+        ((load.verbose, (cat, (cfg.watch), "dynamic/*.torrent"), "d.watch.startable="))
+
+It is important to either use ``load.verbose`` or ``load.normal`` so the item stays idle,
+and then add the post-load ``d.watch.startable`` command to mark this item as eligible to be started.
+
+The ``load.category`` command (added by ``rtorrent.d/categories.rc``) already integrates
+this behaviour. It can be used like shown in this example:
+
+.. code-block:: ini
+
+    schedule2 = watch_hdtv, 10, 10, ((load.category, hdtv))
+
+See :ref:`category-views` for more on categories.
+
+
+.. topic:: Technical Details
+
+    Since you cannot call ``d.start`` as a post-load command (the item is not fully initialized yet),
+    the conditional start has to happen *after* the load is finished.
+
+    Therefor, a ``event.download.inserted_new`` handler checks for the custom attribute ``watch_start``
+    set by ``d.watch.startable`` (thus only acting on items loaded by specifically marked watch schedules),
+    and then continues to call ``d.start`` *only if* the ``cfg.watch.start`` value is currently set to ``1``.
+
+    See the ``rtorrent.d/00-default.rc`` file for the full command definitions.
+
 
 .. _`FlexGet`: https://flexget.com/
 .. _`autodl-irssi`: https://github.com/autodl-community/autodl-irssi
