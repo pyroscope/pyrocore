@@ -29,3 +29,11 @@ Using Output Templates
 ----------------------
 
 .. include:: usage-templates.rst
+
+
+.. _std-config:
+
+Standard Configuration Explained
+--------------------------------
+
+.. include:: usage-std-config.rst

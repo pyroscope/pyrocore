@@ -153,21 +153,28 @@ As an example, this is a very minimal configuration file:
     in the ``[DEFAULT]`` section.
 
 
+.. _rtorrent-pyro-rc:
+
 Extending your '.rtorrent.rc'
 -----------------------------
+
+The rTorrent configuation needs be augmented with two things,
+a valid XMLRPC configation that quite often you already have because of web interfaces like ruTorrent,
+and a standard configuration include that adds rTorrent commands and settings needed by ``rtcontrol``.
+That include also provides some convenient features, see :ref:`std-config` for details.
+
+.. sidebar:: **Security Hint**
+
+    Using ``network.scgi.open_port`` means *any* user on the machine you run *rTorrent* on can
+    execute *arbitrary* commands with the permission of the *rTorrent* runtime user.
+    Most people don't realize that, now you do! Also, **never** use any other address than
+    ``127.0.0.1`` with it.
 
 You need either a ``network.scgi.open_local`` or ``network.scgi.open_port`` specification in your
 rTorrent configuration, else XMLRPC cannot work;
 ``network.scgi.open_local`` is preferable since more secure.
 Furthermore, you need to provide the path to a session directory via ``session.path``.
 See the *rTorrent* documentation for details.
-
-.. note::
-
-    Using ``network.scgi.open_port`` means *any* user on the machine you run *rTorrent* on can
-    execute *arbitrary* commands with the permission of the *rTorrent* runtime user.
-    Most people don't realize that, now you do! Also, **never** use any other address than
-    ``127.0.0.1`` with it.
 
 For the ``loaded`` and ``completed`` fields to work, as well as the
 ``started``, ``leechtime`` and ``seedtime`` ones, you also have to add
@@ -204,7 +211,7 @@ and the
 file it includes for a complete example,
 including some view changes regarding sort order made possible by the additional custom fields.
 
-.. note::
+.. important::
 
     Remember to restart *rTorrent* for the new configuration to take effect.
     If you also installed the `rtorrent-ps`_ distribution of *rTorrent*,
