@@ -146,7 +146,7 @@ To get such a watch directory, add a schedule like this to your configuration:
 It is important to either use ``load.verbose`` or ``load.normal`` so the item stays idle,
 and then add the post-load ``d.watch.startable`` command to mark this item as eligible to be started.
 
-The ``load.category`` command (added by ``rtorrent.d/categories.rc``) already integrates
+The ``load.category`` command (added by `rtorrent.d/categories.rc`_) already integrates
 this behaviour. It can be used like shown in this example:
 
 .. code-block:: ini
@@ -165,8 +165,10 @@ See :ref:`category-views` for more on categories.
     set by ``d.watch.startable`` (thus only acting on items loaded by specifically marked watch schedules),
     and then continues to call ``d.start`` *only if* the ``cfg.watch.start`` value is currently set to ``1``.
 
-    See the ``rtorrent.d/00-default.rc`` file for the full command definitions.
+    See the `rtorrent.d/00-default.rc`_ file for the full command definitions.
 
 
 .. _`FlexGet`: https://flexget.com/
 .. _`autodl-irssi`: https://github.com/autodl-community/autodl-irssi
+.. _`rtorrent.d/categories.rc`: https://github.com/pyroscope/pyrocore/blob/master/src/pyrocore/data/config/rtorrent.d/categories.rc
+.. _`rtorrent.d/00-default.rc`: https://github.com/pyroscope/pyrocore/blob/master/src/pyrocore/data/config/rtorrent.d/00-default.rc
