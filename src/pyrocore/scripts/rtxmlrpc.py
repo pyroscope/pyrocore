@@ -155,7 +155,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         """.strip('\n')))
 
 
-    def repl(self):
+    def do_repl(self):
         """REPL for rTorrent XMLRPC commands."""
         from prompt_toolkit import prompt
         from prompt_toolkit.history import FileHistory
@@ -203,59 +203,63 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 break
 
 
+    def do_import(self):
+        """Handle import files or streams passed with '-i'."""
+        tmp_import = None
+        try:
+            if self.args[0].startswith('@') and self.args[0] != '@-':
+                if not os.path.isfile(self.args[0][1:]):
+                    self.parser.error("File not found (or not a file): {}".format(self.args[0][1:]))
+                args = (xmlrpc.NOHASH, os.path.abspath(self.args[0][1:]))
+            else:
+                script_text = '\n'.join(self.args + [''])
+                if script_text == '@-\n':
+                    script_text = sys.stdin.read()
+
+                with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
+                    handle.write(script_text)
+                    tmp_import = handle.name
+                args = (xmlrpc.NOHASH, tmp_import)
+
+            self.execute(self.open(), 'import', args)
+        finally:
+            if tmp_import and os.path.exists(tmp_import):
+                os.remove(tmp_import)
+
+
+    def do_command(self):
+        """Call a single command with arguments."""
+        method = self.args[0]
+
+        raw_args = self.args[1:]
+        if '=' in method:
+            if raw_args:
+                self.parser.error("Please don't mix rTorrent and shell argument styles!")
+            method, raw_args = method.split('=', 1)
+            raw_args = raw_args.split(',')
+
+        self.execute(self.open(), method, self.cooked(raw_args))
+
+
     def mainloop(self):
         """ The main loop.
         """
         # Enter REPL if no args
         if len(self.args) < 1:
-            #self.parser.error("No method given!")
-            return self.repl()
+            return self.do_repl()
 
         # Check for bad options
         if self.options.repr and self.options.xml:
             self.parser.error("You cannot combine --repr and --xml!")
 
-        # Check for "import" style call
-        tmp_import = None
-        try:
-            if self.options.as_import:
-                method = 'import'
-
-                if self.args[0].startswith('@') and self.args[0] != '@-':
-                    if not os.path.isfile(self.args[0][1:]):
-                        self.parser.error("File not found (or not a file): {}".format(self.args[0][1:]))
-                    args = (xmlrpc.NOHASH, os.path.abspath(self.args[0][1:]))
-                else:
-                    script_text = '\n'.join(self.args + [''])
-                    if script_text == '@-\n':
-                        script_text = sys.stdin.read()
-
-                    with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
-                        handle.write(script_text)
-                        tmp_import = handle.name
-                    args = (xmlrpc.NOHASH, tmp_import)
-            else:
-                # Preparation
-                method = self.args[0]
-
-                raw_args = self.args[1:]
-                if '=' in method:
-                    if raw_args:
-                        self.parser.error("Please don't mix rTorrent and shell argument styles!")
-                    method, raw_args = method.split('=', 1)
-                    raw_args = raw_args.split(',')
-
-                args = self.cooked(raw_args)
-
-            # Make the call
-            proxy = self.open()
-            self.execute(proxy, method, args)
-        finally:
-            if tmp_import and os.path.exists(tmp_import):
-                os.remove(tmp_import)
+        # Dispatch to handlers
+        if self.options.as_import:
+            self.do_import()
+        else:
+            self.do_command()
 
         # XMLRPC stats
-        self.LOG.debug("XMLRPC stats: %s" % proxy)
+        self.LOG.debug("XMLRPC stats: %s" % self.open())
 
 
 def run(): #pragma: no cover
