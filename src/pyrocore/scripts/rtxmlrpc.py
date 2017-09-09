@@ -17,8 +17,11 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import absolute_import, print_function
 
+import io
 import os
+import re
 import sys
 import logging
 import tempfile
@@ -30,6 +33,9 @@ try:
     import requests
 except ImportError:
     requests = None
+
+from pyrobase import bencode
+from pyrobase.parts import Bunch
 
 from pyrocore import config, error
 from pyrocore.util import fmt, xmlrpc
@@ -73,7 +79,11 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     STD_LOG_LEVEL = logging.DEBUG
 
     # argument description for the usage information
-    ARGS_HELP = "<method> <args>..."
+    ARGS_HELP = (
+        "<method> <args>..."
+        " |\n           -i <commands>... | -i @<filename> | -i @-"
+        " |\n           --session <session-file>... | -session @<filename-list> | -session @-"
+    )
 
 
     def add_options(self):
@@ -86,6 +96,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         self.add_bool_option("-x", "--xml", help="show XML response")
         self.add_bool_option("-i", "--as-import",
             help="execute each argument as a private command using 'import'")
+        self.add_bool_option("--session", "--restore",
+            help="restore session state from .rtorrent session file(s)")
 
         # TODO: Tempita with "result" object in namespace
         #self.add_value_option("-o", "--output-format", "FORMAT",
@@ -139,7 +151,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     result = pformat(result)
                 elif hasattr(result, "__iter__"):
                     result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
-                print fmt.to_console(result)
+                print(fmt.to_console(result))
 
 
     def repl_usage(self):
@@ -241,6 +253,88 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         self.execute(self.open(), method, self.cooked(raw_args))
 
 
+    def do_session(self):
+        """Restore state from session files."""
+        def filenames():
+            'Helper'
+            for arg in self.args:
+                if arg == '@-':
+                    for line in sys.stdin.read().splitlines():
+                        if line.strip():
+                            yield line.strip()
+                elif arg.startswith('@'):
+                    if not os.path.isfile(arg[1:]):
+                        self.parser.error("File not found (or not a file): {}".format(arg[1:]))
+                    with io.open(arg[1:], encoding='utf-8') as handle:
+                        for line in handle:
+                            if line.strip():
+                                yield line.strip()
+                else:
+                    yield arg
+
+        proxy = self.open()
+        for filename in filenames():
+            # Check filename and extract infohash
+            match = re.match(r'(?:.+?[-._])?([a-fA-F0-9]{40})(?:[-._].+?)?\.torrent\.rtorrent', filename)
+            if not match:
+                self.LOG.warn("Skipping badly named session file '%s'...", filename)
+                continue
+            infohash = match.group(1)
+
+            # Read bencoded data
+            try:
+                with open(filename, 'rb') as handle:
+                    raw_data = handle.read()
+                data = Bunch(bencode.bdecode(raw_data))
+            except EnvironmentError as exc:
+                self.LOG.warn("Can't read '%s' (%s)" % (
+                    filename, str(exc).replace(": '%s'" % filename, ""),
+                ))
+                continue
+
+            ##print(infohash, '=', repr(data))
+            if 'state_changed' not in data:
+                self.LOG.warn("Skipping invalid session file '%s'...", filename)
+                continue
+
+            # Restore metadata
+            was_active = proxy.d.is_active(infohash)
+            proxy.d.ignore_commands.set(infohash, data.ignore_commands)
+            proxy.d.priority.set(infohash, data.priority)
+
+            if proxy.d.throttle_name(infohash) != data.throttle_name:
+                proxy.d.pause(infohash)
+                proxy.d.throttle_name.set(infohash, data.throttle_name)
+
+            if proxy.d.directory(infohash) != data.directory:
+                proxy.d.stop(infohash)
+                proxy.d.directory_base.set(infohash, data.directory)
+
+            for i in range(5):
+                key = 'custom%d' % (i + 1)
+                getattr(proxy.d, key).set(infohash, data[key])
+
+            for key, val in data.custom.items():
+                proxy.d.custom.set(infohash, key, val)
+
+            for name in data.views:
+                try:
+                    proxy.view.set_visible(infohash, name)
+                except xmlrpclib.Fault as exc:
+                    if 'Could not find view' not in str(exc):
+                        raise
+
+            if was_active and not proxy.d.is_active(infohash):
+                (proxy.d.resume if proxy.d.is_open(infohash) else proxy.d.start)(infohash)
+            proxy.d.save_full_session(infohash)
+
+            """ TODO:
+                NO public "set" command! 'timestamp.finished': 1503012786,
+                NO public "set" command! 'timestamp.started': 1503012784,
+                NO public "set" command! 'total_uploaded': 0,
+            """
+
+
     def mainloop(self):
         """ The main loop.
         """
@@ -251,10 +345,14 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         # Check for bad options
         if self.options.repr and self.options.xml:
             self.parser.error("You cannot combine --repr and --xml!")
+        if sum([self.options.as_import, self.options.session]) > 1:
+            self.parser.error("You cannot combine -i and --session!")
 
         # Dispatch to handlers
         if self.options.as_import:
             self.do_import()
+        elif self.options.session:
+            self.do_session()
         else:
             self.do_command()
 
