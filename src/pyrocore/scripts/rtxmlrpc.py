@@ -23,6 +23,7 @@ import io
 import os
 import re
 import sys
+import glob
 import logging
 import tempfile
 import textwrap
@@ -82,7 +83,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     ARGS_HELP = (
         "<method> <args>..."
         " |\n           -i <commands>... | -i @<filename> | -i @-"
-        " |\n           --session <session-file>... | -session @<filename-list> | -session @-"
+        " |\n           --session <session-file>... | --session <directory>"
+        " |\n           --session @<filename-list> | -session @-"
     )
 
 
@@ -103,17 +105,20 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         #self.add_value_option("-o", "--output-format", "FORMAT",
         #    help="pass result to a template for formatting")
 
+        self.proxy = None
+
 
     def open(self):
         """Open connection and return proxy."""
-        if not config.scgi_url:
-            config.engine.load_config()
-        if not config.scgi_url:
-            self.LOG.error("You need to configure a XMLRPC connection, read"
-                " https://pyrocore.readthedocs.io/en/latest/setup.html")
-        proxy = xmlrpc.RTorrentProxy(config.scgi_url)
-        proxy._set_mappings()
-        return proxy
+        if not self.proxy:
+            if not config.scgi_url:
+                config.engine.load_config()
+            if not config.scgi_url:
+                self.LOG.error("You need to configure a XMLRPC connection, read"
+                    " https://pyrocore.readthedocs.io/en/latest/setup.html")
+            self.proxy = xmlrpc.RTorrentProxy(config.scgi_url)
+            self.proxy._set_mappings()
+        return self.proxy
 
 
     def cooked(self, raw_args):
@@ -258,7 +263,10 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         def filenames():
             'Helper'
             for arg in self.args:
-                if arg == '@-':
+                if os.path.isdir(arg):
+                    for name in glob.glob(os.path.join(arg, '*.torrent.rtorrent')):
+                        yield name
+                elif arg == '@-':
                     for line in sys.stdin.read().splitlines():
                         if line.strip():
                             yield line.strip()
@@ -275,7 +283,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         proxy = self.open()
         for filename in filenames():
             # Check filename and extract infohash
-            match = re.match(r'(?:.+?[-._])?([a-fA-F0-9]{40})(?:[-._].+?)?\.torrent\.rtorrent', filename)
+            self.LOG.debug("Reading '%s'...", filename)
+            match = re.match(r'(?:.+?[-._])?([a-fA-F0-9]{40})(?:[-._].+?)?\.torrent\.rtorrent',
+                             os.path.basename(filename))
             if not match:
                 self.LOG.warn("Skipping badly named session file '%s'...", filename)
                 continue
