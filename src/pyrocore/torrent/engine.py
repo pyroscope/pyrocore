@@ -310,7 +310,7 @@ class TorrentProxy(object):
             try:
                 return FieldDefinition.FIELDS[name]
             except KeyError:
-                field = OnDemandField(str, name, "custom attribute %r" % name.split('_', 1)[1],
+                field = OnDemandField(fmt.to_unicode, name, "custom attribute %r" % name.split('_', 1)[1],
                     matcher=matching.PatternFilter)
                 setattr(cls, name, field) # add field to all proxy objects
 
