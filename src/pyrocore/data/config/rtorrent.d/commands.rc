@@ -1,6 +1,7 @@
 # UI/CMD: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
 method.insert = s, simple|private,\
-    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=*,$argument.0=,*\""
+    "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\
+     [,\"$cat=*,$argument.0=,*\",OR,\"$cat=custom_displayname=,*,$argument.0=,*\",]"
 method.insert = t, simple|private,\
     "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\"$cat=\\\"alias=\\\",$argument.0=\""
 method.insert = f, simple|private,\
