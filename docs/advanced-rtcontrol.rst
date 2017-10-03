@@ -120,7 +120,7 @@ for all selected items, as follows:
 
 .. code-block:: bash
 
-    rtcontrol --exec 'directory.set=/mnt/data/new/path' directory=/mnt/data/old/path
+    rtcontrol --exec 'directory_base.set="/mnt/data/new/path"' directory=/mnt/data/old/path
 
 This replaces the location of items stored at ``/mnt/data/old/path`` with a new path.
 But to be really useful, we'd want to shift *any* path under a given base directory
@@ -130,7 +130,7 @@ new path based on the old one:
 .. code-block:: bash
 
     rtcontrol \
-        --exec 'directory.set={{item.directory|subst("^/mnt/data/","/var/data/")}} ; >directory=' \
+        --exec 'directory_base.set="{{item.directory|subst("^/mnt/data/","/var/data/")}}" ; >directory=' \
         directory=/mnt/data/\*
 
 This selects any item stored under ``/mnt/data`` and relocates it to the new base directory
