@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import with_statement
+from __future__ import with_statement, unicode_literals
 
 import re
 import sys
@@ -284,7 +284,7 @@ class AdminTool(ScriptBaseWithConfig):
                             val = rc_quoted(val)
                             if len(val) > self.RC_CONTINUATION_THRESHOLD:
                                 val = '\\\n    ' + val
-                            print('method.set_key = {}, {}, {}'.format(name, key, val))
+                            print(b'method.set_key = {}, {}, {}'.format(name, fmt.to_utf8(key), fmt.to_utf8(val)))
                     elif objtype is str:
                         definition = rc_quoted(value)
                     elif objtype is int:
