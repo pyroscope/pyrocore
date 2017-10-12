@@ -760,9 +760,9 @@ class ConditionParser(object):
         if field.get("matcher") is None:
             raise FilterError("Field %r cannot be used as a filter" % (name,))
 
-        # Make filters from values
+        # Make filters from values (split on commas outside of /…/)
         filters = []
-        for value in values.split(','):
+        for value in re.findall(r'(!?/[^/]*/|[^,]+)(?:,|$)', values):
             wrapper = None
             if value.startswith('!'):
                 wrapper = NegateFilter
