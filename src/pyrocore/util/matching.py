@@ -762,7 +762,11 @@ class ConditionParser(object):
 
         # Make filters from values (split on commas outside of /…/)
         filters = []
-        for value in re.findall(r'(!?/[^/]*/|[^,]+)(?:,|$)', values):
+        split_values = re.findall(r'(!?/[^/]*/|[^,]+)(?:,|$)', values) if values else ['']
+        if not split_values:
+            raise FilterError("Internal Error: Cannot split %r into match values" % (values,))
+
+        for value in split_values:
             wrapper = None
             if value.startswith('!'):
                 wrapper = NegateFilter
