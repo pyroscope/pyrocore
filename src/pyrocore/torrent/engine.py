@@ -346,6 +346,18 @@ class TorrentProxy(object):
         self._fields = {}
 
 
+    def __hash__(self):
+        """ Make item hashable for Python.
+        """
+        return self.hash
+
+
+    def __eq__(self, other):
+        """ Compare items based on their infohash.
+        """
+        return other and self.hash == getattr(other, 'hash', None)
+
+
     def __repr__(self):
         """ Return a representation of internal state.
         """
