@@ -363,7 +363,7 @@ is useful:
 
 .. code-block:: ini
 
-    system.method.insert = purge,simple,"execute_nothrow=rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
+    method.insert = purge,simple,"execute.nothrow=rtcontrol,-q,--detach,--purge,--yes,\"$cat=hash=,$d.get_hash=\""
 
 Note that *you already have that command added* if you followed the :doc:`setup`.
 
