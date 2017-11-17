@@ -203,4 +203,4 @@ Note that ``[`` characters are escaped to ``[[]`` after the template expansion,
 so that things like ``[2017]`` in a filename do not lead to unexpected results.
 ``*`` and ``?`` though are kept intact and are used for glob matching as normal,
 because they match their own literal form if they appear in the field value
-(on the righ-hand side).
+(on the right-hand side).
