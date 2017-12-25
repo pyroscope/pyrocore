@@ -238,14 +238,16 @@ To add the missing data, call these commands:
         $(echo $(rtxmlrpc session.path)/ | tr -s / /)*.torrent*
 
     # Set missing "loaded" times to that of the .torrent file
-    rtcontrol '!*"*' loaded=0 -q -sname -o 'echo "$(name)s"\ntest -f "$(metafile)s" && rtxmlrpc -q d.custom.set $(hash)s tm_loaded \$(\
-        ls -l --time-style "+%%s" "$(metafile)s" \
-        | cut -f6 -d" ")\nrtxmlrpc -q d.save_full_session $(hash)s' | bash
+    rtcontrol loaded=0 -q -sname -o '{{py:from pipes import quote}}
+        echo {{d.name | quote}}
+        test -f {{d.metafile | quote}} && rtxmlrpc -q d.custom.set {{d.hash}} tm_loaded \$(stat -c "%Y" {{d.metafile | quote}})
+        rtxmlrpc -q d.save_full_session {{d.hash}}'
 
     # Set missing "completed" times to that of the data file or directory
-    rtcontrol '!*"*' completed=0 done=100 path=\! is_ghost=no -q -sname -o 'echo "$(name)s"\ntest -e "$(realpath)s" && rtxmlrpc -q d.custom.set $(hash)s tm_completed \$(\
-        ls -ld --time-style "+%%s" "$(realpath)s" \
-        | cut -f6 -d" ")\nrtxmlrpc -q d.save_full_session $(hash)s' | bash
+    rtcontrol completed=0 done=100 path=\! is_ghost=no -q -sname -o '{{py:from pipes import quote}}
+        echo {{d.name | quote}}
+        test -e {{d.realpath | quote}} && rtxmlrpc -q d.custom.set {{d.hash}} tm_completed \$(stat -c "%Y" {{d.realpath | quote}})
+        rtxmlrpc -q d.save_full_session {{d.hash}}'
 
 It's safe to call them repeatedly, since existing values are kept unchanged.
 
