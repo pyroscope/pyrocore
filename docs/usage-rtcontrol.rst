@@ -495,6 +495,13 @@ another possibility, which removes the item from the client, but leaves
 the data intact. Starting with version 0.3.10, you can also delete the
 downloaded data by using the ``--cull`` option.
 
+You can also protect items from removal by using activity indicators,
+specifically the ``active`` and ``last_xfer`` fields.
+The condition ``active=+10i`` checks that no peer was connected in the last 10 minutes,
+while ``last_xfer=+10i`` does the same for the last time data was transferred.
+Note that *data transferred* means either upload or download went over the threshold
+defined by ``pyro.last_xfer.min_rate`` (in bytes/s, with a default of 5000).
+
 
 Bandwidth Management
 """"""""""""""""""""

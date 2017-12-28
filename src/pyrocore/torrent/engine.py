@@ -530,6 +530,8 @@ class TorrentProxy(object):
         matcher=matching.ByteSizeFilter, engine_name="up_total")
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
         accessor=lambda o: o.fetch("up") + o.fetch("down"))
+    last_xfer = DynamicField(int, "last_xfer", "last time data was transferred", matcher=matching.TimeFilter,
+        accessor=lambda o: int(o.fetch("last_xfer") or 0), formatter=fmt.iso_datetime_optional)
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
     throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.PatternFilter,
