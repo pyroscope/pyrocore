@@ -34,7 +34,7 @@ method.insert = d.timestamp.downloaded, simple, "d.custom=tm_downloaded"
 method.set_key = event.download.inserted_new, set_downloaded_date, ((pyro._tm_downloaded_init))
 
 
-# SCHEDULE: Set "last_active" custom field for items that have peers
+# SCHEDULE: Set "last_active" custom timestamp field for items that have peers
 method.insert = d.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
 method.insert = d.last_active.update, simple|private,\
     "d.custom.set=last_active,$cat=$system.time= ; branch=argument.0=,d.save_resume="
@@ -48,3 +48,21 @@ method.set_key = event.download.finished, !last_active, "d.last_active.update=1"
 
 method.insert = d.last_active.print, simple|private,\
     "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
+
+
+# SCHEDULE: Set "last_xfer" custom timestamp field for items that transfer data
+method.insert.value = pyro.last_xfer.min_rate, 5000
+
+method.insert = pyro_last_xfer_check_min_rate, simple|private,\
+    "greater=argument.0=,pyro.last_xfer.min_rate="
+method.insert = pyro_last_xfer_update, simple|private,\
+    "d.custom.set=last_xfer,$cat=$system.time= ; branch=argument.0=,d.save_resume="
+method.insert = d.last_xfer.is_active, simple,\
+    "or={pyro_last_xfer_check_min_rate=$d.up.rate=,pyro_last_xfer_check_min_rate=$d.down.rate=}"
+method.insert = d.last_xfer, simple, "if=$d.last_xfer.is_active=,$cat=$system.time=,$d.custom=last_xfer"
+
+schedule2 = pyro_update_last_xfer, 33, 17,\
+    "d.multicall2=active,\"branch=$d.last_xfer.is_active=,pyro_last_xfer_update=\""
+
+method.insert = d.last_xfer.print, simple|private,\
+    "print=\"$cat={$convert.date=$d.last_xfer=, \\\" \\\", $convert.time=$d.last_xfer=}\""
