@@ -212,22 +212,26 @@ your ``config.py`` (read the 1st two sections, before the “Examples” one).
         def has_room(obj):
             "Check disk space."
             pathname = obj.path
+            if pathname and not os.path.exists(pathname):
+                pathname = os.path.dirname(pathname)
             if pathname and os.path.exists(pathname):
                 stats = os.statvfs(pathname)
-                return stats.f_bavail * stats.f_frsize - int(diskspace_threshold_mb) * 1024**2 > obj.size * (1.0 - obj.done / 100.0)
+                return (stats.f_bavail * stats.f_frsize - int(diskspace_threshold_mb) * 1024**2
+                    > obj.size * (1.0 - obj.done / 100.0))
             else:
                 return None
 
-        yield engine.DynamicField(engine.untyped, "has_room", "check whether the download will fit on its target device",
+        yield engine.DynamicField(engine.untyped, "has_room",
+            "check whether the download will fit on its target device",
             matcher=matching.BoolFilter, accessor=has_room,
             formatter=lambda val: "OK" if val else "??" if val is None else "NO")
         globals().setdefault("diskspace_threshold_mb", "500")
 
 Note that you can set the threshold of space to keep free (in MiB) in
-your configuration, and the default is 500MiB. You should **keep** your
+the ``GLOBAL`` section of ``config.ini``, and the default is 500MiB. You should **keep** your
 ``close_low_diskspace`` schedule for rTorrent as a fallback, and set
 ``diskspace_threshold_mb`` **higher** than the limit given there (so
 that normally, it never triggers).
 
 And now, all you need is to add ``has_room=y`` to your
-``job.queue.startable`` conditions. Done.
+``job.queue.startable`` conditions in ``torque.ini``. Done.
