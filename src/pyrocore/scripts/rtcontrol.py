@@ -328,16 +328,13 @@ class RtorrentControl(ScriptBaseWithConfig):
     def format_item(self, item, defaults=None, stencil=None):
         """ Format an item.
         """
+        from pyrobase.osutil import shell_escape
+
         try:
             item_text = fmt.to_console(formatting.format_item(self.options.output_format, item, defaults))
         except (NameError, ValueError, TypeError), exc:
             self.fatal("Trouble with formatting item %r\n\n  FORMAT = %r\n\n  REASON =" % (item, self.options.output_format), exc)
             raise # in --debug mode
-
-        # Escape for shell use?
-        def shell_escape(text, safe=re.compile(r"^[-._,+a-zA-Z0-9]+$")):
-            "Escape helper"
-            return text if safe.match(text) else "'%s'" % text.replace("'", r"'\''")
 
         if self.options.shell:
             item_text = '\t'.join(shell_escape(i) for i in item_text.split('\t'))
