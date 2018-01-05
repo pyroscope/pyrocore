@@ -813,7 +813,7 @@ class RtorrentEngine(engine.TorrentEngine):
                 yield item
 
 
-    def show(self, items, view=None):
+    def show(self, items, view=None, append=False):
         """ Visualize a set of items (search result), and return the view name.
         """
         proxy = self.open()
@@ -824,7 +824,8 @@ class RtorrentEngine(engine.TorrentEngine):
             proxy.view.add(xmlrpc.NOHASH, view)
 
         # Clear view and show it
-        proxy.view.filter(xmlrpc.NOHASH, view, "false=")
+        if not append:
+            proxy.view.filter(xmlrpc.NOHASH, view, "false=")
         proxy.ui.current_view.set(view)
 
         # Add items

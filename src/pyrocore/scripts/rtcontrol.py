@@ -257,6 +257,8 @@ class RtorrentControl(ScriptBaseWithConfig):
             help="show search result only in default ncurses view")
         self.add_value_option("--to-view", "--to", "NAME",
             help="show search result only in named ncurses view")
+        self.add_bool_option("--append-view", "--append",
+            help="APPEND search results to ncurses view (modifies -V and --to-view behaviour)")
         self.add_bool_option("--tee-view", "--tee",
             help="ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)")
         self.add_value_option("--from-view", "--from", "NAME",
@@ -440,11 +442,14 @@ class RtorrentControl(ScriptBaseWithConfig):
     def show_in_view(self, sourceview, matches, targetname=None):
         """ Show search result in ncurses view.
         """
-        targetname = config.engine.show(matches, targetname or self.options.to_view or "rtcontrol")
+        targetname = config.engine.show(matches,
+            targetname or self.options.to_view or "rtcontrol",
+            append=self.options.append_view)
         msg = "Filtered %d out of %d torrents using [ %s ]" % (
             len(matches), sourceview.size(), sourceview.matcher)
         self.LOG.info("%s into rTorrent view %r." % (msg, targetname))
         config.engine.log(msg)
+
 
     def anneal(self, mode, matches, orig_matches):
         """ Perform post-processing.
