@@ -359,3 +359,68 @@ and you have a cron job that can be used to transfer completed items to another 
 Note that the flag file code as presented only works for multi-file items, since a data directory is assumed –
 supporting single-file items is left as an exercise for the reader.
 See :ref:`CustomFields` for more details regarding custom fields.
+
+
+
+.. _info-source:
+
+Metafile Creation with `info.source` from Configuration
+-------------------------------------------------------
+
+Say you want to add the ``info.source`` field for various trackers to new torrents,
+during their creation in a script.
+
+If the script takes the *alias* of the target tracker as an input,
+this how-to shows a way to fetch the right source field from configuration (``config.ini``).
+As a result, the script is portable between different setups and users.
+
+The first step is to define a command for each affected tracker that adds its custom data
+(you could set more than just the source field here).
+We do so in a *new* section named ``COMMANDS``.
+
+.. code-block:: ini
+
+    [COMMANDS]
+    custom_meta_tec = chtor -q --set info.source='tracker.example.com'
+
+    [ANNOUNCE]
+    TEC     = https://tracker.example.com/announce.php
+              https://tracker.example.com/announce.php?passkey=12300000000000000000000000000456
+
+You can immediately check your settings using ``pyroadmin``:
+
+.. code-block:: console
+
+    $ pyroadmin -qo commands
+    {'custom_meta_tec': "chtor -q --set info.source='tracker.example.com'"}
+    $ pyroadmin -qo commands.custom_meta_tec
+    chtor -q --set info.source='tracker.example.com'
+
+As you can see, we're now able to look up the metafile manipulation command via the tracker alias.
+That is used in the following shell snippet to call this command on the created metafile.
+
+.. code-block:: sh
+
+    eval $(pyroadmin -qo commands.custom_meta_$tracker=:) "$metafile"
+
+Since we build the command dynamically, the bash ``eval`` builtin is used.
+The nested ``pyroadmin`` call does the lookup of the first command part,
+and returns ``:`` in case there is no command set for a specific tracker
+(that is what the ``=:`` is for).
+``:`` is a builtin command documented as *do nothing, successfully*
+– i.e. if we have no command configured, the whole ``eval`` construct is a no-op.
+
+Here's a trace of what happens for known and unknown aliases:
+
+.. code-block:: console
+
+    $ ( tracker=tec; metafile=foo.torrent; set -x ; \
+        eval $(pyroadmin -qo commands.custom_meta_$tracker=:) $metafile )
+    ++ pyroadmin -qo commands.custom_meta_tec=:
+    + eval chtor -q --set 'info.source='\''tracker.example.com'\''' foo.torrent
+    ++ chtor -q --set info.source=tracker.example.com foo.torrent
+    $ ( tracker=unknown; metafile=foo.torrent; set -x ; \
+        eval $(pyroadmin -qo commands.custom_meta_$tracker=:) $metafile )
+    ++ pyroadmin -qo commands.custom_meta_unknown=:
+    + eval : foo.torrent
+    ++ : foo.torrent
