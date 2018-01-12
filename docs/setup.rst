@@ -159,7 +159,7 @@ Extending your '.rtorrent.rc'
 -----------------------------
 
 The rTorrent configuation needs be augmented with two things,
-a valid XMLRPC configation that quite often you already have because of web interfaces like ruTorrent,
+a valid XMLRPC configuration that quite often you already have because of web interfaces like ruTorrent,
 and a standard configuration include that adds rTorrent commands and settings needed by ``rtcontrol``.
 That include also provides some convenient features, see :ref:`std-config` for details.
 
