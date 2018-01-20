@@ -201,7 +201,7 @@ Only start items that you have disk space for
 
 This example works together with :ref:`QueueManager`, so that only items that pass a disk
 space check are actually started. Meaning you can safely employ automatic downloading
-via e.g. RSS, without fear of a disk full situation when you disk space housekeeping fails.
+via e.g. RSS, without fear of a disk full situation when your disk space housekeeping fails.
 
 The first step is to add a custom field that checks whether an item has
 room on the target device. As with the other examples, place this in
@@ -241,4 +241,5 @@ It's a oood idea to set ``diskspace_threshold_mb`` a good deal higher than
 the hard limit that ``close_low_diskspace`` enforces.
 That makes automatic downloading stop at the higher threshold,
 but leaves you with wiggle room for manual starting of important stuff
-that won't be stopped just a moment later.
+that won't be stopped just a moment later, as long as it fits into that gap
+between the two values.
