@@ -199,8 +199,9 @@ it using something like
 Only start items that you have disk space for
 """""""""""""""""""""""""""""""""""""""""""""
 
-This works together with :ref:`QueueManager`, so that only items that pass a disk
-space check are actually started.
+This example works together with :ref:`QueueManager`, so that only items that pass a disk
+space check are actually started. Meaning you can safely employ automatic downloading
+via e.g. RSS, without fear of a disk full situation when you disk space housekeeping fails.
 
 The first step is to add a custom field that checks whether an item has
 room on the target device. As with the other examples, place this in
@@ -227,11 +228,17 @@ your ``config.py`` (read the 1st two sections, before the “Examples” one).
             formatter=lambda val: "OK" if val else "??" if val is None else "NO")
         globals().setdefault("diskspace_threshold_mb", "500")
 
-Note that you can set the threshold of space to keep free (in MiB) in
-the ``GLOBAL`` section of ``config.ini``, and the default is 500MiB. You should **keep** your
-``close_low_diskspace`` schedule for rTorrent as a fallback, and set
-``diskspace_threshold_mb`` **higher** than the limit given there (so
-that normally, it never triggers).
-
 And now, all you need is to add ``has_room=y`` to your
 ``job.queue.startable`` conditions in ``torque.ini``. Done.
+
+Note that you can set the threshold of space to keep free (in MiB) in
+the ``GLOBAL`` section of ``config.ini``, and the default is 500MiB.
+You should **keep** your ``close_low_diskspace`` schedule for rTorrent as a fallback,
+and set ``diskspace_threshold_mb`` **higher** than the limit given there
+(so that normally, the low space check never triggers).
+
+It's a oood idea to set ``diskspace_threshold_mb`` a good deal higher than
+the hard limit that ``close_low_diskspace`` enforces.
+That makes automatic downloading stop at the higher threshold,
+but leaves you with wiggle room for manual starting of important stuff
+that won't be stopped just a moment later.
