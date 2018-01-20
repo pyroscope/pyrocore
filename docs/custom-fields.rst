@@ -237,7 +237,7 @@ You should **keep** your ``close_low_diskspace`` schedule for rTorrent as a fall
 and set ``diskspace_threshold_mb`` **higher** than the limit given there
 (so that normally, the low space check never triggers).
 
-It's a oood idea to set ``diskspace_threshold_mb`` a good deal higher than
+It's a good idea to set ``diskspace_threshold_mb`` a good deal higher than
 the hard limit that ``close_low_diskspace`` enforces.
 That makes automatic downloading stop at the higher threshold,
 but leaves you with wiggle room for manual starting of important stuff
