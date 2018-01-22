@@ -590,7 +590,7 @@ class Metafile(object):
         info, totalhashed = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
 
         # Enforce unique hash per tracker
-        info["x_cross_seed"] = hashlib.md5(tracker_url).hexdigest()
+        info["x_cross_seed"] = hashlib.md5(tracker_url.encode('utf-8')).hexdigest()
 
         # Set private flag
         if private:
