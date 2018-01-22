@@ -241,13 +241,13 @@ To add the missing data, call these commands:
     rtcontrol loaded=0 -q -sname -o '{{py:from pyrobase.osutil import shell_escape as quote}}
         echo {{d.name | quote}}
         test -f {{d.metafile | quote}} && rtxmlrpc -q d.custom.set {{d.hash}} tm_loaded \$(stat -c "%Y" {{d.metafile | quote}})
-        rtxmlrpc -q d.save_full_session {{d.hash}}'
+        rtxmlrpc -q d.save_full_session {{d.hash}}' | bash
 
     # Set missing "completed" times to that of the data file or directory
     rtcontrol completed=0 done=100 path=\! is_ghost=no -q -sname -o '{{py:from pyrobase.osutil import shell_escape as quote}}
         echo {{d.name | quote}}
         test -e {{d.realpath | quote}} && rtxmlrpc -q d.custom.set {{d.hash}} tm_completed \$(stat -c "%Y" {{d.realpath | quote}})
-        rtxmlrpc -q d.save_full_session {{d.hash}}'
+        rtxmlrpc -q d.save_full_session {{d.hash}}' | bash
 
 It's safe to call them repeatedly, since existing values are kept unchanged.
 
