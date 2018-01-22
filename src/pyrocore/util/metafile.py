@@ -159,7 +159,7 @@ def check_info(info):
                 raise ValueError("bad metainfo - bad path")
 
             for part in path:
-                if not isinstance(part, six.string_types):
+                if not isinstance(part, six.text_type):
                     raise ValueError("bad metainfo - bad path dir")
                 part = fmt.to_unicode(part)
                 if part == '..':
@@ -232,6 +232,8 @@ def sanitize(meta, diagnostics=False):
 
     def sane_encoding(field, text):
         "Transcoding helper."
+        if isinstance(text, six.text_type):
+            return text.encode("utf-8")
         for encoding in ('utf-8', meta.get('encoding', None), 'cp1252'):
             if encoding:
                 try:
@@ -508,7 +510,7 @@ class Metafile(object):
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
             file_list.append({
                 "length": filesize,
-                "path": [fmt.to_utf8(x) for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
+                "path": [x for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
             })
             self.LOG.debug("Hashing %r, size %d..." % (filename, filesize))
 
