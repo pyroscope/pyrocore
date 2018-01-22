@@ -1,9 +1,7 @@
 # requirements for installation
 Tempita>=0.5.1
-ProxyTypes==0.9
 pyrobase>=0.5
 #-e git+https://github.com/pyroscope/pyrobase.git#egg=pyrobase
-auvyon>=0.1
 requests>=2.10,<3
 prompt-toolkit>=1.0.14,<2
 six==1.9.0

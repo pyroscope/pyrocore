@@ -27,13 +27,15 @@ import glob
 import logging
 import tempfile
 import textwrap
-import xmlrpclib
 from pprint import pformat
 
 try:
     import requests
 except ImportError:
     requests = None
+
+from six.moves import xmlrpc_client
+import six
 
 from pyrobase import bencode
 from pyrobase.parts import Bunch
@@ -140,7 +142,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 if all(i.isdigit() for i in arg):
                     arg = [int(i, 10) for i in arg]
             elif arg.startswith('@'):
-                arg = xmlrpclib.Binary(read_blob(arg))
+                arg = xmlrpc_client.Binary(read_blob(arg))
             args.append(arg)
 
         return args
@@ -159,7 +161,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     # Pretty-print if requested, or it's a collection and not a scalar
                     result = pformat(result)
                 elif hasattr(result, "__iter__"):
-                    result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
+                    result = '\n'.join(i if isinstance(i, six.string_types) else pformat(i) for i in result)
                 print(fmt.to_console(result))
 
 
@@ -335,7 +337,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             for name in data.views:
                 try:
                     proxy.view.set_visible(infohash, name)
-                except xmlrpclib.Fault as exc:
+                except xmlrpc_client.Fault as exc:
                     if 'Could not find view' not in str(exc):
                         raise
 

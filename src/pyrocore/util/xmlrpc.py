@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import sys
 import time
 import socket
-import xmlrpclib
 
+from six.moves import xmlrpc_client as xmlrpclib
 from pyrobase.io import xmlrpc2scgi
 
 from pyrocore import config, error
@@ -169,7 +169,7 @@ class RTorrentMethod(object):
                         handle.write(xmlreq)
                         handle.write("\nRESPONSE\n")
                         handle.write(xmlresp)
-                        print >>sys.stderr, "INFO: Bad data packets written to %r" % filename
+                        print("INFO: Bad data packets written to %r" % filename, file=sys.stderr)
                     finally:
                         handle.close()
                 raise

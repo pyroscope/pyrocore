@@ -36,6 +36,7 @@ KIND_DOCS = set(("chm", "pdf", "cbr", "cbz", "odt", "ods", "doc", "xls", "ppt", 
 KIND_ARCHIVE = set(("rar", "zip", "tgz", "bz2", "iso", "bin"))
 
 # Regex matchers for names
+_i = _k = None
 _VIDEO_EXT = '|'.join(re.escape('.' + _i) for _i in KIND_VIDEO)
 _TV_TRAIL = (
     r"(?:[._ ](?P<release_tags>PREAIR|READNFO))?"

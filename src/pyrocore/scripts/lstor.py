@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import with_statement
+
 
 import pprint
 import hashlib
@@ -65,15 +65,15 @@ class MetafileLister(ScriptBase):
         for idx, filename in enumerate(self.args):
             torrent = metafile.Metafile(filename)
             if idx and not self.options.output:
-                print
-                print "~" * 79
+                print()
+                print("~" * 79)
 
             try:
                 # Read and check metafile
                 try:
                     data = metafile.checked_open(filename, log=self.LOG if self.options.skip_validation else None,
                         quiet=(self.options.quiet and (self.options.output or self.options.raw)))
-                except EnvironmentError, exc:
+                except EnvironmentError as exc:
                     self.fatal("Can't read '%s' (%s)" % (
                         filename, str(exc).replace(": '%s'" % filename, ""),
                     ))
@@ -107,7 +107,7 @@ class MetafileLister(ScriptBase):
                             val = data
                             for key in field.split('.'):
                                 val = val[key]
-                        except KeyError, exc:
+                        except KeyError as exc:
                             self.LOG.error("%s: Field %r not found (%s)" % (filename, field, exc))
                             break
                         else:
@@ -116,7 +116,7 @@ class MetafileLister(ScriptBase):
                         listing = '\t'.join(values)
                 else:
                     listing = '\n'.join(torrent.listing(masked=not self.options.reveal))
-            except (ValueError, KeyError, bencode.BencodeError), exc:
+            except (ValueError, KeyError, bencode.BencodeError) as exc:
                 if self.options.debug:
                     raise
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))

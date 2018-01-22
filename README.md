@@ -3,6 +3,7 @@
 [![Travis CI](https://travis-ci.org/pyroscope/pyrocore.svg?branch=master)](https://travis-ci.org/pyroscope/pyrocore)
 [![Issues](https://img.shields.io/github/issues/pyroscope/pyrocore.svg)](https://github.com/pyroscope/pyrocore/issues)
 [![PyPI](https://img.shields.io/pypi/v/pyrocore.svg)](https://pypi.python.org/pypi/pyrocore/)
+[![Versions](https://img.shields.io/pypi/pyversions/pyrocore.svg)](https://pypi.python.org/pypi/pyrocore/)]
 
 This project provides a collection of tools for the BitTorrent protocol and especially the
 [rTorrent client](https://github.com/rakshasa/rtorrent).

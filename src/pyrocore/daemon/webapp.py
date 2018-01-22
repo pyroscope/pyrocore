@@ -32,6 +32,8 @@ from webob import exc, static, Request, Response
 from webob.dec import wsgify
 #from webob.response import Response
 
+import six
+
 from pyrobase.parts import Bunch
 from pyrocore import config, error
 from pyrocore.util import pymagic, xmlrpc, stats
@@ -102,7 +104,7 @@ class JsonController(object):
                     resp = json.dumps(resp, sort_keys=True)
                 except (TypeError, ValueError, IndexError, AttributeError) as json_exc:
                     raise exc.HTTPInternalServerError("JSON serialization error (%s)" % json_exc)
-            if isinstance(resp, basestring):
+            if isinstance(resp, six.string_types):
                 resp = Response(body=resp, content_type="application/json")
         except exc.HTTPException as http_exc:
             resp = http_exc
@@ -201,7 +203,7 @@ class Router(object):
             `controller` can be either a controller instance,
             or the name of a callable that will be imported.
         """
-        if isinstance(controller, basestring):
+        if isinstance(controller, six.string_types):
             controller = pymagic.import_name(controller)
 
         self.routes.append((self.parse_route(template), controller, kwargs))

@@ -25,11 +25,12 @@ import glob
 import shutil
 import pprint
 import fnmatch
-import urllib2
-import xmlrpclib
 from zipfile import ZipFile
-from StringIO import StringIO
 from contextlib import closing
+
+from six.moves import StringIO, urllib
+from six.moves import xmlrpc_client as xmlrpclib
+import six
 
 from pyrobase import fmt
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
@@ -93,7 +94,7 @@ class AdminTool(ScriptBaseWithConfig):
             os.makedirs(target)
 
         self.LOG.info("Downloading '%s' to '%s'..." % (download_url, target))
-        with closing(urllib2.urlopen(download_url)) as url_handle:
+        with closing(urllib.request.urlopen(download_url)) as url_handle:
             if download_url.endswith(".zip"):
                 with closing(ZipFile(StringIO(url_handle.read()))) as zip_handle:  # pylint: disable=no-member
                     zip_handle.extractall(target)  # pylint: disable=no-member
@@ -164,7 +165,7 @@ class AdminTool(ScriptBaseWithConfig):
                                     val = val[matches[0]]
                                 else:
                                     raise KeyError(key)
-                    except (IndexError, KeyError), exc:
+                    except (IndexError, KeyError) as exc:
                         if default is None:
                             self.LOG.error("Field %r not found (%s)" % (field, exc))
                             break
@@ -172,7 +173,7 @@ class AdminTool(ScriptBaseWithConfig):
                     else:
                         values.append(str(val))
                 else:
-                    print '\t'.join(values)
+                    print('\t'.join(values))
 
         elif self.options.create_import:
             conf_dirs = {}
@@ -299,7 +300,10 @@ class AdminTool(ScriptBaseWithConfig):
                         if name in builtins:
                             print('{}.set = {}'.format(name, definition))
                         else:
-                            rctype = {str: 'string', int: 'value', long: 'value'}.get(objtype, 'simple')
+                            if six.PY2:
+                                rctype = {str: 'string', int: 'value', long: 'value'}.get(objtype, 'simple')
+                            else:
+                                rctype = {str: 'string', int: 'value'}.get(objtype, 'simple')
                             if const:
                                 rctype += '|const'
                                 const = None
@@ -331,7 +335,7 @@ class AdminTool(ScriptBaseWithConfig):
                     "    run()",
                     "",
                 ]))
-            os.chmod(py_stub, 0755)
+            os.chmod(py_stub, 0o755)
 
         else:
             # Print usage

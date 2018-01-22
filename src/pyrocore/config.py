@@ -37,7 +37,7 @@ def lookup_announce_alias(name):
 def map_announce2alias(url):
     """ Get tracker alias for announce URL, and if none is defined, the 2nd level domain.
     """
-    import urlparse
+    from six.moves import urllib
 
     # Try to find an exact alias URL match and return its label
     for alias, urls in announce.items():
@@ -45,8 +45,8 @@ def map_announce2alias(url):
             return alias
 
     # Try to find an alias URL prefix and return its label
-    parts = urlparse.urlparse(url)
-    server = urlparse.urlunparse((parts.scheme, parts.netloc, "/", None, None, None))
+    parts = urllib.parse.urlparse(url)
+    server = urllib.parse.urlunparse((parts.scheme, parts.netloc, "/", None, None, None))
 
     for alias, urls in announce.items():
         if any(i.startswith(server) for i in urls):
