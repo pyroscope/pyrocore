@@ -157,13 +157,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
         else:
             if not self.options.quiet:
-                if self.options.repr:
-                    # Pretty-print if requested, or it's a collection and not a scalar
-                    result = pformat(result)
-                elif hasattr(result, "__iter__"):
-                    result = '\n'.join(i if isinstance(i, six.string_types) else pformat(i) for i in result)
-                print(fmt.to_console(result))
-
+                result = fmt.xmlrpc_result_to_string(result, pretty=self.options.repr)
+                output = getattr(sys.stdout, 'buffer', sys.stdout)
+                output.write(fmt.to_console(result) + b"\n")
 
     def repl_usage(self):
         """Print a short REPL usage summary."""
