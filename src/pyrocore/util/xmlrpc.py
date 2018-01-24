@@ -123,7 +123,7 @@ class RTorrentMethod(object):
                     args = (0,) + args
 
             # Prepare request
-            xmlreq = xmlrpclib.dumps(args, self._proxy._map_call(self._method_name))
+            xmlreq = xmlrpclib.dumps(args, self._proxy._map_call(self._method_name)).encode()
             ##xmlreq = xmlreq.replace('\n', '')
             self._outbound = len(xmlreq)
             self._proxy._outbound += self._outbound
@@ -141,6 +141,7 @@ class RTorrentMethod(object):
             self._net_latency = scgi_req.latency
             self._proxy._net_latency += self._net_latency
 
+            xmlresp = xmlresp.decode('utf-8')
             # Return raw XML response?
             if raw_xml:
                 return xmlresp
@@ -151,7 +152,7 @@ class RTorrentMethod(object):
 
             try:
                 # Deserialize data
-                result = xmlrpclib.loads(xmlresp)[0][0]
+                result = xmlrpclib.loads(xmlresp.encode('utf-8'))[0][0]
             except (KeyboardInterrupt, SystemExit):
                 # Don't catch these
                 raise
@@ -163,12 +164,14 @@ class RTorrentMethod(object):
                 if not fail_silently:
                     # Dump the bad packet, then re-raise
                     filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
-                    handle = open(filename, "w")
+                    handle = open(filename, "wb")
                     try:
-                        handle.write("REQUEST\n")
+                        print(type(xmlreq))
+                        print(type(xmlresp))
+                        handle.write(b"REQUEST\n")
                         handle.write(xmlreq)
-                        handle.write("\nRESPONSE\n")
-                        handle.write(xmlresp)
+                        handle.write(b"\nRESPONSE\n")
+                        handle.write(xmlresp.encode('utf-8'))
                         print("INFO: Bad data packets written to %r" % filename, file=sys.stderr)
                     finally:
                         handle.close()
@@ -264,7 +267,7 @@ class RTorrentProxy(object):
     def _fix_mappings(self):
         """ Add computed stuff to mappings.
         """
-        self._mapping.update((key+'=', val+'=') for key, val in self._mapping.items() if not key.endswith('='))
+        self._mapping.update((key+'=', val+'=') for key, val in list(self._mapping.items()) if not key.endswith('='))
 
         if config.debug:
             self.LOG.debug("CMD MAPPINGS ARE: %r" % (self._mapping,))
