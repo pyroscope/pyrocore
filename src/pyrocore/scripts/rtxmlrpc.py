@@ -131,7 +131,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             if arg and arg[0] in "+-":
                 try:
                     arg = int(arg, 10)
-                except (ValueError, TypeError), exc:
+                except (ValueError, TypeError) as exc:
                     self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
             elif arg.startswith('[['):  # escaping, not a list
                 arg = arg[1:]
