@@ -166,8 +166,6 @@ class RTorrentMethod(object):
                     filename = "/tmp/xmlrpc2scgi-%s.xml" % os.getuid()
                     handle = open(filename, "wb")
                     try:
-                        print(type(xmlreq))
-                        print(type(xmlresp))
                         handle.write(b"REQUEST\n")
                         handle.write(xmlreq)
                         handle.write(b"\nRESPONSE\n")
