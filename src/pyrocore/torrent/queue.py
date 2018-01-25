@@ -68,7 +68,8 @@ class QueueManager(object):
         # Check if anything more is ready to start downloading
         startable = [i for i in items if self.config.startable.match(i)]
         if not startable:
-            self.LOG.debug("Checked %d item(s), none startable" % (len(items),))
+            self.LOG.debug("Checked %d item(s), none startable according to [ %s ]",
+                           len(items), self.config.startable)
             return
 
         # Check intermission delay
