@@ -47,7 +47,7 @@ class MaskTest(unittest.TestCase):
         )
         mapping = {
             "D": lambda: random.choice("0123456789"),
-            "Z": lambda: random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"),
+            "Z": lambda: random.choice("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxyz"),
         }
 
         for testcase in testcases:
