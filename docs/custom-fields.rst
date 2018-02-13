@@ -203,6 +203,11 @@ This example works together with :ref:`QueueManager`, so that only items that pa
 space check are actually started. Meaning you can safely employ automatic downloading
 via e.g. RSS, without fear of a disk full situation when your disk space housekeeping fails.
 
+It is also much more robust than a schedule using rTorrent's ``close_low_diskspace`` command
+– pre-allocation of a started item still eats up disk space, and stopping an item
+shortly afterwards doesn't fix that. Which means if a RSS feed constantly adds new auto-started
+items, your disk *will* fill up when using only such a schedule.
+
 The first step is to add a custom field that checks whether an item has
 room on the target device. As with the other examples, place this in
 your ``config.py`` (read the 1st two sections, before the “Examples” one).
