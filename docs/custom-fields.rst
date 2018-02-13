@@ -236,6 +236,20 @@ your ``config.py`` (read the 1st two sections, before the “Examples” one).
 And now, all you need is to add ``has_room=y`` to your
 ``job.queue.startable`` conditions in ``torque.ini``. Done.
 
+.. important::
+
+    To ensure that checking for free space works as expected, only start one item at a time,
+    and enforce a delay after each start, so that disk space can be claimed
+    before the next item's check is performed.
+
+    In other words, use queue configuation values similar to these:
+
+    .. code-block:: ini
+
+        job.queue.schedule          = second=*/5
+        job.queue.start_at_once     = 1
+        job.queue.intermission      = 120
+
 Note that you can set the threshold of space to keep free (in MiB) in
 the ``GLOBAL`` section of ``config.ini``, and the default is 500MiB.
 You should **keep** your ``close_low_diskspace`` schedule for rTorrent as a fallback,
