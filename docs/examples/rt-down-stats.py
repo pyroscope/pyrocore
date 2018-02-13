@@ -68,14 +68,15 @@ class DownloadStats(base.ScriptBaseWithConfig):
         eta_list = [0]
         if stalled_count < len(items):
             eta_list = [d.left_bytes / d.down_rate for d in items if d.down_rate >= stalled_rate]
+        eta_max = total_left / (global_down_rate or 1)
 
         stalled_info = ', {} stalled below {}/s'.format(
             stalled_count, fmt.human_size(stalled_rate).strip()) if stalled_count else ''
         print("Size left to download: ",
             fmt.human_size(total_left), 'of', fmt.human_size(total_size).strip())
         print("Overall download speed:", fmt.human_size(global_down_rate) + '/s')
-        print("ETA (min / max):       ",
-            fmt_duration(min(eta_list)), '…', fmt_duration(max(eta_list)),
+        print("ETA (min → max):       ",
+            fmt_duration(min(eta_list)), '→', fmt_duration(eta_max), '…', fmt_duration(max(eta_list)),
             '[{} item(s){}]'.format(len(items), stalled_info),
         )
 
