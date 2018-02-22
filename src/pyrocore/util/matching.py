@@ -324,8 +324,8 @@ class PatternFilter(FieldFilter):
             except UnicodeEncodeError:
                 return ''
             else:
-                return '"string.contains_i=${},{}"'.format(
-                       self.PRE_FILTER_FIELDS[self._name], needle)
+                return r'"string.contains_i=${},\"{}\""'.format(
+                       self.PRE_FILTER_FIELDS[self._name], needle.replace('"',r'\\\"'))
 
         return ''
 
@@ -370,8 +370,8 @@ class TaggedAsFilter(FieldFilter):
                 val = self._value
                 if self._exact:
                     val = val.copy().pop()
-                return '"string.contains_i=${},{}"'.format(
-                       self.PRE_FILTER_FIELDS[self._name], val)
+                return r'"string.contains_i=${},\"{}\""'.format(
+                       self.PRE_FILTER_FIELDS[self._name], val.replace('"',r'\\\"'))
         return ''
 
     def validate(self):
