@@ -318,10 +318,10 @@ def stopdocs():
 #
 
 @task
-@needs("nosetests")
 def test():
     "run unit tests"
-
+    sh("coverage run $(which nosetests)")
+    sh('coverage report --include="*pyrocore*" --omit="*test*"')
 
 @task
 def coverage():
@@ -329,6 +329,7 @@ def coverage():
     coverage_index = path("build/coverage/index.html")
     coverage_index.remove()
     sh("paver test")
+    sh('coverage html --include="*pyrocore*" --omit="*test*" -d build/coverage/')
     coverage_index.exists() and webbrowser.open(coverage_index)
 
 
