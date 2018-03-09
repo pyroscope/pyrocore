@@ -222,32 +222,40 @@ def clean_meta(meta, including_info=False, logger=None):
     return modified
 
 
-def sanitize(meta):
+def sanitize(meta, diagnostics=False):
     """ Try to fix common problems, especially transcode non-standard string encodings.
     """
-    def sane_encoding(text):
+    bad_encodings, bad_fields = set(), set()
+
+    def sane_encoding(field, text):
         "Transcoding helper."
         for encoding in ('utf-8', meta.get('encoding', None), 'cp1252'):
             if encoding:
                 try:
-                    return text.decode(encoding).encode("utf-8")
+                    u8_text = text.decode(encoding).encode("utf-8")
+                    if encoding != 'utf-8':
+                        bad_encodings.add(encoding)
+                        bad_fields.add(field)
+                    return u8_text
                 except UnicodeError:
                     continue
         else:
             # Broken beyond anything reasonable
+            bad_encodings.add('UNKNOWN/EXOTIC')
+            bad_fields.add(field)
             return str(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
 
     # Go through all string fields and check them
     for field in ("comment", "created by"):
         if field in meta:
-            meta[field] = sane_encoding(meta[field])
+            meta[field] = sane_encoding(field, meta[field])
 
-    meta["info"]["name"] = sane_encoding(meta["info"]["name"])
+    meta["info"]["name"] = sane_encoding('info name', meta["info"]["name"])
 
     for entry in meta["info"].get("files", []):
-        entry["path"] = [sane_encoding(i) for i in entry["path"]]
+        entry["path"] = [sane_encoding('file path', i) for i in entry["path"]]
 
-    return meta
+    return (meta, bad_encodings, bad_fields) if diagnostics else meta
 
 
 def assign_fields(meta, assignments):
@@ -685,7 +693,7 @@ class Metafile(object):
         """ List torrent info & contents. Returns a list of formatted lines.
         """
         # Assemble data
-        metainfo = sanitize(bencode.bread(self.filename))
+        metainfo, bad_encodings, bad_fields = sanitize(bencode.bread(self.filename), diagnostics=True)
         announce = metainfo['announce']
         info = metainfo['info']
         infohash = hashlib.sha1(bencode.bencode(info))
@@ -745,5 +753,13 @@ class Metafile(object):
                     ' ' * (4*len(entry_path)) + entry_path[-1],
                     fmt.human_size(entry['length']),
                 ))
+
+        if bad_encodings:
+            result.extend([
+                "",
+                "WARNING: Bad encoding(s) {} in these fields: {}"
+                .format(', '.join(sorted(bad_encodings)), ', '.join(sorted(bad_fields))),
+                "Use the --raw option to inspect these encoding issues.",
+            ])
 
         return result
