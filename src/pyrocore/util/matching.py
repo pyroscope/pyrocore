@@ -325,7 +325,7 @@ class PatternFilter(FieldFilter):
                 return ''
             else:
                 return r'"string.contains_i=${},\"{}\""'.format(
-                       self.PRE_FILTER_FIELDS[self._name], needle.replace('"',r'\\\"'))
+                       self.PRE_FILTER_FIELDS[self._name], needle.replace('"', r'\\\"'))
 
         return ''
 
@@ -371,7 +371,7 @@ class TaggedAsFilter(FieldFilter):
                 if self._exact:
                     val = val.copy().pop()
                 return r'"string.contains_i=${},\"{}\""'.format(
-                       self.PRE_FILTER_FIELDS[self._name], val.replace('"',r'\\\"'))
+                       self.PRE_FILTER_FIELDS[self._name], val.replace('"', r'\\\"'))
         return ''
 
     def validate(self):
