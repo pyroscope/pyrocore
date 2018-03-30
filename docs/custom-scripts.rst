@@ -193,7 +193,8 @@ Core stats of active downloads
 The ``rt-down-stats`` script prints some statistics about currently active downloads,
 particularly the range of expected arrival times.
 
-It shows how you can nicely handle the result of a ``multicall`` using Python's ``namedtuple``,
+It shows how nicely you can handle the result of ``config.engine.multicall``,
+which is using Python's ``namedtuple`` under the hood,
 based on a simple field list like this:
 
 .. literalinclude:: examples/rt-down-stats.py
@@ -201,7 +202,7 @@ based on a simple field list like this:
    :start-after: VERSION
    :end-before: add_options
 
-The first few lines of the ``mainloop`` then use the ``multicall`` helper method
+The first few lines of the ``mainloop`` then use the ``multicall`` helper method,
 to make accessing the result list actually readable.
 So instead of obscuring intent with numerical indexes or similar,
 the actual names of the fetched attributes are used to access them.
@@ -222,5 +223,34 @@ If you call it, this is what you get:
 
 
 .. _`full rt-down-stats script`: https://github.com/pyroscope/pyrocore/blob/master/docs/examples/rt-down-stats.py
+
+
+List Stuck Tracker Announces
+""""""""""""""""""""""""""""
+
+The ``rt-stuck-trackers`` script lists started items whose announces are stuck,
+i.e. where last activity is older than the normal announce interval.
+
+It shows how to use ``namedtuple``, as mentioned in the previous example,
+on rTorrent entities other than download items
+– in this case the tracker list of an item.
+
+.. literalinclude:: examples/rt-stuck-trackers.py
+   :language: python
+   :pyobject: StuckTrackers.mainloop
+
+See the `full rt-stuck-trackers script`_ for all the details.
+If you call it, this is what you get:
+
+.. code-block:: console
+
+    $ docs/examples/rt-stuck-trackers.py -aq
+        #   Last  URL
+        1   2:17  https://tracker.example.com/announce.php
+
+The index shown is the item's position in the ``started`` view.
+
+
+.. _`full rt-stuck-trackers script`: https://github.com/pyroscope/pyrocore/blob/master/docs/examples/rt-stuck-trackers.py
 
 .. End custom-scripts
