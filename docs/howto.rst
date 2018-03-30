@@ -424,3 +424,55 @@ Here's a trace of what happens for known and unknown aliases:
     ++ pyroadmin -qo commands.custom_meta_unknown=:
     + eval : foo.torrent
     ++ : foo.torrent
+
+
+Moving All Untied Metafiles Out of a Watch Tree
+-----------------------------------------------
+
+Sometimes when rTorrent starts, you see the following message, possibly repeated a lot:
+
+    Could not create download: Info hash already used by another torrent.
+
+That is caused by metafiles with the same infohash but from different sources
+(in different files), that are somehow left over in a watch directory.
+A typical variant is when a watch file clashes
+with a previously untied item now loaded via the session.
+
+To fix it for good, you can check all metafiles
+found in a watch tree if they're still tied to an item in rTorrent,
+or else move them away, like this:
+
+.. code-block:: sh
+
+    ( command cd "/var/torrent/watch" && find . -type f -name "*.torrent" | \
+    while read metafile; do
+        rtcontrol -qo- metafile='*/'$(tr -c '\n\-._/a-zA-Z0-9' '*' <<<"${metafile#*/}"); RC=$?
+        if test $RC -eq 44; then
+            target="/var/torrent/backups/untied/$(dirname "$metafile")"
+            echo -e "\nMoving '$metafile'..."
+            mkdir -p "$target"
+            mv -n "$metafile" "$target"
+            continue
+        elif test $RC -ne 0; then
+            break
+        fi
+        echo -n '.'
+    done )
+
+The loop is not optimized for speed, but then you don't need to call this very often.
+
+On a related note, to list all the metafiles
+that an item is still tied to but that doesn't exist anymore,
+use this command:
+
+.. code-block:: sh
+
+    rtcontrol -q 'metafile=!' --call \
+        'test -f "{{ item.metafile }}" || echo "{{ item.metafile }}"'
+
+To make the untied state visible in the client, call this:
+
+.. code-block:: sh
+
+    rtcontrol -q 'metafile=!' --call \
+        'test -f "{{ item.metafile }}" || rtxmlrpc -q d.delete_tied "{{ item.hash }}"'
