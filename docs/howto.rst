@@ -462,7 +462,7 @@ or else move them away, like this:
 The loop is not optimized for speed, but then you don't need to call this very often.
 
 On a related note, to list all the metafiles
-that an item is still tied to but that doesn't exist anymore,
+that an item is still tied to but that don't exist anymore,
 use this command:
 
 .. code-block:: sh
