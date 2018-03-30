@@ -3,7 +3,9 @@ Custom Python Code
 
 You can write your own code for ``pyrocore`` implementing custom features,
 by adding fields, your own command line scripts, or ``pyrotorque`` jobs.
-You probably need a solid grasp of Python for this.
+You probably need a `solid grasp of Python`_ for this.
+
+.. _`solid grasp of Python`: https://github.com/TechBookHunter/Free-Python-Books#free-python-books
 
 
 .. _CustomFields:
