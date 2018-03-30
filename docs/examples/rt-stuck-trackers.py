@@ -27,7 +27,9 @@ class StuckTrackers(base.ScriptBaseWithConfig):
 
     def mainloop(self):
         import time
-        from collections import namedtuple
+        from urlparse import urlparse
+        from collections import namedtuple, Counter
+        from pyrobase import fmt
 
         proxy = config.engine.open()
         now = int(time.time())
@@ -35,15 +37,20 @@ class StuckTrackers(base.ScriptBaseWithConfig):
         t_multicall = namedtuple('multicall', fields)
         rows = proxy.d.multicall('started', 't.multicall=,{}'.format(
             ','.join(['t.{}='.format(i) for i in fields])))
+        stuck = Counter()
 
-        print('{:>5s}  {:>5s}  {}'.format('#', 'Last', 'URL'))
+        print('{:>5s}  {:>13s}  {}'.format('#', 'Last Announce', 'URL'))
         for idx, row in enumerate(rows, 1):
             t = t_multicall(*row[0][0])
             delta = now - t.activity_time_last
             if self.options.all or delta > t.normal_interval:
-                print('{i:5d}  {m:>2d}:{s:02d}  {t.url}'
-                      .format(t=t, i=idx, m=delta//60, s=delta%60))
+                stuck[urlparse(t.url).netloc.split(':')[0]] += 1
+                print('{i:5d}  {delta}  {t.url}'
+                      .format(t=t, i=idx, delta=fmt.human_duration(t.activity_time_last, precision=2, short=True)))
 
+        if sum(stuck.values()):
+            self.LOG.info("Stuck items: TOTAL={}, {}".format(sum(stuck.values()),
+                ', '.join(['{}={}'.format(*i) for i in stuck.most_common()])))
         self.LOG.debug("XMLRPC stats: %s" % proxy)
 
 
