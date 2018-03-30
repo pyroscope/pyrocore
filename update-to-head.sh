@@ -69,11 +69,22 @@ for project in $git_projects; do
     ( builtin cd $project && ../bin/paver -q develop -U )
 done
 
-# Register new executables
 ln -nfs python ./bin/python-pyrocore
-test ! -d ${BIN_DIR:-~/bin} || \
-    ln -nfs $(egrep -l '(from.pyrocore.scripts|entry_point.*pyrocore.*console_scripts)' $PWD/bin/*) ${BIN_DIR:-~/bin}/
-test ! -d ${BIN_DIR:-~/bin} || ln -nfs $PWD/bin/python-pyrocore ${BIN_DIR:-~/bin}/
+if test -d ${BIN_DIR:-$HOME/bin}; then
+    # Register new executables
+    ln -nfs $(egrep -l '(from.pyrocore.scripts|entry_point.*pyrocore.*console_scripts)' $PWD/bin/*) ${BIN_DIR:-$HOME/bin}/
+    ln -nfs $PWD/bin/python-pyrocore ${BIN_DIR:-$HOME/bin}/
+
+    # Link to example scripts
+    find "$PROJECT_ROOT/docs/examples" -name "rt-*" -executable -type f | \
+    while read script; do
+        name=$(basename "$script")
+        name="${BIN_DIR:-$HOME/bin}/${name%.py}"
+        if test -L "$name" -o ! -e "$name"; then
+            ln -nfs "$script" "$name"
+        fi
+    done
+fi
 
 # Make sure people update their main config
 rm -f "$PROJECT_ROOT/src/pyrocore/data/config"/rtorrent-0.8.?.rc 2>/dev/null || :
