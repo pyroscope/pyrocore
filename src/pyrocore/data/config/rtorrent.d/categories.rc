@@ -62,7 +62,7 @@ method.insert = pyro.category.update, simple,\
 # If you use "load.category", items are started immediately by
 # default, but you can change that with "cfg.watch.start.set = 0".
 # There are also variants with fixed behaviour, named
-# "load.category.start" and "load.category.start".
+# "load.category.normal" and "load.category.start".
 #
 # Alternatively, you can add `pyro.category.separated.set = 1` to
 # the END of your custom config, which causes the download path
