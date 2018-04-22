@@ -19,6 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+import re
 import sys
 import glob
 import time
@@ -136,7 +137,7 @@ class ScriptBase(object):
             self.version = pkg_dict.get("Version", "DEV")
 
         where = os.path.commonprefix([__file__, os.path.realpath(sys.argv[0]), sys.prefix])
-        where = (where + os.sep).replace(os.path.expanduser('~' + os.sep), '~' + os.sep).rstrip(os.sep)
+        where = re.sub('^' + os.path.expanduser('~') + os.sep, '~' + os.sep, where + os.sep).rstrip(os.sep)
         self.version_info = '{}{}{} on Python {}'.format(
            self.version, ' from ' if where else '', where, sys.version.split()[0])
 
