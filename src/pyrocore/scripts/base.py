@@ -80,13 +80,15 @@ class ScriptBase(object):
         """ Try to find package metadata.
         """
         logger = logging.getLogger('pyrocore.scripts.base.version_info')
-        pkg_info = "Version: 0.0.0\n"
-        for info_ext, info_name in (('.egg-info', 'PKG-INFO'), ('.dist-info', 'METADATA')):
+        pkg_info = None
+        warnings = []
+
+        for info_ext, info_name in (('.dist-info', 'METADATA'), ('.egg-info', 'PKG-INFO')):
             try:
                 # Development setup
                 pkg_path = os.path.join(
-                    __file__.split(__name__.replace('.', os.sep))[0], # containing path
-                    __name__.split(".")[0] # package name
+                    __file__.split(__name__.replace('.', os.sep))[0],  # containing path
+                    __name__.split(".")[0]  # package name
                 )
                 if os.path.exists(pkg_path + info_ext):
                     pkg_path += info_ext
@@ -95,25 +97,28 @@ class ScriptBase(object):
                     if len(globbed_paths) == 1:
                         pkg_path = globbed_paths[0]
                     elif globbed_paths:
-                        logger.warn("Found %d release-specific candidate versions" % len(globbed_paths))
+                        warnings.append("Found {} release-specific candidate versions in *{}"
+                                        .format(len(globbed_paths), info_ext))
                         pkg_path = None
                     else:
                         globbed_paths = glob.glob(pkg_path + "-*" + info_ext)
                         if len(globbed_paths) == 1:
                             pkg_path = globbed_paths[0]
                         else:
-                            logger.warn("Found %d candidate versions" % len(globbed_paths))
+                            warnings.append("Found {} candidate versions in *{}"
+                                            .format(len(globbed_paths), info_ext))
                             pkg_path = None
                 if pkg_path:
                     with open(os.path.join(pkg_path, info_name)) as handle:
                         pkg_info = handle.read()
                     break
-                else:
-                    logger.warn("Software version cannot be determined!")
             except IOError:
-                logger.warn("Software version cannot be determined!")
+                continue
 
-        return pkg_info
+        if not pkg_info:
+            logger.warn("Software version cannot be determined! ({})".format(', '.join(warnings)))
+
+        return pkg_info or "Version: 0.0.0\n"
 
 
     def __init__(self):
