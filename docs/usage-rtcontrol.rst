@@ -323,12 +323,14 @@ Deleting Download Items and Their Data
 
 Using the option ``--cull`` of version 0.3.10, an item can be deleted
 including its data. You can do this either manually, or automatically as
-a part of ratio management (see the section further below on that
-topic).
+a part of :ref:`ratio-management`.
+A full example of automatic space management is shown in the `_cron_sweep`_ script,
+and its `sweep_rules`_ include file with customizable rules.
 
-Called from the shell, you will first be presented with the number of
-items found and then asked for each of them whether you want to delete
-it (interactive mode is on by default). Therefor, for automatic uses in
+When you call ``rtcontrol --cull …`` from the shell,
+you will first be presented with the number of items found
+and then asked for each of them whether you want to delete it
+(interactive mode is on by default). Therefor, for automatic uses in
 cron, you should also specify the ``--yes`` option.
 
 If you define the following command shortcut, you can also delete the
@@ -341,6 +343,9 @@ current item directly from ncurses (needs version 0.4.1 to work):
 Just select the item you want to annihilate and enter ``cull=`` into the
 command prompt (``Ctrl-X``).
 Note that *you already have that command added* if you followed the :doc:`setup`.
+
+.. _`_cron_sweep`: https://github.com/pyroscope/pimp-my-box/blob/master/roles/pyroscope-cli/files/bin/_cron_sweep
+.. _`sweep_rules`: https://github.com/pyroscope/pimp-my-box/blob/master/roles/pyroscope-cli/files/etc/sweep_rules
 
 
 Pruning Partial Downloads
@@ -447,6 +452,8 @@ new path. Example:
     cd ~/rtorrent/done/2010-09/tv/avi
     rtmv foo.avi bar.avi
 
+
+.. _ratio-management:
 
 Ratio Management
 """"""""""""""""
