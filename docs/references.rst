@@ -51,7 +51,7 @@ to improve your basic know-how, in case you have trouble following some parts of
 * `The Debian Administrator's Handbook`_
 * `The Linux Command Line`_
 * `The Art of Command Line`_
-* `Ansible Documentation`_.
+* `Ansible Documentation`_
 
 **Python**
 
