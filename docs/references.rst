@@ -37,6 +37,36 @@ See `XMLRPC Migration`_ in the GitHub wiki for details.
 .. _`XMLRPC Migration`: https://github.com/rakshasa/rtorrent/wiki/RPC-Migration-0.9
 
 
+Books & Other Knowledge Sources
+-------------------------------
+
+This and related documentation cannot teach all you need to know in order
+to run a torrent client and manage the server it is installed on.
+
+So here are a few references to either books or web resources that help you
+to improve your basic know-how, in case you have trouble following some parts of the docs.
+
+**Linux / CLI / Administration**
+
+* `The Debian Administrator's Handbook`_
+* `The Linux Command Line`_
+* `The Art of Command Line`_
+* `Ansible Documentation`_.
+
+**Python**
+
+* `The Hitchhiker’s Guide to Python`_
+* `Free Python Books`_
+
+.. _The Debian Administrator's Handbook: https://debian-handbook.info/browse/stable/
+.. _The Linux Command Line: http://linuxcommand.org/tlcl.php
+.. _The Art of Command Line: https://github.com/jlevy/the-art-of-command-line#the-art-of-command-line
+.. _Ansible Documentation: https://docs.ansible.com/#ansible-documentation
+
+.. _`The Hitchhiker’s Guide to Python`: http://docs.python-guide.org/
+.. _`Free Python Books`: https://github.com/TechBookHunter/Free-Python-Books#free-python-books
+
+
 External Links
 --------------
 
