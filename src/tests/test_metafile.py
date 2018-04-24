@@ -116,7 +116,7 @@ class CheckMetaTest(unittest.TestCase):
         for key, data in bad_meta_info_data:
             meta = copy.deepcopy(good_metainfo)
             set_in_dict(meta, ['info'] + key, data)
-            print meta
+            print(meta)
             self.failUnlessRaises(ValueError, check_meta, meta)
 
         self.assertEqual(good_metainfo, check_meta(good_metainfo))
