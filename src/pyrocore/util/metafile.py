@@ -703,7 +703,8 @@ class Metafile(object):
         """
         # Assemble data
         metainfo = bencode.bread(self.filename)
-        bad_encodings, bad_fields = []
+        bad_encodings = []
+        bad_fields = []
         if six.PY2: #PY3 knows it's data
             metainfo, bad_encodings, bad_fields = sanitize(bencode.bread(metainfo), diagnostics=True)
         announce = metainfo['announce']
