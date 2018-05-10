@@ -205,5 +205,9 @@ It will register a job via ``at``, so that command must be installed on
 the machine for it to work. The default throttle speed and timeout can be
 set at the top of the script.
 
+.. literalinclude:: examples/rt-backseat
+   :language: bash
+
+
 .. _`rt-backseat`:
     https://github.com/pyroscope/pyrocore/blob/master/docs/examples/rt-backseat
