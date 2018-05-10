@@ -84,7 +84,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
         "<method> <args>..."
         " |\n           -i <commands>... | -i @<filename> | -i @-"
         " |\n           --session <session-file>... | --session <directory>"
-        " |\n           --session @<filename-list> | -session @-"
+        " |\n           --session @<filename-list> | --session @-"
     )
 
 
