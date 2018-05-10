@@ -44,11 +44,11 @@ if test -n "$(atq -q $queue)"; then
     atrm $(atq -q $queue | cut -f1)
 fi
 
-current=$(rtxmlrpc get_download_rate)
+current=$(rtxmlrpc throttle.global_down.max_rate)
 
 # Schedule new job to reset rate, and then throttle it
 result=$(at -q $queue $timeout <<EOF 2>&1
-rtxmlrpc -q set_download_rate $current
+rtxmlrpc -q throttle.global_down.max_rate.set '' $current
 EOF
 ) || :
 if [[ $result =~ .*(error|arbled).* ]]; then
@@ -56,7 +56,7 @@ if [[ $result =~ .*(error|arbled).* ]]; then
     exit 1
 fi
 echo $result | sed -re "s~warning: commands will be executed using /bin/sh~~"
-rtxmlrpc -q set_download_rate $throttled
+rtxmlrpc -q throttle.global_down.max_rate.set '' $throttled
 
-echo "Speed throttled to $(( $throttled / 1024 )) KiB/s, back to $(( $current / 1024 )) KiB/s at $timeout."
-
+echo "Speed throttled to $(( $throttled / 1024 )) KiB/s," \
+     "back to $(( $current / 1024 )) KiB/s at $timeout."
