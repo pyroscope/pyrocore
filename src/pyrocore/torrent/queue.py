@@ -48,7 +48,7 @@ class QueueManager(object):
 
         self.config.quiet = bool_param("quiet", False)
         self.config.startable = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
-            "is_open=0 is_active=0 is_complete=0 [ %s ]" % self.config.startable
+            "[ %s ] [ %s ]" % (config_ini.torque['queue_startable_base'], self.config.startable)
         )
         self.LOG.info("Startable matcher for '%s' is: [ %s ]" % (self.config.job_name, self.config.startable))
         self.config.downloading = matching.ConditionParser(engine.FieldDefinition.lookup, "name").parse(
