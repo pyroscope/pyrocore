@@ -42,6 +42,8 @@ class QueueManager(object):
         self.proxy = None
         self.last_start = 0
         self.LOG = pymagic.get_class_logger(self)
+        if 'log_level' in self.config:
+            self.LOG.setLevel(config.log_level)
         self.LOG.debug("Queue manager created with config %r" % self.config)
 
         bool_param = lambda key, default: matching.truth(self.config.get(key, default), "job.%s.%s" % (self.config.job_name, key))

@@ -91,6 +91,8 @@ class InfluxDBStats(object):
         self.influxdb.timeout = float(self.influxdb.timeout or '0.250')
 
         self.LOG = pymagic.get_class_logger(self)
+        if 'log_level' in self.config:
+            self.LOG.setLevel(config.log_level)
         self.LOG.debug("InfluxDB statistics feed created with config %r" % self.config)
 
 

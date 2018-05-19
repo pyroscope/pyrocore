@@ -286,6 +286,8 @@ class TreeWatch(object):
     def __init__(self, config=None):
         self.config = config or {}
         self.LOG = pymagic.get_class_logger(self)
+        if 'log_level' in self.config:
+            self.LOG.setLevel(config.log_level)
         self.LOG.debug("Tree watcher created with config %r" % self.config)
 
         self.manager = None
