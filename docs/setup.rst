@@ -158,10 +158,18 @@ As an example, this is a very minimal configuration file:
 Extending your '.rtorrent.rc'
 -----------------------------
 
-The rTorrent configuation needs be augmented with two things,
-a valid XMLRPC configuration that quite often you already have because of web interfaces like ruTorrent,
-and a standard configuration include that adds rTorrent commands and settings needed by ``rtcontrol``.
-That include also provides some convenient features, see :ref:`std-config` for details.
+The rTorrent configuation, typically located at ``~/.rtorrent.rc`` or ``~/rtorrent/rtorrent.rc``,
+needs be augmented with three things:
+
+ #. A valid XMLRPC configuration that quite often you already have because of web interfaces like ruTorrent.
+
+ #. A definition of a session directory, so state is saved between rTorrent restarts.
+
+ #. A standard configuration include that adds rTorrent commands and settings needed by ``rtcontrol``.
+    That include also provides some convenient features, see :ref:`std-config` for details.
+
+You might already *have* these things, depending on what setup procedure you followed.
+Don't add them twice.
 
 .. sidebar:: **Security Hint**
 
@@ -170,11 +178,15 @@ That include also provides some convenient features, see :ref:`std-config` for d
     Most people don't realize that, now you do! Also, **never** use any other address than
     ``127.0.0.1`` with it.
 
+.. rubric:: XMLRPC and Session
+
 You need either a ``network.scgi.open_local`` or ``network.scgi.open_port`` specification in your
 rTorrent configuration, else XMLRPC cannot work;
 ``network.scgi.open_local`` is preferable since more secure.
 Furthermore, you need to provide the path to a session directory via ``session.path``.
 See the *rTorrent* documentation for details.
+
+.. rubric:: Configuration Include
 
 For the ``loaded`` and ``completed`` fields to work, as well as the
 ``started``, ``leechtime`` and ``seedtime`` ones, you also have to add
@@ -204,12 +216,13 @@ these commands (note that most settings actually reside in an
     # Set the second argument to "-v" or "-q" to change log verbosity.
     schedule = pyro_watchdog,30,300,"pyro.watchdog=~/.pyroscope,"
 
-See this
+For a complete example, see this
 `rtorrent.rc <https://github.com/pyroscope/pimp-my-box/blob/master/roles/rtorrent-ps/templates/rtorrent/rtorrent.rc>`_
-and the
+(and the
 `_rtlocal.rc <https://github.com/pyroscope/pimp-my-box/blob/master/roles/rtorrent-ps/templates/rtorrent/_rtlocal.rc>`_
-file it includes for a complete example,
-including some view changes regarding sort order made possible by the additional custom fields.
+file it includes).
+These add even more extensions on top of the features mentioned at :ref:`std-config`,
+by loading the snippets in ``~/rtorrent/rtorrent.d``.
 
 .. important::
 
@@ -227,6 +240,12 @@ Adding Missing Data to Your rTorrent Session
 Now that you have the additional configuration, *newly loaded* items will get the correct values set
 – but existing items are still missing them, and so those items will *not* always be filtered correctly.
 If you just started with a fresh install and have no items added to rTorrent yet, you can ignore this section.
+
+.. important::
+
+    **Paste** the command blocks further below wholesale into a terminal prompt.
+    Either what is between two comments, or else single commands
+    – indented lines are part of *one* command that starts on an unindented line.
 
 To add the missing data, call these commands:
 
