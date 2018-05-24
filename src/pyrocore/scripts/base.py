@@ -51,7 +51,7 @@ class ScriptBase(object):
     ADDITIONAL_HELP = []
 
     # Can be empty or None in derived classes
-    COPYRIGHT = "Copyright (c) 2009 - 2017 Pyroscope Project"
+    COPYRIGHT = "Copyright (c) 2009 - 2018 Pyroscope Project"
 
     # Can be made explicit in derived classes (for external tools)
     VERSION = None

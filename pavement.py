@@ -97,6 +97,7 @@ project = Bunch(
             "rtcontrol = pyrocore.scripts.rtcontrol:run",
             "rtevent = pyrocore.scripts.rtevent:run",
             "rtmv = pyrocore.scripts.rtmv:run",
+            "rtsweep = pyrocore.scripts.rtsweep:run",
             "rtxmlrpc = pyrocore.scripts.rtxmlrpc:run",
             "pyrotorque = pyrocore.scripts.pyrotorque:run",
             # "rtorrd = pyrocore.scripts.rtorrd:run",
