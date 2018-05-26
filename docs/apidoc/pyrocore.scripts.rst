@@ -89,6 +89,14 @@ pyrocore\.scripts\.rtmv module
     :undoc-members:
     :show-inheritance:
 
+pyrocore\.scripts\.rtsweep module
+---------------------------------
+
+.. automodule:: pyrocore.scripts.rtsweep
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pyrocore\.scripts\.rtxmlrpc module
 ----------------------------------
 

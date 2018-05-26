@@ -9,6 +9,14 @@ pyrocore\.torrent package
 Submodules
 ----------
 
+pyrocore\.torrent\.broom module
+-------------------------------
+
+.. automodule:: pyrocore.torrent.broom
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pyrocore\.torrent\.engine module
 --------------------------------
 

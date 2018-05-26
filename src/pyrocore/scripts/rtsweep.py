@@ -22,6 +22,7 @@ from __future__ import absolute_import
 import sys
 
 from pyrocore import config
+from pyrocore.torrent import broom
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
 
 
@@ -46,6 +47,8 @@ class RtorrentSweep(ScriptBaseWithConfig):
         super(RtorrentSweep, self).add_options()
 
         # basic options
+        self.add_bool_option("-n", "--dry-run",
+            help="do not remove anything, just tell what would happen")
         self.add_value_option("-p", "--path", "PATH",
             help="path into the filesystem to sweep (else the default download location)")
 
