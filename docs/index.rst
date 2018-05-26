@@ -29,10 +29,12 @@ without any polling and no extra configuration for nested directories.
     and some features *do* only work when both are present.
 
 You absolutely **must** read the first three chapters
-:doc:`overview`, :doc:`installation`, and :doc:`setup`
-̣— *pyrocore* utilities won't work at all or not properly if
-you do not provide an adequate configuration, and also modify
+:doc:`overview`, :doc:`installation`, and :doc:`setup`,
+and follow their instructions.
+Otherwise *pyrocore* utilities won't work at all or not properly,
+if you do not provide an adequate ``config.ini`` file, and also modify
 the *rTorrent* one to provide some essential data and commands.
+
 Once you got everything basically working, :doc:`usage`
 will show you all the common commands and use-cases. Further chapters then explain
 more complex use-cases and features that might not appeal or apply to you.
