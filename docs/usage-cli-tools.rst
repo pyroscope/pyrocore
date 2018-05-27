@@ -494,8 +494,9 @@ as shown here including some further explanations:
 
 .. literalinclude:: setup.rst
    :language: ini
-   :start-after: [SWEEP_RULES_CUSTOM]
-   :end-before:  [ANNOUNCE]
+   :start-at: [SWEEP_RULES_CUSTOM]
+   :end-before: [ANNOUNCE]
+   :dedent: 4
 
 Rules are applied in the order of their priority.
 If a rule fails to provide more items to delete, the next rule is tried,
@@ -511,14 +512,14 @@ The built-in rules are these:
 
 .. literalinclude:: ../src/pyrocore/data/config/config.ini
    :language: ini
-   :start-after: [SWEEP_RULES_BUILTIN]
+   :start-at: [SWEEP_RULES_BUILTIN]
    :end-before: [ANNOUNCE]
 
 You can also change some fundamental settings regarding the behaviour of ``rtsweep``:
 
 .. literalinclude:: ../src/pyrocore/data/config/config.ini
    :language: ini
-   :start-after: [SWEEP]
+   :start-at: [SWEEP]
    :end-before: [SWEEP_RULES_CUSTOM]
 
 
