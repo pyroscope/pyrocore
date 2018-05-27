@@ -35,10 +35,12 @@ class RtorrentSweep(ScriptBaseWithConfig):
         The required space is passed as the first argument, either in bytes or
         qualified with a unit character (K=KiB, M=MiB, G=GiB). Alternatively, you can
         pass a metafile path, with the requirement calculated from its content size.
+
+        Use "show" instead to list the active rules, ordered by their priority.
     """
 
     # argument description for the usage information
-    ARGS_HELP = "<space requirement>"
+    ARGS_HELP = "<space requirement>|SHOW"
 
 
     def add_options(self):
@@ -51,6 +53,9 @@ class RtorrentSweep(ScriptBaseWithConfig):
             help="do not remove anything, just tell what would happen")
         self.add_value_option("-p", "--path", "PATH",
             help="path into the filesystem to sweep (else the default download location)")
+        self.add_value_option("-r", "--rules", "RULESET [-r ...]",
+            action="append", default=[],
+            help="name the ruleset(s) to use, instead of the default ones")
 
 
     def mainloop(self):

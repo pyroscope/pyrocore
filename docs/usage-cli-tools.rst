@@ -462,6 +462,66 @@ The :ref:`RtXmlRpcExamples` section shows some typical examples for querying glo
 and controlling rTorrent behaviour.
 
 
+.. _rtsweep:
+
+rtsweep
+^^^^^^^
+
+**NOT IMPLEMENTED YET!**  https://github.com/pyroscope/pyrocore/issues/7
+
+The :ref:`cli-usage-rtsweep` command provides means to perform automatic disk space management.
+It does so by deleting items loaded into rTorrent, including their data,
+following rules in the configuration that define an order of what to remove first.
+
+The required space is passed as the first argument, either in bytes or
+qualified with a unit character (K=KiB, M=MiB, G=GiB).
+Alternatively, you can pass a metafile path, with the requirement calculated from its content size.
+
+``rtsweep`` has these options::
+
+    -n, --dry-run         do not remove anything, just tell what would happen
+    -p PATH, --path=PATH  path into the filesystem to sweep (else the default download location)
+    -r RULESET [-r ...], --rules=RULESET [-r ...]
+                          name the ruleset(s) to use, instead of the default ones
+
+Use ``rtsweep show`` to list the active rules, ordered by their priority.
+
+
+.. rubric:: Sweeping Rules
+
+Rules are defined in the ``[SWEEP_RULES_CUSTOM]`` section,
+as shown here including some further explanations:
+
+.. literalinclude:: setup.rst
+   :language: ini
+   :start-after: [SWEEP_RULES_CUSTOM]
+   :end-before:  [ANNOUNCE]
+
+Rules are applied in the order of their priority.
+If a rule fails to provide more items to delete, the next rule is tried,
+until there are no more configured rules.
+Finally, if there is still not enough free space, *any* unprotected item is fair game,
+using the default order from ``SWEEP::default_sort```.
+
+Also keep in mind that only items stored on the targeted file system are considered.
+It is defined by the ``--path`` option
+– rTorrent's default download location is used when no explicit path is provided.
+
+The built-in rules are these:
+
+.. literalinclude:: ../src/pyrocore/data/config/config.ini
+   :language: ini
+   :start-after: [SWEEP_RULES_BUILTIN]
+   :end-before: [ANNOUNCE]
+
+You can also change some fundamental settings regarding the behaviour of ``rtsweep``:
+
+.. literalinclude:: ../src/pyrocore/data/config/config.ini
+   :language: ini
+   :start-after: [SWEEP]
+   :end-before: [SWEEP_RULES_CUSTOM]
+
+
 .. _rtmv:
 
 rtmv

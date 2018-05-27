@@ -26,3 +26,26 @@ from __future__ import absolute_import
 
 from pyrocore import config
 from pyrocore.torrent import matching
+
+
+# XXX Default sort order: loaded
+# XXX check "sweep_use_builtin_rules" to filter for prio >= 0
+
+
+#    test "$1" = "--aggressive" && { shift; activity=5i; } || activity=4h
+#        $DRY ~/bin/rtcontrol -/1 --cull active=+$activity [ NOT [ $PROTECTED ] ] \
+#            -qco loaded,size.sz,uploaded.sz,seedtime,ratio,name "$@" $INTERACTIVE; rc=$?
+#   log.debug("No matches for {ruleset}
+
+##needed=$(( $requested + $RESERVED_GiB * $GiB )) # Add a few GiB for the system
+##log.info"Disk space management started [with $(print_gib $(download_free)) free]")
+
+# Finally, go through everything sorted by age (with staged activity protection)
+## -s loaded //
+## --aggressive -s loaded //
+
+#    $INFO "Disk space management finished in ${took_secs}s [$(print_gib $(download_free)) free," \
+#        "$(print_gib $requested) requested]"
+#        $INFO "Removed $(( $start_items - $after_items )) item(s)," \
+#            "freeing $(print_gib $(( $after_free - $start_free ))) disk space" \
+#            "[now $(print_gib $(download_free)) free, took ${took_secs}s]."

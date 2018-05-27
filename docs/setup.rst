@@ -135,6 +135,24 @@ As an example, this is a very minimal configuration file:
     config_script = %(config_dir)s/config.py
     rtorrent_rc = ~/.rtorrent.rc
 
+    [SWEEP_RULES_CUSTOM]
+    # Rules to manage disk space
+    #
+    # Rules are ordered by the given priority. You can disable built-in rules
+    # found in the [SWEEP_RULES_BUILTIN] section by changing "default_rules"
+    # in the [SWEEP] section. Use "rtsweep show" to list active rules.
+    #
+    # Default sort order for each rule is by "loaded" date (oldest first).
+    # Note that active, prio 3, and ignored items are protected!
+    #
+    # If the active rules fail to provide enough space, as much of the oldest
+    # items as needed are removed.
+
+    # Seeded and bigger than 500M after 7 days, inactive and big items first
+    seeded7d.prio   = 910
+    seeded7d.sort   = active,-size
+    seeded7d.filter = ratio=+1.2 size=+500m loaded=+5d
+
     [ANNOUNCE]
     # Add alias names for announce URLs to this section; those aliases are used
     # at many places, e.g. by the "mktor" tool
