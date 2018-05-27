@@ -135,6 +135,15 @@ As an example, this is a very minimal configuration file:
     config_script = %(config_dir)s/config.py
     rtorrent_rc = ~/.rtorrent.rc
 
+    [SWEEP]
+    # Settings for the "rtsweep" tool
+
+    # Use the rules from the named [SWEEP_RULES_‹name›] sections
+    default_rules = builtin, custom
+
+    # Minimum amount of space that must be kept free (adds to the space request)
+    space_min_free = 10g
+
     [SWEEP_RULES_CUSTOM]
     # Rules to manage disk space
     #

@@ -516,7 +516,10 @@ The built-in rules are these:
    :start-at: [SWEEP_RULES_BUILTIN]
    :end-before: [ANNOUNCE]
 
-You can also change some fundamental settings regarding the behaviour of ``rtsweep``:
+.. rubric:: Other `rtsweep` Configuration
+
+You can also change some fundamental settings regarding the behaviour of ``rtsweep``,
+of which ``space_min_free`` is the most likely you want to adapt:
 
 .. literalinclude:: ../src/pyrocore/data/config/config.ini
    :language: ini
