@@ -222,7 +222,10 @@ def gendocs():
         ])
         help_opt = "--help-fields --config-dir /tmp" if tool == "rtcontrol" else "--help"
         help_txt = sh("%s -q %s" % (tool, help_opt), capture=True, ignore_error=True).splitlines()
-        content.extend('    ' + i for i in help_txt)
+        content.extend('    ' + i for i in help_txt
+                       if ' on Python ' not in i and 'Copyright (c) 200' not in i
+                       and 'see the full documentation' not in i
+                       and '    https://pyrocore.readthedocs.io/' not in i)
         content.extend([
             "",
         ])

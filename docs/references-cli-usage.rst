@@ -5,7 +5,7 @@
 
 .. note::
 
-    The help output presented here applies to version ``0.5.1`` of the tools.
+    The help output presented here applies to version ``0.6.1.dev20180524`` of the tools.
 
 .. _cli-usage-chtor:
 
@@ -17,10 +17,6 @@ chtor
     Usage: chtor [options] <metafile>...
 
     Change attributes of a bittorrent metafile.
-
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -69,10 +65,6 @@ hashcheck
 
     Check a bittorrent metafile.
 
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
-
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -95,10 +87,6 @@ lstor
     Usage: lstor [options] <metafile>...
 
     List contents of a bittorrent metafile.
-
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -131,10 +119,6 @@ mktor
     loadable by rTorrent. Which means you can register 'mktor' as a magnet:
     URL handler in Firefox.
 
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
-
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -159,7 +143,7 @@ mktor
                             set a specific key to the given value; omit the '=' to delete a key
       --no-cross-seed       do not automatically add a field to the info dict ensuring unique info hashes
       -X LABEL, --cross-seed=LABEL
-                            set additional explicit label for cross-seeding (changes info hash)
+                            set additional explicit label for cross-seeding (changes info hash, use '@entropy' to randomize it)
       -H, --hashed, --fast-resume
                             create second metafile containing libtorrent fast-resume information
 
@@ -173,10 +157,6 @@ pyroadmin
     Usage: pyroadmin [options]
 
     Support for administrative tasks.
-
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -211,10 +191,6 @@ pyrotorque
     Usage: pyrotorque [options]
 
     rTorrent queue manager & daemon.
-
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
 
     Options:
       --version             show program's version number and exit
@@ -271,10 +247,6 @@ rtcontrol
     Use --help to get a list of all options.
     Use --help-fields to list all fields and their description.
 
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
-
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -309,9 +281,13 @@ rtcontrol
       -/ [N-]M, --select=[N-]M
                             select result subset by item position (counting from 1)
       -V, --view-only       show search result only in default ncurses view
-      --to-view=NAME        show search result only in named ncurses view
-      --tee-view            ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)
-      --from-view=NAME      select only items that are on view NAME (NAME can be an info hash to quickly select a single item)
+      --to-view=NAME, --to=NAME
+                            show search result only in named ncurses view
+      --append-view, --append
+                            APPEND search results to ncurses view (modifies -V and --to-view behaviour)
+      --tee-view, --tee     ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)
+      --from-view=NAME, --from=NAME
+                            select only items that are on view NAME (NAME can be an info hash to quickly select a single item)
       -M NAME, --modify-view=NAME
                             get items from given view and write result back to it (short-cut to combine --from-view and --to-view)
       -Q LEVEL, --fast-query=LEVEL
@@ -358,6 +334,7 @@ rtcontrol
       is_private            private flag set (no DHT/PEX)?
       kind                  ALL kinds of files in this item (the same as kind_0)
       kind_N                file types that contribute at least N% to the item's total size
+      last_xfer             last time data was transferred
       leechtime             time taken from start to completion
       loaded                time metafile was loaded
       message               current tracker message
@@ -411,10 +388,6 @@ rtevent
 
     Handle rTorrent events.
 
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
-
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -439,10 +412,6 @@ rtmv
 
     Move data actively seeded in rTorrent.
 
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
-
     Options:
       --version             show program's version number and exit
       -h, --help            show this help message and exit
@@ -458,6 +427,40 @@ rtmv
       -F, --force-incomplete
                             force a move of incomplete data
 
+.. _cli-usage-rtsweep:
+
+rtsweep
+^^^^^^^
+
+::
+
+    Usage: rtsweep [options] <space requirement>|SHOW
+
+    Manage disk space by deleting items loaded into rTorrent, including their data,
+    following configured rules that define an order of what to remove first.
+
+    The required space is passed as the first argument, either in bytes or
+    qualified with a unit character (K=KiB, M=MiB, G=GiB). Alternatively, you can
+    pass a metafile path, with the requirement calculated from its content size.
+
+    Use "show" instead to list the active rules, ordered by their priority.
+
+    Options:
+      --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      -q, --quiet           omit informational logging
+      -v, --verbose         increase informational logging
+      --debug               always show stack-traces for errors
+      --cron                run in cron mode (with different logging configuration)
+      --config-dir=DIR      configuration directory [~/.pyroscope]
+      --config-file=PATH    additional config file(s) to read
+      -D KEY=VAL [-D ...], --define=KEY=VAL [-D ...]
+                            override configuration attributes
+      -n, --dry-run         do not remove anything, just tell what would happen
+      -p PATH, --path=PATH  path into the filesystem to sweep (else the default download location)
+      -r RULESET [-r ...], --rules=RULESET [-r ...]
+                            name the ruleset(s) to use, instead of the default ones
+
 .. _cli-usage-rtxmlrpc:
 
 rtxmlrpc
@@ -465,14 +468,18 @@ rtxmlrpc
 
 ::
 
-    Usage: rtxmlrpc [options] <method> <args>...
+    Usage: rtxmlrpc [options] <method> <args>... |
+               -i <commands>... | -i @<filename> | -i @- |
+               --session <session-file>... | --session <directory> |
+               --session @<filename-list> | --session @-
 
-    Perform raw rTorrent XMLRPC calls, like "rtxmlrpc throttle.up.rate ''".
+    Perform raw rTorrent XMLRPC calls, like "rtxmlrpc throttle.global_up.max_rate".
+    To enter a XMLRPC REPL, pass no arguments at all.
+
     Start arguments with "+" or "-" to indicate they're numbers (type i4 or i8).
-
-    For more details, see the full documentation at
-
-        https://pyrocore.readthedocs.io/
+    Use "[1,2,..." for arrays. Use "@" to indicate binary data, which can be
+    followed by a file path (e.g. "@/path/to/file"), a URL (https, http, ftp,
+    and file are supported), or '-' to read from stdin.
 
     Options:
       --version             show program's version number and exit
@@ -488,3 +495,4 @@ rtxmlrpc
       -r, --repr            show Python pretty-printed response
       -x, --xml             show XML response
       -i, --as-import       execute each argument as a private command using 'import'
+      --session, --restore  restore session state from .rtorrent session file(s)
