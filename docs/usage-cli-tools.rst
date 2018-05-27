@@ -485,6 +485,7 @@ Alternatively, you can pass a metafile path, with the requirement calculated fro
                           name the ruleset(s) to use, instead of the default ones
 
 Use ``rtsweep show`` to list the active rules, ordered by their priority.
+To only display built-in rules, call ``rtsweep -r builtin show``.
 
 
 .. rubric:: Sweeping Rules
@@ -502,11 +503,11 @@ Rules are applied in the order of their priority.
 If a rule fails to provide more items to delete, the next rule is tried,
 until there are no more configured rules.
 Finally, if there is still not enough free space, *any* unprotected item is fair game,
-using the default order from ``SWEEP::default_sort```.
+using the default order from ``SWEEP::default_order``.
 
 Also keep in mind that only items stored on the targeted file system are considered.
-It is defined by the ``--path`` option
-– rTorrent's default download location is used when no explicit path is provided.
+It is defined by the ``--path`` option;
+rTorrent's default download location is used when no explicit path is provided.
 
 The built-in rules are these:
 

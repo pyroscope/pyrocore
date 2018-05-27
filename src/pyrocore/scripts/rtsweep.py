@@ -65,10 +65,21 @@ class RtorrentSweep(ScriptBaseWithConfig):
         if len(self.args) < 1:
             self.parser.error("No space requirement provided!")
 
-        # XXX: Ensure a lock file or similar is checked here,
-        #      to avoid / delay concurrent execution
+        sweeper = broom.DiskSpaceManager(rulesets=self.options.rules)
+        if self.args[0] == 'show':
+            # TODO: use some table data package here
+            fmt = '{:4.4s} {:10.10s} {:15.15s} {:15.15s} {:60.60s}'
+            print(fmt.format('PRIO', 'RULESET', 'NAME', 'ORDER', 'FILTER'))
+            print(fmt.format(*('=' * 66,) * len(fmt.split())))
+            for rule in sweeper.rules:
+                print(fmt.format(str(rule.prio).zfill(4), rule.ruleset, rule.name, rule.order, rule.filter))
+            self.LOG.info('Protected items: {}'.format(sweeper.protected))
+        else:
+            self.fatal("Not implemented")
+            # TODO: Actually implement something here
 
-        # TODO: Actually implement something here
+            # XXX: Ensure a lock file or similar is checked here,
+            #      to avoid / delay concurrent execution
 
 
 def run(): #pragma: no cover
