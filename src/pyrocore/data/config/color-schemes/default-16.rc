@@ -4,6 +4,7 @@ pyro.color_theme.name    = "Default (16 ANSI colors)"
 
 ui.color.alarm.set       = "bold white on red"
 ui.color.complete.set    = "bright green"
+#ui.color.custom1.set     = "gray"
 ui.color.even.set        = ""
 ui.color.focus.set       = "reverse"
 ui.color.footer.set      = "bold bright cyan on blue"

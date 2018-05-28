@@ -4,6 +4,7 @@ pyro.color_theme.name    = "Happy Pastel"
 
 ui.color.alarm.set       = "bold 250 on 124"
 ui.color.complete.set    = "41"
+#ui.color.custom1.set     = 242
 ui.color.even.set        = "on 234"
 ui.color.focus.set       = "reverse"
 ui.color.footer.set      = "bright 123 on 160"

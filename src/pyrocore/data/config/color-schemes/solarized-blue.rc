@@ -4,6 +4,7 @@ pyro.color_theme.name    = "Solarized Blue"
 
 ui.color.alarm.set       = "bold 254 on 160"
 ui.color.complete.set    = "33"
+#ui.color.custom1.set     = 242
 ui.color.even.set        = "on 234"
 ui.color.focus.set       = "reverse"
 ui.color.footer.set      = "bright 254 on 125"
