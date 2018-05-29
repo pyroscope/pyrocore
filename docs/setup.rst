@@ -226,9 +226,12 @@ these commands (note that most settings actually reside in an
     # PyroScope SETTINGS
     #
 
+    # `system.has` polyfill (the "false=" silences the `catch` command, in rTorrent-PS)
+    catch = {"false=", "method.redirect=system.has,false"}
+
     # Set "pyro.extended" to 1 to activate rTorrent-PS features!
-    # LEAVE THIS AT 0 IF YOU RUN A VANILLA rTorrent!
-    method.insert = pyro.extended, value|const, 0
+    # (the automatic way used here only works with rTorrent-PS builds after 2018-05-30)
+    method.insert = pyro.extended, const|value, (system.has, rtorrent-ps)
 
     # Set "pyro.bin_dir" to the "bin" directory where you installed the pyrocore tools!
     # Make sure you end it with a "/"; if this is left empty, then the shell's path is searched.
