@@ -131,11 +131,15 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     arg = int(arg, 10)
                 except (ValueError, TypeError), exc:
                     self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
-            elif arg and arg[0] == '[':
+            elif arg.startswith('[['):  # escaping, not a list
+                arg = arg[1:]
+            elif arg == '[]':
+                arg = []
+            elif arg.startswith('['):
                 arg = arg[1:].split(',')
                 if all(i.isdigit() for i in arg):
                     arg = [int(i, 10) for i in arg]
-            elif arg and arg[0] == '@':
+            elif arg.startswith('@'):
                 arg = xmlrpclib.Binary(read_blob(arg))
             args.append(arg)
 
