@@ -3,26 +3,26 @@
 #   tm_started = time of *first* start
 #   tm_completed = time of completion
 
-method.insert = pyro.tm_started.now, simple|private,\
+method.insert = pyro._tm_started.now, simple|private,\
     "d.custom.set=tm_started,$cat=$system.time= ; d.save_resume="
-method.insert = pyro.tm_completed.now, simple|private,\
+method.insert = pyro._tm_completed.now, simple|private,\
     "d.custom.set=tm_completed,$cat=$system.time= ; d.save_resume="
 
 method.set_key = event.download.resumed, !time_stamp,\
-    "branch=d.custom=tm_started,false=,pyro.tm_started.now="
+    "branch=d.custom=tm_started,false=,pyro._tm_started.now="
 method.set_key = event.download.inserted_new, !time_stamp,\
     "d.custom.set=tm_loaded,$cat=$system.time= ; d.save_resume="
 method.set_key = event.download.finished, !time_stamp,\
-    "pyro.tm_completed.now="
+    "pyro._tm_completed.now="
 method.set_key = event.download.hash_done, !time_stamp,\
-    "branch=\"and={d.complete=,not=$d.custom=tm_completed}\", pyro.tm_completed.now="
+    "branch=\"and={d.complete=,not=$d.custom=tm_completed}\", pyro.tm_completed._now="
 
 
 # EVENTS: Activation intervals
-method.insert = pyro.activations.append, simple|private,\
+method.insert = pyro._activations.append, simple|private,\
     "d.custom.set=activations,\"$cat=$d.custom=activations,$argument.0=,$system.time=\" ; d.save_resume="
-method.set_key = event.download.paused, !activations, "pyro.activations.append=P"
-method.set_key = event.download.resumed, !activations, "pyro.activations.append=R"
+method.set_key = event.download.paused, !activations, "pyro._activations.append=P"
+method.set_key = event.download.resumed, !activations, "pyro._activations.append=R"
 
 
 # EVENTS: Timestamp 'tm_downloaded' (time when meta (torrent) file was downloaded)
@@ -53,16 +53,16 @@ method.insert = d.last_active.print, simple|private,\
 # SCHEDULE: Set "last_xfer" custom timestamp field for items that transfer data
 method.insert.value = pyro.last_xfer.min_rate, 5000
 
-method.insert = pyro_last_xfer_check_min_rate, simple|private,\
+method.insert = pyro._last_xfer_check_min_rate, simple|private,\
     "greater=argument.0=,pyro.last_xfer.min_rate="
-method.insert = pyro_last_xfer_update, simple|private,\
+method.insert = pyro._last_xfer_update, simple|private,\
     "d.custom.set=last_xfer,$cat=$system.time= ; branch=argument.0=,d.save_resume="
 method.insert = d.last_xfer.is_active, simple,\
-    "or={pyro_last_xfer_check_min_rate=$d.up.rate=,pyro_last_xfer_check_min_rate=$d.down.rate=}"
+    "or={pyro._last_xfer_check_min_rate=$d.up.rate=,pyro._last_xfer_check_min_rate=$d.down.rate=}"
 method.insert = d.last_xfer, simple, "if=$d.last_xfer.is_active=,$cat=$system.time=,$d.custom=last_xfer"
 
 schedule2 = pyro_update_last_xfer, 33, 17,\
-    "d.multicall2=active,\"branch=$d.last_xfer.is_active=,pyro_last_xfer_update=\""
+    "d.multicall2=active,\"branch=$d.last_xfer.is_active=,pyro._last_xfer_update=\""
 
 method.insert = d.last_xfer.print, simple|private,\
     "print=\"$cat={$convert.date=$d.last_xfer=, \\\" \\\", $convert.time=$d.last_xfer=}\""
