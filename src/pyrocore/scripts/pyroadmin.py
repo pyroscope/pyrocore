@@ -49,7 +49,7 @@ class AdminTool(ScriptBaseWithConfig):
 
     OPTIONAL_CFG_FILES = ["torque.ini"]
 
-    RC_CONTINUATION_THRESHOLD = 55
+    RC_CONTINUATION_THRESHOLD = 50
 
 
     def add_options(self):
