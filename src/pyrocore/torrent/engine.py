@@ -87,7 +87,7 @@ def _interval_split(interval, only=None, context=None, event_re=re.compile("[A-Z
 def _interval_sum(interval, start=None, end=None, context=None):
     """ Return sum of intervals between "R"esume and "P"aused events
         in C{interval}, optionally limited by a time window defined
-        by C{start} and C{end}. Return empty list if there's no sensible
+        by C{start} and C{end}. Return ``None`` if there's no sensible
         information.
 
         C{interval} is a series of event types and timestamps,
