@@ -15,7 +15,7 @@ method.set_key = event.download.inserted_new, !time_stamp,\
 method.set_key = event.download.finished, !time_stamp,\
     "pyro._tm_completed.now="
 method.set_key = event.download.hash_done, !time_stamp,\
-    "branch=\"and={d.complete=,not=$d.custom=tm_completed}\", pyro._tm_completed._now="
+    "branch=\"and={d.complete=,not=$d.custom=tm_completed}\", pyro._tm_completed.now="
 
 
 # EVENTS: Activation intervals
