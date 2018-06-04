@@ -113,5 +113,8 @@ Call these commands:
 
 EOF
 
+# Show (hopefully new) version at the end
+./bin/pyroadmin --version
+
 # Make sure PATH is decent
 ( echo $PATH | tr : \\n | egrep "^$HOME/bin/?\$" >/dev/null ) || echo "$HOME/bin is NOT on your PATH, you need to fix that"'!'
