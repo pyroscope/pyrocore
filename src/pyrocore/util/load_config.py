@@ -284,6 +284,6 @@ class ConfigLoader(object):
             else:
                 config_trail.append('')
             for i in config_trail:
-                with open(config_file + i, "w") as handle:
+                with open(config_file + i, "wb") as handle:
                     handle.write(text)
                 self.LOG.info("Configuration file %r written!" % (config_file + i,))
