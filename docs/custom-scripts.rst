@@ -244,9 +244,11 @@ If you call it, this is what you get:
 
 .. code-block:: console
 
-    $ docs/examples/rt-stuck-trackers.py -aq
-        #   Last  URL
-        1   2:17  https://tracker.example.com/announce.php
+    $ docs/examples/rt-stuck-trackers.py -a
+       S#  T#     OK  Error Scrape  Last Announce  Infohash      Tracker Domain
+        1   1    180      4      0    53m 48s ago  00……………………FF  tracker.example.com
+    INFO     Stuck items: TOTAL=1, tracker.example.com=1
+    INFO     Total time: 0.163 seconds.
 
 The index shown is the item's position in the ``started`` view.
 
