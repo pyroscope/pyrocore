@@ -7,7 +7,7 @@ pyro.collapsed_view.add = tagged
 view.persistent = tagged
 
 # pyro.view.toggle_visible = ‹viewname› – Toggle visibility of an item for the given view
-method.insert = pyro.view.toggle_visible, simple,\
+method.insert = pyro.view.toggle_visible, simple|private,\
     "branch=d.views.has=$argument.0=,view.set_not_visible=$argument.0=,view.set_visible=$argument.0="
 
 # Empty the 'tagged' view, and remove visibility for all items
