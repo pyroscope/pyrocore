@@ -51,7 +51,8 @@ class StuckTrackers(base.ScriptBaseWithConfig):
             proxy.view.add(xmlrpc.NOHASH, view)
 
         print('{:>5s}  {:>2s}  {:>5s}  {:>5s} {:>6s}  {:>13s}  {:40s}  {}'
-              .format('S#', 'T#', 'OK', 'Error', 'Scrape', 'Last Announce', 'Infohash', 'Tracker Domain'))
+              .format('S#', 'T#', 'OK', 'Error', 'Scrape', 'Last Announce',
+                      'Infohash', 'Tracker Domain'))
         for idx, (infohash, trackers) in enumerate(rows, 1):
             trackers = [t_multicall(*t) for t in trackers]
 
@@ -62,8 +63,8 @@ class StuckTrackers(base.ScriptBaseWithConfig):
                     proxy.view.set_visible(infohash, view)
                 domain = 'ALL TRACKERS DISABLED' if trackers else 'NO TRACKERS'
                 stuck[domain] += 1
-                print('{i:5d}  {n:>2s}  {n:>5s}  {n:>5s}  {n:>5s}  {delta:>13s}  {hash}  {domain}'.format(
-                    i=idx, n='-', hash=infohash, delta='N/A', domain=domain))
+                print('{i:5d}  {n:>2s}  {n:>5s}  {n:>5s}  {n:>5s}  {delta:>13s}  {hash}  {domain}'
+                      .format(i=idx, n='-', hash=infohash, delta='N/A', domain=domain))
                 continue
 
             for num, t in enumerate(trackers, 1):
@@ -81,7 +82,8 @@ class StuckTrackers(base.ScriptBaseWithConfig):
                           '{t.success_counter:5d}  {t.scrape_counter:5d}  {t.failed_counter:5d}  '
                           '{delta}  {hash}  {domain}'
                           .format(t=t, i=idx, n=num, hash=infohash, domain=domain,
-                                  delta=fmt.human_duration(t.activity_time_last, precision=2, short=True)))
+                                  delta=fmt.human_duration(t.activity_time_last,
+                                                           precision=2, short=True)))
 
         if sum(stuck.values()):
             if self.options.to_tagged:
