@@ -22,7 +22,7 @@ sed -e "s:RT_HOME:$RT_HOME:" <"$INSTALL_ROOT/docs/examples/rtorrent.rc" >"$RT_HO
 if test -n "$PMB_ROOT_DIR" -a -d "$PMB_ROOT_DIR"; then
     echo "*** Copying 'rtorrent.d' snippets..."
     mkdir -p "rtorrent.d"
-    cp -p "$PMB_ROOT_DIR/roles/rtorrent-ps/templates/rtorrent/rtorrent.d"/*.rc "rtorrent.d"
+    cp -p "$PMB_ROOT_DIR/roles/rtorrent-ps/templates/rtorrent/rtorrent.d"/*.rc{,.include} "rtorrent.d"
 else
     echo "*** Downloading 'rtorrent.d' snippets..."
     curl -L -o /tmp/$USER-pimp-my-box.tgz \
@@ -38,9 +38,10 @@ fi
 
 # Replace Ansible variables
 echo "*** Configuring 'rtorrent.d' snippets..."
-( command cd rtorrent.d && for i in *.rc; do \
+( command cd rtorrent.d && for i in *.rc{,.include}; do \
     sed -i -re 's/\{\{ item }}/'"$i/" -e '/^# !.+!$/d' "$i" \
-            -e 's:~/rtorrent/:'"$RT_HOME/:" -e "s:'rtorrent' user:'$USER' user:"; \
+            -e 's:~/rtorrent/:'"$RT_HOME/:" -e "s:$HOME/:~/:" \
+            -e "s:'rtorrent' user:'$USER' user:"; \
   done )
 sed -i -re 's/\{\{ inventory_hostname }}/'"$(hostname)/" rtorrent.d/20-session-name.rc
 sed -i -r \
@@ -56,16 +57,16 @@ sed -i -r \
 echo
 echo "*****************************************************************************"
 
-if egrep -m1 '\{\{.+?}}' rtorrent.d/*.rc >/dev/null; then
+if egrep -m1 '\{\{.+?}}' rtorrent.d/*.rc{,.include} >/dev/null; then
     echo "Check the following output, you need to insert your own settings everywhere"
     echo "a '{{ ... }}' placeholder appears!"
     echo
 
-    egrep -nH --color=yes '\{\{.+?}}' rtorrent.d/*.rc
+    egrep -nH --color=yes '\{\{.+?}}' rtorrent.d/*.rc{,.include}
 else
     echo "Your configuration is ready."
     echo
-    ls -lR rtorrent.rc rtorrent.d/*.rc
+    ls -lR rtorrent.rc rtorrent.d/*.rc{,.include}
 fi
 
 # END of "make-rtorrent-config.sh"
