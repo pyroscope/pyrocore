@@ -112,6 +112,8 @@ i.e. know what you're doing. The handlers for an event can be listed like so:
     rtxmlrpc --repr method.get '' event.download.finished
 
 
+.. _relocate-data:
+
 Relocating Download Data
 """"""""""""""""""""""""
 
@@ -139,6 +141,9 @@ Fields of an item can be used via a ``item.‹field-name›`` reference.
 Adding ``>directory=`` prints the new location to the console –
 a semicolon with spaces on both sides delimits several commands, and the ``>`` prints the
 result of a XMLRPC command. Also note that the ``d.`` prefix to download item commands is implied.
+
+The :ref:`move-data` section has more on how to also move the data on disk,
+in addition to changing the location in `rTorrent`'s session as shown here.
 
 
 Making Shared Data Paths Unique

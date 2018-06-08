@@ -133,31 +133,39 @@ Now commands like ``s=`` are defined in ``~/rtorrent1/rtorrent.rc``, and
 ``commands.rc.default`` is not imported, so no duplicate definition errors occur.
 
 
+.. _move-data:
+
 Moving All Data for Selected Items to a New Location
 ----------------------------------------------------
 
 This shows how to move the *data* of all items for a specific tracker
 (identified by the alias ``TRK``) from ``~/rtorrent/data/`` to ``~/rtorrent/data/tracker/``.
-Note that you can do that in *ruTorrent* too, but with too many items, or items too big,
+Note that you can do that in `ruTorrent` too, but with too many items, or items too big,
 the results vary (data is not or only partially moved).
 
-This sequence of commands will stop and relocate the loaded items, move their data,
-and finally start everything again.
+This sequence of commands will stop the selected items, move their data, adapt `rTorrent`'s metadata (session state),
+and finally starts everything again. The order matters and cannot be changed.
+Also, lower the global download throttle to a few KiB/s, as a safety net in case you do something wrong
+– otherwise `rTorrent` might start to redownload all those items at your line's top speed.
 
 .. code-block:: shell
 
     mkdir -p ~/rtorrent/data/tracker
     rtcontrol --to-view tagged alias=TRK realpath=$HOME/rtorrent/data
     rtcontrol --from-view tagged // --stop
-    rtcontrol --from-view tagged // --exec "directory.set=$HOME/rtorrent/data/tracker" --yes
     rtcontrol --from-view tagged // --spawn "mv {{item.path}} $HOME/rtorrent/data/tracker"
+    rtcontrol --from-view tagged // --exec "directory.set=$HOME/rtorrent/data/tracker" --yes --flush
     rtcontrol --from-view tagged // --start
 
 By changing the first ``rtcontrol`` command that populates the ``tagged`` view,
 you can change this to move data for any criteria you can think of — within the
-limits of ``rtcontrol`` :ref:`filter-conditions`. Also, if you run *rTorrent-PS*, you can manually
-remove items from the ``tagged`` view by using the ``.`` key, before applying the
-rest of the commands.
+limits of ``rtcontrol`` :ref:`filter-conditions`. Also, if you run `rTorrent-PS`,
+you can manually remove items from the ``tagged`` view by using the ``.`` key,
+before applying the rest of the commands.
+
+For learning how to calculate the new path based on the old one, read :ref:`relocate-data`.
+In that case, you need to use the same templating expression
+in *both* the target of the ``mv`` command, and the ``directory.set`` one.
 
 Also see the :ref:`advanced-rtcontrol` section that explains
 the ``--spawn`` and ``--exec`` options in more depth.
