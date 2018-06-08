@@ -13,8 +13,11 @@
 # Root directory of this instance.
 method.insert = cfg.basedir, private|const|string, (cat, "RT_HOME", "/")
 
+# `system.has` polyfill (the "false=" silences the `catch` command, in rTorrent-PS)
+catch = {"false=", "method.redirect=system.has,false"}
+
 # Set "pyro.extended" to 1 to activate rTorrent-PS features!
-method.insert = pyro.extended, const|value, 0
+method.insert = pyro.extended, const|value, (system.has, rtorrent-ps)
 
 # Set "pyro.bin_dir" to the "bin" directory where you installed the pyrocore tools!
 # Make sure you end it with a "/"; if this is left empty, then the shell's path is searched.
@@ -45,6 +48,9 @@ import = (cat,(cfg.basedir),"rtorrent.d/.import.rc")
 
 # Add anything of your own here...
 # But better put your own custom settings into additional files in 'rtorrent.d'!
+
+# INCLUDE: Local settings
+try_import = (cat,(cfg.basedir),"_rtlocal.rc")
 
 # NETWORK: Unwanted peers
 ##ipv4_filter.add_address = 1.2.3.666, unwanted
