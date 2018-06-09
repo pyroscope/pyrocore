@@ -1,5 +1,8 @@
 .. included from usage.rst
 
+Introduction
+^^^^^^^^^^^^
+
 This section provides details on the use of the features that
 are added by the :ref:`standard rTorrent configuraiton include <rtorrent-pyro-rc>`.
 Many of them work on a vanilla release of rTorrent – but see the note below.
