@@ -7,6 +7,19 @@ RT_BINDIR="{{ rtorrent_bindir }}"
 RT_OPTS=( )
 RT_OPTS+=( -D -I )  # comment this to get deprecated commands
 
+builtin cd "$(dirname "$0")"
+export RT_HOME="$(pwd -P)"
+
+fail() {
+    echo "ERROR:" "$@"
+    exit 1
+}
+
+# Performa a mount check
+#test -f "$RT_HOME/work/.mounted" -a -f "$RT_HOME/done/.mounted" \
+#    || fail "Data drive(s) not mounted!"
+
+
 if [ "$TERM" = "${TERM%-256color}" ]; then
     export TERM="$TERM-256color"
 fi
@@ -14,8 +27,6 @@ fi
 export LANG=en_US.UTF-8
 umask 0027
 
-builtin cd $(dirname $0)
-export RT_HOME="$PWD"
 RT_OPTS+=( -n -o "import=$RT_HOME/rtorrent.rc" )
 
 export RT_SOCKET=$PWD/.scgi_local
