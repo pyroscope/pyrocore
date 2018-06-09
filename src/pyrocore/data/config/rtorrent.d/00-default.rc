@@ -35,7 +35,7 @@ method.insert = pyro.bind_key, private|simple,\
 method.insert = pyro.view.collapsed.toggle, private|simple,\
     "branch=(pyro.extended), ((view.collapsed.toggle, (argument.0)))"
 method.insert = pyro.collapsed_view.add, private|simple,\
-    "view.add=(argument.0) ;pyro.view.collapsed.toggle=(argument.0)"
+    "view.add=(argument.0) ; pyro.view.collapsed.toggle=(argument.0)"
 
 # UI/VIEW: Bind "*" to toggle between collapsed and expanded display
 pyro.bind_key = collapsed_view_toggle, *, "view.collapsed.toggle="
