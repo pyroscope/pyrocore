@@ -256,10 +256,12 @@ by loading the snippets in ``~/rtorrent/rtorrent.d``.
 
 .. important::
 
-    Remember to restart *rTorrent* for the new configuration to take effect.
-    If you also installed the `rtorrent-ps`_ distribution of *rTorrent*,
-    do not forget to activate the extended features available with it,
-    by setting ``pyro.extended`` to ``1`` in the above configuration.
+    Remember to restart `rTorrent` for any new configuration to take effect.
+
+    If you also installed the `rTorrent-PS`_ distribution of `rTorrent`,
+    do not forget to activate the extended features available with it.
+    Starting with *version 1.1*, that activation is automatic, as shown above.
+    In older builds, set ``pyro.extended`` to ``1`` in the above configuration.
 
 
 .. _backfill-data:
