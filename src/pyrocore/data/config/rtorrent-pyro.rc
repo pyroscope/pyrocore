@@ -8,6 +8,9 @@
 #
 # Remove the ".default" if you want to change something (else your changes
 # get over-written on update, when you put them into ``*.default`` files).
+# The BETTER way to apply customizations is to use the ``.rcignore`` file
+# to disable the specific ``*.rc.default`` file, and then provide your own
+# version in an EXTRA file.
 #
 # Set "pyro.extended" to 1 to activate rTorrent-PS features, but ONLY if
 # you actually run that patched version of rTorrent!
