@@ -165,6 +165,9 @@ class RtorrentControl(ScriptBaseWithConfig):
     # choices for --prio
     PRIO_OPTIONS = ('0', '1', '2', '3')
 
+    # choices for --alter
+    ALTER_MODES = ('append', 'remove')
+
     # action options that perform some change on selected items
     ACTION_MODES = (
         Bunch(name="start", options=("--start",), help="start torrent"),
@@ -258,9 +261,13 @@ class RtorrentControl(ScriptBaseWithConfig):
         self.add_value_option("--to-view", "--to", "NAME",
             help="show search result only in named ncurses view")
         self.add_bool_option("--append-view", "--append",
-            help="APPEND search results to ncurses view (modifies -V and --to-view behaviour)")
+            help="DEPRECATED: use '--alter append' instead")
+        self.add_value_option("--alter-view", "--alter", "MODE",
+            type='choice', default=None, choices=self.ALTER_MODES,
+            help="alter view according to mode: {} (modifies -V and --to behaviour)"
+                 .format(', '.join(self.ALTER_MODES)))
         self.add_bool_option("--tee-view", "--tee",
-            help="ADDITIONALLY show search results in ncurses view (modifies -V and --to-view behaviour)")
+            help="ADDITIONALLY show search results in ncurses view (modifies -V and --to behaviour)")
         self.add_value_option("--from-view", "--from", "NAME",
             help="select only items that are on view NAME (NAME can be an info hash to quickly select a single item)")
         self.add_value_option("-M", "--modify-view", "NAME",
@@ -442,12 +449,15 @@ class RtorrentControl(ScriptBaseWithConfig):
     def show_in_view(self, sourceview, matches, targetname=None):
         """ Show search result in ncurses view.
         """
+        append = self.options.append_view or self.options.alter_view == 'append'
+        remove = self.options.alter_view == 'remove'
+        action_name = ', appending to' if append else ', removing from' if remove else ' into'
         targetname = config.engine.show(matches,
             targetname or self.options.to_view or "rtcontrol",
-            append=self.options.append_view)
+            append=append, disjoin=remove)
         msg = "Filtered %d out of %d torrents using [ %s ]" % (
             len(matches), sourceview.size(), sourceview.matcher)
-        self.LOG.info("%s into rTorrent view %r." % (msg, targetname))
+        self.LOG.info("%s%s rTorrent view %r." % (msg, action_name, targetname))
         config.engine.log(msg)
 
 
@@ -591,6 +601,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             time.sleep(.05) # let things settle a little
 
         # View handling
+        if self.options.append_view and self.options.alter_view:
+            self.fatal("You cannot combine --append-view with --alter-view")
+
         if self.options.modify_view:
             if self.options.from_view or self.options.to_view:
                 self.fatal("You cannot combine --modify-view with --from-view or --to-view")
