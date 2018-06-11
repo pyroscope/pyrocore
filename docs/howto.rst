@@ -484,3 +484,46 @@ To make the untied state visible in the client, call this:
 
     rtcontrol -q 'metafile=!' --call \
         'test -f "{{ item.metafile }}" || rtxmlrpc -q d.delete_tied "{{ item.hash }}"'
+
+
+.. _rtcontrol-alter:
+
+Safely Remove One Tracker's Items
+---------------------------------
+
+The following uses the ``--alter`` option of ``rtcontrol`` v0.6.1 to select and then remove
+all items of a specific tracker, but only when there are no open duplicates of those items,
+i.e. it excludes any seeds active on other trackers.
+
+.. code-block:: shell
+
+    rtcontrol alias=DEAD -A dupes+ -V
+    rtcontrol views=rtcontrol is_open=yes -A dupes+ -V --alter remove
+    rtcontrol --from rtcontrol // --cull --yes
+    rtcontrol alias=DEAD --delete --yes
+
+The first line selects the primary target set of items to delete
+– if there were no dupes, directly adding ``-cull`` instead of ``-V`` to that command would do the job.
+This simple way would remove the data of actively seeding duplicates though, making them non-viable
+– and that is what we want to avoid.
+
+However, we want to keep those active duplicates and *also* their data,
+so the second command removes them from the first result that was stored in the ``rtcontrol`` view.
+For that, we select the active items in the initial result, add any dupes of *those*,
+and then *take out* that subset using ``--alter remove``.
+Note that ``views=rtcontrol`` is used here instead of ``--from rtcontrol``,
+because otherwise ``--anneal`` doesn't work correctly (see the warning at :ref:`anneal-option` for details).
+
+Now, the reduced result set is culled, leaving the active dupes and their data untouched.
+Finally, left-overs from the target tracker are just deleted.
+
+
+.. rubric:: More Choices to Alter a View
+
+The other choice for ``--alter`` is ``append``,
+which can be used to incrementally assemble filter results into a view.
+While you can also combine filters using ``OR``,
+this way helps in some situations where that is not possible
+– especially when using ``--anneal`` or ``--select``, options that apply to *all* results within *one* command call.
+
+.. end howto.rst

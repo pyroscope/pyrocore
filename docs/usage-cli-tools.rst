@@ -371,6 +371,8 @@ fields), you have three possible options to specify the value:
 See :ref:`useful-filter-conditions` for some concrete examples with an explanation of what they do.
 
 
+.. _anneal-option:
+
 Annealing Results
 """""""""""""""""
 
@@ -410,6 +412,7 @@ unique
     Note that unlike with ‘dupes’, the scope here is only the current result set,
     not *all* loaded items.
 
+See :ref:`rtcontrol-alter` for a practical example using this.
 
 .. warning::
 
