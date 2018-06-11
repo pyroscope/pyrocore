@@ -826,11 +826,13 @@ class RtorrentEngine(engine.TorrentEngine):
         # Clear view and show it
         if not append:
             proxy.view.filter(xmlrpc.NOHASH, view, "false=")
+            proxy.d.multicall2(xmlrpc.NOHASH, 'default', 'd.views.remove=' + view)
         proxy.ui.current_view.set(view)
 
         # Add items
         # TODO: should be a "system.multicall"
         for item in items:
+            proxy.d.views.push_back_unique(item.hash, view)
             proxy.view.set_visible(item.hash, view)
 
         return view

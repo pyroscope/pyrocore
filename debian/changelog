@@ -4,6 +4,7 @@ pyrocore (0.6.1) precise; urgency=low
   * rtcontrol: `--exec` takes prefixed `:global.cmd=`
   * rtcontrol: New timestamp field `last_xfer`
   * rtcontrol: New option `--append-view`
+  * rtcontrol: Fix for view membership management with `--to` / `-V`
   * rtxmlrpc: Added a REPL with auto-completion and stuff
   * rtxmlrpc: Load BLOBs from URLs (rtxmlrpc ... @URL)
   * rtxmlrpc: Added `--session` option to restore metadata
