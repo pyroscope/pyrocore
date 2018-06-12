@@ -5,4 +5,4 @@ pyrobase>=0.5
 #-e git+https://github.com/pyroscope/pyrobase.git#egg=pyrobase
 auvyon>=0.1
 requests>=2.10,<3
-prompt-toolkit>=1.0.14
+prompt-toolkit>=1.0.14,<2
