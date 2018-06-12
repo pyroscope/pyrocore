@@ -237,7 +237,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     script_text = sys.stdin.read()
 
                 with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
-                    handle.write(script_text)
+                    handle.write(script_text.encode('utf-8'))
                     tmp_import = handle.name
                 args = (xmlrpc.NOHASH, tmp_import)
 
