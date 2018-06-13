@@ -39,7 +39,7 @@ class CommaLexer(shlex.shlex):
     """Helper to split argument lists."""
 
     def __init__(self, text):
-        shlex.shlex.__init__(self, text, None, True)
+        shlex.shlex.__init__(self, fmt.to_utf8(text), None, True)
         self.whitespace += ','
         self.whitespace_split = True
         self.commenters = ''
