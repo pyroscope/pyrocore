@@ -56,13 +56,13 @@ install_venv() {
     mkdir -p "$PROJECT_ROOT/lib"
     test -f "$PROJECT_ROOT/lib/virtualenv.tgz" || \
       $PYTHON <<-EOF
-       try:
-             # For Python 3.0 and later
-             from urllib.request import urlopen
-       except ImportError:
-             # Fall back to Python 2's urllib2
-             from urllib2 import urlopen
-       open('$PROJECT_ROOT/lib/virtualenv.tgz','wb').write(urlopen('$venv_url').read())
+	try:
+	      # For Python 3.0 and later
+	      from urllib.request import urlopen
+	except ImportError:
+	      # Fall back to Python 2's urllib2
+	      from urllib2 import urlopen
+	open('$PROJECT_ROOT/lib/virtualenv.tgz','wb').write(urlopen('$venv_url').read())
 EOF
     test -d "$PROJECT_ROOT/lib/virtualenv" || \
         ( mkdir -p lib/virtualenv && cd lib/virtualenv && tar -xz -f ../virtualenv.tgz --strip-components=1 )
