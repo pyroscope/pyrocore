@@ -4,6 +4,7 @@
 from pyrocore import config
 from pyrocore.scripts import base
 
+from six.moves.urllib.parse import urlparse
 
 class StuckTrackers(base.ScriptBaseWithConfig):
     """
@@ -31,7 +32,6 @@ class StuckTrackers(base.ScriptBaseWithConfig):
 
     def mainloop(self):
         import time
-        from urlparse import urlparse
         from collections import namedtuple, Counter
 
         from pyrobase import fmt
