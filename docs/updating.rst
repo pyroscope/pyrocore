@@ -183,7 +183,44 @@ For adding your custom settings, you can use your own files in the ``~/rtorrent/
 Migrating to Version 0.6.1 (UNRELEASED)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-…
+The ``0.6.x`` release line adds support for the new *canvas v2* feature of `rTorrent-PS 1.1`
+in the configuration files.
+
+Notable ``rtcontrol`` changes are a new timestamp field ``last_xfer``,
+useful in sorting views and selecting items for deletion that are not in high demand.
+The ``--alter-view`` option allows manipulating filter results in views
+incrementally (using several command calls).
+More details on the contained changes can be found at `GitHub releases`_ and the `changelog`_.
+
+To upgrade your existing installation, follow these steps:
+
+#. For people that run a source code installation, just use the ``update-to-head.sh``
+   script as described in :ref:`Installing from GitHub <install-from-github>`.
+#. Call ``pyroadmin --create-config`` to update the ``.default`` configuration.
+#. You also **MUST** change the `pyrocore` config snippet in your ``rtorrent.rc``,
+   and add the ``system.has`` fallback for vanilla `rTorrent` and pre-1.1 `rTorrent-PS`.
+
+   .. code-block:: ini
+
+      # `system.has` polyfill (the "false=" silences the `catch` command, in rTorrent-PS)
+      catch = {"false=", "method.redirect=system.has,false"}
+
+   Re-read the :doc:`setup`, which has more information generally, and extensions
+   to not only ``rtorrent.rc`` but also the minimal ``config.ini``.
+
+#. Remember to restart *rTorrent* after any configuration changes.
+
+When you have a rather aged configuration, also consider switching to the new
+set of configuration files as found in the ``pimp-by-box`` project, that use
+the new command names through-out and are thus way more future-proof.
+
+Note that v0.9.7 of `rTorrent` finally does away with many of those old comamnds.
+Read the section on 0.5.x, right above this one,
+regarding the ``make-rtorrent-config.sh`` script, which provides compatible config files
+covering most of what people typically need.
+
+In any case, **make a backup** of your configuration and scripts,
+as mentioned at the start of this chapter.
 
 
 .. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps#rtorrent-ps
