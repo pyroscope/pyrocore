@@ -180,6 +180,8 @@ merge in what's missing from your old configuration, but `migrate to the new syn
 For adding your custom settings, you can use your own files in the ``~/rtorrent/rtorrent.d`` directory.
 
 
+.. _upgrade-to-0.6.x:
+
 Migrating to Version 0.6.1 (UNRELEASED)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -190,7 +192,9 @@ Notable ``rtcontrol`` changes are a new timestamp field ``last_xfer``,
 useful in sorting views and selecting items for deletion that are not in high demand.
 The ``--alter-view`` option allows manipulating filter results in views
 incrementally (using several command calls).
+
 More details on the contained changes can be found at `GitHub releases`_ and the `changelog`_.
+If you're using `rTorrent-PS`, also look at its `Change History`_.
 
 When you have a rather aged configuration, also consider switching to the new
 set of configuration files as found in the ``pimp-by-box`` project, that use
@@ -239,6 +243,7 @@ In any case, **make a backup** of your configuration and scripts,
 as mentioned at the start of this chapter, *before* performing any update steps.
 By the way, putting stuff into git, and also committing it, counts as a backup.
 
+.. _`Change History`: https://rtorrent-ps.readthedocs.io/en/latest/CHANGES.html
 .. _`rTorrent Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#make-rtorrent-config
 .. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps#rtorrent-ps
 .. _`migrate to the new syntax`: https://github.com/rakshasa/rtorrent/wiki/RPC-Migration-0.9
