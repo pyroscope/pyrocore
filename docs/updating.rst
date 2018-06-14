@@ -192,6 +192,16 @@ The ``--alter-view`` option allows manipulating filter results in views
 incrementally (using several command calls).
 More details on the contained changes can be found at `GitHub releases`_ and the `changelog`_.
 
+When you have a rather aged configuration, also consider switching to the new
+set of configuration files as found in the ``pimp-by-box`` project, that use
+the new command names through-out and are thus way more future-proof.
+More on that in the upgrade steps right below, and the next paragraph.
+
+Note that v0.9.7 of `rTorrent` finally does away with many of those old comamnds.
+Read the section on 0.5.x, right above this one,
+regarding the ``make-rtorrent-config.sh`` script, which provides compatible config files
+covering most of what people typically need.
+
 To upgrade your existing installation, follow these steps:
 
 #. For people that run a source code installation, just use the ``update-to-head.sh``
@@ -208,24 +218,30 @@ To upgrade your existing installation, follow these steps:
    Re-read the :doc:`setup`, which has more information generally, and extensions
    to not only ``rtorrent.rc`` but also the minimal ``config.ini``.
 
+   Specifically if you use `rTorrent-PS` 1.1 with the new *canvas v2* feature,
+   you then *MUST* update the files in ``~/rtorrent/rtorrent.d/``,
+   because there's lots of relevant changes.
+
+   The ``make-rtorrent-config.sh`` does that, but overrites any changes you
+   might have made. The best way to handle that is to put your config into git
+   *before* calling the script a second time.
+   That way, diffs get easy and nothing can be lost
+   – you ‘just’ need to do the merging.
+
+   Read `rTorrent Configuration`_ about how to avoid changing standard files
+   by using ``_rtlocal.rc`` instead,
+   and/or your own added files in ``rtorrent.d``.
+   Then you have a way more painless updating experience – next time, anyway.
+
 #. Remember to restart *rTorrent* after any configuration changes.
 
-When you have a rather aged configuration, also consider switching to the new
-set of configuration files as found in the ``pimp-by-box`` project, that use
-the new command names through-out and are thus way more future-proof.
-
-Note that v0.9.7 of `rTorrent` finally does away with many of those old comamnds.
-Read the section on 0.5.x, right above this one,
-regarding the ``make-rtorrent-config.sh`` script, which provides compatible config files
-covering most of what people typically need.
-
 In any case, **make a backup** of your configuration and scripts,
-as mentioned at the start of this chapter.
+as mentioned at the start of this chapter, *before* performing any update steps.
+By the way, putting stuff into git, and also committing it, counts as a backup.
 
-
+.. _`rTorrent Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#make-rtorrent-config
 .. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps#rtorrent-ps
 .. _`migrate to the new syntax`: https://github.com/rakshasa/rtorrent/wiki/RPC-Migration-0.9
-.. _`rTorrent Configuration`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/DebianInstallFromSource.md#rtorrent-configuration
 .. _`update the start script`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/DebianInstallFromSource.md#rtorrent-startup-script
 .. _`GitHub releases`: https://github.com/pyroscope/pyrocore/releases
 .. _`changelog`: https://github.com/pyroscope/pyrocore/blob/master/debian/changelog
