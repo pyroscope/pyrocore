@@ -4,5 +4,11 @@
 pyro.collapsed_view.add = trackers
 pyro.bind_key = trackers_view, t, "ui.current_view.set = trackers"
 
+branch=(system.has, "d.tracker_alias="), \
+    "view.sort_new = trackers, \"compare=++, d.tracker_alias=, d.name=\""
+branch=(system.has, "d.tracker_alias="), \
+    "view.sort_current = trackers, \"compare=++, d.tracker_alias=, d.name=\""
+branch=(system.has, "d.tracker_alias="), ((import.return))
+
 branch=(pyro.extended), "view.sort_new     = trackers, \"compare=++, d.tracker_domain=, d.name=\""
 branch=(pyro.extended), "view.sort_current = trackers, \"compare=++, d.tracker_domain=, d.name=\""
