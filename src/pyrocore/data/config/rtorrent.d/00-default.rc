@@ -46,12 +46,16 @@ view.filter = rtcontrol, ((false))
 pyro.bind_key = rtcontrol_view, ^, "ui.current_view.set=rtcontrol"
 
 # UI/Key: Press 'u' for uptime
+method.insert = pyro._elapsed_time, private|simple,\
+    "branch=(system.has, convert.time_delta=), \
+        \"convert.time_delta=$value=$argument.0=\", \
+        \"convert.elapsed_time=$value=$argument.0=\""
 method.insert = pyro._print_uptime, private|simple,\
     "print=\"rTorrent \", $system.library_version=,\
     /, $system.client_version=,\
     \" started \", $convert.date=$startup_time=,\
     \" \", $convert.time=$startup_time=,\
-    \", up \", $convert.elapsed_time=$startup_time=,\
+    \", up \", $pyro._elapsed_time=$startup_time=,\
     \" [PID=\", $system.pid=,],\
     \" [CWD=\", $system.cwd=,]"
 
