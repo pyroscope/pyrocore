@@ -5,7 +5,7 @@ pyrocore (0.6.1) precise; urgency=low
   * rtcontrol: New timestamp field `last_xfer`
   * rtcontrol: New option `--alter-view`
   * rtcontrol: Fix for view membership management with `--to` / `-V`
-  * rtxmlrpc: Added a REPL with auto-completion and stuff
+  * rtxmlrpc: Added a REPL with auto-completion and stuff (EXPERIMENTAL)
   * rtxmlrpc: Load BLOBs from URLs (rtxmlrpc ... @URL)
   * rtxmlrpc: Added `--session` option to restore metadata
   * rtxmlrpc: "-i @FILE" reads commands from a file
