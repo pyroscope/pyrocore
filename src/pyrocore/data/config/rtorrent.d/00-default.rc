@@ -38,7 +38,8 @@ method.insert = pyro.collapsed_view.add, private|simple,\
     "view.add=(argument.0) ; pyro.view.collapsed.toggle=(argument.0)"
 
 # UI/VIEW: Bind "*" to toggle between collapsed and expanded display
-pyro.bind_key = collapsed_view_toggle, *, "view.collapsed.toggle="
+branch=(not, (system.has, canvas_v2)), \
+    ((pyro.bind_key, collapsed_view_toggle, *, "view.collapsed.toggle="))
 
 # UI/VIEW: Default view for filtering results (bound to '^' key in rT-PS)
 pyro.collapsed_view.add = rtcontrol
