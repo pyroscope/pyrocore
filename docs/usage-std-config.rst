@@ -127,7 +127,32 @@ Color Themes
 The ``~`` key rotates through all available color themes,
 or a user-selected subset of them.
 
-**TODO** Details (theme directory, theme selection, screen thumbs, …)
+Here are screen shots of some of the default schemes
+– from left to right: Default (256 xterm colors), Happy Pastel, Solarized Blue, and Solarized Yellow.
+
+|color-scheme-default|   |color-scheme-happy-pastel|
+
+|color-scheme-solarized-blue|   |color-scheme-solarized-yellow|
+
+What they actually look like depends on the color palette of your terminal,
+so adapt the examples to your liking and terminal setup.
+
+Read more on the configuration of color schemes
+and the necessary setup of `rTorrent-PS` in its
+`Color Scheme Configuration`_ section of the manual.
+
+**TODO** More details (theme directory, theme selection, …)
+
+.. _`Color Scheme Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/setup.html#color-schemes
+
+.. |color-scheme-default| image:: https://rtorrent-ps.readthedocs.io/en/latest/_images/color-scheme-default.png
+    :width: 320px
+.. |color-scheme-happy-pastel| image:: https://rtorrent-ps.readthedocs.io/en/latest/_images//color-scheme-happy-pastel.png
+    :width: 320px
+.. |color-scheme-solarized-blue| image:: https://rtorrent-ps.readthedocs.io/en/latest/_images//color-scheme-solarized-blue.png
+    :width: 320px
+.. |color-scheme-solarized-yellow| image:: https://rtorrent-ps.readthedocs.io/en/latest/_images//color-scheme-solarized-yellow.png
+    :width: 320px
 
 
 .. _watch-start:
