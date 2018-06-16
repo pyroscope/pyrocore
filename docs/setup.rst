@@ -129,11 +129,28 @@ As an example, this is a very minimal configuration file:
 .. code-block:: ini
 
     # PyroScope configuration file
+    #
+    # For details, see https://pyrocore.readthedocs.org/en/latest/setup.html
+    #
 
     [GLOBAL]
-    # Note that the "config_dir" value is provided by the system!
-    config_script = %(config_dir)s/config.py
-    rtorrent_rc = ~/.rtorrent.rc
+    # Location of your rTorrent configuration
+    rtorrent_rc = ~/rtorrent/rtorrent.rc
+
+    # XMLRPC connection to rTorrent
+    scgi_url = scgi://$HOME/rtorrent/.scgi_local
+
+    [FORMATS]
+    filelist = {{py:from pyrobase.osutil import shell_escape as quote}}{{#
+        }}{{for i, x in looper(d.files)}}{{d.realpath | quote}}/{{x.path | quote}}{{#
+            }}{{if i.next is not None}}{{chr(10)}}{{endif}}{{#
+        }}{{endfor}}
+
+    movehere = {{py:from pyrobase.osutil import shell_escape as quote}}{{#
+        }}mv {{d.realpath | quote}} .
+
+    # Formats for UI commands feedback
+    tag_show = {{#}}Tags: {{ chr(32).join(d.tagged) }} [{{ d.name[:33] }}…]
 
     [SWEEP]
     # Settings for the "rtsweep" tool
@@ -164,14 +181,18 @@ As an example, this is a very minimal configuration file:
 
     [ANNOUNCE]
     # Add alias names for announce URLs to this section; those aliases are used
-    # at many places, e.g. by the "mktor" tool
+    # at many places, e.g. by the "mktor" tool and to shorten URLs to these aliases
 
-    # Public trackers
+    # Public / open trackers
     PBT     = http://tracker.publicbt.com:80/announce
               udp://tracker.publicbt.com:80/announce
+    PDT     = http://files2.publicdomaintorrents.com/bt/announce.php
+    ArchOrg = http://bt1.archive.org:6969/announce
+              http://bt2.archive.org:6969/announce
     OBT     = http://tracker.openbittorrent.com:80/announce
               udp://tracker.openbittorrent.com:80/announce
     Debian  = http://bttracker.debian.org:6969/announce
+    Linux   = http://linuxtracker.org:2710/
 
 .. note::
 
