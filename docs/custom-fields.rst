@@ -196,6 +196,8 @@ it using something like
             matcher=matching.PatternFilter, accessor= lambda o: tv_mapper(o, "tv_episode", "%(show)s.S%(season)sE%(episode)s"))
 
 
+.. _has-room:
+
 Only start items that you have disk space for
 """""""""""""""""""""""""""""""""""""""""""""
 
