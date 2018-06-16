@@ -4,13 +4,10 @@
 pyro.collapsed_view.add = ratio
 pyro.bind_key = ratio_view, %, "view.sort = ratio ; ui.current_view.set = ratio"
 
-method.insert = pyro._ratio_sort_timestamp, simple|private, \
-    "d.custom.if_z = tm_completed, (d.custom.if_z, tm_loaded, (d.custom, tm_downloaded))"
-
 branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
-    "view.sort_new = ratio, \"compare=---+,d.ratio=,d.up.total=,pyro._ratio_sort_timestamp=,d.name=\"", \
+    "view.sort_new = ratio, \"compare=---+,d.ratio=,d.up.total=,pyro._view_sort_timestamp=,d.name=\"", \
     "view.sort_new = ratio, greater=d.ratio="
 
 branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
-    "view.sort_current = ratio, \"compare=---+,d.ratio=,d.up.total=,pyro._ratio_sort_timestamp=,d.name=\"", \
+    "view.sort_current = ratio, \"compare=---+,d.ratio=,d.up.total=,pyro._view_sort_timestamp=,d.name=\"", \
     "view.sort_current = ratio, greater=d.ratio="

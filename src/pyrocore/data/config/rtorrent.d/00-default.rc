@@ -16,6 +16,11 @@ method.insert = d.data_path, simple,\
 # COMMAND: Return path to session file
 method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
 
+# COMMAND: Fallback through completed / loaded / downloaded event timestamps, for view sorting
+#          (MUST be protected by the caller using a system.has=d.custom.if_z= check)
+method.insert = pyro._view_sort_timestamp, simple|private, \
+    "d.custom.if_z = tm_completed, (d.custom.if_z, tm_loaded, (d.custom, tm_downloaded))"
+
 # COMMAND: Start command for watches, with dynamic behaviour
 method.insert.value = cfg.watch.start, 1
 method.insert = d.watch.start, simple, "branch=cfg.watch.start=, ((d.start))"

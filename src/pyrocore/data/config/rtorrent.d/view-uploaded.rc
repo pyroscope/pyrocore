@@ -2,7 +2,12 @@
 #          Bound to `°` key (will ONLY work if you use rT-PS)!
 
 pyro.collapsed_view.add = uploaded
-pyro.bind_key = uploaded_view, °, "view.sort = uploaded ; ui.current_view.set = uploaded"
+pyro.bind_key = uploaded_view, 0260, "view.sort = uploaded ; ui.current_view.set = uploaded"
 
-view.sort_new     = uploaded, "greater = d.up.total="
-view.sort_current = uploaded, "greater = d.up.total="
+branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
+    "view.sort_new = uploaded, \"compare=--+,d.up.total=,pyro._view_sort_timestamp=,d.name=\"", \
+    "view.sort_new = uploaded, greater=d.up.total="
+
+branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
+    "view.sort_current = uploaded, \"compare=--+,d.up.total=,pyro._view_sort_timestamp=,d.name=\"", \
+    "view.sort_current = uploaded, greater=d.up.total="
