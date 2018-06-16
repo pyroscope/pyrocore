@@ -1,0 +1,8 @@
+# UI/VIEW: Uploaded data (all items, sorted by their amount of uploaded data)
+#          Bound to `°` key (will ONLY work if you use rT-PS)!
+
+pyro.collapsed_view.add = uploaded
+pyro.bind_key = uploaded_view, °, "view.sort = uploaded ; ui.current_view.set = uploaded"
+
+view.sort_new     = uploaded, "greater = d.up.total="
+view.sort_current = uploaded, "greater = d.up.total="
