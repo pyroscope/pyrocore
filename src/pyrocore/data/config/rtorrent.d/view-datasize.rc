@@ -1,0 +1,8 @@
+# UI/VIEW: Data size (all items, sorted by their content size)
+#          Bound to `"` key (will ONLY work if you use rT-PS)!
+
+pyro.collapsed_view.add = datasize
+pyro.bind_key = datasize_view, 0042, "view.sort = datasize ; ui.current_view.set = datasize"
+
+view.sort_new     = datasize, "greater = d.size_bytes="
+view.sort_current = datasize, "greater = d.size_bytes="
