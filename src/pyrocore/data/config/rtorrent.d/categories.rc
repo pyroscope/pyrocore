@@ -28,14 +28,14 @@ pyro.bind_key = category_view_next, >,\
 # HELPER: Add a category
 method.insert = pyro.category.list, multi|rlookup|static
 
-method.insert = pyro.category.add_new, private|simple,\
+method.insert = pyro._category.add_new, private|simple,\
     "view.add = (cat, category_, (argument.0)) ;\
      pyro.view.collapsed.toggle = (cat, category_, (argument.0)) ;\
      method.set_key = pyro.category.list, (argument.0), (cat, print=, (argument.0))"
 
 method.insert = pyro.category.add, private|simple,\
     "branch = \"not = (method.has_key, pyro.category.list, (argument.0))\", \
-        \"pyro.category.add_new = (argument.0)\""
+        \"pyro._category.add_new = (argument.0)\""
 
 
 # HELPER: Compare item category (label) to a given text (arg.0), for filtering
