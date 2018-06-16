@@ -50,15 +50,25 @@ Additional Views
 Here's an overview of additonal views and view customizations that are
 part of the standard configuration.
 
-#.  the ``t`` key is bound to a ``trackers`` view that shows all items
+#.  The ``t`` key is bound to a ``trackers`` view that shows all items
     sorted by tracker and then by name.
-#.  the ``!`` key is bound to a ``messages`` view, listing all items
+#.  The ``!`` key is bound to a ``messages`` view, listing all items
     that currently have a non-empty message, sorted in order of the
     message text.
-#.  the ``^`` key is bound to the ``rtcontrol`` search result view, so
+#.  The ``^`` key is bound to the ``rtcontrol`` search result view, so
     you can easily return to your last search.
-#.  the ``?`` key is bound to the ``indemand`` view, which sorts all
+#.  The ``?`` key is bound to the ``indemand`` view, which sorts all
     open items by their activity, with the most recently active on top.
+#.  The ``%`` key is bound to the ``ratio`` view, which sorts all
+    open items by their ratio (descending) – equal ratios sort by uploaded data.
+#.  The ``°`` key is bound to the ``uploaded`` view, which sorts all
+    open items by their total upload amount (descending).
+#.  The ``"`` key is bound to the ``datasize`` view, which sorts all
+    open items by the size of their content data (descending).
+
+For the ``uploaded`` and ``ratio`` view, there's a tail of items with zero values.
+That is sorted by completed / loaded / downloaded event timestamps,
+with the first non-zero time used.
 
 **TODO** Missing details?!
 
