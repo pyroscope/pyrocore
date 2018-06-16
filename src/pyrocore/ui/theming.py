@@ -76,6 +76,7 @@ class ThemeSwitcher(ScriptBaseWithConfig):
             for filepath in glob.glob(themes_dir + '/*' + ext):
                 name = os.path.basename(filepath).split('.')[0]
                 if name:
+                    # This prefers '.rc.default' files, because those are checked first
                     themes.setdefault(name, filepath)
 
         # Use available selected themes in given order, if there are any, else all themes
