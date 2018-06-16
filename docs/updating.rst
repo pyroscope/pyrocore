@@ -164,7 +164,7 @@ To upgrade your existing installation, follow these steps:
    configuration, as shown in the :doc:`setup`.
 #. Remember to restart *rTorrent* after any configuration changes.
 
-When you have a rather aged configuration, also consider switching to the new
+When you have a rather aged configuration, also consider switching to the up-to-date
 set of configuration files as found in the ``pimp-by-box`` project, that use
 the new command names through-out and are thus way more future-proof.
 
@@ -185,7 +185,7 @@ For adding your custom settings, you can use your own files in the ``~/rtorrent/
 Migrating to Version 0.6.1 (UNRELEASED)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``0.6.x`` release line adds support for the new *canvas v2* feature of `rTorrent-PS 1.1`
+The ``0.6.x`` release line adds support for the new *canvas v2* feature of `rTorrent-PS v1.1`
 in the configuration files.
 
 Notable ``rtcontrol`` changes are a new timestamp field ``last_xfer``,
@@ -199,7 +199,9 @@ If you're using `rTorrent-PS`, also look at its `Change History`_.
 When you have a rather aged configuration, also consider switching to the new
 set of configuration files as found in the ``pimp-by-box`` project, that use
 the new command names through-out and are thus way more future-proof.
-More on that in the upgrade steps right below, and the next paragraph.
+They are also compatible with changes in `rTorrent v0.9.7` and `rTorrent-PS v1.1`
+– older files are not and most likely *will* greet you with errors after an upgrade.
+More on that in the upgrade steps below, and right ahead in the next paragraph.
 
 Note that v0.9.7 of `rTorrent` finally does away with many of those old comamnds.
 Read the section on 0.5.x, right above this one,
