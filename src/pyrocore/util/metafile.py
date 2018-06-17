@@ -706,7 +706,7 @@ class Metafile(object):
         bad_encodings = []
         bad_fields = []
         if six.PY2: #PY3 knows it's data
-            metainfo, bad_encodings, bad_fields = sanitize(bencode.bread(metainfo), diagnostics=True)
+            metainfo, bad_encodings, bad_fields = sanitize(metainfo, diagnostics=True)
         announce = metainfo['announce']
         info = metainfo['info']
         infohash = hashlib.sha1(bencode.bencode(info))
