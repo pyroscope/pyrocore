@@ -12,3 +12,17 @@ branch = (and, (pyro.extended), (not, (system.has, "d.tracker_alias="))), ((do, 
     "print = \"WARNING: Inferior sorting of 'trackers' view (update rTorrent-PS)!\"", \
     "view.sort_new     = trackers, \"compare=++, d.tracker_domain=, d.name=\"", \
     "view.sort_current = trackers, \"compare=++, d.tracker_domain=, d.name=\"" ))
+
+branch = (system.has, "convert.time_delta="), \
+    "method.set_key = ui.column.render, \"964:6C21/1C28/1C21/2C28/2:⌚ ↺⤴⤵ \", \
+        ((convert.time_delta, ((value, ((d.custom, tm_last_scrape)) )) ))", \
+    ((print, "WARNING: No LAST SCRAPE column (update rTorrent-PS)!"))
+
+branch = (system.has, "ui.column.hide="), \
+    ((ui.column.hide, 964)), \
+    ((print, "WARNING: LAST SCRAPE column is static (update rTorrent-PS)!"))
+
+branch = (and, (system.has, "string.equals="), (system.has, "ui.column.hide=")), \
+    "method.set_key = event.view.show, ~last_scrape_toggle, \
+        \"branch = \\\"string.equals=$ui.current_view=, trackers, started, stopped\\\", \
+            ui.column.show=964, ui.column.hide=964\""
