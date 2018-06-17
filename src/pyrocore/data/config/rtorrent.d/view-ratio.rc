@@ -13,3 +13,17 @@ branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
 branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
     "view.sort_current = ratio, \"compare=---+,d.ratio=,d.up.total=,pyro._view_sort_timestamp=,d.name=\"", \
     "view.sort_current = ratio, greater=d.ratio="
+
+branch = (system.has, "string.substr="), \
+    "method.set_key = ui.column.render, \"922:7C93/7:   ☯ ‰ \", \
+        ((string.substr, ((cat, \"      \", ((d.ratio)) )), -6))", \
+    ((print, "WARNING: No RATIO column (update rTorrent-PS)!"))
+
+branch = (system.has, "ui.column.hide="), \
+    ((ui.column.hide, 922)), \
+    ((print, "WARNING: RATIO column is static (update rTorrent-PS)!"))
+
+branch = (and, (system.has, "string.equals="), (system.has, "ui.column.hide=")), \
+    "method.set_key = event.view.show, ~ratio_toggle, \
+        \"branch = \\\"string.equals=$ui.current_view=, ratio, stopped\\\", \
+            ui.column.show=922, ui.column.hide=922\""
