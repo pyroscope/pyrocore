@@ -1,4 +1,5 @@
-# UI/Categories: Rotate through category views, and add category watches
+### UI/Categories: Category Rotation and Watches ############################
+#                                                              vim: ft=dosini
 #
 # List all category views:  python-pyrocore -m pyrocore.ui.categories -l
 # Rotate to next view:      python-pyrocore -m pyrocore.ui.categories -qn

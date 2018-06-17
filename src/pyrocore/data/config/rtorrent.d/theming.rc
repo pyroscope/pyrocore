@@ -1,4 +1,5 @@
-# UI/Colors: Rotate through color schemes
+### UI/Colors: Rotate through color schemes #################################
+#                                                              vim: ft=dosini
 #
 # (De-)select a theme:  python-pyrocore -m pyrocore.ui.theming -t ‹name(s)›
 # Select all themes:    python-pyrocore -m pyrocore.ui.theming -a

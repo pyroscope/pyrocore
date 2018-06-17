@@ -1,5 +1,7 @@
-# TORQUE: View for queue manager job
-# (this is not the buggy internal scheduler controlled by scheduler.max_active)
+### TORQUE: View for queue manager job ######################################
+#                                                              vim: ft=dosini
+#
+#   This is not the buggy internal scheduler controlled by scheduler.max_active!
 
 pyro.collapsed_view.add = pyrotorque
 

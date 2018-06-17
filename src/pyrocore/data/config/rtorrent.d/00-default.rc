@@ -1,3 +1,6 @@
+### Fundamentals ############################################################
+#                                                              vim: ft=dosini
+
 # Log extension switch setting
 branch=pyro.extended=,\
     print=rTorrent-PS\\\ features\\\ active!,\

@@ -1,3 +1,6 @@
+### Event Logging ###########################################################
+#                                                              vim: ft=dosini
+#
 # To disable this, use
 #
 #   echo >>~/.pyroscope/rtorrent.d/.rcignore "logging.rc.default"

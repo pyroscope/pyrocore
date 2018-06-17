@@ -1,5 +1,7 @@
-# UI/VIEW: Trackers (all items, sorted by tracker domain and name)
-#          This will ONLY work if you use rT-PS!
+#### UI/VIEW: Trackers ######################################################
+#                                                              vim: ft=dosini
+#   All items, sorted by tracker and name.
+#   This will ONLY work if you use rT-PS!
 
 pyro.collapsed_view.add = trackers
 pyro.bind_key = trackers_view, t, "ui.current_view.set = trackers"

@@ -1,7 +1,8 @@
-# UI/VIEW: Manually tag (select) items
-# . = toggle focused item between tagged and untagged
-# T = clear all tags
-# : = show tagged items view
+### UI/VIEW: Manually tag (select) items ####################################
+#                                                              vim: ft=dosini
+#   . = toggle focused item between tagged and untagged
+#   T = clear all tags
+#   : = show tagged items view
 
 pyro.collapsed_view.add = tagged
 view.persistent = tagged

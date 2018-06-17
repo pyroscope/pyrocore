@@ -1,4 +1,5 @@
-# UI/VIEW: Show items sorted by activity on "indemand"
+### UI/VIEW: Show items sorted by activity on "indemand" ####################
+#                                                              vim: ft=dosini
 
 pyro.collapsed_view.add = indemand
 pyro.bind_key = indemand_view, ?, "ui.current_view.set=indemand"

@@ -1,4 +1,5 @@
-# EVENTS: Timestamps
+### EVENTS: Timestamps ######################################################
+#                                                              vim: ft=dosini
 #   tm_loaded = time loaded into client
 #   tm_started = time of *first* start
 #   tm_completed = time of completion

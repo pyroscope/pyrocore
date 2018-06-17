@@ -1,5 +1,7 @@
-# UI/VIEW: Ratio (all items, sorted by their current ratio, upload size, or event times)
-#          Bound to `%` key (will ONLY work if you use rT-PS)!
+### UI/VIEW: Ratio ##########################################################
+#                                                              vim: ft=dosini
+#   All items, sorted by their current ratio, upload size, or event times.
+#   Bound to '%' key (will ONLY work if you use rT-PS)!
 
 pyro.collapsed_view.add = ratio
 pyro.bind_key = ratio_view, %, "view.sort = ratio ; ui.current_view.set = ratio"

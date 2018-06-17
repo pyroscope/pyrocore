@@ -1,4 +1,5 @@
-# UI/VIEW: Show current messages (bound to '!' in rT-PS)
+### UI/VIEW: Show current messages (bound to '!' in rT-PS) ##################
+#                                                              vim: ft=dosini
 
 pyro.collapsed_view.add = messages
 view.filter = messages, ((d.message))

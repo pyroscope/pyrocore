@@ -1,8 +1,9 @@
-# UI/VIEW: Last data transfer
+### UI/VIEW: Last data transfer #############################################
+#                                                              vim: ft=dosini
 #
 #   All items, sorted by their last_xfer + active timestamps, or event times.
 #
-#   Bound to `¬` key – will ONLY work if you use rT-PS!
+#   Bound to '¬' key – will ONLY work if you use rT-PS!
 #   (You might need to add another key bind, this works in Europe) ☺
 #
 #   Note that to re-sort items, you have to select the view again (no auto-update).

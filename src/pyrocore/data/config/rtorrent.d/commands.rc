@@ -1,3 +1,6 @@
+### UI Helper Commands (Ctrl-X) #############################################
+#                                                              vim: ft=dosini
+
 # UI/CMD: Use rtcontrol filter (^X s=KEYWORD, ^X t=TRACKER, ^X f="FILTER")
 method.insert = s, simple|private,\
     "execute.nothrow=\"$cat=$pyro.bin_dir=,rtcontrol\",--detach,-qV,\
