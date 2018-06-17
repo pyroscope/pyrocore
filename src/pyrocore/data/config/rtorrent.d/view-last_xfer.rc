@@ -1,0 +1,34 @@
+# UI/VIEW: Last data transfer
+#
+#   All items, sorted by their last_xfer + active timestamps, or event times.
+#
+#   Bound to `¬` key – will ONLY work if you use rT-PS!
+#   (You might need to add another key bind, this works in Europe) ☺
+#
+#   Note that to re-sort items, you have to select the view again (no auto-update).
+#
+
+pyro.collapsed_view.add = last_xfer
+pyro.bind_key = last_xfer_view, 0254, "view.sort = last_xfer ; ui.current_view.set = last_xfer"
+
+branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
+    "view.sort_new = last_xfer, \"compare=---+,d.last_xfer=,d.last_active=,pyro._view_sort_timestamp=,d.name=\"", \
+    "view.sort_new = last_xfer, greater=d.last_xfer="
+
+branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
+    "view.sort_current = last_xfer, \"compare=---+,d.last_xfer=,d.last_active=,pyro._view_sort_timestamp=,d.name=\"", \
+    "view.sort_current = last_xfer, greater=d.last_xfer="
+
+branch = (and, (system.has, "convert.time_delta="), (system.has, "d.custom.if_z=")), \
+    "method.set_key = ui.column.render, \"962:6C21/1C28/1C21/2C28/2:⌚ ↑↓  \", \
+        ((convert.time_delta, ((value, ((d.custom.if_z, last_xfer, ((d.last_active)) )) )) ))", \
+    ((print, "WARNING: No LAST XFER column (update rTorrent-PS)!"))
+
+branch = (system.has, "ui.column.hide="), \
+    ((ui.column.hide, 962)), \
+    ((print, "WARNING: LAST XFER column is static (update rTorrent-PS)!"))
+
+branch = (and, (system.has, "string.equals="), (system.has, "ui.column.hide=")), \
+    "method.set_key = event.view.show, ~last_xfer_toggle, \
+        \"branch = \\\"string.equals=$ui.current_view=, last_xfer, started, seeding, leeching\\\", \
+            ui.column.show=962, ui.column.hide=962\""
