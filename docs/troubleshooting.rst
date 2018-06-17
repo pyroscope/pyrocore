@@ -112,10 +112,32 @@ If you do that and are *not* actually running *rTorrent-PS*,
 you *will* get errors about missing commands during startup.
 
 
+WARNING: … (update rTorrent-PS)!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you run vanilla `rTorrent` instead of `rTorrent-PS`,
+these message will appear during startup.
+They can be silenced, see below.
+
+If you run `rTorrent-PS`, the warnings are there to tell you
+that you should update to a recent version supporting new features.
+So just do that. ☺
+
+Otherwise, either ignore the warnings (that is why they are WARNINGs and not ERRORs),
+or else add the files in ``~/.pyroscope/rtorrent.d``
+that are logging them to the ``.rcignore`` file.
+You'll find the specific files using ``grep``:
+
+.. code-block:: shell
+
+    grep -RinH update.rtorrent ~/.pyroscope/rtorrent.d
+
+
 “Input failed: ExecFile::execute(...) Fork failed.” during searches
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This is always a host setup problem, check your resource limits,
+This is always a host setup problem and **not** one in this software.
+Check your resource limits,
 namely ``nofile`` (max. number of open file handles)
 and ``nproc`` (max. number of processes).
 Also look into ``~/rtorrent/log/execute.log`` if it contains any hints.
