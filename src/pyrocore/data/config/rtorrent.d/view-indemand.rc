@@ -2,10 +2,31 @@
 #                                                              vim: ft=dosini
 
 pyro.collapsed_view.add = indemand
-pyro.bind_key = indemand_view, ?, "ui.current_view.set=indemand"
+pyro.bind_key = indemand_view, ?, "view.sort = indemand ; ui.current_view.set = indemand"
 
 view.filter = indemand, ((d.is_open))
-view.filter_on = indemand,event.download.closed,event.download.opened
+view.filter_on = indemand, event.download.closed, event.download.opened
 
-view.sort_current = indemand, greater=d.last_active=
-schedule2 = sort_indemand, 22, 33, "view.filter = indemand,d.is_open= ;view.sort=indemand"
+schedule2 = sort_indemand, 22, 33, "view.filter = indemand, d.is_open= ; view.sort = indemand"
+
+branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
+    "view.sort_new = indemand, \"compare=--+,d.last_active=,pyro._view_sort_timestamp=,d.name=\"", \
+    "view.sort_new = indemand, greater=d.last_active="
+
+branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
+    "view.sort_current = indemand, \"compare=--+,d.last_active=,pyro._view_sort_timestamp=,d.name=\"", \
+    "view.sort_current = indemand, greater=d.last_active="
+
+branch = (system.has, "convert.time_delta="), \
+    "method.set_key = ui.column.render, \"968:6C21/1C28/1C21/2C28/2:⌚ ℞   \", \
+        ((convert.time_delta, ((value, ((d.last_active)) )) ))", \
+    ((print, "WARNING: No LAST ACTIVE column (update rTorrent-PS)!"))
+
+branch = (system.has, "ui.column.hide="), \
+    ((ui.column.hide, 968)), \
+    ((print, "WARNING: LAST ACTIVE column is static (update rTorrent-PS)!"))
+
+branch = (and, (system.has, "string.equals="), (system.has, "ui.column.hide=")), \
+    "method.set_key = event.view.show, ~last_active_toggle, \
+        \"branch = \\\"string.equals=$ui.current_view=, indemand, last_xfer, seeding\\\", \
+            ui.column.show=968, ui.column.hide=968\""
