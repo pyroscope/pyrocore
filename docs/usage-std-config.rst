@@ -47,9 +47,13 @@ In this section, some smaller added features are mentioned
 Additional Views
 ^^^^^^^^^^^^^^^^
 
+Custom Views: Key Bindings
+""""""""""""""""""""""""""
+
 Here's an overview of additonal views and view customizations that are
 part of the standard configuration.
 
+#.  The ``:`` key shows the ``tagged`` view, more on that one below.
 #.  The ``t`` key is bound to a ``trackers`` view that shows all items
     sorted by tracker and then by name.
 #.  The ``!`` key is bound to a ``messages`` view, listing all items
@@ -58,13 +62,16 @@ part of the standard configuration.
 #.  The ``^`` key is bound to the ``rtcontrol`` search result view, so
     you can easily return to your last search.
 #.  The ``?`` key is bound to the ``indemand`` view, which sorts all
-    open items by their activity, with the most recently active on top.
+    open items by their activity (last time a peer was connected),
+    with the most recently active on top.
 #.  The ``%`` key is bound to the ``ratio`` view, which sorts all
     open items by their ratio (descending) – equal ratios sort by uploaded data.
 #.  The ``°`` key is bound to the ``uploaded`` view, which sorts all
     open items by their total upload amount (descending).
 #.  The ``"`` key is bound to the ``datasize`` view, which sorts all
     open items by the size of their content data (descending).
+#.  The ``¬`` key (``AltGr+^`` on some keyboards) is bound to the ``last_xfer`` view,
+    which sorts all items by their *last_xfer* + *active* timestamps, or else event times.
 
 For the ``uploaded`` and ``ratio`` view, there's a tail of items with zero values.
 That is sorted by completed / loaded / downloaded event timestamps,
