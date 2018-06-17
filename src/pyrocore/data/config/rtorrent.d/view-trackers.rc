@@ -4,11 +4,11 @@
 pyro.collapsed_view.add = trackers
 pyro.bind_key = trackers_view, t, "ui.current_view.set = trackers"
 
-branch = (system.has, "d.tracker_alias="), ((catch, \
+branch = (system.has, "d.tracker_alias="), ((do, \
     "view.sort_new     = trackers, \"compare=++, d.tracker_alias=, d.name=\"", \
     "view.sort_current = trackers, \"compare=++, d.tracker_alias=, d.name=\"" ))
 
-branch = (and, (pyro.extended), (not, (system.has, "d.tracker_alias="))), ((catch, \
+branch = (and, (pyro.extended), (not, (system.has, "d.tracker_alias="))), ((do, \
     "print = \"WARNING: Inferior sorting of 'trackers' view (update rTorrent-PS)!\"", \
     "view.sort_new     = trackers, \"compare=++, d.tracker_domain=, d.name=\"", \
     "view.sort_current = trackers, \"compare=++, d.tracker_domain=, d.name=\"" ))

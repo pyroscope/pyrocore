@@ -6,7 +6,7 @@
 #
 
 # PS 1.1+ has the built-in views collapsed by default!
-branch=(not, (system.has, "collapsed-views")), ((catch, \
+branch=(not, (system.has, "collapsed-views")), ((do, \
     "pyro.view.collapsed.toggle = active", \
     "pyro.view.collapsed.toggle = complete", \
     "pyro.view.collapsed.toggle = hashing", \

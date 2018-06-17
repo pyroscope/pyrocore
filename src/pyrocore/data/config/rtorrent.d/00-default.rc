@@ -6,6 +6,11 @@ branch=pyro.extended=,\
 # COMMAND: Return startup time (can be used to calculate uptime)
 method.insert = startup_time, value|const, $system.time=
 
+# COMMAND: `do` fall-back?
+branch = (not, (system.has, "do=")), ((catch, \
+    ((print, "WARNING: Fall-back for 'do' command active (update rTorrent-PS)!")), \
+    ((method.redirect, do, catch)) ))
+
 # COMMAND: Return path to item data (never empty, unlike `d.base_path`);
 #          multi-file items return a path ending with a '/'.
 method.insert = d.data_path, simple,\
