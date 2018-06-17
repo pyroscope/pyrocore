@@ -27,4 +27,17 @@ branch = (system.has, "ui.column.hide="), \
 branch = (and, (system.has, "string.equals="), (system.has, "ui.column.hide=")), \
     "method.set_key = event.view.show, ~last_scrape_toggle, \
         \"branch = \\\"string.equals=$ui.current_view=, trackers, started, stopped\\\", \
-            ui.column.show=964, ui.column.hide=964\""
+            ((ui.column.show, 964)), \
+            ((ui.column.hide, 964))\""
+
+branch = (system.has, "d.tracker_domain="), \
+    "method.set_key = ui.column.render, \"966:?15:Domain\", \
+        ((d.tracker_domain))"
+
+branch = (system.has, "ui.column.hide="), ((ui.column.hide, 966))
+
+branch = (and, (system.has, "string.equals="), (system.has, "ui.column.hide=")), \
+    "method.set_key = event.view.show, ~trackets_domain_toggle, \
+        \"branch = \\\"string.equals=$ui.current_view=, trackers\\\", \
+            ((ui.column.show, 966)), \
+            ((ui.column.hide, 966))\""
