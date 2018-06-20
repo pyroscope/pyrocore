@@ -77,6 +77,18 @@ For the ``uploaded`` and ``ratio`` view, there's a tail of items with zero value
 That is sorted by completed / loaded / downloaded event timestamps,
 with the first non-zero time used.
 
+If certain key bindings are not convenient or even accessible for you (say ``°`` and ``¬``),
+define your own *in addition* in ``_rtlocal.rc`` or a similar customization file.
+
+.. code-block:: ini
+
+    # Bind last_xfer / uploaded views to F5 / F6
+    pyro.bind_key = my_last_xfer_view, 0415, \
+        "view.sort = last_xfer ; ui.current_view.set = last_xfer"
+    pyro.bind_key = uploaded_view, 0416, \
+        "view.sort = uploaded ; ui.current_view.set = uploaded"
+
+
 **TODO** Missing details?!
 
 
