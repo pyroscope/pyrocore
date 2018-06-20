@@ -85,7 +85,7 @@ define your own *in addition* in ``_rtlocal.rc`` or a similar customization file
     # Bind last_xfer / uploaded views to F5 / F6
     pyro.bind_key = my_last_xfer_view, 0415, \
         "view.sort = last_xfer ; ui.current_view.set = last_xfer"
-    pyro.bind_key = uploaded_view, 0416, \
+    pyro.bind_key = my_uploaded_view, 0416, \
         "view.sort = uploaded ; ui.current_view.set = uploaded"
 
 
