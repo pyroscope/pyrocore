@@ -177,7 +177,7 @@ As an example, this is a very minimal configuration file:
     # Seeded and bigger than 500M after 7 days, inactive and big items first
     seeded7d.prio   = 910
     seeded7d.sort   = active,-size
-    seeded7d.filter = ratio=+1.2 size=+500m loaded=+5d
+    seeded7d.filter = ratio=+1.2 size=+500m loaded=+7d
 
     [ANNOUNCE]
     # Add alias names for announce URLs to this section; those aliases are used
