@@ -70,4 +70,18 @@ method.set_key = event.download.inserted_new, pyro_last_scrape_init, "pyro._last
 # UI/Key: Manually send scrape with "&"
 pyro.bind_key = manual_scrape, &, "d.tracker.bump_scrape= ; branch=pyro.scrape_verbose=,false=,pyro._last_scrape.print="
 
+# Scrape a little after completion (on average after 30 sec)
+pyro.collapsed_view.add = scheduled_scrape_once
+view.filter = scheduled_scrape_once, ((false))
+method.insert = pyro._add_to_scheduled_scrape_once, simple|private,\
+    "d.views.push_back_unique = scheduled_scrape_once ; \
+     view.set_visible = scheduled_scrape_once"
+method.set_key = event.download.finished, !add_to_scheduled_scrape_once, \
+    ((pyro._add_to_scheduled_scrape_once))
+schedule2 = do_scheduled_scrape_once, 127, 60, \
+    ((d.multicall2, scheduled_scrape_once, \
+        "d.tracker.bump_scrape=", \
+        "d.views.remove = scheduled_scrape_once", \
+        "view.set_not_visible = scheduled_scrape_once"))
+
 # END auto-scrape
