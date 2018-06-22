@@ -228,7 +228,7 @@ To upgrade your existing installation, follow these steps:
    you then *MUST* update the files in ``~/rtorrent/rtorrent.d/``,
    because there's lots of relevant changes.
 
-   The ``make-rtorrent-config.sh`` does that, but overrites any changes you
+   The ``make-rtorrent-config.sh`` does that, but overwrites any changes you
    might have made. The best way to handle that is to put your config into git
    *before* calling the script a second time.
    That way, diffs get easy and nothing can be lost
