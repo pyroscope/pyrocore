@@ -109,6 +109,33 @@ You can also access rTorrent interactively, like this:
     1033
 
 
+.. _rtpy:
+
+Interactive use on a shell prompt
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Besides ``connect``, there is another convenience function called ``view``.
+If you install `pythonpy`_ into your `pyrocore` virtualenv,
+that means you can do `rtcontrol`-like things with the full expressiveness of `Python`:
+
+.. code-block:: console
+
+    $ ~/.local/pyroscope/bin/pip -q install 'pythonpy'
+    $ ln -nfs ~/.local/pyroscope/bin/py ~/bin/rtpy
+    $ rtpy "[x.name for x in pyrocore.view('stopped') if x.size > 1.4*1024**3]"
+    robolinux64-mate3d-v9.3.iso
+    $ rtpy "sorted(x.name for x in pyrocore.view() if x.name.endswith('.iso'))"
+    Container Linux 1745.7.0.iso
+    debian-9.4.0-amd64-netinst.iso
+    debian-9.4.0-amd64-xfce-CD-1.iso
+    robolinux64-mate3d-v9.3.iso
+
+If you do not pass a view name, ``default`` is assumed.
+
+
+.. _`pythonpy`: https://github.com/Russell91/pythonpy#usage
+
+
 Using ``pyrocore`` as a library in other projects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
