@@ -598,6 +598,10 @@ class TorrentView(object):
         self._items = None
 
 
+    def __iter__(self):
+        return self.items()
+
+
     def _fetch_items(self):
         """ Fetch to attribute.
         """
@@ -675,7 +679,7 @@ class TorrentEngine(object):
         raise NotImplementedError()
 
 
-    def view(self, viewname, matcher=None):
+    def view(self, viewname='default', matcher=None):
         """ Get list of download items.
         """
         return TorrentView(self, viewname, matcher)

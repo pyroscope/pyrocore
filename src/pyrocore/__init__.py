@@ -34,3 +34,9 @@ def connect(config_dir=None, optional_config_files=None, cron_cfg="cron"):
     from pyrocore import config
     config.engine.open()
     return config.engine
+
+
+def view(viewname='default', matcher=None,
+         config_dir=None, optional_config_files=None, cron_cfg="cron"):
+    """Helper for interactive / high-level API use."""
+    return connect(config_dir, optional_config_files, cron_cfg).view(viewname, matcher)
