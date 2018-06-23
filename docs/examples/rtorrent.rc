@@ -1,19 +1,24 @@
 ### rtorrent settings #######################################################
-#
+#                                                              vim: ft=dosini
 # This is the standard configuration that supports both PyroScope and
 # (optionally) rTorrent-PS features. This file is configured for a
 # rTorrent instance located in
 #
 #       RT_HOME
 #
-# If you run rTorrent-PS, see below on how to unlock additional support.
+# For more info regarding changing configuration defaults, see the docs:
+#
+#   https://pyrocore.readthedocs.io/en/latest/usage.html#std-config
+#
+# If you run rTorrent-PS, see below on how to unlock additional support
+# (but note that with version 1.1 and up, that unlocking is automatic).
 #
 #############################################################################
 
 # Root directory of this instance.
 method.insert = cfg.basedir, private|const|string, (cat, "RT_HOME", "/")
 
-# `system.has` polyfill (the "false=" silences the `catch` command, in rTorrent-PS)
+# `system.has` polyfill (the "false=" silences the `catch` command, in rTorrent-PS 1.1+)
 catch = {"false=", "method.redirect=system.has,false"}
 
 # Set "pyro.extended" to 1 to activate rTorrent-PS features!
@@ -23,36 +28,36 @@ method.insert = pyro.extended, const|value, (system.has, rtorrent-ps)
 # Make sure you end it with a "/"; if this is left empty, then the shell's path is searched.
 method.insert = pyro.bin_dir, const|string, ~/bin/
 
+# Set this to '0' to prevent logging of existing key bindings being replaced
+## branch=(pyro.extended), ((ui.bind_key.verbose.set, 0))
+
 # Since "network.scgi.open_local" is parsed by "rtcontrol", this must be a literal value,
 # and also not moved out of the main configuration file!
 network.scgi.open_local = RT_HOME/.scgi_local
-##network.scgi.open_port = localhost:5099
 
 # SCHEDULE: Make SCGI socket group-writable and secure
-schedule2 = scgi_permission,0,0,"execute.nothrow=chmod,\"g+w,o=\",RT_HOME/.scgi_local"
+schedule2 = scgi_permission, 0, 0, "execute.nothrow=chmod,\"g+w,o=\",RT_HOME/.scgi_local"
 
 
 #
 # Import settings from "RT_HOME/rtorrent.d"
 #
-# Prefer to put your own custom settings into additional files in that directory!
+# Prefer to put your own custom settings into additional files in
+# that directory, or else "_rtlocal.rc" (see below)!
 #
 
-execute2 = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,(cat,(cfg.basedir),"rtorrent.d/*.rc")
+execute.throw = (cat,(pyro.bin_dir),pyroadmin),-q,--create-import,(cat,(cfg.basedir),"rtorrent.d/*.rc")
 import = (cat,(cfg.basedir),"rtorrent.d/.import.rc")
 
 
 #
-# Embedded local settings
+# Include custom / optional settings
 #
 
-# Add anything of your own here...
-# But better put your own custom settings into additional files in 'rtorrent.d'!
-
-# INCLUDE: Local settings
+# INCLUDE: Local settings (optional)
 try_import = (cat,(cfg.basedir),"_rtlocal.rc")
 
-# NETWORK: Unwanted peers
-##ipv4_filter.add_address = 1.2.3.666, unwanted
+# INCLUDE: ruTorrent (optional)
+try_import = (cat,(cfg.basedir),"_rutorrent.rc")
 
 ### END rtorrent.rc #########################################################
