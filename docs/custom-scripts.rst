@@ -129,6 +129,18 @@ that means you can do `rtcontrol`-like things with the full expressiveness of `P
     debian-9.4.0-amd64-netinst.iso
     debian-9.4.0-amd64-xfce-CD-1.iso
     robolinux64-mate3d-v9.3.iso
+    $ rtpy "json.dumps(indent=4, sort_keys=True,
+            obj=[x.as_dict() for x in pyrocore.view() if 'robolinux' in x.name])"
+    [
+        {
+            "custom_m_alias": …
+            "name": "robolinux64-mate3d-v9.3.iso",
+            …
+            "size": 1527775232,
+            …
+            "up_total": 0
+        }
+    ]
 
 If you do not pass a view name, ``default`` is assumed.
 
