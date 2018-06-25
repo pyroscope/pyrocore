@@ -19,7 +19,9 @@ like in this example:
 It is recommended to stick to alphanumeric category names,
 and use ``_`` for word separation.
 
-The watches put loaded items into the given category,
+The script adds the given categories to the ``rtorrent.d/categories.rc`` file,
+using a ``pyro.category.add`` call and defining a watch schedule for each one.
+The watches put loaded items into the related category,
 and they expect metafiles in ``~/rtorrent/watch/‹category-name›``.
 
 To remove a category, just edit it out of the ``rtorrent.d/categories.rc`` file,
