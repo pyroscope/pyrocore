@@ -27,10 +27,6 @@ method.set_key = event.download.resumed, !activations, "pyro._activations.append
 
 
 # EVENTS: Timestamp 'tm_downloaded' (time when meta (torrent) file was downloaded)
-method.insert = os.path.mtime, simple, \
-    "execute.capture = sh, -c, \
-                       \"echo -n \$(stat -c '%Y' \\\"$1\\\" 2>/dev/null || echo \\\"$2\\\")\", \
-                       getmtime, (argument.0), (argument.1)"
 method.insert = pyro._tm_downloaded_init, simple|private,\
     "d.custom.set = tm_downloaded, (os.path.mtime, (d.tied_to_file), (cat, (system.time))) ; d.save_resume="
 method.insert = d.timestamp.downloaded, simple, "d.custom=tm_downloaded"

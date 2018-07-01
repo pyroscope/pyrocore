@@ -9,6 +9,10 @@
 schedule2 = log_new_day, 00:00:05, 24:00:00,\
     ((print, "New day: ", ((convert.date, ((system.time_seconds)) )) ))
 
+# Emit regular warning when ~/NOCRON exists
+schedule2 = log_nocron, 900, 1800, "branch = (value, (os.path.mtime, ~/NOCRON, 0)), \
+    ((print, \"WARNING: Cron jobs disabled by ~/NOCRON\"))"
+
 # EVENTS: Logging (don't log "opened", or you get swamped at startup)
 method.set_key = event.download.inserted_new, log,\
     "print=\"LOADED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""

@@ -24,6 +24,12 @@ method.insert = d.data_path, simple,\
 # COMMAND: Return path to session file
 method.insert = d.session_file, simple, "cat=(session.path), (d.hash), .torrent"
 
+# COMMAND: Get mtime of a path, return 2nd argument when path does not exist
+method.insert = os.path.mtime, simple, \
+    "execute.capture = sh, -c, \
+                       \"echo -n \$(stat -c '%Y' \\\"$1\\\" 2>/dev/null || echo \\\"$2\\\")\", \
+                       getmtime, (argument.0), (argument.1)"
+
 # COMMAND: Fallback through completed / loaded / downloaded event timestamps, for view sorting
 #          (MUST be protected by the caller using a system.has=d.custom.if_z= check)
 method.insert = pyro._view_sort_timestamp, simple|private, \
