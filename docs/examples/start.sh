@@ -1,8 +1,9 @@
-#! /bin/bash
+#!/usr/bin/env bash
 #
 # rTorrent startup script
 #
 
+NOCRON_DELAY=600
 RT_BINDIR="{{ rtorrent_bindir }}"
 RT_OPTS=( )
 RT_OPTS+=( -D -I )  # comment this to get deprecated commands
@@ -60,4 +61,16 @@ if which objdump >/dev/null; then
     test -z "$RUNPATH" || LD_LIBRARY_PATH="$RUNPATH${LD_LIBRARY_PATH:+:}${LD_LIBRARY_PATH}"
 fi
 
-"$RT_BIN" "${RT_OPTS[@]}"
+# Stop cron jobs during startup, unless already stopped
+rm "$RT_HOME/rtorrent.d/START-NOCRON.rc" 2>/dev/null || :
+nocron_delay=''
+if test -d "$RT_HOME/rtorrent.d" -a ! -f "~/NOCRON"; then
+    nocron_delay=$(( $(date +'%s') + $NOCRON_DELAY ))
+    echo >"$RT_HOME/rtorrent.d/START-NOCRON.rc" \
+          "schedule2 = nocron_during_startup, $NOCRON_DELAY, 0, \"execute.nothrow=rm,$HOME/NOCRON\""
+    touch "$HOME/NOCRON"
+fi
+
+"$RT_BIN" "${RT_OPTS[@]}" ; RC=$?
+test -z "$nocron_delay" -o "$(date +'%s')" -ge "$nocron_delay" || rm "$HOME/NOCRON" 2>/dev/null || :
+exit $RC
