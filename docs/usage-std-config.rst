@@ -17,6 +17,8 @@ If you think this is too complicated and scattered all over the place,
 the `pimp-my-box project`_ packages all this into a nicely integrated experience.
 Just sayin'. ☺
 
+If you don't want to use `Ansible`, then the `make-rtorrent-config.sh`_ script
+gives you the same setup with a bit more manual work involved.
 
 .. important::
 
@@ -29,6 +31,7 @@ Just sayin'. ☺
 .. _`pimp-my-box configuration includes`: https://github.com/pyroscope/pimp-my-box/tree/master/roles/rtorrent-ps/templates/rtorrent/rtorrent.d
 .. _`Manual Turn-Key System Setup`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#debianinstallfromsource
 .. _`rTorrent Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#rtorrent-configuration
+.. _`make-rtorrent-config.sh`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#make-rtorrent-config
 
 
 .. _std-cfg-misc:
