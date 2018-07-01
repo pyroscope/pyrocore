@@ -60,6 +60,7 @@ class StuckTrackers(base.ScriptBaseWithConfig):
                 if self.options.stuck_only:
                     continue
                 if self.options.to_tagged:
+                    proxy.d.views.push_back_unique(infohash, view)
                     proxy.view.set_visible(infohash, view)
                 domain = 'ALL TRACKERS DISABLED' if trackers else 'NO TRACKERS'
                 stuck[domain] += 1
@@ -74,6 +75,7 @@ class StuckTrackers(base.ScriptBaseWithConfig):
                 delta = now - t.activity_time_last
                 if self.options.all or delta > t.normal_interval:
                     if self.options.to_tagged:
+                        proxy.d.views.push_back_unique(infohash, view)
                         proxy.view.set_visible(infohash, view)
                     domain = urlparse(t.url).netloc.split(':')[0]
                     stuck[domain] += 1
