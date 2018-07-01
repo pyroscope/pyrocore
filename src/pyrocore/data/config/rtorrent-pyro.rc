@@ -1,10 +1,12 @@
 #############################################################################
 # Standard PyroScope rTorrent Configuration
 #
-# Include this into your main "~/.rtorrent.rc" by adding
+# To include THIS file into your main "~/.rtorrent.rc", add these commands to it:
 #   method.insert = pyro.extended, value|const, 0
 #   method.insert = pyro.bin_dir, string|const,
 #   import = ~/.pyroscope/rtorrent-pyro.rc.default
+#
+# And read https://pyrocore.readthedocs.io/en/latest/setup.html#rtorrent-pyro-rc
 #
 # Remove the ".default" if you want to change something (else your changes
 # get over-written on update, when you put them into ``*.default`` files).
