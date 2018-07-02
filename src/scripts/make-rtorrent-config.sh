@@ -8,11 +8,11 @@ export RT_HOME="${RT_HOME:-$HOME/rtorrent}"
 # This can be used to test changes contained in a 'pimp-my-box' workdir
 PMB_ROOT_DIR="$1"
 
-INSTALL_ROOT="$(command cd $(dirname "$0") >/dev/null && pwd)"
+INSTALL_ROOT="$(builtin cd $(dirname "$0") >/dev/null && pwd)"
 INSTALL_ROOT="$(dirname $(dirname "$INSTALL_ROOT"))"
 
 mkdir -p "$RT_HOME"
-command cd "$RT_HOME"
+builtin cd "$RT_HOME"
 
 # Create "rtorrent.rc"
 echo "*** Creating 'rtorrent.rc' in '$RT_HOME'..."
@@ -21,14 +21,14 @@ sed -e "s:RT_HOME:$RT_HOME:" <"$INSTALL_ROOT/docs/examples/rtorrent.rc" >"$RT_HO
 # Get pimp-my-box source
 if test -n "$PMB_ROOT_DIR" -a -d "$PMB_ROOT_DIR"; then
     echo "*** Copying 'rtorrent.d' snippets..."
-    mkdir -p "rtorrent.d"
+    test -d "rtorrent.d/" || mkdir -p "rtorrent.d"
     cp -p "$PMB_ROOT_DIR/roles/rtorrent-ps/templates/rtorrent/rtorrent.d"/*.rc{,.include} "rtorrent.d"
 else
     echo "*** Downloading 'rtorrent.d' snippets..."
     curl -L -o /tmp/$USER-pimp-my-box.tgz \
         "https://github.com/pyroscope/pimp-my-box/archive/master.tar.gz"
-    tar -xz --strip-components=5 -f /tmp/$USER-pimp-my-box.tgz \
-        "pimp-my-box-master/roles/rtorrent-ps/templates/rtorrent/rtorrent.d"
+    ( builtin cd rtorrent.d/ >/dev/null && tar -xz --strip-components=6 -f /tmp/$USER-pimp-my-box.tgz \
+        "pimp-my-box-master/roles/rtorrent-ps/templates/rtorrent/rtorrent.d" )
 fi
 
 if test ! -f ~/bin/_event.download.finished; then
@@ -38,7 +38,7 @@ fi
 
 # Replace Ansible variables
 echo "*** Configuring 'rtorrent.d' snippets..."
-( command cd rtorrent.d && for i in *.rc{,.include}; do \
+( builtin cd rtorrent.d >/dev/null && for i in *.rc{,.include}; do \
     sed -i -re 's/\{\{ item }}/'"$i/" -e '/^# !.+!$/d' "$i" \
             -e 's:~/rtorrent/:'"$RT_HOME/:" -e "s:$HOME/:~/:" \
             -e "s:'rtorrent' user:'$USER' user:"; \
@@ -52,6 +52,10 @@ sed -i -r \
     -e 's/\{\{ .+rt_system_umask.+ }}/0027/' \
     -e 's/\{\{ rt_keys_layout }}/qwerty/' \
     rtorrent.d/20-host-var-settings.rc
+
+if test "$(realpath $HOME/rtorrent)" = "$(realpath /var/torrent)"; then
+    ( builtin cd $(dirname $(realpath rtorrent.rc)) && sed -i -re "s~$HOME/rtorrent~/var/torrent~g" rtorrent.rc )
+fi
 
 # Check that there are no overlooked Ansible variables
 echo
