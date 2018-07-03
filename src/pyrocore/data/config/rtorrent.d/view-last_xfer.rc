@@ -21,7 +21,7 @@ branch = (and, (system.has, "compare="), (system.has, "d.custom.if_z=")), \
     "view.sort_current = last_xfer, greater=d.last_xfer="
 
 branch = (and, (system.has, "convert.time_delta="), (system.has, "d.custom.if_z=")), \
-    "method.set_key = ui.column.render, \"962:6C21/1C23/1C21/2C23/2:⌚ ↑↓  \", \
+    "method.set_key = ui.column.render, \"962:6C21/1C23/1C21/2C23/2:◷ ↑↓  \", \
         ((convert.time_delta, ((value, ((d.custom.if_z, last_xfer, ((d.last_active)) )) )) ))", \
     ((print, "WARNING: No LAST XFER column (update rTorrent-PS)!"))
 

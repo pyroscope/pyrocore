@@ -16,7 +16,7 @@ branch = (and, (pyro.extended), (not, (system.has, "d.tracker_alias="))), ((do, 
     "view.sort_current = trackers, \"compare=++, d.tracker_domain=, d.name=\"" ))
 
 branch = (system.has, "convert.time_delta="), \
-    "method.set_key = ui.column.render, \"964:6C21/1C28/1C21/2C28/2:⌚ ↺⤴⤵ \", \
+    "method.set_key = ui.column.render, \"964:6C21/1C28/1C21/2C28/2:◷ ↺⤴⤵ \", \
         ((convert.time_delta, ((value, ((d.custom, tm_last_scrape)) )) ))", \
     ((print, "WARNING: No LAST SCRAPE column (update rTorrent-PS)!"))
 
