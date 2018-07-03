@@ -19,9 +19,9 @@ echo "*** Creating 'rtorrent.rc' in '$RT_HOME'..."
 sed -e "s:RT_HOME:$RT_HOME:" <"$INSTALL_ROOT/docs/examples/rtorrent.rc" >"$RT_HOME/rtorrent.rc"
 
 # Get pimp-my-box source
+test -d "rtorrent.d/" || mkdir -p "rtorrent.d"
 if test -n "$PMB_ROOT_DIR" -a -d "$PMB_ROOT_DIR"; then
     echo "*** Copying 'rtorrent.d' snippets..."
-    test -d "rtorrent.d/" || mkdir -p "rtorrent.d"
     cp -p "$PMB_ROOT_DIR/roles/rtorrent-ps/templates/rtorrent/rtorrent.d"/*.rc{,.include} "rtorrent.d"
 else
     echo "*** Downloading 'rtorrent.d' snippets..."
