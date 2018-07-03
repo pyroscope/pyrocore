@@ -72,5 +72,5 @@ if test -d "$RT_HOME/rtorrent.d" -a ! -f "~/NOCRON"; then
 fi
 
 "$RT_BIN" "${RT_OPTS[@]}" ; RC=$?
-test -z "$nocron_delay" -o "$(date +'%s')" -ge "$nocron_delay" || rm "$HOME/NOCRON" 2>/dev/null || :
+test -z "$nocron_delay" -o "$(date +'%s')" -ge "${nocron_delay:-0}" || rm "$HOME/NOCRON" 2>/dev/null || :
 exit $RC
