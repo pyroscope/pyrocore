@@ -1,5 +1,5 @@
-pyrocore\.torrent package
-=========================
+pyrocore.torrent package
+========================
 
 .. automodule:: pyrocore.torrent
     :members:
@@ -9,64 +9,64 @@ pyrocore\.torrent package
 Submodules
 ----------
 
-pyrocore\.torrent\.broom module
--------------------------------
+pyrocore.torrent.broom module
+-----------------------------
 
 .. automodule:: pyrocore.torrent.broom
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.engine module
---------------------------------
+pyrocore.torrent.engine module
+------------------------------
 
 .. automodule:: pyrocore.torrent.engine
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.filter module
---------------------------------
+pyrocore.torrent.filter module
+------------------------------
 
 .. automodule:: pyrocore.torrent.filter
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.formatting module
-------------------------------------
+pyrocore.torrent.formatting module
+----------------------------------
 
 .. automodule:: pyrocore.torrent.formatting
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.jobs module
-------------------------------
+pyrocore.torrent.jobs module
+----------------------------
 
 .. automodule:: pyrocore.torrent.jobs
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.queue module
--------------------------------
+pyrocore.torrent.queue module
+-----------------------------
 
 .. automodule:: pyrocore.torrent.queue
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.rtorrent module
-----------------------------------
+pyrocore.torrent.rtorrent module
+--------------------------------
 
 .. automodule:: pyrocore.torrent.rtorrent
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.torrent\.watch module
--------------------------------
+pyrocore.torrent.watch module
+-----------------------------
 
 .. automodule:: pyrocore.torrent.watch
     :members:

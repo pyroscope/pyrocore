@@ -20,16 +20,16 @@ Subpackages
 Submodules
 ----------
 
-pyrocore\.config module
------------------------
+pyrocore.config module
+----------------------
 
 .. automodule:: pyrocore.config
     :members:
     :undoc-members:
     :show-inheritance:
 
-pyrocore\.error module
-----------------------
+pyrocore.error module
+---------------------
 
 .. automodule:: pyrocore.error
     :members:

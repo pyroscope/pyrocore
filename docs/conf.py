@@ -46,7 +46,7 @@ extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo',
     'sphinx.ext.coverage', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode',
 ]
-if not on_rtd and os.environ.get('NOUML', '').lower() not in ('1', 'yes', 'y'):
+if 0 and not on_rtd and os.environ.get('NOUML', '').lower() not in ('1', 'yes', 'y'):
     extensions.append('sphinx_pyreverse')
 
 # Add any paths that contain templates here, relative to this directory.

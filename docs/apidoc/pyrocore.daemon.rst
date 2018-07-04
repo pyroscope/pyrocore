@@ -1,5 +1,5 @@
-pyrocore\.daemon package
-========================
+pyrocore.daemon package
+=======================
 
 .. automodule:: pyrocore.daemon
     :members:
@@ -9,8 +9,8 @@ pyrocore\.daemon package
 Submodules
 ----------
 
-pyrocore\.daemon\.webapp module
--------------------------------
+pyrocore.daemon.webapp module
+-----------------------------
 
 .. automodule:: pyrocore.daemon.webapp
     :members:
