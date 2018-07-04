@@ -43,36 +43,41 @@ more complex use-cases and features that might not appeal or apply to you.
 
 
 Contents of This Manual
------------------------
+=======================
 
-..    :caption: First Steps
 ..  toctree::
-    :maxdepth: 4
+    :maxdepth: 2
+    :caption: Getting Started
 
     overview
     installation
     setup
     usage
 
-..    :caption: Advanced Usage
 ..  toctree::
-    :maxdepth: 4
+    :maxdepth: 2
+    :caption: Advanced Usage
 
     howto
     advanced
-    experimental
     custom
+
+..  toctree::
+    :maxdepth: 2
+    :caption: Other Topics
+
     troubleshooting
     updating
-
-..    :caption: References
-..  toctree::
-    :maxdepth: 4
-
     references
+    license
+
+..  toctree::
+    :maxdepth: 2
+    :caption: Development
+
+    experimental
     api
     contributing
-    license
 
 
 Indices & Tables
