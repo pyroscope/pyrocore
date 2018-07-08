@@ -531,7 +531,7 @@ class TorrentProxy(object):
     xfer = DynamicField(int, "xfer", "transfer rate", matcher=matching.ByteSizeFilter,
         accessor=lambda o: o.fetch("up") + o.fetch("down"))
     last_xfer = DynamicField(int, "last_xfer", "last time data was transferred", matcher=matching.TimeFilter,
-        accessor=lambda o: int(o.fetch("last_xfer") or 0), formatter=fmt.iso_datetime_optional)
+        accessor=lambda o: int(o.fetch("timestamp.last_xfer") or 0), formatter=fmt.iso_datetime_optional)
     down = DynamicField(int, "down", "download rate", matcher=matching.ByteSizeFilter)
     up = DynamicField(int, "up", "upload rate", matcher=matching.ByteSizeFilter)
     throttle = OnDemandField(str, "throttle", "throttle group name (NULL=unlimited, NONE=global)", matcher=matching.PatternFilter,
@@ -553,7 +553,7 @@ class TorrentProxy(object):
                            if o.is_complete else None,
         formatter=_fmt_duration)
     active = DynamicField(int, "active", "last time a peer was connected", matcher=matching.TimeFilter,
-        accessor=lambda o: int(o.fetch("last_active") or 0), formatter=fmt.iso_datetime_optional)
+        accessor=lambda o: int(o.fetch("timestamp.last_active") or 0), formatter=fmt.iso_datetime_optional)
     stopped = DynamicField(int, "stopped", "time download was last stopped or paused", matcher=matching.TimeFilterNotNull,
         accessor=lambda o: (_interval_split(o, only='P', context=o.name) + [(0, 0)])[0][1], formatter=fmt.iso_datetime_optional)
 

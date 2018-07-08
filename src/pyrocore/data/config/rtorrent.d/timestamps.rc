@@ -34,19 +34,19 @@ method.set_key = event.download.inserted_new, set_downloaded_date, ((pyro._tm_do
 
 
 # SCHEDULE: Set "last_active" custom timestamp field for items that have peers
-method.insert = d.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
-method.insert = d.last_active.update, simple|private,\
+method.insert = d.timestamp.last_active, simple, "if=$d.peers_connected=,$cat=$system.time=,$d.custom=last_active"
+method.insert = d.timestamp.last_active.update, simple|private,\
     "d.custom.set=last_active,$cat=$system.time= ; branch=argument.0=,d.save_resume="
 
 schedule2 = pyro_update_last_active, 24, 42,\
-    "d.multicall2=started,\"branch=$d.peers_connected=,d.last_active.update=\""
+    "d.multicall2=started,\"branch=$d.peers_connected=,d.timestamp.last_active.update=\""
 
 method.set_key = event.download.resumed, !last_active,\
-    "branch=\"or={d.peers_connected=,not=$d.custom=last_active}\", d.last_active.update=1"
-method.set_key = event.download.finished, !last_active, "d.last_active.update=1"
+    "branch=\"or={d.peers_connected=,not=$d.custom=last_active}\", d.timestamp.last_active.update=1"
+method.set_key = event.download.finished, !last_active, "d.timestamp.last_active.update=1"
 
-method.insert = d.last_active.print, simple|private,\
-    "print=\"$cat={$convert.date=$d.last_active=, \\\" \\\", $convert.time=$d.last_active=}\""
+method.insert = d.timestamp.last_active.print, simple|private,\
+    "print=\"$cat={$convert.date=$d.timestamp.last_active=, \\\" \\\", $convert.time=$d.timestamp.last_active=}\""
 
 
 # SCHEDULE: Set "last_xfer" custom timestamp field for items that transfer data
@@ -58,10 +58,10 @@ method.insert = pyro._last_xfer_update, simple|private,\
     "d.custom.set=last_xfer,$cat=$system.time= ; branch=argument.0=,d.save_resume="
 method.insert = d.last_xfer.is_active, simple,\
     "or={pyro._last_xfer_check_min_rate=$d.up.rate=,pyro._last_xfer_check_min_rate=$d.down.rate=}"
-method.insert = d.last_xfer, simple, "if=$d.last_xfer.is_active=,$cat=$system.time=,$d.custom=last_xfer"
+method.insert = d.timestamp.last_xfer, simple, "if=$d.last_xfer.is_active=,$cat=$system.time=,$d.custom=last_xfer"
 
 schedule2 = pyro_update_last_xfer, 33, 17,\
     "d.multicall2=active,\"branch=$d.last_xfer.is_active=,pyro._last_xfer_update=\""
 
-method.insert = d.last_xfer.print, simple|private,\
-    "print=\"$cat={$convert.date=$d.last_xfer=, \\\" \\\", $convert.time=$d.last_xfer=}\""
+method.insert = d.timestamp.last_xfer.print, simple|private,\
+    "print=\"$cat={$convert.date=$d.timestamp.last_xfer=, \\\" \\\", $convert.time=$d.timestamp.last_xfer=}\""
