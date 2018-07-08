@@ -7,7 +7,8 @@ branch=pyro.extended=,\
     print=rTorrent-PS\\\ features\\\ NOT\\\ active!
 
 # COMMAND: Return startup time (can be used to calculate uptime)
-method.insert = startup_time, value|const, $system.time=
+method.insert = system.startup_time, value|const, $system.time=
+method.redirect = startup_time, system.startup_time
 
 # COMMAND: `do` fall-back?
 branch = (not, (system.has, "do=")), ((catch, \
