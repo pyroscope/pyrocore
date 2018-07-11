@@ -68,6 +68,7 @@ Contents of This Manual
 
     troubleshooting
     updating
+    tempita
     references
     license
 

@@ -7,8 +7,7 @@ One of the output formatting options described in the :ref:`rtcontrol-examples`
 section are Tempita templates. Compared to the other options, they offer
 more versatile formatting because you can use conditionals and loops,
 e.g. coloring the output based on some value thresholds (see the example
-below). A full description of the Tempita language can be found in its
-`documentation <http://pythonpaste.org/tempita/#the-language>`_.
+below). The reference chapter :doc:`tempita` provides a full description of :ref:`tempita-lang`.
 
 Note that in order for them to be recognized as such, Tempita templates
 **MUST** start with two braces ``{{``, use ``{{#}}`` (an empty template

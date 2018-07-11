@@ -13,5 +13,13 @@ Packages & Modules
 
    apidoc/pyrocore
 
-
 .. include : : include-api-uml.rst
+
+
+Tempita Templating API
+----------------------
+
+.. toctree::
+   :maxdepth: 4
+
+   apidoc/tempita
