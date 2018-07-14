@@ -61,13 +61,13 @@ Adding rTorrent fields not supported by default
 
         yield engine.OnDemandField(int, "peers_connected", "number of connected peers", matcher=matching.FloatFilter)
         yield engine.DynamicField(int, "downloaders", "number of completed downloads", matcher=matching.FloatFilter,
-            accessor=lambda o: get_tracker_field(o, "get_scrape_downloaded"))
+            accessor=lambda o: get_tracker_field(o, "scrape_downloaded"))
         yield engine.DynamicField(int, "seeds", "number of seeds", matcher=matching.FloatFilter,
-            accessor=lambda o: get_tracker_field(o, "get_scrape_complete"))
+            accessor=lambda o: get_tracker_field(o, "scrape_complete"))
         yield engine.DynamicField(int, "leeches", "number of leeches", matcher=matching.FloatFilter,
-            accessor=lambda o: get_tracker_field(o, "get_scrape_incomplete"))
+            accessor=lambda o: get_tracker_field(o, "scrape_incomplete"))
         yield engine.DynamicField(engine.untyped, "lastscraped", "time of last scrape", matcher=matching.TimeFilter,
-            accessor=lambda o: get_tracker_field(o, "get_scrape_time_last", max),
+            accessor=lambda o: get_tracker_field(o, "scrape_time_last", max),
             formatter=lambda dt: fmt.human_duration(float(dt), precision=2, short=True))
 
         # Add peer attributes not available by default
