@@ -1,6 +1,8 @@
 Tips & How-Tos
 ==============
 
+.. _howto-categories:
+
 Adding Category Views to the rTorrent UI
 ----------------------------------------
 
@@ -51,6 +53,8 @@ The sort order of these views is the same as ``main``,
 and if you switch to any other view and back to categories,
 you always start at the first category view
 (from the sorted list of category names).
+
+**TODO** Details (``load.category`` commands, …)
 
 
 Dumping Items as a JSON Array

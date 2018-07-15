@@ -41,8 +41,21 @@ Miscellaneous Features
 
 In this section, some smaller added features are mentioned
 – quite often, their effects are not directly visible in the user interface.
+When filenames are mentioned, they can be found in ``~/.pyroscope/rtorrent.d``
+(look at the ``*.default`` files, those are up-to-date).
 
-**TODO** Details
+``auto-scrape.rc`` regularly updates scrape information for all torrents, even stopped ones.
+It makes the peer counter columns show actually useful and reasonably up-to-date information.
+
+``commands.rc`` adds convenience commands for the ``Ctrl-X`` prompt, like ``s=`` and ``t=``.
+
+``logging.rc`` enables feedback on a few major events like completion,
+announces day changes, and warns when the ``~/NOCRON`` flag file exists.
+
+``quick-help.rc`` contains the help information shown when you press ``F2`` in `rTorrent-PS`.
+
+``timestamps.rc`` records the time at which various events happen into custom fields.
+This is the basis for sorting views like ``indemand`` or ``last_xfer``.
 
 
 .. _additional-views:
@@ -91,8 +104,10 @@ define your own *in addition* in ``_rtlocal.rc`` or a similar customization file
     pyro.bind_key = my_uploaded_view, 0416, \
         "view.sort = uploaded ; ui.current_view.set = uploaded"
 
+The `Extended Canvas Explained`_ section in the `rTorrent-PS` manual has a list
+of columns in those view, and what they mean.
 
-**TODO** Missing details?!
+.. _`Extended Canvas Explained`: https://rtorrent-ps.readthedocs.io/en/latest/manual.html#extended-canvas
 
 
 .. _view-tagged:
@@ -140,7 +155,7 @@ ruTorrent label (``custom_1=‹name›``).
 ``|`` re-applies the category filter and thus updates the current
 category view.
 
-**TODO** Details (``load.category`` commands, …)
+See :ref:`howto-categories` for more details.
 
 
 Color Themes
