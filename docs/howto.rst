@@ -16,7 +16,7 @@ like in this example:
 .. code-block:: shell
 
     cd ~/rtorrent
-    ~/.local/pyroscope/src/scripts/add-categories.sh books hdtv movies
+    ~/.local/pyroscope/src/scripts/add-categories.sh books hdtv movies music
 
 It is recommended to stick to alphanumeric category names,
 and use ``_`` for word separation.
@@ -25,6 +25,28 @@ The script adds the given categories to the ``rtorrent.d/categories.rc`` file,
 using a ``pyro.category.add`` call and defining a watch schedule for each one.
 The watches put loaded items into the related category,
 and they expect metafiles in ``~/rtorrent/watch/‹category-name›``.
+
+Given the categories in the call above, it looks like this:
+
+.. code-block:: initial
+
+    # Category Definitions for:
+    #   books hdtv movies music
+
+    # "Other" category for empty labels
+    pyro.category.add = (cat,)
+
+    pyro.category.add = books
+    schedule2 = category_watch_01, 11, 10, ((load.category.normal, books))
+
+    pyro.category.add = hdtv
+    schedule2 = category_watch_02, 12, 10, ((load.category.normal, hdtv))
+
+    pyro.category.add = movies
+    schedule2 = category_watch_03, 13, 10, ((load.category.normal, movies))
+
+    pyro.category.add = music
+    schedule2 = category_watch_04, 14, 10, ((load.category.normal, music))
 
 To remove a category, just edit it out of the ``rtorrent.d/categories.rc`` file,
 and then call the ``add-categories.sh`` script without any arguments to clean things up.
@@ -54,7 +76,19 @@ and if you switch to any other view and back to categories,
 you always start at the first category view
 (from the sorted list of category names).
 
-**TODO** Details (``load.category`` commands, …)
+For details on the commands related to categories, see their descriptionm in the rTorrent command reference:
+
+.. hlist::
+   :columns: 3
+
+   * :term:`d.category.set`
+   * :term:`load.category`
+   * :term:`load.category.normal`
+   * :term:`load.category.start`
+   * :term:`pyro.category.separated`
+   * :term:`pyro.category.add`
+   * :term:`pyro.category.list`
+   * :term:`cfg.watch.start`
 
 
 Dumping Items as a JSON Array

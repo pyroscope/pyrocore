@@ -228,7 +228,7 @@ this behaviour. It can be used like shown in this example:
 
     schedule2 = watch_hdtv, 10, 10, ((load.category, hdtv))
 
-See :ref:`category-views` for more on categories.
+See :ref:`howto-categories` for more on categories.
 
 
 .. topic:: Technical Details

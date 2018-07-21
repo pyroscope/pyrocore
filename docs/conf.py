@@ -271,6 +271,8 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {
-    'http://docs.python.org/': None,
-}
+intersphinx_mapping = dict(
+    python=('https://docs.python.org/2', None),
+    rtdocs=('https://rtorrent-docs.readthedocs.io/en/latest', None),
+    rtps=('https://rtorrent-ps.readthedocs.io/en/latest', None),
+)
