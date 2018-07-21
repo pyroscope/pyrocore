@@ -141,8 +141,6 @@ Within each group, they're sorted by download and then upload speed.
     This feature is added by ``views.rc`` in the `pimp-my-box configuration includes`_.
 
 
-.. _color-themes:
-
 .. _category-views:
 
 Category Views
@@ -157,6 +155,8 @@ category view.
 
 See :ref:`howto-categories` for more details.
 
+
+.. _color-themes:
 
 Color Themes
 ^^^^^^^^^^^^
