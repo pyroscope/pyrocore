@@ -107,7 +107,7 @@ class AdminTool(ScriptBaseWithConfig):
         """
         if self.options.create_config:
             # Create configuration
-            config_loader = load_config.ConfigLoader(self.options.config_dir)
+            config_loader = load_config.ConfigLoader(self.config_dir)
             config_loader.create(self.options.remove_all_rc_files)
 
             # Create directories

@@ -54,8 +54,7 @@ class ThemeSwitcher(ScriptBaseWithConfig):
     def mainloop(self):
         """ Handle theme selection changes, or rotate through selection.
         """
-        config_dir = self.options.config_dir or os.path.expanduser("~/.pyroscope")
-        themes_dir = os.path.join(config_dir, 'color-schemes')
+        themes_dir = os.path.join(self.config_dir, 'color-schemes')
         selected_file = os.path.join(themes_dir, '.selected')
         current_file = os.path.join(themes_dir, '.current')
 

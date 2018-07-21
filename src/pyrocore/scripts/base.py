@@ -331,6 +331,7 @@ class ScriptBase(object):
 class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
     """ CLI tool with configuration support.
     """
+    CONFIG_DIR_DEFAULT = '~/.pyroscope'
     OPTIONAL_CFG_FILES = []
 
 
@@ -340,7 +341,7 @@ class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
         super(ScriptBaseWithConfig, self).add_options()
 
         self.add_value_option("--config-dir", "DIR",
-            help="configuration directory [~/.pyroscope]")
+            help="configuration directory [{}]".format(os.environ.get('PYRO_CONFIG_DIR', self.CONFIG_DIR_DEFAULT)))
         self.add_value_option("--config-file", "PATH",
             action="append", default=[],
             help="additional config file(s) to read")
@@ -353,7 +354,11 @@ class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
         """ Get program options.
         """
         super(ScriptBaseWithConfig, self).get_options()
-        load_config.ConfigLoader(self.options.config_dir).load(self.OPTIONAL_CFG_FILES + self.options.config_file)
+
+        self.config_dir = os.path.abspath(os.path.expanduser(self.options.config_dir
+            or os.environ.get('PYRO_CONFIG_DIR', None)
+            or self.CONFIG_DIR_DEFAULT))
+        load_config.ConfigLoader(self.config_dir).load(self.OPTIONAL_CFG_FILES + self.options.config_file)
         if self.options.debug:
             config.debug = True
 

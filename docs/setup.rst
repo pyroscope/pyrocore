@@ -70,6 +70,9 @@ If you need several distinct configuration sets, just add the
 
     pyroadmin --create-config --config-dir ~/rtorrent/special/.pyroscope
 
+Alternatively, you can set the :envvar:`PYRO_CONFIG_DIR` environment variable
+to change the default of :file:`~/.pyrocscope`.
+
 To view your loaded configuration with all the system defaults added,
 use this (again, the ``--config-dir`` option allows non-default
 configuration locations):
