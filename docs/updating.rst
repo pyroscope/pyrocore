@@ -194,7 +194,7 @@ The ``--alter-view`` option allows manipulating filter results in views
 incrementally (using several command calls).
 
 More details on the contained changes can be found at `GitHub releases`_ and the `changelog`_.
-If you're using `rTorrent-PS`, also look at its `Change History`_.
+If you're using `rTorrent-PS`, also look at its :doc:`Change History <CHANGES>`.
 
 When you have a rather aged configuration, also consider switching to the new
 set of configuration files as found in the ``pimp-by-box`` project, that use
@@ -234,7 +234,7 @@ To upgrade your existing installation, follow these steps:
    That way, diffs get easy and nothing can be lost
    – you ‘just’ need to do the merging.
 
-   Read `rTorrent Configuration`_ about how to avoid changing standard files
+   Read :ref:`make-rtorrent-config` about how to avoid changing standard files
    by using ``_rtlocal.rc`` instead,
    and/or your own added files in ``rtorrent.d``.
    Then you have a way more painless updating experience – next time, anyway.
@@ -245,8 +245,7 @@ In any case, **make a backup** of your configuration and scripts,
 as mentioned at the start of this chapter, *before* performing any update steps.
 By the way, putting stuff into git, and also committing it, counts as a backup.
 
-.. _`Change History`: https://rtorrent-ps.readthedocs.io/en/latest/CHANGES.html
-.. _`rTorrent Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#make-rtorrent-config
+
 .. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps#rtorrent-ps
 .. _`migrate to the new syntax`: https://github.com/rakshasa/rtorrent/wiki/RPC-Migration-0.9
 .. _`update the start script`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/DebianInstallFromSource.md#rtorrent-startup-script

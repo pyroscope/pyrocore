@@ -3,12 +3,10 @@ Configuration Guide
 
 .. important::
 
-    If you followed the `Manual Turn-Key System Setup`_ instructions of rTorrent-PS, or plan to do so,
+    If you followed the :ref:`DebianInstallFromSource` instructions of rTorrent-PS, or plan to do so,
     only the :ref:`config-ini` section is of real importance, and you can read about and customize
     the ``config.ini`` file at your leisure – the most important change is defining tracker aliases,
     to make handling announce URLs more convenient, and to enable filtering by alias name in ``rtcontrol``.
-
-.. _`Manual Turn-Key System Setup`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#debianinstallfromsource
 
 
 Introduction

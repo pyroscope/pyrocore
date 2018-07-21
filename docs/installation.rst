@@ -9,11 +9,9 @@ configuration.
 
 .. important::
 
-    If you followed the `Manual Turn-Key System Setup`_ instructions of rTorrent-PS, or plan to do so,
+    If you followed the :ref:`DebianInstallFromSource` instructions of rTorrent-PS, or plan to do so,
     you can skip this chapter, all installation steps are covered there already.
     They same holds true for using the just mentioned `pimp-my-box`_ project.
-
-.. _`Manual Turn-Key System Setup`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#debianinstallfromsource
 
 
 .. contents:: These are the steps for a manual installation:

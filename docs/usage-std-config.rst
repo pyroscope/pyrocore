@@ -7,17 +7,17 @@ This section provides details on the use of the features that
 are added by the :ref:`standard rTorrent configuration include <rtorrent-pyro-rc>`.
 Many of them work on a vanilla release of rTorrent – but see the note below.
 
-See also the `full list of additional features`_ in the rTorrent-PS documentation.
+See also the :ref:`full list of additional features <features-std-cfg>` in the rTorrent-PS documentation.
 There's also some features that are located in the `pimp-my-box configuration includes`_,
 which means in order to get them you either need to use that way of setup,
-or follow the `Manual Turn-Key System Setup`_ instructions in the rTorrent-PS manual
-(specifically the `rTorrent Configuration`_ part).
+or follow the :ref:`DebianInstallFromSource` instructions in the rTorrent-PS manual
+(specifically the :ref:`make-rtorrent-config` part).
 
 If you think this is too complicated and scattered all over the place,
 the `pimp-my-box project`_ packages all this into a nicely integrated experience.
 Just sayin'. ☺
 
-If you don't want to use `Ansible`, then the `make-rtorrent-config.sh`_ script
+If you don't want to use `Ansible`, then the :ref:`make-rtorrent-config.sh <make-rtorrent-config>` script
 gives you the same setup with a bit more manual work involved.
 
 .. important::
@@ -26,12 +26,8 @@ gives you the same setup with a bit more manual work involved.
     require that you run a build of `rTorrent-PS`_!
 
 .. _`rTorrent-PS`: https://github.com/pyroscope/rtorrent-ps
-.. _`full list of additional features`: https://rtorrent-ps.readthedocs.io/en/latest/manual.html#features-std-cfg
 .. _`pimp-my-box project`: https://pimp-my-box.readthedocs.io/
 .. _`pimp-my-box configuration includes`: https://github.com/pyroscope/pimp-my-box/tree/master/roles/rtorrent-ps/templates/rtorrent/rtorrent.d
-.. _`Manual Turn-Key System Setup`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#debianinstallfromsource
-.. _`rTorrent Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#rtorrent-configuration
-.. _`make-rtorrent-config.sh`: https://rtorrent-ps.readthedocs.io/en/latest/install.html#make-rtorrent-config
 
 
 .. _std-cfg-misc:
@@ -104,10 +100,8 @@ define your own *in addition* in ``_rtlocal.rc`` or a similar customization file
     pyro.bind_key = my_uploaded_view, 0416, \
         "view.sort = uploaded ; ui.current_view.set = uploaded"
 
-The `Extended Canvas Explained`_ section in the `rTorrent-PS` manual has a list
+The :ref:`extended-canvas` section in the `rTorrent-PS` manual has a list
 of columns in those view, and what they mean.
-
-.. _`Extended Canvas Explained`: https://rtorrent-ps.readthedocs.io/en/latest/manual.html#extended-canvas
 
 
 .. _view-tagged:
