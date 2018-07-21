@@ -127,16 +127,17 @@ Working With Several rTorrent Instances
 Switching to the 'rtorrent.rc' of an Instance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Both ``rtcontrol`` and ``rtxmlrpc`` read the existing rTorrent configuration
+Both :command:`rtcontrol` and :command:`rtxmlrpc` read the existing rTorrent configuration
 to extract some settings, so that you don't need to maintain them twice – most
-importantly the details of the XMLRPC connection. That is why ``config.ini``
+importantly the details of the XMLRPC connection. That is why :file:`config.ini`
 has the ``rtorrent_rc`` setting, and changing that is the key to select
 a different instance you have running.
 
 Just pass the option ``-D rtorrent_rc=PATH_TO/rtorrent.rc`` to either
-``rtcontrol`` or ``rtxmlrpc``, to read the configuration of another instance
+:command:`rtcontrol` or :command:`rtxmlrpc`, to read the configuration of another instance
 than the default one. For convenient use on the command line, you can add
-shell aliases to you profile.
+shell aliases to you profile, or globally change the default for the current shell
+by setting the :envvar:`PYRO_CONFIG_DIR` environment variable.
 
 Alternatively, you can also set the ``scgi_url`` value directly, like in this example:
 
