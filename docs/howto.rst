@@ -290,9 +290,7 @@ To use the generated ``_all-items`` files, this is how you can read them:
     done <.metadata/_all-items
 
 While the name and the filename are usually identical,
-they *can* differ if you used
-`d.directory_base.set <https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html#term-d-directory-base-set>`_
-on an item.
+they *can* differ if you used :term:`d.directory_base.set` on an item.
 
 The best way to migrate the data is using ``rsync``,
 especially since it allows incremental updates,
