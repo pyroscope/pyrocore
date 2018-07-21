@@ -181,11 +181,31 @@ so adapt the examples to your liking and terminal setup.
 
 Read more on the configuration of color schemes
 and the necessary setup of `rTorrent-PS` in its
-`Color Scheme Configuration`_ section of the manual.
+:ref:`color-schemes` section of the manual.
+It explains how to create new files in the ``~/.pyroscope/color-schemes/`` directory.
 
-**TODO** More details (theme directory, theme selection, …)
+`pyrocore` provides the commands to select your favourites amongst the different schemes stored there,
+and then rotate through the selection using ``~``.
 
-.. _`Color Scheme Configuration`: https://rtorrent-ps.readthedocs.io/en/latest/setup.html#color-schemes
+* (De-)select a theme:  ``python-pyrocore -m pyrocore.ui.theming -t ‹name(s)›``
+* Select all themes:    ``python-pyrocore -m pyrocore.ui.theming -a``
+* List all themes:      ``python-pyrocore -m pyrocore.ui.theming -l``
+* Rotate to next:       ``python-pyrocore -m pyrocore.ui.theming -qn``
+* Print current path:   ``python-pyrocore -m pyrocore.ui.theming -qc``
+
+Only the first three are the ones you want to call directly,
+the last two are used internally to implement the rotation.
+
+Here is an example for selecting the themes which are shown above as screen shots:
+
+.. code-block:: shell
+
+    python-pyrocore -m pyrocore.ui.theming -a -t \
+        default-256,solarized-blue,solarized-yellow,happy-pastel -l
+
+Call this command on a shell prompt as the user you installed `pyrocore` for.
+Selection changes are in effect immediately, you don't need to restart rTorrent.
+
 
 .. |color-scheme-default| image:: https://rtorrent-ps.readthedocs.io/en/latest/_images/color-scheme-default.png
     :width: 320px
