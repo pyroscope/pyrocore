@@ -123,7 +123,12 @@ very useful to manually select a few items and then run
 populate the ``tagged`` view, then deselect some items interactively
 with the ``.`` key, and finally mass-control the rest.
 
-**TODO** More detail
+.. rubric:: Examples using the `tagged` view
+
+..
+
+* :ref:`move-data`
+* :ref:`tag-tv-season-cull`
 
 
 .. _view-active:

@@ -335,6 +335,8 @@ you might remove the source data:
     bash -x /tmp/rt-cleanup-$USER.sh  # optionally delete left-overs
 
 
+.. _tag-tv-season-cull:
+
 Tag Episodes in rT-PS, Then Delete Their Whole Season
 -----------------------------------------------------
 
