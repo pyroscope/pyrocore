@@ -13,7 +13,7 @@ and especially the rTorrent client.
 They enable you to filter rTorrent's item list for displaying or changing selected items,
 also creating, inspecting and changing ``.torrent`` files, and much more.
 
-An optional daemon process named ``pyrotorque`` can add flexible queue management for rTorrent,
+An optional daemon process named :command:`pyrotorque` can add flexible queue management for rTorrent,
 starting items added in bulk slowly over time according to customizable rules.
 
 It can also watch a directory tree recursively for new metafiles using *inotify*.
@@ -32,7 +32,7 @@ You absolutely **must** read the first three chapters
 :doc:`overview`, :doc:`installation`, and :doc:`setup`,
 and follow their instructions.
 Otherwise *pyrocore* utilities won't work at all or not properly,
-if you do not provide an adequate ``config.ini`` file, and also modify
+if you do not provide an adequate :file:`config.ini` file, and also modify
 the *rTorrent* one to provide some essential data and commands.
 
 Once you got everything basically working, :doc:`usage`
