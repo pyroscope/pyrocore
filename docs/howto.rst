@@ -161,16 +161,16 @@ wholesale, with all the work that comes with that after updates,
 you can simply ignore just the ``commands.rc.default`` file,
 and replace it with an adapted copy in your *main* configuration file.
 
-So, in summary, to customize a :file:`~/rtorrent` instance:
+So, in summary, to customize a :file:`~/rtorrent_1` instance:
 
 .. code-block:: shell
 
     echo >>~/.pyroscope/rtorrent.d/.rcignore "commands.rc.default"
-    sed -r -e 's:--detach:--detach,-D,"rtorrent_rc=~/rtorrent1/rtorrent.rc":' \
+    sed -r -e 's:--detach:--detach,-D,"rtorrent_rc=~/rtorrent_1/rtorrent.rc":' \
         ~/.pyroscope/rtorrent.d/commands.rc.default \
-        >>~/rtorrent1/rtorrent.rc
+        >>~/rtorrent_1/rtorrent.rc
 
-Now commands like ``s=`` are defined in ``~/rtorrent1/rtorrent.rc``, and
+Now commands like ``s=`` are defined in ``~/rtorrent_1/rtorrent.rc``, and
 ``commands.rc.default`` is not imported, so no duplicate definition errors occur.
 
 .. tip::
