@@ -3,57 +3,58 @@
 Overview of CLI Tools
 ^^^^^^^^^^^^^^^^^^^^^
 
-``rtcontrol`` is the work-horse for rTorrent automation, it takes filter conditions
+:command:`rtcontrol` is the work-horse for rTorrent automation, it takes filter conditions
 of the form ``‹field›=‹value›`` and selects a set of download items according to them.
 That result can then be printed to the console according to a specified format,
 or put into any rTorrent view for further inspection.
 You can also take some bulk action on the selected items, e.g. starting, stopping, or deleting them.
 
-``rtxmlrpc`` sends single XMLRPC commands to rTorrent, and ``rtmv`` allows you to move around the
+:command:`rtxmlrpc` sends single XMLRPC commands to rTorrent, and :command:`rtmv` allows you to move around the
 data of download items in the file system, while continuing to seed that data.
 
 The following commands help you with managing metafiles:
 
- * ``lstor`` safely lists their contents in various formats.
- * ``mktor`` creates them, with support for painless cross-seeding.
- * ``chtor`` changes existing metafiles, e.g. to add fast-resume information.
- * ``hashcheck`` simply checks data against a given metafile's piece hashes.
+ * :command:`lstor` safely lists their contents in various formats.
+ * :command:`mktor` creates them, with support for painless cross-seeding.
+ * :command:`chtor` changes existing metafiles, e.g. to add fast-resume information.
+ * :command:`hashcheck` simply checks data against a given metafile's piece hashes.
 
-``pyrotorque`` is a companion daemon process to rTorrent that handles
+:command:`pyrotorque` is a companion daemon process to rTorrent that handles
 automation tasks like queue management, instant metafile loading from
 a directory tree via file system notifications, and other background tasks.
 
-``pyroadmin`` is a helper for administrative tasks (mostly configuration handling).
-and ``rtevent`` is experimental and incomplete.
+:command:`pyroadmin` is a helper for administrative tasks (mostly configuration handling).
+and :command:`rtevent` is experimental and incomplete.
 
 
 Bash Completion
 ^^^^^^^^^^^^^^^
 
-If you don't know what bash  completion is, or want to handle this later,
+If you don't know what :command:`bash` completion is, or want to handle this later,
 you can skip to :ref:`common-options`.
 
 
 Using completion
 """"""""""""""""
 
-In case you don't know what ``bash`` completion looks like, watch this…
+In case you don't know what :command:`bash` completion looks like, watch this…
 
 .. image:: videos/bash-completion.gif
 
-Every time you're unsure what options you have, you can press ``TAB ↹`` twice
+Every time you're unsure what options you have, you can press :kbd:`TAB↹` twice
 to get a menu of choices, and if you already know roughly what you want,
-you can start typing and save keystrokes by pressing ``TAB ↹`` once, to
+you can start typing and save keystrokes by pressing :kbd:`TAB↹` once, to
 complete whatever you provided so far.
 
-So for example, enter a partial command name like ``rtco`` and then ``TAB ↹`` to
-get "``rtcontrol``", then type ``--`` followed by 2 times ``TAB ↹`` to get a list of
+So for example, enter a partial command name like :kbd:`rtco` and then :kbd:`TAB↹` to
+get ``rtcontrol``, then type :kbd:`--` followed by 2 times :kbd:`TAB↹` to get a list of
 possible command line options.
+
 
 Activating completion
 """""""""""""""""""""
 
-To add ``pyrocore``'s completion definitions to your shell, call these commands:
+To add `pyrocore`'s completion definitions to your shell, call these commands:
 
 .. code-block:: shell
 
@@ -67,7 +68,7 @@ After that, completion should work, see the above section for things to try out.
 
 .. note::
 
-    On *Ubuntu*, you need to have the ``bash-completion`` package
+    On `Ubuntu`, you need to have the ``bash-completion`` package
     installed on your machine. Other Linux systems will have a similar
     pre-condition.
 
@@ -77,17 +78,50 @@ After that, completion should work, see the above section for things to try out.
 Common Options
 ^^^^^^^^^^^^^^
 
-All commands share some common options::
+All commands share some common options.
 
-    --version          show program's version number and exit
-    -h, --help         show this help message and exit
-    -q, --quiet        omit informational logging
-    -v, --verbose      increase informational logging
-    --debug            always show stack-traces for errors
-    --config-dir=DIR   configuration directory [~/.pyroscope]
+.. option:: --version
+
+    Show the command's version number and exit.
+
+.. option:: -h, --help
+
+    Show the command's help information and exit.
+
+.. option:: -q, --quiet
+
+    Omit informational logging, like the time it took to run the command.
+
+.. option:: -v, --verbose
+
+    Increase informational logging, including some of the internal operations
+    like configuration loading, and XMLRPC statistics.
+
+.. option:: --debug
+
+    Always use :option:`--debug` when including logs in a bug report,
+    since it shows stack traces for errors even when normally they'd
+    be replaced by a more friendlier error message.
+
+    This option also generates even more logging output than :option:`-v`,
+    including detailed XMLRPC diagnostics.
+    Often it'll point you to the root of a problem, so you *don't* have to create an issue.
+
+.. option:: --config-dir <DIR>
+
+    Use a different configuration directory instead of the :file:`~/.pyroscope` default one.
+
 
 Also see the :ref:`cli-usage` section for an automatically generated and thus
 comprehensive listing of all the current options.
+
+.. envvar:: PYRO_CONFIG_DIR
+
+    .. versionadded:: 0.6.1
+
+    This environment variable can be used to change the default :file:`~/.pyrocscope`
+    of the :option:`--config-dir` option, for the duration of a shell session,
+    or within a `systemd` unit.
 
 
 .. _mktor:
