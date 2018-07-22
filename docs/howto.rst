@@ -161,7 +161,7 @@ wholesale, with all the work that comes with that after updates,
 you can simply ignore just the ``commands.rc.default`` file,
 and replace it with an adapted copy in your *main* configuration file.
 
-So, in summary, to customize a ``~/rtorrent1`` instance:
+So, in summary, to customize a :file:`~/rtorrent` instance:
 
 .. code-block:: shell
 
@@ -172,6 +172,16 @@ So, in summary, to customize a ``~/rtorrent1`` instance:
 
 Now commands like ``s=`` are defined in ``~/rtorrent1/rtorrent.rc``, and
 ``commands.rc.default`` is not imported, so no duplicate definition errors occur.
+
+.. tip::
+
+    Starting with version *0.6.1*, you can use the :envvar:`PYRO_CONFIG_DIR` environment variable
+    instead, by exporting it in your instance's start script or `systemd` unit.
+    This allows you to re-use *the same* :file:`~/.pyroscope/rtorrent-pyro.rc.default` include in the main
+    :file:`rtorrent.rc` of your instance, and work with an unchanged :file:`~/.pyroscope/rtorrent.d/` directory.
+
+    This variable, the :term:`cfg.basedir` value, and its current directory then allow
+    the started :command:`rtorrent` process to find the right files and directories.
 
 
 .. _move-data:
