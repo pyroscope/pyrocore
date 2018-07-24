@@ -23,6 +23,10 @@ The following commands help you with managing metafiles:
 automation tasks like queue management, instant metafile loading from
 a directory tree via file system notifications, and other background tasks.
 
+:command:`rtsweep` cleans up disk space following rules in a given order.
+These rules are part of the configuration and determine what to delete first
+when disk space is needed for new items.
+
 :command:`pyroadmin` is a helper for administrative tasks (mostly configuration handling).
 and :command:`rtevent` is experimental and incomplete.
 

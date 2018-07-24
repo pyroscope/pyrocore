@@ -2,7 +2,7 @@ User's Manual
 =============
 
 This chapter provides an overview of all the command line tools and their everyday use,
-focussing on ``rtcontrol`` as the most powerful of them.
+focussing on :command:`rtcontrol` as the most powerful of them.
 The following chapters then go into more advanced use-cases and features.
 
 
