@@ -5,18 +5,21 @@
 #
 #   echo >>~/.pyroscope/rtorrent.d/.rcignore "logging.rc.default"
 
+catch = {false=, "method.insert.simple = string.replace, \"cat=(argument.0)\""}
+method.insert = pyro._date_now, simple|private, \
+    "string.replace = (convert.date, (system.time_seconds)), {/, .}"
+
 # Logging + UI: Add day break to log
-schedule2 = log_new_day, 00:00:05, 24:00:00,\
-    ((print, "New day: ", ((convert.date, ((system.time_seconds)) )) ))
+schedule2 = log_new_day, 00:00:05, 24:00:00, ((print, "New day: ", ((pyro._date_now)) ))
 
 # Emit regular warning when ~/NOCRON exists
 schedule2 = log_nocron, 900, 1800, "branch = (value, (os.path.mtime, ~/NOCRON, 0)), \
     ((print, \"WARNING: Cron jobs disabled by ~/NOCRON\"))"
 
 # EVENTS: Logging (don't log "opened", or you get swamped at startup)
-method.set_key = event.download.inserted_new, log,\
-    "print=\"LOADED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""
-method.set_key = event.download.finished, log,\
-    "print=\"COMPLETED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""
-method.set_key = event.download.closed, log,\
-    "print=\"CLOSED \",$d.name=,\" [\",$convert.date=$system.time=,\"]\""
+method.insert = pyro._log_on_event, simple|private, \
+    "print = $argument.0=, $d.name=, \" [\", $pyro._date_now=, \"]\""
+
+method.set_key = event.download.inserted_new, ~log, ((pyro._log_on_event, "LOADED    "))
+method.set_key = event.download.finished,     ~log, ((pyro._log_on_event, "COMPLETED "))
+method.set_key = event.download.closed,       ~log, ((pyro._log_on_event, "CLOSED    "))
