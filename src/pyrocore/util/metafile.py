@@ -269,6 +269,7 @@ def assign_fields(meta, assignments):
         If just a key name is given (no '='), the field is removed.
     """
     for assignment in assignments:
+        assignment = fmt.to_unicode(assignment)
         try:
             if '=' in assignment:
                 field, val = assignment.split('=', 1)
@@ -283,14 +284,16 @@ def assign_fields(meta, assignments):
             keypath = [i.replace('\0', '.') for i in field.replace('..', '\0').split('.')]
             for key in keypath[:-1]:
                 # Create missing dicts as we go...
-                namespace = namespace.setdefault(key, {})
+                namespace = namespace.setdefault(fmt.to_utf8(key), {})
         except (KeyError, IndexError, TypeError, ValueError) as exc:
+            if self.options.debug:
+                raise
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
             if val is None:
-                del namespace[keypath[-1]]
+                del namespace[fmt.to_utf8(keypath[-1])]
             else:
-                namespace[keypath[-1]] = val
+                namespace[fmt.to_utf8(keypath[-1])] = fmt.to_utf8(val)
 
     return meta
 
