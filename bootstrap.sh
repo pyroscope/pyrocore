@@ -47,7 +47,9 @@ EOF
     && "$PROJECT_ROOT"/bin/pip uninstall -y distribute || true
 
 # tools
-pip_install -U "setuptools>=0.6c11"
+pip_install -U "pip"
+pip_install -U "setuptools>=38"
+pip_install -U "packaging"
 pip_install -U "paver>=1.0.5"
 ##pip_install -U "nose>=1.0"
 ##pip_install -U "coverage>=3.4"
