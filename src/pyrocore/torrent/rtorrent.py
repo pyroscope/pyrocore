@@ -356,7 +356,7 @@ class RtorrentItem(engine.TorrentProxy):
         for command in commands:
             try:
                 method, args = command.split('=', 1)
-                args = tuple(CommaLexer(args))
+                args = tuple(CommaLexer(args.decode("utf-8")))
             except (ValueError, TypeError) as exc:
                 raise error.UserError("Bad command %r, probably missing a '=' (%s)" % (command, exc))
 
