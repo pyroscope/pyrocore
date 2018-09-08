@@ -250,7 +250,7 @@ class AdminTool(ScriptBaseWithConfig):
                     text = wrap_fmt % ', '.join([rc_quoted(x, in_brace=(wrap_fmt[0] == '{')) for x in text])
                     return text.replace('))))', ')) ))')
                 elif isinstance(text, int):
-                    return '{:d}'.format(text)
+                    return '(value, {:d})'.format(text)
                 elif plain_re.match(text) or is_method(text):
                     return text
                 else:
