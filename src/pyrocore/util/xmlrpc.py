@@ -203,11 +203,11 @@ class RTorrentProxy(object):
 
     def __init__(self, url, mapping=None):
         self.LOG = pymagic.get_class_logger(self)
-        self._url = url
+        self._url = os.path.expandvars(url)
         try:
-            self._transport = xmlrpc2scgi.transport_from_url(url)
+            self._transport = xmlrpc2scgi.transport_from_url(self._url)
         except socket.gaierror as exc:
-            raise XmlRpcError("Bad XMLRPC URL {0}: {1}", url, exc)
+            raise XmlRpcError("Bad XMLRPC URL {0}: {1}", self._url, exc)
         self._versions = ("", "")
         self._version_info = ()
         self._use_deprecated = True
