@@ -21,6 +21,7 @@ from __future__ import absolute_import
 
 import sys
 import time
+import socket
 import xmlrpclib
 
 from pyrobase.io import xmlrpc2scgi
@@ -203,7 +204,10 @@ class RTorrentProxy(object):
     def __init__(self, url, mapping=None):
         self.LOG = pymagic.get_class_logger(self)
         self._url = url
-        self._transport = xmlrpc2scgi.transport_from_url(url)
+        try:
+            self._transport = xmlrpc2scgi.transport_from_url(url)
+        except socket.gaierror as exc:
+            raise XmlRpcError("Bad XMLRPC URL {0}: {1}", url, exc)
         self._versions = ("", "")
         self._version_info = ()
         self._use_deprecated = True
