@@ -74,12 +74,13 @@ method.insert.value = pyro.category.separated, 0
 
 method.insert = d.category.set, simple,\
     "branch = (method.has_key, pyro.category.list, (argument.0)),\
-       ((do,\
-          ((d.custom1.set, (argument.0))),\
-          ((pyro.category.update, (d.custom,category))),\
-          ((d.custom.set, category,(argument.0))),\
-          ((pyro.category.update, (argument.0)))\
-       )), ((print, (cat, \"Category '\", (argument.0), \"' does not exist\")))"
+        ((do,\
+            ((d.custom1.set, (argument.0))),\
+            ((pyro.category.update, (d.custom,category))),\
+            ((d.custom.set, category,(argument.0))),\
+            ((pyro.category.update, (argument.0)))\
+        )),\
+        ((print, (cat, \"Category '\", (argument.0), \"' does not exist\")))"
 
 method.insert = pyro._category.path, private|simple,\
     "cat = (directory.default), /, (argument.0)"
