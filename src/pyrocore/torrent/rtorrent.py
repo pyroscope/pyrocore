@@ -41,7 +41,7 @@ class CommaLexer(shlex.shlex):
     """Helper to split argument lists."""
 
     def __init__(self, text):
-        shlex.shlex.__init__(self, fmt.to_utf8(text), None, True)
+        shlex.shlex.__init__(self, text, None, True)
         self.whitespace += ','
         self.whitespace_split = True
         self.commenters = ''
@@ -356,7 +356,7 @@ class RtorrentItem(engine.TorrentProxy):
         for command in commands:
             try:
                 method, args = command.split('=', 1)
-                args = tuple(CommaLexer(args.decode("utf-8")))
+                args = tuple(CommaLexer(args))
             except (ValueError, TypeError) as exc:
                 raise error.UserError("Bad command %r, probably missing a '=' (%s)" % (command, exc))
 
