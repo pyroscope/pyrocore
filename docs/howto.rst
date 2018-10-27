@@ -1,6 +1,26 @@
 Tips & How-Tos
 ==============
 
+.. _flush-session:
+
+Flush ALL Session Data to Disk
+------------------------------
+
+The :term:`session.save` command saves the changing parts of the session status,
+that is the ``*.torrent.libtorrent_resume`` and ``*.torrent.rtorrent`` files.
+The copy of the original ``*.torrent`` metafile never changes and is thus left untouched.
+
+If you want to flush **all** the session data, call :command:`rtxmlrpc` as follows:
+
+.. code-block:: sh
+
+    rtxmlrpc -q d.multicall2 '' default d.save_full_session=
+
+Use it to recover from accidentally deleting the session directory
+– the client still needs to be running though,
+and you have to recreate the missing session directory beforehand.
+
+
 .. _howto-categories:
 
 Adding Category Views to the rTorrent UI
@@ -28,7 +48,7 @@ and they expect metafiles in ``~/rtorrent/watch/‹category-name›``.
 
 Given the categories in the call above, it looks like this:
 
-.. code-block:: initial
+.. code-block:: ini
 
     # Category Definitions for:
     #   books hdtv movies music
