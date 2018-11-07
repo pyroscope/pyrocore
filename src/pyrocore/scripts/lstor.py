@@ -24,7 +24,7 @@ import hashlib
 
 from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase
-from pyrocore.util import metafile
+from pyrocore.util import fmt, metafile
 
 
 class MetafileLister(ScriptBase):
@@ -122,7 +122,7 @@ class MetafileLister(ScriptBase):
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
                 if listing is not None:
-                    print listing
+                    print(fmt.to_utf8(listing))
 
 
 def run(): #pragma: no cover
