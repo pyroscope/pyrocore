@@ -127,8 +127,8 @@ class QueueManager(object):
             if not self.config.dry_run:
                 item.start()
                 if not self.config.quiet:
-                    self.proxy.log(xmlrpc.NOHASH, "%s: Started '%s' {%s}" % (
-                        self.__class__.__name__, fmt.to_utf8(item.name), item.alias,
+                    self.proxy.log(xmlrpc.NOHASH, u"%s: Started '%s' {%s}" % (
+                        self.__class__.__name__, fmt.to_unicode(item.name), item.alias,
                     ))
 
 
