@@ -287,7 +287,7 @@ class AdminTool(ScriptBaseWithConfig):
                             val = rc_quoted(val)
                             if len(val) > self.RC_CONTINUATION_THRESHOLD:
                                 val = '\\\n    ' + val
-                            print(b'method.set_key = {}, "{}", {}'.format(name, fmt.to_utf8(key), fmt.to_utf8(val)))
+                            print(u'method.set_key = {}, "{}", {}'.format(name, fmt.to_unicode(key), fmt.to_unicode(val)))
                     elif objtype is str:
                         definition = rc_quoted(value)
                     elif objtype is int:
