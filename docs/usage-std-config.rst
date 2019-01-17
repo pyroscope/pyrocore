@@ -101,7 +101,7 @@ define your own *in addition* in ``_rtlocal.rc`` or a similar customization file
         "view.sort = uploaded ; ui.current_view.set = uploaded"
 
 The :ref:`extended-canvas` section in the `rTorrent-PS` manual has a list
-of columns in those view, and what they mean.
+of columns in those views, and what they mean.
 
 
 .. _view-tagged:
