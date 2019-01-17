@@ -363,7 +363,7 @@ metrics related to trackers, system stats, and arbitrary item
 attributes. Be aware that scraping item attributes can introduce high
 levels of cardinality into your Prometheus instance.
 
-Note that stats are updated every ``job.«NAME».schedule`` run, not
-when the scrape is actually performed by Prometheus.
+Note that stats are updated whenever the scrape is performed, i.e.
+``job.«NAME».schedule`` has no bearing on when the metrics are updated.
 
 .. _Prometheus: https://prometheus.io/
