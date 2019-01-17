@@ -121,7 +121,6 @@ class RtorrentSystemCollector(RtorrentCollector):
             del result[0]
 
         # Get text-like information
-        info_methods = [m.replace('.', '_') for m in self.info_methods]
         system_info.add_metric(result[0:len(result)-len(views)], 1)
         yield system_info
         result = result[-len(views):]
@@ -130,7 +129,7 @@ class RtorrentSystemCollector(RtorrentCollector):
         for v in views:
             system_view_size.add_metric([v], result[0])
             del result[0]
-
+        yield system_view_size
 
 class RtorrentExporter(object):
     """ Expose rTorrent and host statistics for scraping by a Prometheus instance.
