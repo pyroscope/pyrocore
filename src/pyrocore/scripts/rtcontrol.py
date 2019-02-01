@@ -534,6 +534,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Print usage if no conditions are provided
         if not self.args:
             self.parser.error("No filter conditions given!")
+        self.check_for_connection()
 
         # Check special action options
         actions = []

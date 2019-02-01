@@ -353,6 +353,8 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     def mainloop(self):
         """ The main loop.
         """
+        self.check_for_connection()
+
         # Enter REPL if no args
         if len(self.args) < 1:
             return self.do_repl()

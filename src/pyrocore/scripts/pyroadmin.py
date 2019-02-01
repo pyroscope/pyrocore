@@ -105,6 +105,8 @@ class AdminTool(ScriptBaseWithConfig):
     def mainloop(self):
         """ The main loop.
         """
+        self.check_for_connection()
+
         if self.options.create_config:
             # Create configuration
             config_loader = load_config.ConfigLoader(self.config_dir)

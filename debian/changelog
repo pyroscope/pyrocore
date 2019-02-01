@@ -10,6 +10,7 @@ pyrocore (0.6.1) precise; urgency=low
   * rtxmlrpc: Added `--session` option to restore metadata
   * rtxmlrpc: "-i @FILE" reads commands from a file
     (use '@-' for stdin)
+  * rtcontrol / rtxmlrpc / pyroadmin: `@alias` names for SCGI connections
 
  -- pyroscope <pyroscope.project@gmail.com>  Fri, 21 Jul 2017 22:23:13 +0200
 

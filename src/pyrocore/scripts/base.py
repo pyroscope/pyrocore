@@ -371,6 +371,19 @@ class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
                 setattr(config, key, load_config.validate(key, val))
 
 
+    def check_for_connection(self):
+        """ Scan arguments for a `@name` one.
+        """
+        for idx, arg in enumerate(self.args):
+            if arg.startswith('@'):
+                if arg[1:] not in config.connections:
+                    self.parser.error("Undefined connection '{}'!".format(arg[1:]))
+                config.scgi_url = config.connections[arg[1:]]
+                self.LOG.debug("Switched to connection %s (%s)", arg[1:], config.scgi_url)
+                del self.args[idx]
+                break
+
+
 class PromptDecorator(object):
     """ Decorator for interactive commands.
     """

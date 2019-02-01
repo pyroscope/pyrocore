@@ -165,6 +165,24 @@ Alternatively, you can also set the ``scgi_url`` value directly, like in this ex
 
     rtxmlrpc -D scgi_url=scgi:///var/run/rtorrent/instance01 session.name
 
+For convenient use on the command line, you can give those connection URLs alias names
+in the ``[CONNECTIONS]`` section of the configuration, like in this example:
+
+.. code-block:: initial
+
+    [CONNECTIONS]
+
+    local = scgi://$HOME/rtorrent/.scgi_local
+    box = scgi+ssh://rtorrent@mybox/var/torrent/.scgi_local
+
+You can now use these aliases with :command:`rtcontrol`, :command:`rtxmlrpc` and
+:command:`pyroadmin`, by prefixing one of them with a ``@`` character, anywhere
+on the command line:
+
+.. code-block:: shell
+
+    rtxmlrpc @local session.name
+
 
 Customizing the Default Configuration per Instance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
