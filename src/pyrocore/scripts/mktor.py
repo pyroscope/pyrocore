@@ -142,7 +142,7 @@ class MetafileCreator(ScriptBaseWithConfig):
                     meta["info"]["entropy"] = format(random.getrandbits(self.ENTROPY_BITS),
                                                      'x').zfill(self.ENTROPY_BITS//4)
                 else:
-                    meta["info"]["x_cross_seed_label"] = self.options.cross_seed
+                    meta["info"]["source"] = self.options.cross_seed
             if self.options.no_cross_seed:
                 del meta["info"]["x_cross_seed"]
 
