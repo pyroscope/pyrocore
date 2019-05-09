@@ -6,7 +6,7 @@
 """
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+å# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -88,7 +88,7 @@ TV_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
 
 MOVIE_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
     ("Scene tagged movie",
-        r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
+        r"^(?P<title>.+?)[. ][\[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|MULTI|PROPER|LIMITED|RERiP))*"
         r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i|2160p))?"
         r"(?:[._ ](?P<source>BDRip|BRRip|HDRip|DVDRip|PAL|NTSC))"
