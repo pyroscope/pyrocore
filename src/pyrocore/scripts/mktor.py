@@ -72,6 +72,8 @@ class MetafileCreator(ScriptBaseWithConfig):
                  " (changes info hash, use '@entropy' to randomize it)")
         self.add_bool_option("-H", "--hashed", "--fast-resume",
             help="create second metafile containing libtorrent fast-resume information")
+        self.add_value_option("-P", "--piece-size", "EXP",
+            help="force piece size to 2^EXP bytes")
 # TODO: Optionally pass torrent directly to rTorrent (--load / --start)
 # TODO: Optionally limit disk I/O bandwidth used (incl. a config default!)
 # TODO: Set "encoding" correctly
@@ -154,7 +156,8 @@ class MetafileCreator(ScriptBaseWithConfig):
         meta = torrent.create(datapath, self.args[1:],
             progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
-            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
+            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback,
+            piece_size_exp=self.options.piece_size
         )
 
         # Create second metafile with fast-resume?

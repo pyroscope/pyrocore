@@ -564,20 +564,19 @@ class Metafile(object):
         return check_info(metainfo), totalhashed
 
 
-    def _make_meta(self, tracker_url, root_name, private, progress):
+    def _make_meta(self, tracker_url, root_name, private, progress, piece_size_exp):
         """ Create torrent dict.
         """
         # Calculate piece size
-        if self._fifo:
-            # TODO we need to add a (command line) param, probably for total data size
-            # for now, always 1MB
-            piece_size_exp = 20
-        else:
-            total_size = self._calc_size()
-            if total_size:
-                piece_size_exp = int(math.log(total_size) / math.log(2)) - 9
+        if not piece_size_exp:
+            if self._fifo:
+                piece_size_exp = 20
             else:
-                piece_size_exp = 0
+                total_size = self._calc_size()
+                if total_size:
+                    piece_size_exp = int(math.log(total_size) / math.log(2)) - 9
+                else:
+                    piece_size_exp = 0
 
         piece_size_exp = min(max(15, piece_size_exp), 24)
         piece_size = 2 ** piece_size_exp
@@ -610,7 +609,7 @@ class Metafile(object):
 
     def create(self, datapath, tracker_urls, comment=None, root_name=None,
                      created_by=None, private=False, no_date=False, progress=None,
-                     callback=None):
+                     callback=None, piece_size_exp=None):
         """ Create a metafile with the path given on object creation.
             Returns the last metafile dict that was written (as an object, not bencoded).
         """
@@ -652,7 +651,7 @@ class Metafile(object):
             self.LOG.info("Creating %r for %s %r..." % (
                 output_name, "filenames read from" if self._fifo else "data in", self.datapath,
             ))
-            meta, _ = self._make_meta(tracker_url, root_name, private, progress)
+            meta, _ = self._make_meta(tracker_url, root_name, private, progress, piece_size_exp)
 
             # Add optional fields
             if comment:
