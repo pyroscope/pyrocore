@@ -240,7 +240,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         #self.add_bool_option("-f", "--full",
         #    help="print full torrent details")
         self.add_bool_option("--json",
-            help="dump all items as JSON (use '-o f1,f2,...' to specify fields)")
+            help="dump default fields of all items as JSON (use '-o f1,f2,...' to specify fields)")
         self.add_value_option("-o", "--output-format", "FORMAT",
             help="specify display format (use '-o-' to disable item display)")
         self.add_value_option("-O", "--output-template", "FILE",
