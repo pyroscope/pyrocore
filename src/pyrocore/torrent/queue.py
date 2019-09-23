@@ -121,9 +121,9 @@ class QueueManager(object):
             # If we made it here, start it!
             self.last_start = now
             downloading.append(item)
-            self.LOG.info("%s '%s' [%s, #%s]" % (
+            self.LOG.info(u"%s '%s' [%s, #%s]" % (
                 "WOULD start" if self.config.dry_run else "Starting",
-                fmt.to_utf8(item.name), item.alias, item.hash))
+                item.name, item.alias, item.hash))
             if not self.config.dry_run:
                 item.start()
                 if not self.config.quiet:

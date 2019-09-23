@@ -428,8 +428,8 @@ class PromptDecorator(object):
             # Let the user decide
             choice = '*'
             while choice not in "YNAQ":
-                choice = input("%s? [%s)es, %s)o, a)ll yes, q)uit]: " % (
-                    fmt.to_console(question), "yY"[int(default)], "Nn"[int(default)],
+                choice = input(u"%s? [%s)es, %s)o, a)ll yes, q)uit]: " % (
+                    question, "yY"[int(default)], "Nn"[int(default)],
                 ))
                 choice = choice[:1].upper() or "NY"[int(default)]
 

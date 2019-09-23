@@ -692,7 +692,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Perform chosen action on matches
             template_args = [formatting.preparse("{{#tempita}}" + i if "{{" in i else i) for i in action.args]
             for item in matches:
-                if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
+                if not self.prompt.ask_bool(u"%s item %s" % (action.label, item.name)):
                     continue
                 if (self.options.output_format and not self.options.view_only
                         and str(self.options.output_format) != "-"):
