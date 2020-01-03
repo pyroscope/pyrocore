@@ -152,7 +152,7 @@ class MetafileCreator(ScriptBaseWithConfig):
                 del meta["info"]["x_cross_seed"]
 
             # Set specific keys?
-            metafile.assign_fields(meta, self.options.set)
+            metafile.assign_fields(meta, self.options.set, self.options.debug)
 
         # Create and write the metafile(s)
         # TODO: make it work better with multiple trackers (hash only once), also create fast-resume file for each tracker

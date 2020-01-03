@@ -247,7 +247,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                         raise
 
                 # Set specific keys?
-                metafile.assign_fields(metainfo, self.options.set)
+                metafile.assign_fields(metainfo, self.options.set, self.options.debug)
                 replace_fields(metainfo, self.options.regex)
 
                 # Write new metafile, if changed

@@ -260,7 +260,7 @@ def sanitize(meta, diagnostics=False):
     return (meta, bad_encodings, bad_fields) if diagnostics else meta
 
 
-def assign_fields(meta, assignments):
+def assign_fields(meta, assignments, options_debug=False):
     """ Takes a list of C{key=value} strings and assigns them to the
         given metafile. If you want to set nested keys (e.g. "info.source"),
         you have to use a dot as a separator. For exotic keys *containing*
@@ -288,7 +288,7 @@ def assign_fields(meta, assignments):
                 # Create missing dicts as we go...
                 namespace = namespace.setdefault(fmt.to_utf8(key), {})
         except (KeyError, IndexError, TypeError, ValueError) as exc:
-            if self.options.debug:
+            if options_debug:
                 raise
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
