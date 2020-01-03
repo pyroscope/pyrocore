@@ -32,6 +32,8 @@ import fnmatch
 import hashlib
 import urlparse
 
+import six
+
 from pyrobase import bencode
 from pyrobase.parts import Bunch
 from pyrocore import config, error
@@ -243,7 +245,7 @@ def sanitize(meta, diagnostics=False):
             # Broken beyond anything reasonable
             bad_encodings.add('UNKNOWN/EXOTIC')
             bad_fields.add(field)
-            return str(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
+            return six.text_type(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
 
     # Go through all string fields and check them
     for field in ("comment", "created by"):
