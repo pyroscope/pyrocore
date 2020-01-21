@@ -36,6 +36,25 @@ log = pymagic.get_lazy_logger(__name__)
 
 
 #
+# Input conversion
+#
+
+def parse_sz(text):
+    """ Get a byte sized value.
+    """
+    units = 'KMGTP'
+    if isinstance(text, int):
+        return text
+    if not text:
+        return 0
+
+    scale = 1024 ** (units.find(text[-1].upper()) + 1)
+    if scale > 1:
+        text = text[:-1]
+    return int(text, 10) * scale
+
+
+#
 # Format specifiers
 #
 def fmt_sz(intval):
