@@ -23,9 +23,10 @@ import re
 import time
 import random
 
-from pyrobase import bencode
+from pyrobase import bencode, fmt
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
+from pyrocore.torrent import formatting
 from pyrocore.util import metafile, os, xmlrpc
 
 
@@ -50,6 +51,11 @@ class MetafileCreator(ScriptBaseWithConfig):
         """
         super(MetafileCreator, self).add_options()
 
+        def human(size):
+            'Helper for byte sizes'
+            text = fmt.human_size(size)
+            return text[:4].lstrip() + ('' if size < 1024 else text[-3])
+
         self.add_bool_option("-p", "--private",
             help="disallow DHT and PEX")
         self.add_bool_option("--no-date",
@@ -66,6 +72,10 @@ class MetafileCreator(ScriptBaseWithConfig):
         self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
             action="append", default=[],
             help="set a specific key to the given value; omit the '=' to delete a key")
+        self.add_value_option("--chunk-min", "SIZE",
+            help="set minimun piece size [%s]" % (human(metafile.Metafile.CHUNK_MIN)))
+        self.add_value_option("--chunk-max", "SIZE",
+            help="set maximun piece size [%s]" % (human(metafile.Metafile.CHUNK_MAX)))
         self.add_bool_option("--no-cross-seed",
             help="do not automatically add a field to the info dict ensuring unique info hashes")
         self.add_value_option("-X", "--cross-seed", "LABEL",
@@ -77,7 +87,6 @@ class MetafileCreator(ScriptBaseWithConfig):
             help="load newly created item directly into client")
         self.add_bool_option("--start",
             help="start newly created item directly in the client")
-# TODO: Optionally pass torrent directly to rTorrent (--load / --start)
 # TODO: Optionally limit disk I/O bandwidth used (incl. a config default!)
 # TODO: Set "encoding" correctly
 # TODO: Support multi-tracker extension ("announce-list" field)
@@ -159,7 +168,9 @@ class MetafileCreator(ScriptBaseWithConfig):
         meta = torrent.create(datapath, self.args[1:],
             progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
-            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
+            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback,
+            chunk_min=formatting.parse_sz(self.options.chunk_min),
+            chunk_max=formatting.parse_sz(self.options.chunk_max),
         )
         tied_file = metapath
 
