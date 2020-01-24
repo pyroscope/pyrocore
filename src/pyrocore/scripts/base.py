@@ -25,6 +25,7 @@ import glob
 import time
 import errno
 import random
+import signal
 import textwrap
 import logging.config
 from optparse import OptionParser
@@ -282,7 +283,8 @@ class ScriptBase(object):
 
                 sys.stderr.write("\n\nAborted by CTRL-C!\n")
                 sys.stderr.flush()
-                sys.exit(error.EX_TEMPFAIL)
+                signal.signal(signal.SIGINT, signal.SIG_DFL)
+                os.kill(os.getpid(), signal.SIGINT)
             except IOError, exc:
                 # [Errno 32] Broken pipe?
                 if exc.errno == errno.EPIPE:
