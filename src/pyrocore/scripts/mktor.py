@@ -73,9 +73,9 @@ class MetafileCreator(ScriptBaseWithConfig):
             action="append", default=[],
             help="set a specific key to the given value; omit the '=' to delete a key")
         self.add_value_option("--chunk-min", "SIZE",
-            help="set minimun piece size [%s]" % (human(metafile.Metafile.CHUNK_MIN)))
+            help="set minimum piece size [%s]" % (human(metafile.Metafile.CHUNK_MIN)))
         self.add_value_option("--chunk-max", "SIZE",
-            help="set maximun piece size [%s]" % (human(metafile.Metafile.CHUNK_MAX)))
+            help="set maximum piece size [%s]" % (human(metafile.Metafile.CHUNK_MAX)))
         self.add_bool_option("--no-cross-seed",
             help="do not automatically add a field to the info dict ensuring unique info hashes")
         self.add_value_option("-X", "--cross-seed", "LABEL",
