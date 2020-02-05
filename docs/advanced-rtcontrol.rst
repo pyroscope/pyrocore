@@ -179,6 +179,60 @@ and then adds a new one:
 The ``tracker.insert`` also shows that arguments to commands can be quoted.
 
 
+.. _rtcontrol-xmlrpc-json:
+
+Dumping XMLRPC Results as JSON
+""""""""""""""""""""""""""""""
+
+Instead of printing XMLRPC results using the ``>`` prefix,
+you can use ``!`` instead to store the returned data.
+If you combine that with the :option:`--json` option,
+you get a JSON-formatted list of those results.
+
+
+Consider this example:
+
+.. code-block:: console
+
+    $ rtcontrol /debian.*cd/ -q -o- --yes --json \
+                --exec '!hash= ; !t.multicall=*,t.url=,t.is_enabled='
+    [
+      {
+        "d.hash": "26D017BC5A4BEE5C2C69FA5AEC08B7DA0DCFF368",
+        "t.multicall": [
+          [
+            "http://bttracker.debian.org:6969/announce",
+            1
+          ]
+        ]
+      }
+    ]
+
+If you omit the ``-o-``, then item data is included:
+
+.. code-block:: console
+
+    $ rtcontrol /debian.*cd/ -q --yes --json \
+                --exec '!hash= ; !t.multicall=*,t.url=,t.is_enabled='
+    [
+      {
+        "item": {
+          "custom_m_alias": "http://bttracker.debian.org:6969/announce",
+          …
+          "up_total": 0
+        },
+        "results": {
+          "d.hash": "26D017BC5A4BEE5C2C69FA5AEC08B7DA0DCFF368",
+          …
+        }
+      }
+    ]
+
+You can also use this to create a list of affected hashes
+when calling commands with side-effects but no result,
+by adding ``… ; !hash=`` to the exec command list.
+
+
 .. _rtcontrol-filter-templates:
 
 Using Templates as Filter Values
