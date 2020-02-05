@@ -210,6 +210,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         self.prompt = PromptDecorator(self)
         self.plain_output_format = False
+        self.raw_output_format = None
 
 
     def add_options(self):
@@ -461,6 +462,19 @@ class RtorrentControl(ScriptBaseWithConfig):
         config.engine.log(msg)
 
 
+    def json_dump(self, data):
+        """ Dump result as JSON.
+        """
+        if self.raw_output_format:
+            json_fields = self.raw_output_format.split(',')
+            data = [dict([(name, getattr(i, name)) for name in json_fields])
+                    for i in data]
+        json.dump(data, sys.stdout, indent=2, separators=(',', ': '),
+                  sort_keys=True, cls=pymagic.JSONEncoder)
+        sys.stdout.write('\n')
+        sys.stdout.flush()
+
+
     def anneal(self, mode, matches, orig_matches):
         """ Perform post-processing.
 
@@ -584,7 +598,7 @@ class RtorrentControl(ScriptBaseWithConfig):
         # Preparation steps
         if self.options.fast_query != '=':
             config.fast_query = int(self.options.fast_query)
-        raw_output_format = self.options.output_format
+        self.raw_output_format = self.options.output_format
         default_output_format = "default"
         if actions:
             default_output_format = "action_cron" if self.options.cron else "action"
@@ -675,6 +689,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             self.LOG.log(logging.DEBUG if self.options.cron else logging.INFO, "%s %s %d out of %d torrents." % (
                 "Would" if self.options.dry_run else "About to", action.label, len(matches), view.size(),
             ))
+            action_results = []
             defaults = {"action": action.label}
             defaults.update(self.FORMATTER_DEFAULTS)
 
@@ -686,7 +701,9 @@ class RtorrentControl(ScriptBaseWithConfig):
             for item in matches:
                 if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
                     continue
-                if (self.options.output_format and not self.options.view_only
+                if (self.options.output_format
+                        and not self.options.view_only
+                        and not self.options.json
                         and str(self.options.output_format) != "-"):
                     self.emit(item, defaults, to_log=self.options.cron)
 
@@ -696,12 +713,17 @@ class RtorrentControl(ScriptBaseWithConfig):
                     if self.options.debug:
                         self.LOG.debug("Would call action %s(*%r)" % (action.method, args))
                 else:
-                    getattr(item, action.method)(*args)
+                    result = getattr(item, action.method)(*args)
+                    if self.options.json:
+                        action_results.append(dict(item=item, result=result))
                     if self.options.flush:
                         item.flush()
                     if self.options.view_only:
                         show_in_client = lambda x: config.engine.open().log(xmlrpc.NOHASH, x)
                         self.emit(item, defaults, to_log=show_in_client)
+
+            if self.options.json and not self.options.dry_run:
+                self.json_dump(action_results)
 
         # Show in ncurses UI?
         elif not self.options.tee_view and (self.options.to_view or self.options.view_only):
@@ -746,15 +768,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # Dump as JSON array?
         elif self.options.json:
-            json_data = matches
-            if raw_output_format:
-                json_fields = raw_output_format.split(',')
-                json_data = [dict([(name, getattr(i, name)) for name in json_fields])
-                             for i in matches]
-            json.dump(json_data, sys.stdout, indent=2, separators=(',', ': '),
-                      sort_keys=True, cls=pymagic.JSONEncoder)
-            sys.stdout.write('\n')
-            sys.stdout.flush()
+            self.json_dump(matches)
 
         # Show via template?
         elif self.options.output_template:

@@ -2,6 +2,8 @@ pyrocore (0.6.1) precise; urgency=low
 
   * rtcontrol: Templating in glob filter values
   * rtcontrol: `--exec` takes prefixed `:global.cmd=`
+  * rtcontrol: `--exec` can store command results
+    using `!cmd=` for output via `--json`
   * rtcontrol: New timestamp field `last_xfer`
   * rtcontrol: New option `--alter-view`
   * rtcontrol: Fix for view membership management with `--to` / `-V`
