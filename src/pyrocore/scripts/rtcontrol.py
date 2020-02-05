@@ -465,7 +465,7 @@ class RtorrentControl(ScriptBaseWithConfig):
     def json_dump(self, data):
         """ Dump result as JSON.
         """
-        if self.raw_output_format:
+        if self.raw_output_format and self.raw_output_format != '-':
             json_fields = self.raw_output_format.split(',')
             data = [dict([(name, getattr(i, name)) for name in json_fields])
                     for i in data]
@@ -715,7 +715,10 @@ class RtorrentControl(ScriptBaseWithConfig):
                 else:
                     result = getattr(item, action.method)(*args)
                     if self.options.json:
-                        action_results.append(dict(item=item, result=result))
+                        if self.raw_output_format == '-':
+                            action_results.append(result)
+                        else:
+                            action_results.append(dict(item=item, result=result))
                     if self.options.flush:
                         item.flush()
                     if self.options.view_only:
