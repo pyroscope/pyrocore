@@ -371,10 +371,10 @@ class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
                 setattr(config, key, load_config.validate(key, val))
 
 
-    def check_for_connection(self):
+    def check_for_connection(self, maxpos=0):
         """ Scan arguments for a `@name` one.
         """
-        for idx, arg in enumerate(self.args):
+        for idx, arg in enumerate(self.args[:maxpos] if maxpos else self.args):
             if arg.startswith('@'):
                 if arg[1:] not in config.connections:
                     self.parser.error("Undefined connection '{}'!".format(arg[1:]))
