@@ -27,9 +27,8 @@ field definitions:
         """ Yield custom field definitions.
         """
         # Import some commonly needed modules
-        import os
         from pyrocore.torrent import engine, matching
-        from pyrocore.util import fmt
+        from pyrocore.util import fmt, os
 
         # PUT CUSTOM FIELD CODE HERE
 
