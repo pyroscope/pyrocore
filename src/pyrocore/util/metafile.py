@@ -681,6 +681,8 @@ class Metafile(object):
 
     def check(self, metainfo, datapath, progress=None):
         """ Check piece hashes of a metafile against the given datapath.
+
+            Return ``True`` when OK.
         """
         if datapath:
             self.datapath = datapath
