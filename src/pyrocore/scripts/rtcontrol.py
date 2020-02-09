@@ -713,12 +713,12 @@ class RtorrentControl(ScriptBaseWithConfig):
                     if self.options.debug:
                         self.LOG.debug("Would call action %s(*%r)" % (action.method, args))
                 else:
-                    result = getattr(item, action.method)(*args)
+                    results = getattr(item, action.method)(*args)
                     if self.options.json:
                         if self.raw_output_format == '-':
-                            action_results.append(result)
+                            action_results.append(results)
                         else:
-                            action_results.append(dict(item=item, result=result))
+                            action_results.append(dict(item=item, results=results))
                     if self.options.flush:
                         item.flush()
                     if self.options.view_only:
