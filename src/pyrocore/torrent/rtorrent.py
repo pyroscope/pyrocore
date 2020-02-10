@@ -73,7 +73,7 @@ class RtorrentItem(engine.TorrentProxy):
                 result = getattr(namespace, call.lstrip(':'))(*args)
                 if observer:
                     observer(result)
-                return result
+            return result
         except xmlrpc.ERRORS as exc:
             raise error.EngineError("While %s torrent #%s: %s" % (command, self._fields["hash"], exc))
 
