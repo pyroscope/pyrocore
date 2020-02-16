@@ -5,6 +5,7 @@ pyrocore (0.6.1) precise; urgency=low
   * rtcontrol: `--exec` can store command results
     using `!cmd=` for output via `--json`
   * rtcontrol: New timestamp field `last_xfer`
+  * rtcontrol: Added virtual `d_METHOD` field name support
   * rtcontrol: New option `--alter-view`
   * rtcontrol: Fix for view membership management with `--to` / `-V`
   * mktor: Load new item directly via '--load' or '--start'

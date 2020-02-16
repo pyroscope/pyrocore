@@ -329,6 +329,21 @@ class TorrentProxy(object):
                 setattr(cls, name, field)
 
                 return field
+        elif name.startswith("d_"):
+            try:
+                return FieldDefinition.FIELDS[name]
+            except KeyError:
+                method = 'd.' + name[2:]
+                # TODO check for valid method names,
+                #      and map dotted ones from their underscore version
+                #if method not in methods:
+                #    raise error.UserError("{}: Unknown XMLRPC getter method".format(method))
+                field = OnDemandField(fmt.to_unicode, name,
+                    "Download item {} XMLRPC value".format(method),
+                    matcher=matching.PatternFilter, engine_name=method)
+                setattr(cls, name, field)
+
+                return field
 
 
     @classmethod

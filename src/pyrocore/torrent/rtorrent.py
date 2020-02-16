@@ -182,6 +182,8 @@ class RtorrentItem(engine.TorrentProxy):
                 val = self._get_files()
             elif name.startswith("kind_") and name[5:].isdigit():
                 val = self._get_kind(int(name[5:], 10))
+            elif name.startswith("d_") or name.startswith("d."):
+                val = self.fetch('=' + (engine_name or name)[2:])
             elif name.startswith("custom_"):
                 key = name[7:]
                 try:

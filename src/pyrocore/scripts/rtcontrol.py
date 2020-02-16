@@ -42,12 +42,15 @@ def print_help_fields():
     def kind_manifold():
         "file types that contribute at least N% to the item's total size"
         return ("kind_N", kind_manifold)
+    def item_manifold():
+        "any XMLRPC download item getter method"
+        return ("d_METHOD", item_manifold)
 
     print('')
     print("Fields are:")
     print("\n".join(["  %-21s %s" % (name, field.__doc__)
         for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [
-            custom_manifold(), kind_manifold(),
+            custom_manifold(), kind_manifold(), item_manifold(),
         ])
     ]))
 
