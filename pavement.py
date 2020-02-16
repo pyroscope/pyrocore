@@ -67,7 +67,7 @@ except ImportError:
 from setuptools import find_packages
 
 
-SPHINX_AUTOBUILD_PORT = 8340
+SPHINX_AUTOBUILD_PORT = int(os.environ.get('SPHINX_AUTOBUILD_PORT', '8340'))
 
 
 #
@@ -295,7 +295,11 @@ def autodocs():
             sh("touch docs/index.rst")
             sh('ps {}'.format(pid))
             url = 'http://localhost:{port:d}/'.format(port=SPHINX_AUTOBUILD_PORT)
-            print("\n*** Open '{}' in your browser...".format(url))
+            try:
+                import webbrowser
+                webbrowser.open_new_tab(url)
+            except webbrowser.Error:
+                print("\n*** Open '{}' in your browser...".format(url))
             break
 
 
