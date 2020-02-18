@@ -283,8 +283,11 @@ class ScriptBase(object):
 
                 sys.stderr.write("\n\nAborted by CTRL-C!\n")
                 sys.stderr.flush()
+
+                # See https://www.cons.org/cracauer/sigint.html
                 signal.signal(signal.SIGINT, signal.SIG_DFL)
                 os.kill(os.getpid(), signal.SIGINT)
+                sys.exit(error.EX_TEMPFAIL)  # being paranoid
             except IOError, exc:
                 # [Errno 32] Broken pipe?
                 if exc.errno == errno.EPIPE:
