@@ -219,14 +219,17 @@ your ``config.py`` (read the 1st two sections, before the “Examples” one).
         def has_room(obj):
             "Check disk space."
             pathname = obj.path
-            if pathname and not os.path.exists(pathname):
-                pathname = os.path.dirname(pathname)
-            if pathname and os.path.exists(pathname):
-                stats = os.statvfs(pathname)
-                return (stats.f_bavail * stats.f_frsize - int(diskspace_threshold_mb) * 1024**2
-                    > obj.size * (1.0 - obj.done / 100.0))
-            else:
-                return None
+            try:
+                if pathname and not os.path.exists(pathname):
+                    pathname = os.path.dirname(pathname)
+                if pathname and os.path.exists(pathname):
+                    stats = os.statvfs(pathname)
+                    return (stats.f_bavail * stats.f_frsize - int(diskspace_threshold_mb) * 1024**2
+                        > obj.size * (1.0 - obj.done / 100.0))
+                else:
+                    return None
+            except UnicodeEncodeError as exc:
+                raise ValueError('Problematic filename %r: %s' % (pathname, exc))
 
         yield engine.DynamicField(engine.untyped, "has_room",
             "check whether the download will fit on its target device",
