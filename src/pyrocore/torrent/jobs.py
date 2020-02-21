@@ -76,7 +76,7 @@ class InfluxDBStats(object):
         url = "{0}/write?db={1}".format(self.influxdb.url.rstrip('/'), self.config.dbname)
 
         if self.influxdb.user and self.influxdb.password:
-            url += "?u={0}&p={1}".format(self.influxdb.user, self.influxdb.password)
+            url += "&u={0}&p={1}".format(self.influxdb.user, self.influxdb.password)
 
         return url
 
@@ -121,13 +121,13 @@ class InfluxDBStats(object):
         # Push it!
         try:
             # TODO: Use a session
-            r = requests.post(fluxurl, data=datastr, timeout=self.influxdb.timeout)
-            r.raise_for_status()
+            response = requests.post(fluxurl, data=datastr, timeout=self.influxdb.timeout)
+            response.raise_for_status()
         except RequestException as exc:
             self.LOG.warn("InfluxDB POST error: {0}".format(exc))
         except HTTPError as exc:
             self.LOG.warn("InfluxDB POST HTTP error {0}: Response: {1}".format(
-                str(r.status_code), r.content))
+                str(response.status_code), response.content))
 
 
     def run(self):
