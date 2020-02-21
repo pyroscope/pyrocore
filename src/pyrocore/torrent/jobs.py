@@ -49,7 +49,7 @@ class EngineStats(object):
                 fmt.human_duration(proxy.system.time() - config_ini.engine.startup, 0, 2, True).strip(),
                 proxy
             ))
-        except (error.LoggableError, xmlrpc.ERRORS), exc:
+        except (error.LoggableError, xmlrpc.ERRORS) as exc:
             self.LOG.warn(str(exc))
 
 
@@ -100,7 +100,7 @@ class InfluxDBStats(object):
                     self.config.series_prefix, hostname, pid, view_name)
                 vstr += ','.join(['='.join([k, str(v)]) for k, v in values.items()])
                 datastr += vstr + "\n"
-        except (error.LoggableError, xmlrpc.ERRORS), exc:
+        except (error.LoggableError, xmlrpc.ERRORS) as exc:
             self.LOG.warn("InfluxDB stats: {0}".format(exc))
         return datastr
 
@@ -123,9 +123,9 @@ class InfluxDBStats(object):
             # TODO: Use a session
             r = requests.post(fluxurl, data=datastr, timeout=self.influxdb.timeout)
             r.raise_for_status()
-        except RequestException, exc:
+        except RequestException as exc:
             self.LOG.warn("InfluxDB POST error: {0}".format(exc))
-        except HTTPError, exc:
+        except HTTPError as exc:
             self.LOG.warn("InfluxDB POST HTTP error {0}: Response: {1}".format(
                 str(r.status_code), r.content))
 
@@ -155,7 +155,7 @@ def module_test():
         pprint.pprint(views)
 
         print("%s - %s" % (engine.engine_id, engine.open()))
-    except (error.LoggableError, xmlrpc.ERRORS), torrent_exc:
+    except (error.LoggableError, xmlrpc.ERRORS) as torrent_exc:
         print("ERROR: %s" % torrent_exc)
 
 
