@@ -18,39 +18,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-try:
-    import json
-except ImportError:
-    import simplejson as json # pylint: disable=F0401
-
 import requests
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, HTTPError
 
 from pyrobase.parts import Bunch
 from pyrocore import error
 from pyrocore import config as config_ini
 from pyrocore.util import fmt, xmlrpc, pymagic, stats
-
-
-def _flux_engine_data(engine):
-    """ Return rTorrent data set for pushing to InfluxDB.
-    """
-    data = stats.engine_data(engine)
-
-    # Make it flat
-    data["up_rate"] = data["upload"][0]
-    data["up_limit"] = data["upload"][1]
-    data["down_rate"] = data["download"][0]
-    data["down_limit"] = data["download"][1]
-    data["version"] = data["versions"][0]
-    views = data["views"]
-
-    del data["upload"]
-    del data["download"]
-    del data["versions"]
-    del data["views"]
-
-    return data, views
 
 
 class EngineStats(object):
@@ -99,63 +73,61 @@ class InfluxDBStats(object):
     def _influxdb_url(self):
         """ Return REST API URL to access time series.
         """
-        url = "{0}/db/{1}/series".format(self.influxdb.url.rstrip('/'), self.config.dbname)
+        url = "{0}/write?db={1}".format(self.influxdb.url.rstrip('/'), self.config.dbname)
 
         if self.influxdb.user and self.influxdb.password:
             url += "?u={0}&p={1}".format(self.influxdb.user, self.influxdb.password)
 
         return url
 
+    def _influxdb_data(self):
+        """ Return statitics data formatted according to InfluxDB's line protocol
+        """
+        datastr = ''
+
+        try:
+            proxy = config_ini.engine.open()
+            hostname = proxy.system.hostname()
+            pid = proxy.system.pid()
+            data = stats.engine_data(config_ini.engine)
+            views = data['views']
+            del data['views']
+            datastr = u"{0}stat,hostname={1},pid={2} ".format(
+                self.config.series_prefix, hostname, pid)
+            datastr += ','.join(['='.join([k, str(v)]) for k, v in data.items()]) + '\n'
+            for view_name, values in views.items():
+                vstr = u"{0}view,hostname={1},pid={2},name={3} ".format(
+                    self.config.series_prefix, hostname, pid, view_name)
+                vstr += ','.join(['='.join([k, str(v)]) for k, v in values.items()])
+                datastr += vstr + "\n"
+        except (error.LoggableError, xmlrpc.ERRORS), exc:
+            self.LOG.warn("InfluxDB stats: {0}".format(exc))
+        return datastr
 
     def _push_data(self):
         """ Push stats data to InfluxDB.
         """
-        if not (self.config.series or self.config.series_host):
-            self.LOG.info("Misconfigured InfluxDB job, neither 'series' nor 'series_host' is set!")
-            return
-
         # Assemble data
-        fluxdata = []
+        datastr = self._influxdb_data()
 
-        if self.config.series:
-            try:
-                config_ini.engine.open()
-                data, views = _flux_engine_data(config_ini.engine)
-                fluxdata.append(dict(
-                    name=self.config.series,
-                    columns=data.keys(),
-                    points=[data.values()]
-                ))
-                fluxdata.append(dict(
-                    name=self.config.series + '_views',
-                    columns=views.keys(),
-                    points=[views.values()]
-                ))
-            except (error.LoggableError, xmlrpc.ERRORS), exc:
-                self.LOG.warn("InfluxDB stats: {0}".format(exc))
-
-#        if self.config.series_host:
-#            fluxdata.append(dict(
-#                name = self.config.series_host,
-#                columns = .keys(),
-#                points = [.values()]
-#            ))
-
-        if not fluxdata:
+        if not datastr:
             self.LOG.debug("InfluxDB stats: no data (previous errors?)")
             return
 
         # Encode into InfluxDB data packet
         fluxurl = self._influxdb_url()
-        fluxjson = json.dumps(fluxdata)
-        self.LOG.debug("POST to {0} with {1}".format(fluxurl.split('?')[0], fluxjson))
+        self.LOG.debug("POST to {0} with {1}".format(fluxurl.split('?')[0], datastr))
 
         # Push it!
         try:
             # TODO: Use a session
-            requests.post(fluxurl, data=fluxjson, timeout=self.influxdb.timeout)
+            r = requests.post(fluxurl, data=datastr, timeout=self.influxdb.timeout)
+            r.raise_for_status()
         except RequestException, exc:
-            self.LOG.info("InfluxDB POST error: {0}".format(exc))
+            self.LOG.warn("InfluxDB POST error: {0}".format(exc))
+        except HTTPError, exc:
+            self.LOG.warn("InfluxDB POST HTTP error {0}: Response: {1}".format(
+                str(r.status_code), r.content))
 
 
     def run(self):

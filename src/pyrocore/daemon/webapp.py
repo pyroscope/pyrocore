@@ -125,7 +125,7 @@ class JsonController(object):
         """ Return torrent engine data.
         """
         try:
-            return stats.engine_data(config.engine)
+            return wrap_engine_data(config.engine)
         except (error.LoggableError, xmlrpc.ERRORS) as torrent_exc:
             raise exc.HTTPInternalServerError(str(torrent_exc))
 
@@ -252,6 +252,23 @@ def make_app(httpd_config):
         .add_route("/json/{action}", controller=JsonController(**httpd_config.json))
     )
 
+def wrap_engine_data(engine):
+    result = stats.engine_data(engine)
+
+    # Build result object
+    return dict(
+        now         = time.time(),
+        engine_id   = engine.engine_id,
+        versions    = engine.versions,
+        uptime      = engine.uptime,
+        upload      = [result['throttle.global_up.rate'], result['throttle.global_up.max_rate']],
+        download    = [result['throttle.global_down.rate'], result['throttle.global_down.max_rate']],
+        views       = dict([(name, values['size'])
+            for name, values in result['views'].items()
+        ]),
+    )
+
+
 
 def module_test():
     """ Quick test using…
@@ -264,7 +281,7 @@ def module_test():
     try:
         engine = connect()
         print("%s - %s" % (engine.engine_id, engine.open()))
-        pprint.pprint(stats.engine_data(engine))
+        pprint.pprint(wrap_engine_data(engine))
         print("%s - %s" % (engine.engine_id, engine.open()))
     except (error.LoggableError, xmlrpc.ERRORS) as torrent_exc:
         print("ERROR: %s" % torrent_exc)
