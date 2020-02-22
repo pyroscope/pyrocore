@@ -66,7 +66,7 @@ for project in $git_projects; do
 done
 source bootstrap.sh
 for project in $git_projects; do
-    ( builtin cd $project && ../bin/paver -q develop -U )
+    ( builtin cd $project && ../bin/python -m pip -q install -e . )
 done
 
 ln -nfs python ./bin/python-pyrocore
