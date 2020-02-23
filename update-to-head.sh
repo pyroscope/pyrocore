@@ -5,9 +5,13 @@ git_projects="pyrobase auvyon"
 echo "~~~ On errors, paste EVERYTHING below ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 deactivate 2>/dev/null
 PYTHON="$1"
+#test -z "$PYTHON" -a -x "/usr/bin/python3.8" && PYTHON="/usr/bin/python3.8"
+#test -z "$PYTHON" -a -x "/usr/bin/python3" && PYTHON="/usr/bin/python3"
 test -z "$PYTHON" -a -x "/usr/bin/python2" && PYTHON="/usr/bin/python2"
 test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
+#test -z "$PYTHON" && PYTHON="python3"
+# Also adapt "assert sys.version_info" below, and venv creation
 
 set -e
 MY_SUM=$(md5sum "$0" | cut -f1 -d' ')
@@ -28,8 +32,8 @@ test -f ./bin/activate && vpy=$PWD/bin/python || vpy=$PYTHON
 cat <<'.' | $vpy
 import sys
 print("Using Python %s" % sys.version)
-assert sys.version_info >= (2, 6), "Use Python 2.6 or 2.7! Read the docs."
-assert sys.version_info < (3,), "Use Python 2.6 or 2.7! Read the docs."
+assert sys.version_info >= (2, 7), "Use Python 2.7! Read the docs."
+assert sys.version_info < (3,), "Use Python 2.7! Read the docs."
 .
 
 echo "Updating your installation..."
