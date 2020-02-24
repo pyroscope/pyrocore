@@ -8,8 +8,8 @@
 
         rtcontrol -qO rss.xml.default --from incomplete //
 
-    Then put it into a CGI script, or write to a file
-    in the "htdocs" directory of a webserver.
+    Then put it into a CGI script, or write to a file in the
+    "htdocs" directory of a webserver, from a cronjob.
 }}{{py:
 import datetime
 from feedgen.feed import FeedGenerator
