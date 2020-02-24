@@ -4,12 +4,12 @@
 
         python-pyrocore -m pip install feedgen pytz tzlocal
 
-    The use this command to generate the feed:
+    Then use this command to generate the feed:
 
         rtcontrol -qO rss.xml.default --from incomplete //
 
-    Then put it into a CGI script, or write to a file in the
-    "htdocs" directory of a webserver, from a cronjob.
+    Finally put it into a CGI script, or write to a file in
+    the "htdocs" directory of a webserver, from a cronjob.
 }}{{py:
 import datetime
 from feedgen.feed import FeedGenerator
