@@ -1,5 +1,8 @@
 .. included at several places
 
+.. image:: https://raw.githubusercontent.com/pyroscope/pyrocore/master/docs/_static/img/help.png
+    :align: left
+
 To get in contact and share your experiences with other users of
 `PyroScope`_, join the `pyroscope-users`_ mailing list or the inofficial
 ``##rtorrent`` channel on ``irc.freenode.net``.
