@@ -1,15 +1,15 @@
 {{# Template example that is similar to the rtorstat output.
 
     See http://www.codetrax.org/projects/rtorstat
-    
+
     Use it in a cronjob like this:
         rtcontrol -qO rtorstat.html done=-100 OR xfer=+0 -sdone >/var/www/cron/rtorrent.html
-}}{{py: 
+}}{{py:
 import time
 }}{{def title}}
-rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}} 
+rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}}
 - {{proxy.session.name()}}
-- up {{(time.time() - proxy.startup_time()) | duration}}
+- up {{(time.time() - proxy.system.startup_time()) | duration}}
 {{enddef}}{{def show(loop, d)}}
 <div class="torrent">
     {{loop.number}}. <strong>{{d.name}}</strong> (<em>{{d.alias}}</em>)
@@ -64,7 +64,7 @@ h2 {
     margin: 0;
     --margin-top: -1.25em;
     padding: 0;
-    
+
 }
 --></style>
 </head>

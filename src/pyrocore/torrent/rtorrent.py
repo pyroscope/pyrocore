@@ -709,7 +709,7 @@ class RtorrentEngine(engine.TorrentEngine):
         self.engine_software = "rTorrent %s/%s" % self.versions
 
         if "+ssh:" in config.scgi_url:
-            self.startup = int(self._rpc.startup_time() or time.time())
+            self.startup = int(self._rpc.system.startup_time() or time.time())
         else:
             self._session_dir = self._rpc.session.path()
             if not self._session_dir:
