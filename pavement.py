@@ -281,10 +281,11 @@ def autodocs():
 
     with pushd("docs"):
         print "\n*** Generating API doc ***\n"
-        sh("sphinx-apidoc -o apidoc -f -T -M ../src/pyrocore")
-        sh("sphinx-apidoc -o apidoc -f -T -M $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
+        sh("sphinx-apidoc -o apidoc -f -T ../src/pyrocore")
+        sh("sphinx-apidoc -o apidoc -f -T $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
         print "\n*** Generating HTML doc ***\n"
-        sh('nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
+        sh('command . ../bin/activate && '
+           'nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
            ' -i \'.*\' -i \'*.log\' -i \'*.png\' -i \'*.txt\'" html >autobuild.log 2>&1 &'
            % (os.getcwd(), SPHINX_AUTOBUILD_PORT))
 
