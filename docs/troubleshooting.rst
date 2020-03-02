@@ -29,14 +29,13 @@ And ESR's golden oldie `How To Ask Questions The Smart Way`_ is still a most val
     What was the **unexpected result**?
     If things worked and ‘suddenly’ broke, **what did you change**?
 
-    **On IRC, don't ask if somebody is there, just describe your problem**.
-    Eventually, someone will notice you – IRC is a global medium, and
-    people *do* live in different time zones than you.
+    **In the chat, don't ask if somebody is there, just describe your problem**.
+    Eventually, someone will notice you – people *do* live in different time zones than you.
 
     Put up any logs on `0bin <http://0bin.net/>`_ or any other pastebin
     service, and **make sure you removed any personal information** you
-    don't want to be publically known. Copy the pastebin link into IRC
-    or into your post.
+    don't want to be publically known. Copy the pastebin link into the
+    chat window.
 
 The following helps with querying your system environment, e.g. the
 version of Python and your OS.
