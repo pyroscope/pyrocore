@@ -36,6 +36,25 @@ log = pymagic.get_lazy_logger(__name__)
 
 
 #
+# Input conversion
+#
+
+def parse_sz(text):
+    """ Get a byte sized value.
+    """
+    units = 'KMGTP'
+    if isinstance(text, int):
+        return text
+    if not text:
+        return 0
+
+    scale = 1024 ** (units.find(text[-1].upper()) + 1)
+    if scale > 1:
+        text = text[:-1]
+    return int(text, 10) * scale
+
+
+#
 # Format specifiers
 #
 def fmt_sz(intval):
@@ -86,11 +105,6 @@ def fmt_strip(val):
     return str(val).strip()
 
 
-def fmt_subst(regex, subst):
-    """Replace regex with string."""
-    return lambda text: re.sub(regex, subst, text) if text else text
-
-
 def fmt_mtime(val):
     """ Modification time of a path.
     """
@@ -125,6 +139,14 @@ def fmt_json(val):
     """ JSON serialization.
     """
     return json.dumps(val, cls=pymagic.JSONEncoder)
+
+
+#
+# Template filters
+#
+def filter_subst(regex, subst):
+    """Replace regex with string."""
+    return lambda text: re.sub(regex, subst, text) if text else text
 
 
 #
@@ -239,9 +261,9 @@ def expand_template(template, namespace):
         @raise LoggableError: In case of typical errors during template execution.
     """
     # Create helper namespace
-    formatters = dict((name[4:], method)
+    formatters = dict((name.split('_', 1)[1], method)
         for name, method in globals().items()
-        if name.startswith("fmt_")
+        if name.startswith("fmt_") or name.startswith("filter_")
     )
     helpers = Bunch()
     helpers.update(formatters)

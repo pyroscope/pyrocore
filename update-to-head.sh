@@ -5,9 +5,13 @@ git_projects="pyrobase"
 echo "~~~ On errors, paste EVERYTHING below ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 deactivate 2>/dev/null
 PYTHON="$1"
+#test -z "$PYTHON" -a -x "/usr/bin/python3.8" && PYTHON="/usr/bin/python3.8"
+#test -z "$PYTHON" -a -x "/usr/bin/python3" && PYTHON="/usr/bin/python3"
 test -z "$PYTHON" -a -x "/usr/bin/python2" && PYTHON="/usr/bin/python2"
 test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
+#test -z "$PYTHON" && PYTHON="python3"
+# Also adapt "assert sys.version_info" below, and venv creation
 
 set -e
 MY_SUM=$(md5sum "$0" | cut -f1 -d' ')
@@ -65,7 +69,7 @@ for project in $git_projects; do
 done
 source bootstrap.sh
 for project in $git_projects; do
-    ( builtin cd $project && ../bin/paver -q develop -U )
+    ( builtin cd $project && ../bin/python -m pip -q install -e . )
 done
 
 ln -nfs python ./bin/python-pyrocore

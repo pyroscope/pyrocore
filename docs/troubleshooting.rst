@@ -4,16 +4,21 @@ Trouble-Shooting Guide
 Reporting Problems
 ------------------
 
-If you have any trouble during *pyrocore* installation and
-configuration, or using any of the commands, join the `pyroscope-users`_
-mailing list or the inofficial ``##rtorrent`` channel on
-``irc.freenode.net``. IRC will generally provide a faster resolution.
+If you have any trouble during *pyrocore* installation and configuration,
+or using any of the commands,
+join the `rtorrent-community`_ channel `pyroscope-tools`_ on Gitter.
+You can also ask questions on platforms like `Reddit`_ or `Stack Exchange`_.
+
+.. image:: https://raw.githubusercontent.com/pyroscope/pyrocore/master/docs/_static/img/help.png
+    :align: left
 
 If you are sure there is a bug, then `open an issue`_ on *GitHub*.
 Make sure that nobody else reported the same problem before you,
 there is a `search box`_ you can use (after the **Filter** button).
 Please note that the *GitHub* issue tracker is not a support platform,
-use the mailing list or IRC for that.
+use the Gitter channel or Reddit for any questions, as mentioned above.
+
+And ESR's golden oldie `How To Ask Questions The Smart Way`_ is still a most valuable resource, too.
 
 .. note::
 
@@ -24,21 +29,25 @@ use the mailing list or IRC for that.
     What was the **unexpected result**?
     If things worked and ‘suddenly’ broke, **what did you change**?
 
-    **On IRC, don't ask if somebody is there, just describe your problem**.
-    Eventually, someone will notice you – IRC is a global medium, and
-    people *do* live in different time zones than you.
+    **In the chat, don't ask if somebody is there, just describe your problem**.
+    Eventually, someone will notice you – people *do* live in different time zones than you.
 
     Put up any logs on `0bin <http://0bin.net/>`_ or any other pastebin
     service, and **make sure you removed any personal information** you
-    don't want to be publically known. Copy the pastebin link into IRC
-    or into your post.
+    don't want to be publically known. Copy the pastebin link into the
+    chat window.
 
 The following helps with querying your system environment, e.g. the
 version of Python and your OS.
 
+.. _`rtorrent-community`: https://gitter.im/rtorrent-community/
+.. _`pyroscope-tools`: https://gitter.im/rtorrent-community/pyroscope-tools
 .. _`pyroscope-users`: http://groups.google.com/group/pyroscope-users
 .. _`open an issue`: https://github.com/pyroscope/pyrocore/issues
 .. _`search box`: https://help.github.com/articles/searching-issues/
+.. _`How To Ask Questions The Smart Way`: http://www.catb.org/~esr/faqs/smart-questions.html
+.. _`Reddit`: https://www.reddit.com/r/rtorrent/
+.. _`Stack Exchange`: https://unix.stackexchange.com/
 
 
 Providing Diagnostic Information

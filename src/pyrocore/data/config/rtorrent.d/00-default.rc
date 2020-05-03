@@ -8,7 +8,7 @@ branch=pyro.extended=,\
 
 # COMMAND: Return startup time (can be used to calculate uptime)
 method.insert = system.startup_time, value|const, $system.time=
-method.redirect = startup_time, system.startup_time
+#method.redirect = startup_time, system.startup_time
 
 # COMMAND: `do` fall-back?
 branch = (not, (system.has, "do=")), ((catch, \
@@ -74,9 +74,9 @@ method.insert = pyro._elapsed_time, private|simple,\
 method.insert = pyro._print_uptime, private|simple,\
     "print=\"rTorrent \", $system.library_version=,\
     /, $system.client_version=,\
-    \" started \", $convert.date=$startup_time=,\
-    \" \", $convert.time=$startup_time=,\
-    \", up \", $pyro._elapsed_time=$startup_time=,\
+    \" started \", $convert.date=$system.startup_time=,\
+    \" \", $convert.time=$system.startup_time=,\
+    \", up \", $pyro._elapsed_time=$system.startup_time=,\
     \" [PID=\", $system.pid=,],\
     \" [CWD=\", $system.cwd=,]"
 

@@ -62,21 +62,21 @@ class MetafileHandler(object):
         try:
             if not os.path.getsize(self.ns.pathname):
                 # Ignore 0-byte dummy files (Firefox creates these while downloading)
-                self.job.LOG.warn("Ignoring 0-byte metafile '%s'" % (self.ns.pathname,))
+                self.job.LOG.warn("Ignoring 0-byte metafile %r" % (self.ns.pathname,))
                 return
             self.metadata = metafile.checked_open(self.ns.pathname)
         except EnvironmentError as exc:
-            self.job.LOG.error("Can't read metafile '%s' (%s)" % (
-                self.ns.pathname, str(exc).replace(": '%s'" % self.ns.pathname, ""),
+            self.job.LOG.error("Can't read metafile %r (%s)" % (
+                self.ns.pathname, str(exc).replace(": %r" % self.ns.pathname, ""),
             ))
             return
         except ValueError as exc:
-            self.job.LOG.error("Invalid metafile '%s': %s" % (self.ns.pathname, exc))
+            self.job.LOG.error("Invalid metafile %r: %s" % (self.ns.pathname, exc))
             return
 
         self.ns.info_hash = metafile.info_hash(self.metadata)
         self.ns.info_name = self.metadata["info"]["name"]
-        self.job.LOG.info("Loaded '%s' from metafile '%s'" % (self.ns.info_name, self.ns.pathname))
+        self.job.LOG.info("Loaded %r from metafile %r" % (self.ns.info_name, self.ns.pathname))
 
         # Check whether item is already loaded
         try:
@@ -88,7 +88,7 @@ class MetafileHandler(object):
                 self.job.LOG.error("While checking for #%s: %s" % (self.ns.info_hash, exc))
                 return
         else:
-            self.job.LOG.warn("Item #%s '%s' already added to client" % (self.ns.info_hash, name))
+            self.job.LOG.warn("Item #%s %r already added to client" % (self.ns.info_hash, name))
             return
 
         return True

@@ -6,4 +6,4 @@
 }}{{py:
 import time
 }}rTorrent {{proxy.system.client_version()}}/{{proxy.system.library_version()}} - {{#
-}}up {{(time.time() - proxy.startup_time()) | duration}} - {{view.size()}} items
+}}up {{(time.time() - proxy.system.startup_time()) | duration}} - {{view.size()}} items

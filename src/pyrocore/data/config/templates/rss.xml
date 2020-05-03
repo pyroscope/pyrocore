@@ -1,0 +1,35 @@
+{{# Template that creates a RSS feed from matched items.
+
+    First, install additional requirements:
+
+        python-pyrocore -m pip install feedgen pytz tzlocal
+
+    Then use this command to generate the feed:
+
+        rtcontrol -qO rss.xml.default --from incomplete //
+
+    Finally put it into a CGI script, or write to a file in
+    the "htdocs" directory of a webserver, from a cronjob.
+}}{{py:
+import datetime
+from feedgen.feed import FeedGenerator
+#from pytz import utc as tz
+from tzlocal import get_localzone
+tz = get_localzone()
+
+feed = FeedGenerator()
+name = ':'.join(proxy.session.name().split())
+feed.id(name)
+feed.title('rTorrent %s - incomplete items' % name)
+feed.link(href='https://www.reddit.com/r/torrents/comments/f8cy7l')
+feed.description('%d incomplete item(s) in this feed.' % len(matches))
+
+for item in matches:
+    entry = feed.add_entry()
+    entry.guid(item.hash)
+    entry.published(datetime.datetime.fromtimestamp(item.loaded, tz=tz))
+    entry.title('%s [%s - %d%%]' % (item.name, item.alias, item.done))
+    entry.summary('%.3f GiB - R %.1f%% - %s' % (
+        item.size / (1024.0**3), item.ratio, ' '.join(item.traits),
+    ))
+}}{{ feed.rss_str(pretty=True) }}

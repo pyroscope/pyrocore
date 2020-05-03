@@ -34,6 +34,8 @@ import hashlib
 import six
 from six.moves import urllib
 
+import six
+
 from pyrobase import bencode
 from pyrobase.parts import Bunch
 from pyrocore import config, error
@@ -248,7 +250,7 @@ def sanitize(meta, diagnostics=False):
             # Broken beyond anything reasonable
             bad_encodings.add('UNKNOWN/EXOTIC')
             bad_fields.add(field)
-            return str(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
+            return six.text_type(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
 
     # Go through all string fields and check them
     for field in ("comment", "created by"):
@@ -263,7 +265,7 @@ def sanitize(meta, diagnostics=False):
     return (meta, bad_encodings, bad_fields) if diagnostics else meta
 
 
-def assign_fields(meta, assignments):
+def assign_fields(meta, assignments, options_debug=False):
     """ Takes a list of C{key=value} strings and assigns them to the
         given metafile. If you want to set nested keys (e.g. "info.source"),
         you have to use a dot as a separator. For exotic keys *containing*
@@ -291,7 +293,7 @@ def assign_fields(meta, assignments):
                 # Create missing dicts as we go...
                 namespace = namespace.setdefault(fmt.to_utf8(key), {})
         except (KeyError, IndexError, TypeError, ValueError) as exc:
-            if self.options.debug:
+            if options_debug:
                 raise
             raise error.UserError("Bad assignment %r (%s)!" % (assignment, exc))
         else:
@@ -404,6 +406,10 @@ class Metafile(object):
         "core", "CVS", ".*", "*~", "*.swp", "*.tmp", "*.bak",
         "[Tt]humbs.db", "[Dd]esktop.ini", "ehthumbs_vista.db",
     ]
+
+    # Default min / max piece sizes
+    CHUNK_MIN = 2**15
+    CHUNK_MAX = 2**24
 
 
     def __init__(self, filename, datapath=None):
@@ -570,7 +576,7 @@ class Metafile(object):
         return check_info(metainfo), totalhashed
 
 
-    def _make_meta(self, tracker_url, root_name, private, progress):
+    def _make_meta(self, tracker_url, root_name, private, progress, chunk_min, chunk_max):
         """ Create torrent dict.
         """
         # Calculate piece size
@@ -585,8 +591,10 @@ class Metafile(object):
             else:
                 piece_size_exp = 0
 
-        piece_size_exp = min(max(15, piece_size_exp), 24)
-        piece_size = 2 ** piece_size_exp
+        chunk_min = chunk_min or self.CHUNK_MIN
+        chunk_max = chunk_max or self.CHUNK_MAX
+        piece_size = min(max(chunk_min, 2 ** piece_size_exp), chunk_max)
+        del piece_size_exp  # make unbounded value unavailable
 
         # Build info hash
         info, totalhashed = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
@@ -616,7 +624,7 @@ class Metafile(object):
 
     def create(self, datapath, tracker_urls, comment=None, root_name=None,
                      created_by=None, private=False, no_date=False, progress=None,
-                     callback=None):
+                     callback=None, chunk_min=0, chunk_max=0):
         """ Create a metafile with the path given on object creation.
             Returns the last metafile dict that was written (as an object, not bencoded).
         """
@@ -658,7 +666,7 @@ class Metafile(object):
             self.LOG.info("Creating %r for %s %r..." % (
                 output_name, "filenames read from" if self._fifo else "data in", self.datapath,
             ))
-            meta, _ = self._make_meta(tracker_url, root_name, private, progress)
+            meta, _ = self._make_meta(tracker_url, root_name, private, progress, chunk_min, chunk_max)
 
             # Add optional fields
             if comment:
@@ -679,6 +687,8 @@ class Metafile(object):
 
     def check(self, metainfo, datapath, progress=None):
         """ Check piece hashes of a metafile against the given datapath.
+
+            Return ``True`` when OK.
         """
         if datapath:
             self.datapath = datapath

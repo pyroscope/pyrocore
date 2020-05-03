@@ -60,8 +60,11 @@ def read_blob(arg):
         except requests.RequestException as exc:
             raise error.UserError(str(exc))
     else:
-        with open(os.path.expanduser(arg[1:]), 'rb') as handle:
-            result = handle.read()
+        try:
+            with open(os.path.expanduser(arg[1:]), 'rb') as handle:
+                result = handle.read()
+        except IOError as exc:
+            raise error.UserError('While reading @blob argument: {}'.format(exc))
 
     return result
 
@@ -351,7 +354,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
     def mainloop(self):
         """ The main loop.
         """
-        self.check_for_connection()
+        self.check_for_connection(maxpos=1)
 
         # Enter REPL if no args
         if len(self.args) < 1:

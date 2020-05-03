@@ -57,6 +57,7 @@ if not os.path.supports_unicode_filenames:
     _wrap("listdir", lambda path, o=os: o.listdir(_encode_path(path)))
     _wrap("rmdir", lambda path, o=os: o.rmdir(_encode_path(path)))
     _wrap("removedirs", lambda path, o=os: o.removedirs(_encode_path(path)))
+    _wrap("statvfs", lambda path, o=os: o.statvfs(_encode_path(path)))
 
     # wrap os.path stuff
     _unary_fs_functions = [

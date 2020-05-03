@@ -53,8 +53,9 @@ Notable here is also the use of a named default value ``ESC``, and using
 template comments ``{{#}}`` to escape the line endings we don't want to
 have in the final output, which looks like this:
 
-.. image:: examples/rtcontrol-colors.png
-    :alt: rtcontrol coloured output example
+.. figure:: examples/rtcontrol-colors.png
+   :align: center
+   :alt: rtcontrol coloured output example
 
 
 Using Tempita for full output control

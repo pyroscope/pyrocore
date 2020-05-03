@@ -184,6 +184,8 @@ class RtorrentItem(engine.TorrentProxy):
                 val = self._get_files()
             elif name.startswith("kind_") and name[5:].isdigit():
                 val = self._get_kind(int(name[5:], 10))
+            elif name.startswith("d_") or name.startswith("d."):
+                val = self.fetch('=' + (engine_name or name)[2:])
             elif name.startswith("custom_"):
                 key = name[7:]
                 try:
@@ -353,6 +355,7 @@ class RtorrentItem(engine.TorrentProxy):
         except (TypeError, AttributeError):
             pass # assume an iterable
 
+        results = {}
         for command in commands:
             try:
                 method, args = command.split('=', 1)
@@ -367,11 +370,22 @@ class RtorrentItem(engine.TorrentProxy):
                     args_list = '"' + '","'.join(args) + '"'
                 print('%s\t%s\t%s=%s' % (self._fields["hash"], data, method.lstrip(':'), args_list))
 
-            observer = print_result if method.startswith('>') else None
-            method = method.lstrip('>')
+            def store_result(data):
+                "Helper to collect XMLRPC call results"
+                results[method.lstrip(':')] = data
+
+            observer = None
+            if method.startswith('>'):
+                observer = print_result
+                method = method.lstrip('>')
+            elif method.startswith('!'):
+                observer = store_result
+                method = method.lstrip('!')
             if not (method.startswith(':') or method[:2].endswith('.')):
                 method = 'd.' + method
             self._make_it_so("executing command on", [method], *args, observer=observer)
+
+        return results
 
 
     def delete(self):
@@ -697,7 +711,7 @@ class RtorrentEngine(engine.TorrentEngine):
         self.engine_software = "rTorrent %s/%s" % self.versions
 
         if "+ssh:" in config.scgi_url:
-            self.startup = int(self._rpc.startup_time() or time.time())
+            self.startup = int(self._rpc.system.startup_time() or time.time())
         else:
             self._session_dir = self._rpc.session.path()
             if not self._session_dir:

@@ -20,12 +20,14 @@
 from __future__ import absolute_import
 
 import re
+import time
 import random
 
-from pyrobase import bencode
+from pyrobase import bencode, fmt
 from pyrocore import config
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
-from pyrocore.util import metafile, os
+from pyrocore.torrent import formatting
+from pyrocore.util import metafile, os, xmlrpc
 
 
 class MetafileCreator(ScriptBaseWithConfig):
@@ -49,6 +51,11 @@ class MetafileCreator(ScriptBaseWithConfig):
         """
         super(MetafileCreator, self).add_options()
 
+        def human(size):
+            'Helper for byte sizes'
+            text = fmt.human_size(size)
+            return text[:4].lstrip() + ('' if size < 1024 else text[-3])
+
         self.add_bool_option("-p", "--private",
             help="disallow DHT and PEX")
         self.add_bool_option("--no-date",
@@ -65,6 +72,10 @@ class MetafileCreator(ScriptBaseWithConfig):
         self.add_value_option("-s", "--set", "KEY=VAL [-s ...]",
             action="append", default=[],
             help="set a specific key to the given value; omit the '=' to delete a key")
+        self.add_value_option("--chunk-min", "SIZE",
+            help="set minimum piece size [%s]" % (human(metafile.Metafile.CHUNK_MIN)))
+        self.add_value_option("--chunk-max", "SIZE",
+            help="set maximum piece size [%s]" % (human(metafile.Metafile.CHUNK_MAX)))
         self.add_bool_option("--no-cross-seed",
             help="do not automatically add a field to the info dict ensuring unique info hashes")
         self.add_value_option("-X", "--cross-seed", "LABEL",
@@ -72,7 +83,10 @@ class MetafileCreator(ScriptBaseWithConfig):
                  " (changes info hash, use '@entropy' to randomize it)")
         self.add_bool_option("-H", "--hashed", "--fast-resume",
             help="create second metafile containing libtorrent fast-resume information")
-# TODO: Optionally pass torrent directly to rTorrent (--load / --start)
+        self.add_bool_option("--load",
+            help="load newly created item directly into client")
+        self.add_bool_option("--start",
+            help="start newly created item directly in the client")
 # TODO: Optionally limit disk I/O bandwidth used (incl. a config default!)
 # TODO: Set "encoding" correctly
 # TODO: Support multi-tracker extension ("announce-list" field)
@@ -147,15 +161,18 @@ class MetafileCreator(ScriptBaseWithConfig):
                 del meta["info"]["x_cross_seed"]
 
             # Set specific keys?
-            metafile.assign_fields(meta, self.options.set)
+            metafile.assign_fields(meta, self.options.set, self.options.debug)
 
         # Create and write the metafile(s)
         # TODO: make it work better with multiple trackers (hash only once), also create fast-resume file for each tracker
         meta = torrent.create(datapath, self.args[1:],
             progress=None if self.options.quiet else metafile.console_progress(),
             root_name=self.options.root_name, private=self.options.private, no_date=self.options.no_date,
-            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback
+            comment=self.options.comment, created_by="PyroScope %s" % self.version, callback=callback,
+            chunk_min=formatting.parse_sz(self.options.chunk_min),
+            chunk_max=formatting.parse_sz(self.options.chunk_max),
         )
+        tied_file = metapath
 
         # Create second metafile with fast-resume?
         if self.options.hashed:
@@ -169,9 +186,29 @@ class MetafileCreator(ScriptBaseWithConfig):
             self.LOG.info("Writing fast-resume metafile %r..." % (hashed_path,))
             try:
                 bencode.bwrite(hashed_path, meta)
+                tied_file = hashed_path
             except EnvironmentError as exc:
                 self.fatal("Error writing fast-resume metafile %r (%s)" % (hashed_path, exc,))
                 raise
+
+        # Load into client on demand
+        if self.options.load or self.options.start:
+            proxy = config.engine.open()
+            info_hash = metafile.info_hash(meta)
+            try:
+                item_name = proxy.d.name(info_hash, fail_silently=True)
+            except xmlrpc.HashNotFound:
+                load_item = proxy.load.start_verbose if self.options.start else proxy.load.verbose
+                load_item(xmlrpc.NOHASH, os.path.abspath(tied_file))
+                time.sleep(.05) # let things settle
+                try:
+                    item_name = proxy.d.name(info_hash, fail_silently=True)
+                    self.LOG.info("OK: Item #%s %s client.",
+                                  info_hash, 'started in' if self.options.start else 'loaded into')
+                except xmlrpc.HashNotFound as exc:
+                    self.fatal("Error while loading item #%s into client: %s" % (info_hash, exc,))
+            else:
+                self.LOG.warning("Item #%s already exists in client, --load/--start is ignored!", info_hash)
 
 
 def run(): #pragma: no cover

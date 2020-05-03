@@ -52,13 +52,15 @@ class MetafileChecker(ScriptBaseWithConfig):
         try:
             metainfo = bencode.bread(metapath)
         except (KeyError, bencode.BencodeError) as exc:
-            self.LOG.error("Bad metafile %r (%s: %s)" % (metapath, type(exc).__name__, exc))
+            self.fatal("Bad metafile %r (%s)" % (metapath, type(exc).__name__), exc)
+            raise
         else:
             # Check metafile integrity
             try:
                 metafile.check_meta(metainfo)
             except ValueError as exc:
-                self.LOG.error("Metafile %r failed integrity check: %s" % (metapath, exc,))
+                self.fatal("Metafile %r failed integrity check" % (metapath,), exc)
+                raise
             else:
                 if len(self.args) > 1:
                     datapath = self.args[1].rstrip(os.sep)
@@ -67,7 +69,15 @@ class MetafileChecker(ScriptBaseWithConfig):
 
                 # Check the hashes
                 torrent = metafile.Metafile(metapath)
-                torrent.check(metainfo, datapath, progress=None if self.options.quiet else metafile.console_progress())
+                try:
+                    ok = torrent.check(metainfo, datapath,
+                        progress=None if self.options.quiet else metafile.console_progress())
+                    if not ok:
+                        self.fatal("Metafile %r has checksum errors" % (metapath,))
+                        sys.exit(1)
+                except OSError as exc:
+                    self.fatal("Torrent data file missing", exc)
+                    raise
 
 
 def run(): #pragma: no cover

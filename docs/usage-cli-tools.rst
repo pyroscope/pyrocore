@@ -156,6 +156,12 @@ a Linux shell offers you, among them:
       find . -mindepth 1 -maxdepth 1 -type d \! -name ".*" -print0 | sort -z \
           | xargs -0I{} mktor -p "{}" "$ANNOUNCE_URL"
 
+You can also load freshly created metafiles directly into the client,
+add either the ``--load`` or ``--start`` option
+depending on the state you want the new item to be in initially.
+Note that files are still created and the item is tied to them
+– if you use fast-resume, the augmented metafile is loaded of course.
+
 If you create torrents for different trackers, they're
 *automatically enabled for cross-seeding*, i.e. you can load several torrents for
 exactly the same data into your client. For the technically inclined,
