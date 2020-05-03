@@ -105,11 +105,6 @@ def fmt_strip(val):
     return str(val).strip()
 
 
-def fmt_subst(regex, subst):
-    """Replace regex with string."""
-    return lambda text: re.sub(regex, subst, text) if text else text
-
-
 def fmt_mtime(val):
     """ Modification time of a path.
     """
@@ -144,6 +139,14 @@ def fmt_json(val):
     """ JSON serialization.
     """
     return json.dumps(val, cls=pymagic.JSONEncoder)
+
+
+#
+# Template filters
+#
+def filter_subst(regex, subst):
+    """Replace regex with string."""
+    return lambda text: re.sub(regex, subst, text) if text else text
 
 
 #
@@ -258,9 +261,9 @@ def expand_template(template, namespace):
         @raise LoggableError: In case of typical errors during template execution.
     """
     # Create helper namespace
-    formatters = dict((name[4:], method)
+    formatters = dict((name.split('_', 1)[1], method)
         for name, method in globals().items()
-        if name.startswith("fmt_")
+        if name.startswith("fmt_") or name.startswith("filter_")
     )
     helpers = Bunch()
     helpers.update(formatters)
