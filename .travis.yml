@@ -12,7 +12,8 @@ install:
   - pip install -U setuptools
   - pip install -U wheel
   - pip install -r requirements-dev.txt
-  - pip install -e .[templates,repl]
+  - pip install -e .
+  - pip install -e .[templating,repl]
 script:
   - paver test
   - paver functest
