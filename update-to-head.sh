@@ -28,7 +28,7 @@ test -f ./bin/activate && vpy=$PWD/bin/python || vpy=$PYTHON
 cat <<'.' | $vpy
 import sys
 print("Using Python %s" % sys.version)
-assert sys.version_info[0:2] in [(2, 7), (3, 5), (3, 6)], "Use Python 2.7 or 3.5! Read the docs."
+assert sys.version_info[0:2] in [(2, 7), (3, 5), (3, 6), (3, 7), (3, 8)], "Use Python 2.7 or 3.5+! Read the docs."
 .
 
 echo "Updating your installation..."
