@@ -245,7 +245,9 @@ def sanitize(meta, diagnostics=False):
             # Broken beyond anything reasonable
             bad_encodings.add('UNKNOWN/EXOTIC')
             bad_fields.add(field)
-            return six.text_type(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
+            if not isinstance(text, six.text_type):
+                text = six.text_type(text, 'utf-8', 'replace')
+            return text.replace('\ufffd', '_').encode("utf-8")
 
     # Go through all string fields and check them
     for field in ("comment", "created by"):
