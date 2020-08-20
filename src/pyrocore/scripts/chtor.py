@@ -240,8 +240,11 @@ class MetafileChanger(ScriptBaseWithConfig):
 
                 # Add fast-resume data?
                 if self.options.hashed:
+                    datadir = self.options.hashed
+                    if '{}' in datadir:
+                        datadir = datadir.replace('{}', metainfo["info"]["name"])
                     try:
-                        metafile.add_fast_resume(metainfo, self.options.hashed.replace("{}", metainfo["info"]["name"]))
+                        metafile.add_fast_resume(metainfo, datadir)
                     except EnvironmentError as exc:
                         self.fatal("Error making fast-resume data (%s)" % (exc,))
                         raise
