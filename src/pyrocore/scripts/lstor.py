@@ -19,6 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import with_statement
 
+import json
 import pprint
 import hashlib
 
@@ -42,6 +43,8 @@ class MetafileLister(ScriptBase):
             help="show full announce URL including keys")
         self.add_bool_option("--raw",
             help="print the metafile's raw content in all detail")
+        self.add_bool_option("--json",
+            help="print the unmasked metafile, serialized to JSON")
         self.add_bool_option("-V", "--skip-validation",
             help="show broken metafiles with an invalid structure")
         self.add_value_option("-o", "--output", "KEY,KEY1.KEY2,...",
@@ -65,15 +68,15 @@ class MetafileLister(ScriptBase):
         for idx, filename in enumerate(self.args):
             torrent = metafile.Metafile(filename)
             if idx and not self.options.output:
-                print
-                print "~" * 79
+                print('')
+                print("~" * 79)
 
             try:
                 # Read and check metafile
                 try:
                     data = metafile.checked_open(filename, log=self.LOG if self.options.skip_validation else None,
                         quiet=(self.options.quiet and (self.options.output or self.options.raw)))
-                except EnvironmentError, exc:
+                except EnvironmentError as exc:
                     self.fatal("Can't read '%s' (%s)" % (
                         filename, str(exc).replace(": '%s'" % filename, ""),
                     ))
@@ -81,15 +84,18 @@ class MetafileLister(ScriptBase):
 
                 listing = None
 
-                if self.options.raw:
+                if self.options.raw or self.options.json:
                     if not self.options.reveal and "info" in data:
                         # Shorten useless binary piece hashes
                         data["info"]["pieces"] = "<%d piece hashes>" % (
                             len(data["info"]["pieces"]) / len(hashlib.sha1().digest()) # bogus pylint: disable=E1101
                         )
 
-                    pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)()
-                    listing = pprinter.pformat(data)
+                    if self.options.json:
+                        listing = json.dumps(data, default=repr, indent=4, sort_keys=True)
+                    else:
+                        pprinter = (pprint.PrettyPrinter if self.options.reveal else metafile.MaskingPrettyPrinter)()
+                        listing = pprinter.pformat(data)
                 elif self.options.output:
                     def splitter(fields):
                         "Yield single names for a list of comma-separated strings."
@@ -107,7 +113,7 @@ class MetafileLister(ScriptBase):
                             val = data
                             for key in field.split('.'):
                                 val = val[key]
-                        except KeyError, exc:
+                        except KeyError as exc:
                             self.LOG.error("%s: Field %r not found (%s)" % (filename, field, exc))
                             break
                         else:
@@ -116,7 +122,7 @@ class MetafileLister(ScriptBase):
                         listing = '\t'.join(values)
                 else:
                     listing = '\n'.join(torrent.listing(masked=not self.options.reveal))
-            except (ValueError, KeyError, bencode.BencodeError), exc:
+            except (ValueError, KeyError, bencode.BencodeError) as exc:
                 if self.options.debug:
                     raise
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
