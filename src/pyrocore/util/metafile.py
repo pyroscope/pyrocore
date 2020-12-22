@@ -386,7 +386,7 @@ def checked_open(filename, log=None, quiet=False):
         if log:
             # Warn about it, unless it's a quiet value query
             if not quiet:
-                log.warn("%s: %s" % (filename, exc))
+                log.warn("%r: %s" % (filename, exc))
         else:
             raise
 
