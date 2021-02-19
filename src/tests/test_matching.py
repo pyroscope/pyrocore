@@ -22,6 +22,8 @@ import time
 import logging
 import unittest
 
+import six
+
 from pyrobase.parts import Bunch
 from pyrocore.util import matching
 
@@ -71,7 +73,7 @@ class FilterTest(unittest.TestCase):
     ]
 
     def test_conditions(self):
-        for cond, expected in self.CASES:
+        for cond, expected in list(self.CASES):
             keep = matching.ConditionParser(lookup, "name").parse(cond)
             result = set(i.name for i in self.DATA if keep(i))
             expected = set(expected.split())
@@ -134,17 +136,17 @@ class MagicTest(unittest.TestCase):
 
 class ParserTest(unittest.TestCase):
     GOOD = [
-        ("num=+1", "%s"),
+        ("num=+1", "num=+1"),
         ("num>1", "num=+1"),
         ("num<=1", "num=!+1"),
         ("num<1", "num=-1"),
         ("num>=1", "num=!-1"),
         ("num!=1", "num=!1"),
         ("num<>1", "num=!1"),
-        ("flag=y", "%ses"),
-        ("some*name", "name=%s"),
+        ("flag=y", "flag=yes"),
+        ("some*name", "name=some*name"),
         ("foo bar", "name=foo name=bar"),
-        ("foo,bar", "name=%s"),
+        ("foo,bar", "name=foo,bar"),
         ("foo OR bar", "[ name=foo OR name=bar ]"),
     ]
     BAD = [
@@ -165,18 +167,16 @@ class ParserTest(unittest.TestCase):
 
     def test_good_conditions(self):
         for cond, canonical in self.GOOD:
-            if '%' in canonical:
-                canonical = canonical % cond
             matcher = matching.ConditionParser(lookup, "name").parse(cond)
             assert isinstance(matcher, matching.Filter), "Matcher is not a filter"
-            assert str(matcher) == canonical, "'%s' != '%s'" % (matcher, canonical)
+            assert six.text_type(matcher) == canonical, "'%s' != '%s'" % (six.text_type(matcher), canonical)
             assert matcher, "Matcher is empty"
 
     def test_bad_conditions(self):
         for cond in self.BAD:
             try:
                 matcher = matching.ConditionParser(lookup).parse(cond)
-            except matching.FilterError, exc:
+            except matching.FilterError as exc:
                 log.debug("BAD: '%s' ==> %s" % (cond, exc))
             else:
                 assert False, "[ %s ] '%s' raised no error" % (matcher, cond)

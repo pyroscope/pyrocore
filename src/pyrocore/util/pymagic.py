@@ -23,7 +23,7 @@ import json
 import logging
 import pkg_resources
 
-from peak.util.proxies import LazyProxy
+from pyrocore.util.proxies import LazyProxy
 
 
 # Create aliases to make pydev / pylint happy

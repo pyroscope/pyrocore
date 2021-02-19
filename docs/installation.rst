@@ -46,7 +46,7 @@ Installing Dependency Packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before installing *pyrocore*, some software packages need to be available
-on your machine, Python 2 among them.
+on your machine.
 
 On Debian-type systems (Debian, Ubuntu, Raspbian, …), the following ensures you have
 everything you need, including packages necessary for installing from source:
@@ -72,33 +72,6 @@ when entered into a ``root`` shell:
 Using such a dedicated account also makes sure you don't need to have fear
 this software does anything malicious — if it did, it'd be contained in that
 account. It also makes deinstallation or start-from-zero way less of a hassle.
-
-
-.. _install-python:
-
-Installing Python2
-^^^^^^^^^^^^^^^^^^
-
-For *Debian* and derivatives, the ``apt-get`` command in the previous section
-already took care of everything.
-
-Other Linux distributions usually come equipped with a Python 2.7 interpreter,
-but on very new releases, Python 3 may be the default and Python 2.7 just an option.
-In case you need to install Python 2, refer to `Installing Python on Linux`_ and
-consider using `pyenv`_.
-
-The following shows how you can check what version you have as the default (the
-sample output is from *Ubuntu 15.04*):
-
-.. code-block:: shell
-
-    $ /usr/bin/python --version
-    Python 2.7.9
-
-Try calling ``/usr/bin/python2`` in case the above shows a ``3.*`` version.
-
-.. _`Installing Python on Linux`: http://docs.python-guide.org/en/latest/starting/install/linux/
-.. _`pyenv`: https://github.com/yyuu/pyenv#simple-python-version-management-pyenv
 
 
 .. _install-pyrocore:

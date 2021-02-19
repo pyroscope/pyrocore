@@ -30,6 +30,7 @@ from pyrocore import config, error
 from pyrocore.util import os, fmt, osmagic, pymagic, matching, xmlrpc
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig, PromptDecorator
 from pyrocore.torrent import engine, formatting
+import six
 
 
 def print_help_fields():
@@ -48,11 +49,11 @@ def print_help_fields():
 
     print('')
     print("Fields are:")
-    print("\n".join(["  %-21s %s" % (name, field.__doc__)
-        for name, field in sorted(engine.FieldDefinition.FIELDS.items() + [
-            custom_manifold(), kind_manifold(), item_manifold(),
+    print(("\n".join(["  %-21s %s" % (name, field.__doc__)
+        for name, field in sorted(list(engine.FieldDefinition.FIELDS.items()) + [
+            custom_manifold(), kind_manifold(),
         ])
-    ]))
+    ])))
 
     print('')
     print("Format specifiers are:")
@@ -78,9 +79,13 @@ class FieldStatistics(object):
         self._basetime = time.time()
 
 
-    def __nonzero__(self):
+    def __bool__(self):
         "Truth"
         return bool(self.total)
+
+
+    def __nonzero__(self):
+        return self.__bool__()
 
 
     def add(self, field, val):
@@ -104,8 +109,8 @@ class FieldStatistics(object):
         # Calculate average if possible
         if self.size:
             result.update(
-                (key, '' if isinstance(val, basestring) else val / self.size)
-                for key, val in self.total.items()
+                (key, '' if isinstance(val, six.string_types) else val / self.size)
+                for key, val in list(self.total.items())
             )
 
         # Handle time fields
@@ -345,16 +350,16 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         try:
             item_text = fmt.to_console(formatting.format_item(self.options.output_format, item, defaults))
-        except (NameError, ValueError, TypeError), exc:
+        except (NameError, ValueError, TypeError) as exc:
             self.fatal("Trouble with formatting item %r\n\n  FORMAT = %r\n\n  REASON =" % (item, self.options.output_format), exc)
             raise # in --debug mode
 
         if self.options.shell:
-            item_text = '\t'.join(shell_escape(i) for i in item_text.split('\t'))
+            item_text = b'\t'.join(shell_escape(i) for i in item_text.split('\t'))
 
         # Justify headers according to stencil
         if stencil:
-            item_text = '\t'.join(i.ljust(len(s)) for i, s in zip(item_text.split('\t'), stencil))
+            item_text = b'\t'.join(i.ljust(len(s)) for i, s in zip(item_text.split('\t'), stencil))
 
         return item_text
 
@@ -370,7 +375,10 @@ class RtorrentControl(ScriptBaseWithConfig):
 
         # For a header, use configured escape codes on a terminal
         if item is None and os.isatty(sys.stdout.fileno()):
-            item_text = ''.join((config.output_header_ecma48, item_text, "\x1B[0m"))
+            item_text = b''.join((config.output_header_ecma48.encode(), item_text, b"\x1B[0m"))
+
+        # Set up stdout for writing
+        output = getattr(sys.stdout, 'buffer', sys.stdout)
 
         # Dump to selected target
         if to_log:
@@ -379,12 +387,11 @@ class RtorrentControl(ScriptBaseWithConfig):
             else:
                 self.LOG.info(item_text)
         elif self.options.nul:
-            sys.stdout.write(item_text + '\0')
-            sys.stdout.flush()
+            output.write(item_text + b'\0')
         else:
-            print(item_text)
+            output.write(item_text + b'\n')
 
-        return item_text.count('\n') + 1
+        return item_text.count(b'\n') + 1
 
 
     # TODO: refactor to formatting.OutputMapping as a class method
@@ -427,13 +434,14 @@ class RtorrentControl(ScriptBaseWithConfig):
         """
         # Re-engineer list from output format
         # XXX TODO: Would be better to use a FieldRecorder class to catch the full field names
-        emit_fields = list(i.lower() for i in re.sub(r"[^_A-Z]+", ' ', self.format_item(None)).split())
+        emit_fields = list(i.lower() for i in re.sub(b"[^_A-Z]+", b' ', self.format_item(None)).split())
 
         # Validate result
         result = []
         for name in emit_fields[:]:
+            name = name.decode()
             if name not in engine.FieldDefinition.FIELDS:
-                self.LOG.warn("Omitted unknown name '%s' from statistics and output format sorting" % name)
+                self.LOG.warn("Omitted unknown name '%s' from statistics and output format sorting" % name.decode())
             else:
                 result.append(name)
 
@@ -591,7 +599,7 @@ class RtorrentControl(ScriptBaseWithConfig):
                         zip(self.options.select.split('-', 1), ("1", "-1")))
                 else:
                     selection = 1, int(self.options.select, 10)
-            except (ValueError, TypeError), exc:
+            except (ValueError, TypeError) as exc:
                 self.fatal("Bad selection '%s' (%s)" % (self.options.select, exc))
 
 #        print repr(config.engine)
@@ -702,7 +710,7 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Perform chosen action on matches
             template_args = [formatting.preparse("{{#tempita}}" + i if "{{" in i else i) for i in action.args]
             for item in matches:
-                if not self.prompt.ask_bool("%s item %s" % (action.label, item.name)):
+                if not self.prompt.ask_bool(u"%s item %s" % (action.label, item.name)):
                     continue
                 if (self.options.output_format
                         and not self.options.view_only
@@ -750,7 +758,7 @@ class RtorrentControl(ScriptBaseWithConfig):
 
             for item in matches:
                 cmds = [[output_formatter(i, namespace=dict(item=item)) for i in k] for k in template_cmds]
-                cmds = [[i.encode('utf-8') if isinstance(i, unicode) else i for i in k] for k in cmds]
+                cmds = [[i.decode('utf-8') if isinstance(i, six.binary_type) else i for i in k] for k in cmds]
 
                 if self.options.dry_run:
                     self.LOG.info("Would call command(s) %r" % (cmds,))
@@ -767,9 +775,9 @@ class RtorrentControl(ScriptBaseWithConfig):
                                 subprocess.check_call(cmd[0], shell=True)
                             else:
                                 subprocess.check_call(cmd)
-                        except subprocess.CalledProcessError, exc:
+                        except subprocess.CalledProcessError as exc:
                             raise error.UserError("Command failed: %s" % (exc,))
-                        except OSError, exc:
+                        except OSError as exc:
                             raise error.UserError("Command failed (%s): %s" % (logged_cmd, exc,))
 
         # Dump as JSON array?
@@ -800,18 +808,18 @@ class RtorrentControl(ScriptBaseWithConfig):
             # Print summary?
             if matches and summary:
                 self.emit(None, stencil=stencil)
-                self.emit(summary.total, item_formatter=lambda i: i.rstrip() + " [SUM of %d item(s)]" % len(matches))
-                self.emit(summary.min, item_formatter=lambda i: i.rstrip() + " [MIN of %d item(s)]" % len(matches))
-                self.emit(summary.average, item_formatter=lambda i: i.rstrip() + " [AVG of %d item(s)]" % len(matches))
-                self.emit(summary.max, item_formatter=lambda i: i.rstrip() + " [MAX of %d item(s)]" % len(matches))
+                self.emit(summary.total, item_formatter=lambda i: i.rstrip() + b" [SUM of %d item(s)]" % len(matches))
+                self.emit(summary.min, item_formatter=lambda i: i.rstrip() + b" [MIN of %d item(s)]" % len(matches))
+                self.emit(summary.average, item_formatter=lambda i: i.rstrip() + b" [AVG of %d item(s)]" % len(matches))
+                self.emit(summary.max, item_formatter=lambda i: i.rstrip() + b" [MAX of %d item(s)]" % len(matches))
 
             self.LOG.info("Dumped %d out of %d torrents." % (len(matches), view.size(),))
         else:
             self.LOG.info("Filtered %d out of %d torrents." % (len(matches), view.size(),))
 
         if self.options.debug and 0:
-            print '\n' + repr(matches[0])
-            print '\n' + repr(matches[0].files)
+            print('\n' + repr(matches[0]))
+            print('\n' + repr(matches[0].files))
 
         # XMLRPC stats
         self.LOG.debug("XMLRPC stats: %s" % config.engine._rpc)

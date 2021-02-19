@@ -29,7 +29,7 @@ test -z "$PYTHON" -a -x "/usr/bin/python2" && PYTHON="/usr/bin/python2"
 test -z "$PYTHON" -a -x "/usr/bin/python" && PYTHON="/usr/bin/python"
 test -z "$PYTHON" && PYTHON="python"
 
-git_projects="pyrobase auvyon"
+git_projects="pyrobase"
 . ./util.sh || return 1 # load funcs
 
 # generic bootstrap

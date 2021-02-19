@@ -27,13 +27,15 @@ import glob
 import logging
 import tempfile
 import textwrap
-import xmlrpclib
 from pprint import pformat
 
 try:
     import requests
 except ImportError:
     requests = None
+
+from six.moves import xmlrpc_client
+import six
 
 from pyrobase import bencode
 from pyrobase.parts import Bunch
@@ -132,7 +134,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             if arg and arg[0] in "+-":
                 try:
                     arg = int(arg, 10)
-                except (ValueError, TypeError), exc:
+                except (ValueError, TypeError) as exc:
                     self.LOG.warn("Not a valid number: %r (%s)" % (arg, exc))
             elif arg.startswith('[['):  # escaping, not a list
                 arg = arg[1:]
@@ -143,7 +145,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                 if all(i.isdigit() for i in arg):
                     arg = [int(i, 10) for i in arg]
             elif arg.startswith('@'):
-                arg = xmlrpclib.Binary(read_blob(arg))
+                arg = xmlrpc_client.Binary(read_blob(arg))
             args.append(arg)
 
         return args
@@ -158,13 +160,9 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             self.return_code = error.EX_NOINPUT if "not find" in getattr(exc, "faultString", "") else error.EX_DATAERR
         else:
             if not self.options.quiet:
-                if self.options.repr:
-                    # Pretty-print if requested, or it's a collection and not a scalar
-                    result = pformat(result)
-                elif hasattr(result, "__iter__"):
-                    result = '\n'.join(i if isinstance(i, basestring) else pformat(i) for i in result)
-                print(fmt.to_console(result))
-
+                result = fmt.xmlrpc_result_to_string(result, pretty=self.options.repr)
+                output = getattr(sys.stdout, 'buffer', sys.stdout)
+                output.write(fmt.to_console(result) + b"\n")
 
     def repl_usage(self):
         """Print a short REPL usage summary."""
@@ -242,7 +240,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
                     script_text = sys.stdin.read()
 
                 with tempfile.NamedTemporaryFile(suffix='.rc', prefix='rtxmlrpc-', delete=False) as handle:
-                    handle.write(script_text)
+                    handle.write(script_text.encode('utf-8'))
                     tmp_import = handle.name
                 args = (xmlrpc.NOHASH, tmp_import)
 
@@ -338,7 +336,7 @@ class RtorrentXmlRpc(ScriptBaseWithConfig):
             for name in data.views:
                 try:
                     proxy.view.set_visible(infohash, name)
-                except xmlrpclib.Fault as exc:
+                except xmlrpc_client.Fault as exc:
                     if 'Could not find view' not in str(exc):
                         raise
 

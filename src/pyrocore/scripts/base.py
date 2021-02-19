@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import with_statement
+
 
 import re
 import sys
@@ -30,6 +30,8 @@ import textwrap
 import logging.config
 from optparse import OptionParser
 
+from six.moves import input
+import six
 import pkg_resources
 
 from pyrocore import error, config
@@ -229,7 +231,7 @@ class ScriptBase(object):
         if len(sys.argv) > 1 and sys.argv[1].startswith("--help-completion-"):
             handler = getattr(self, sys.argv[1][2:].replace('-', '_'), None)
             if handler:
-                print '\n'.join(sorted(handler()))
+                print('\n'.join(sorted(handler())))
                 self.STD_LOG_LEVEL = logging.DEBUG
                 sys.exit(error.EX_OK)
 
@@ -266,7 +268,7 @@ class ScriptBase(object):
 
                 # Template method with the tool's main loop
                 self.mainloop()
-            except error.LoggableError, exc:
+            except error.LoggableError as exc:
                 if self.options.debug:
                     raise
 
@@ -274,21 +276,17 @@ class ScriptBase(object):
                 try:
                     msg = str(exc)
                 except UnicodeError:
-                    msg = unicode(exc, "UTF-8")
+                    msg = six.text_type(exc, "UTF-8")
                 self.LOG.error(msg)
                 sys.exit(error.EX_SOFTWARE)
-            except KeyboardInterrupt, exc:
+            except KeyboardInterrupt as exc:
                 if self.options.debug:
                     raise
 
                 sys.stderr.write("\n\nAborted by CTRL-C!\n")
                 sys.stderr.flush()
-
-                # See https://www.cons.org/cracauer/sigint.html
-                signal.signal(signal.SIGINT, signal.SIG_DFL)
-                os.kill(os.getpid(), signal.SIGINT)
-                sys.exit(error.EX_TEMPFAIL)  # being paranoid
-            except IOError, exc:
+                sys.exit(error.EX_TEMPFAIL)
+            except IOError as exc:
                 # [Errno 32] Broken pipe?
                 if exc.errno == errno.EPIPE:
                     sys.stderr.write("\n%s, exiting!\n" % exc)
@@ -370,7 +368,7 @@ class ScriptBaseWithConfig(ScriptBase):  # pylint: disable=abstract-method
         for key_val in self.options.defines:
             try:
                 key, val = key_val.split('=', 1)
-            except ValueError, exc:
+            except ValueError as exc:
                 raise error.UserError("Bad config override %r (%s)" % (key_val, exc))
             else:
                 setattr(config, key, load_config.validate(key, val))
@@ -431,8 +429,8 @@ class PromptDecorator(object):
             # Let the user decide
             choice = '*'
             while choice not in "YNAQ":
-                choice = raw_input("%s? [%s)es, %s)o, a)ll yes, q)uit]: " % (
-                    fmt.to_console(question), "yY"[int(default)], "Nn"[int(default)],
+                choice = input(u"%s? [%s)es, %s)o, a)ll yes, q)uit]: " % (
+                    question, "yY"[int(default)], "Nn"[int(default)],
                 ))
                 choice = choice[:1].upper() or "NY"[int(default)]
 

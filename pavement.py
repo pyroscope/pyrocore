@@ -116,7 +116,6 @@ project = Bunch(
     ],
     install_requires = [
         "pyrobase>=0.2",
-        "ProxyTypes>=0.9",
     ],
     extras_require = {
         "templating": ["Tempita>=0.5.1"],
@@ -150,6 +149,8 @@ project = Bunch(
         "Natural Language :: English",
         "Operating System :: POSIX",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Communications :: File Sharing",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
@@ -254,9 +255,9 @@ def dist_docs():
     sh(r'cd %s && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
        ' | zip -qr -@ %s' % (html_dir, docs_package,))
 
-    print
-    print "Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,)
-    print docs_package
+    print()
+    print("Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,))
+    print(docs_package)
 
 
 def watchdog_pid():
@@ -280,12 +281,11 @@ def autodocs():
         build_dir.rmtree()
 
     with pushd("docs"):
-        print "\n*** Generating API doc ***\n"
-        sh("sphinx-apidoc -o apidoc -f -T ../src/pyrocore")
-        sh("sphinx-apidoc -o apidoc -f -T $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
-        print "\n*** Generating HTML doc ***\n"
-        sh('command . ../bin/activate && '
-           'nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
+        print("\n*** Generating API doc ***\n")
+        sh("sphinx-apidoc -o apidoc -f -T -M ../src/pyrocore")
+        sh("sphinx-apidoc -o apidoc -f -T -M $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
+        print("\n*** Generating HTML doc ***\n")
+        sh('nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
            ' -i \'.*\' -i \'*.log\' -i \'*.png\' -i \'*.txt\'" html >autobuild.log 2>&1 &'
            % (os.getcwd(), SPHINX_AUTOBUILD_PORT))
 
@@ -323,10 +323,10 @@ def stopdocs():
 #
 
 @task
-@needs("nosetests")
 def test():
     "run unit tests"
-
+    sh("coverage run $(which nosetests)")
+    sh('coverage report --include="*pyrocore*" --omit="*test*"')
 
 @task
 def coverage():
@@ -334,6 +334,7 @@ def coverage():
     coverage_index = path("build/coverage/index.html")
     coverage_index.remove()
     sh("paver test")
+    sh('coverage html --include="*pyrocore*" --omit="*test*" -d build/coverage/')
     coverage_index.exists() and webbrowser.open(coverage_index)
 
 
@@ -384,8 +385,8 @@ def release():
         sys.exit(1)
 
     # Check that source distribution can be built and is complete
-    print
-    print "~~~ TESTING SOURCE BUILD".ljust(78, '~')
+    print()
+    print("~~~ TESTING SOURCE BUILD".ljust(78, '~'))
     sh( "{ command cd dist/ && unzip -q %s-%s.zip && command cd %s-%s/"
         "  && /usr/bin/python setup.py sdist >/dev/null"
         "  && if { unzip -ql ../%s-%s.zip; unzip -ql dist/%s-%s.zip; }"
@@ -395,21 +396,21 @@ def release():
         % tuple([project["name"], version] * 4)
     )
     path("dist/%s-%s" % (project["name"], version)).rmtree()
-    print "~" * 78
+    print("~" * 78)
 
-    print
-    print "~~~ sdist vs. git ".ljust(78, '~')
+    print()
+    print("~~~ sdist vs. git ".ljust(78, '~'))
     subprocess.call(
         "unzip -v dist/pyrocore-*.zip | egrep '^ .+/' | cut -f2- -d/ | sort >./build/ls-sdist.txt"
         " && git ls-files | sort >./build/ls-git.txt"
         " && $(which colordiff || echo diff) -U0 ./build/ls-sdist.txt ./build/ls-git.txt || true", shell=True)
-    print "~" * 78
+    print("~" * 78)
 
-    print
-    print "Created", " ".join([str(i) for i in path("dist").listdir()])
-    print "Use 'paver sdist bdist_wheel' to build the release and"
-    print "    'twine upload dist/*.{zip,whl}' to upload to PyPI"
-    print "Use 'paver dist_docs' to prepare an API documentation upload"
+    print()
+    print("Created", " ".join([str(i) for i in path("dist").listdir()]))
+    print("Use 'paver sdist bdist_wheel' to build the release and")
+    print("    'twine upload dist/*.{zip,whl}' to upload to PyPI")
+    print("Use 'paver dist_docs' to prepare an API documentation upload")
 
 
 #

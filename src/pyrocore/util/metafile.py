@@ -30,7 +30,9 @@ import errno
 import pprint
 import fnmatch
 import hashlib
-import urlparse
+
+import six
+from six.moves import urllib
 
 import six
 
@@ -52,6 +54,7 @@ PASSKEY_RE = re.compile(r"(?<=[/=])[-_0-9a-zA-Z]{5,64}={0,3}(?=[/&]|$)")
 PASSKEY_OK = ("announce", "TrackerServlet",)
 
 # List of all standard keys in a metafile
+_i = None
 METAFILE_STD_KEYS = [_i.split('.') for _i in (
     "announce",
     "announce-list", # BEP-0012
@@ -70,7 +73,7 @@ METAFILE_STD_KEYS = [_i.split('.') for _i in (
     "info.files.path",
 )]
 
-del _i  # pylint: disable=undefined-loop-variable
+del _i
 
 
 def console_progress():
@@ -95,7 +98,7 @@ def mask_keys(announce_url):
     """ Mask any passkeys (hex sequences) in an announce URL.
     """
     return PASSKEY_RE.sub(
-        lambda m: m.group() if m.group() in PASSKEY_OK else "*" * len(m.group()),
+        lambda m: m.group() if m.group() in PASSKEY_OK else u"*" * len(m.group()),
         announce_url)
 
 
@@ -106,7 +109,7 @@ class MaskingPrettyPrinter(pprint.PrettyPrinter):
     def format(self, obj, context, maxlevels, level):  # pylint: disable=arguments-differ
         """ Mask obj if it looks like an URL, then pass it to the super class.
         """
-        if isinstance(obj, basestring) and "://" in fmt.to_unicode(obj):
+        if isinstance(obj, six.string_types) and "://" in fmt.to_unicode(obj):
             obj = mask_keys(obj)
         return pprint.PrettyPrinter.format(self, obj, context, maxlevels, level)
 
@@ -120,15 +123,15 @@ def check_info(info):
         raise ValueError("bad metainfo - not a dictionary")
 
     pieces = info.get("pieces")
-    if not isinstance(pieces, basestring) or len(pieces) % 20 != 0:
+    if not isinstance(pieces, six.binary_type) or len(pieces) % 20 != 0:
         raise ValueError("bad metainfo - bad pieces key")
 
     piece_size = info.get("piece length")
-    if not isinstance(piece_size, (int, long)) or piece_size <= 0:
+    if not isinstance(piece_size, six.integer_types) or piece_size <= 0:
         raise ValueError("bad metainfo - illegal piece length")
 
     name = info.get("name")
-    if not isinstance(name, basestring):
+    if not isinstance(name, six.string_types):
         raise ValueError("bad metainfo - bad name (type is %r)" % type(name).__name__)
     if not ALLOWED_ROOT_NAME.match(name):
         raise ValueError("name %s disallowed for security reasons" % name)
@@ -138,7 +141,7 @@ def check_info(info):
 
     if "length" in info:
         length = info.get("length")
-        if not isinstance(length, (int, long)) or length < 0:
+        if not isinstance(length, six.integer_types) or length < 0:
             raise ValueError("bad metainfo - bad length")
     else:
         files = info.get("files")
@@ -150,7 +153,7 @@ def check_info(info):
                 raise ValueError("bad metainfo - bad file value")
 
             length = item.get("length")
-            if not isinstance(length, (int, long)) or length < 0:
+            if not isinstance(length, six.integer_types) or length < 0:
                 raise ValueError("bad metainfo - bad length")
 
             path = item.get("path")
@@ -158,7 +161,7 @@ def check_info(info):
                 raise ValueError("bad metainfo - bad path")
 
             for part in path:
-                if not isinstance(part, basestring):
+                if not isinstance(part, six.text_type):
                     raise ValueError("bad metainfo - bad path dir")
                 part = fmt.to_unicode(part)
                 if part == '..':
@@ -180,7 +183,7 @@ def check_meta(meta):
     """
     if not isinstance(meta, dict):
         raise ValueError("bad metadata - not a dictionary")
-    if not isinstance(meta.get("announce"), basestring):
+    if not isinstance(meta.get("announce"), six.string_types):
         raise ValueError("bad announce URL - not a string")
     check_info(meta.get("info"))
 
@@ -231,6 +234,8 @@ def sanitize(meta, diagnostics=False):
 
     def sane_encoding(field, text):
         "Transcoding helper."
+        if isinstance(text, six.text_type):
+            return text.encode("utf-8")
         for encoding in ('utf-8', meta.get('encoding', None), 'cp1252'):
             if encoding:
                 try:
@@ -378,10 +383,11 @@ def checked_open(filename, log=None, quiet=False):
         raw_data = handle.read()
     data = bencode.bdecode(raw_data)
 
+    # pylint: disable=
     try:
         check_meta(data)
         if raw_data != bencode.bencode(data):
-            raise ValueError("Bad bencoded data - dict keys out of order?")
+            raise ValueError("Bad bencoded data - dict keys out of order?") 
     except ValueError as exc:
         if log:
             # Warn about it, unless it's a quiet value query
@@ -512,7 +518,7 @@ class Metafile(object):
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
             file_list.append({
                 "length": filesize,
-                "path": [fmt.to_utf8(x) for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
+                "path": [x for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
             })
             self.LOG.debug("Hashing %r, size %d..." % (filename, filesize))
 
@@ -596,7 +602,7 @@ class Metafile(object):
         info, totalhashed = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
 
         # Enforce unique hash per tracker
-        info["x_cross_seed"] = hashlib.md5(tracker_url).hexdigest()
+        info["x_cross_seed"] = hashlib.md5(tracker_url.encode('utf-8')).hexdigest()
 
         # Set private flag
         if private:
@@ -637,8 +643,8 @@ class Metafile(object):
         for tracker_url in tracker_urls:
             # Lookup announce URLs from config file
             try:
-                if urlparse.urlparse(tracker_url).scheme:
-                    tracker_alias = urlparse.urlparse(tracker_url).netloc.split(':')[0].split('.')
+                if urllib.parse.urlparse(tracker_url).scheme:
+                    tracker_alias = urllib.parse.urlparse(tracker_url).netloc.split(':')[0].split('.')
                     tracker_alias = tracker_alias[-2 if len(tracker_alias) > 1 else 0]
                 else:
                     tracker_alias, tracker_url = config.lookup_announce_alias(tracker_url)
@@ -708,7 +714,11 @@ class Metafile(object):
         """ List torrent info & contents. Returns a list of formatted lines.
         """
         # Assemble data
-        metainfo, bad_encodings, bad_fields = sanitize(bencode.bread(self.filename), diagnostics=True)
+        metainfo = bencode.bread(self.filename)
+        bad_encodings = []
+        bad_fields = []
+        if six.PY2: #PY3 knows it's data
+            metainfo, bad_encodings, bad_fields = sanitize(metainfo, diagnostics=True)
         announce = metainfo['announce']
         info = metainfo['info']
         infohash = hashlib.sha1(bencode.bencode(info))

@@ -29,10 +29,12 @@ export PROJECT_ROOT
 
 fix_wrappers() {
     # Ensure unversioned wrappers exist
-    for i in "$PROJECT_ROOT"/bin/*-2.*; do
+    shopt -s nullglob
+    for i in "$PROJECT_ROOT"/bin/*-{2,3}.*; do
         tool=${i%-*}
         test -x "$tool" || ln -s $(basename "$i") "$tool"
     done
+    shopt -u nullglob
 }
 
 ensure_pip() {
@@ -53,7 +55,15 @@ install_venv() {
     venv_url="https://pypi.python.org/packages/d4/0c/9840c08189e030873387a73b90ada981885010dd9aea134d6de30cd24cb8/virtualenv-15.1.0.tar.gz"
     mkdir -p "$PROJECT_ROOT/lib"
     test -f "$PROJECT_ROOT/lib/virtualenv.tgz" || \
-        $PYTHON -c "import urllib2; open('$PROJECT_ROOT/lib/virtualenv.tgz','w').write(urllib2.urlopen('$venv_url').read())"
+      $PYTHON <<-EOF
+	try:
+	      # For Python 3.0 and later
+	      from urllib.request import urlopen
+	except ImportError:
+	      # Fall back to Python 2's urllib2
+	      from urllib2 import urlopen
+	open('$PROJECT_ROOT/lib/virtualenv.tgz','wb').write(urlopen('$venv_url').read())
+EOF
     test -d "$PROJECT_ROOT/lib/virtualenv" || \
         ( mkdir -p lib/virtualenv && cd lib/virtualenv && tar -xz -f ../virtualenv.tgz --strip-components=1 )
     deactivate 2>/dev/null || true
