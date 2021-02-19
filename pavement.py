@@ -46,7 +46,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-from __future__ import with_statement
+
 
 import os
 import re
@@ -116,6 +116,7 @@ project = Bunch(
     ],
     install_requires = [
         "pyrobase>=0.2",
+        "ProxyTypes>=0.9",
     ],
     extras_require = {
         "templating": ["Tempita>=0.5.1"],
@@ -149,8 +150,6 @@ project = Bunch(
         "Natural Language :: English",
         "Operating System :: POSIX",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Topic :: Communications :: File Sharing",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Utilities",
@@ -282,10 +281,11 @@ def autodocs():
 
     with pushd("docs"):
         print("\n*** Generating API doc ***\n")
-        sh("sphinx-apidoc -o apidoc -f -T -M ../src/pyrocore")
-        sh("sphinx-apidoc -o apidoc -f -T -M $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
+        sh("sphinx-apidoc -o apidoc -f -T ../src/pyrocore")
+        sh("sphinx-apidoc -o apidoc -f -T $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
         print("\n*** Generating HTML doc ***\n")
-        sh('nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
+        sh('command . ../bin/activate && '
+           'nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
            ' -i \'.*\' -i \'*.log\' -i \'*.png\' -i \'*.txt\'" html >autobuild.log 2>&1 &'
            % (os.getcwd(), SPHINX_AUTOBUILD_PORT))
 
@@ -300,7 +300,7 @@ def autodocs():
                 import webbrowser
                 webbrowser.open_new_tab(url)
             except webbrowser.Error:
-                print("\n*** Open '{}' in your browser...".format(url))
+                print(("\n*** Open '{}' in your browser...".format(url)))
             break
 
 
@@ -323,10 +323,10 @@ def stopdocs():
 #
 
 @task
+@needs("nosetests")
 def test():
     "run unit tests"
-    sh("coverage run $(which nosetests)")
-    sh('coverage report --include="*pyrocore*" --omit="*test*"')
+
 
 @task
 def coverage():
@@ -334,7 +334,6 @@ def coverage():
     coverage_index = path("build/coverage/index.html")
     coverage_index.remove()
     sh("paver test")
-    sh('coverage html --include="*pyrocore*" --omit="*test*" -d build/coverage/')
     coverage_index.exists() and webbrowser.open(coverage_index)
 
 
