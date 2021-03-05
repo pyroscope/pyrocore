@@ -566,7 +566,6 @@ class Metafile(object):
             metainfo[b"files"] = file_list
         else:
             metainfo[b"length"] = totalhashed
-        print(metainfo)
 
         hashing_secs = time.time() - hashing_secs
         self.LOG.info("Hashing of %s took %.1f secs (%s/s)" % (
