@@ -55,22 +55,22 @@ PASSKEY_OK = ("announce", "TrackerServlet",)
 
 # List of all standard keys in a metafile
 _i = None
-METAFILE_STD_KEYS = [_i.split('.') for _i in (
-    "announce",
-    "announce-list", # BEP-0012
-    "comment",
-    "created by",
-    "creation date",
-    "encoding",
-    "info",
-    "info.length",
-    "info.name",
-    "info.piece length",
-    "info.pieces",
-    "info.private",
-    "info.files",
-    "info.files.length",
-    "info.files.path",
+METAFILE_STD_KEYS = [_i.split(b'.') for _i in (
+    b"announce",
+    b"announce-list", # BEP-0012
+    b"comment",
+    b"created by",
+    b"creation date",
+    b"encoding",
+    b"info",
+    b"info.length",
+    b"info.name",
+    b"info.piece length",
+    b"info.pieces",
+    b"info.private",
+    b"info.files",
+    b"info.files.length",
+    b"info.files.path",
 )]
 
 del _i
@@ -122,29 +122,29 @@ def check_info(info):
     if not isinstance(info, dict):
         raise ValueError("bad metainfo - not a dictionary")
 
-    pieces = info.get("pieces")
+    pieces = info.get(b"pieces")
     if not isinstance(pieces, six.binary_type) or len(pieces) % 20 != 0:
         raise ValueError("bad metainfo - bad pieces key")
 
-    piece_size = info.get("piece length")
+    piece_size = info.get(b"piece length")
     if not isinstance(piece_size, six.integer_types) or piece_size <= 0:
         raise ValueError("bad metainfo - illegal piece length")
 
-    name = info.get("name")
+    name = info.get(b"name")
     if not isinstance(name, six.string_types):
         raise ValueError("bad metainfo - bad name (type is %r)" % type(name).__name__)
     if not ALLOWED_ROOT_NAME.match(name):
         raise ValueError("name %s disallowed for security reasons" % name)
 
-    if ("files" in info) == ("length" in info):
+    if (b"files" in info) == (b"length" in info):
         raise ValueError("single/multiple file mix")
 
-    if "length" in info:
-        length = info.get("length")
+    if b"length" in info:
+        length = info.get(b"length")
         if not isinstance(length, six.integer_types) or length < 0:
             raise ValueError("bad metainfo - bad length")
     else:
-        files = info.get("files")
+        files = info.get(b"files")
         if not isinstance(files, (list, tuple)):
             raise ValueError("bad metainfo - bad file list")
 
@@ -152,11 +152,11 @@ def check_info(info):
             if not isinstance(item, dict):
                 raise ValueError("bad metainfo - bad file value")
 
-            length = item.get("length")
+            length = item.get(b"length")
             if not isinstance(length, six.integer_types) or length < 0:
                 raise ValueError("bad metainfo - bad length")
 
-            path = item.get("path")
+            path = item.get(b"path")
             if not isinstance(path, (list, tuple)) or not path:
                 raise ValueError("bad metainfo - bad path")
 
@@ -169,7 +169,7 @@ def check_info(info):
                 if part and not ALLOWED_PATH_NAME.match(part):
                     raise ValueError("path %s disallowed for security reasons" % part)
 
-        file_paths = [os.sep.join(item["path"]) for item in files]
+        file_paths = [os.sep.join(item[b"path"]) for item in files]
         if len(set(file_paths)) != len(file_paths):
             raise ValueError("bad metainfo - duplicate path")
 
@@ -183,9 +183,9 @@ def check_meta(meta):
     """
     if not isinstance(meta, dict):
         raise ValueError("bad metadata - not a dictionary")
-    if not isinstance(meta.get("announce"), six.string_types):
+    if not isinstance(meta.get(b"announce"), six.string_types):
         raise ValueError("bad announce URL - not a string")
-    check_info(meta.get("info"))
+    check_info(meta.get(b"info"))
 
     return meta
 
@@ -206,23 +206,23 @@ def clean_meta(meta, including_info=False, logger=None):
             modified.add(key)
 
     if including_info:
-        for key in meta["info"].keys():
-            if ["info", key] not in METAFILE_STD_KEYS:
+        for key in meta[b"info"].keys():
+            if [b"info", key] not in METAFILE_STD_KEYS:
                 if logger:
                     logger("Removing key %r..." % ("info." + key,))
-                del meta["info"][key]
-                modified.add("info." + key)
+                del meta[b"info"][key]
+                modified.add(b"info." + key)
 
-        for idx, entry in enumerate(meta["info"].get("files", [])):
+        for idx, entry in enumerate(meta[b"info"].get(b"files", [])):
             for key in entry.keys():
-                if ["info", "files", key] not in METAFILE_STD_KEYS:
+                if [b"info", b"files", key] not in METAFILE_STD_KEYS:
                     if logger:
                         logger("Removing key %r from file #%d..." % (key, idx + 1))
                     del entry[key]
-                    modified.add("info.files." + key)
+                    modified.add(b"info.files." + key)
 
             # Remove crap that certain PHP software puts in paths
-            entry["path"] = [i for i in entry["path"] if i]
+            entry[b"path"] = [i for i in entry[b"path"] if i]
 
     return modified
 
@@ -250,19 +250,17 @@ def sanitize(meta, diagnostics=False):
             # Broken beyond anything reasonable
             bad_encodings.add('UNKNOWN/EXOTIC')
             bad_fields.add(field)
-            if not isinstance(text, six.text_type):
-                text = six.text_type(text, 'utf-8', 'replace')
-            return text.replace('\ufffd', '_').encode("utf-8")
+            return six.text_type(text, 'utf-8', 'replace').replace('\ufffd', '_').encode("utf-8")
 
     # Go through all string fields and check them
-    for field in ("comment", "created by"):
+    for field in (b"comment", b"created by"):
         if field in meta:
             meta[field] = sane_encoding(field, meta[field])
 
-    meta["info"]["name"] = sane_encoding('info name', meta["info"]["name"])
+    meta[b"info"][b"name"] = sane_encoding(b'info name', meta[b"info"][b"name"])
 
-    for entry in meta["info"].get("files", []):
-        entry["path"] = [sane_encoding('file path', i) for i in entry["path"]]
+    for entry in meta[b"info"].get(b"files", []):
+        entry[b"path"] = [sane_encoding(b'file path', i) for i in entry[b"path"]]
 
     return (meta, bad_encodings, bad_fields) if diagnostics else meta
 
@@ -311,43 +309,43 @@ def add_fast_resume(meta, datapath):
     """ Add fast resume data to a metafile dict.
     """
     # Get list of files
-    files = meta["info"].get("files", None)
+    files = meta[b"info"].get(b"files", None)
     single = files is None
     if single:
         if os.path.isdir(datapath):
-            datapath = os.path.join(datapath, meta["info"]["name"])
+            datapath = os.path.join(datapath, meta[b"info"][b"name"])
         files = [Bunch(
             path=[os.path.abspath(datapath)],
-            length=meta["info"]["length"],
+            length=meta[b"info"][b"length"],
         )]
 
     # Prepare resume data
     resume = meta.setdefault("libtorrent_resume", {})
-    resume["bitfield"] = len(meta["info"]["pieces"]) // 20
+    resume["bitfield"] = len(meta[b"info"][b"pieces"]) // 20
     resume["files"] = []
-    piece_length = meta["info"]["piece length"]
+    piece_length = meta[b"info"][b"piece length"]
     offset = 0
 
     for fileinfo in files:
         # Get the path into the filesystem
-        filepath = os.sep.join(fileinfo["path"])
+        filepath = os.sep.join(fileinfo[b"path"])
         if not single:
             filepath = os.path.join(datapath, filepath.strip(os.sep))
 
         # Check file size
-        if os.path.getsize(filepath) != fileinfo["length"]:
+        if os.path.getsize(filepath) != fileinfo[b"length"]:
             raise OSError(errno.EINVAL, "File size mismatch for %r [is %d, expected %d]" % (
-                filepath, os.path.getsize(filepath), fileinfo["length"],
+                filepath, os.path.getsize(filepath), fileinfo[b"length"],
             ))
 
         # Add resume data for this file
-        resume["files"].append(dict(
+        resume[b"files"].append(dict(
             priority=1,
             mtime=int(os.path.getmtime(filepath)),
-            completed=(offset+fileinfo["length"]+piece_length-1) // piece_length
+            completed=(offset+fileinfo[b"length"]+piece_length-1) // piece_length
                      - offset // piece_length,
         ))
-        offset += fileinfo["length"]
+        offset += fileinfo[b"length"]
 
     return meta
 
@@ -355,20 +353,20 @@ def add_fast_resume(meta, datapath):
 def info_hash(metadata):
     """ Return info hash as a string.
     """
-    return hashlib.sha1(bencode.bencode(metadata['info'])).hexdigest().upper()
+    return hashlib.sha1(bencode.bencode(metadata[b'info'])).hexdigest().upper()
 
 
 def data_size(metadata):
     """ Calculate the size of a torrent based on parsed metadata.
     """
-    info = metadata['info']
+    info = metadata[b'info']
 
-    if 'length' in info:
+    if b'length' in info:
         # Single file
-        total_size = info['length']
+        total_size = info[b'length']
     else:
         # Directory structure
-        total_size = sum([f['length'] for f in info['files']])
+        total_size = sum([f[b'length'] for f in info[b'files']])
 
     return total_size
 
@@ -392,7 +390,7 @@ def checked_open(filename, log=None, quiet=False):
         if log:
             # Warn about it, unless it's a quiet value query
             if not quiet:
-                log.warn("%r: %s" % (filename, exc))
+                log.warn("%s: %s" % (filename, exc))
         else:
             raise
 
@@ -517,8 +515,8 @@ class Metafile(object):
             filesize = os.path.getsize(filename)
             filepath = filename[len(os.path.dirname(self.datapath) if self._fifo else self.datapath):].lstrip(os.sep)
             file_list.append({
-                "length": filesize,
-                "path": [x for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
+                b"length": filesize,
+                b"path": [x for x in fmt.to_unicode(filepath).replace(os.sep, '/').split('/')],
             })
             self.LOG.debug("Hashing %r, size %d..." % (filename, filesize))
 
@@ -558,16 +556,17 @@ class Metafile(object):
 
         # Build the meta dict
         metainfo = {
-            "pieces": b"".join(pieces),
-            "piece length": piece_size,
-            "name": os.path.basename(self.datapath),
+            b"pieces": b"".join(pieces),
+            b"piece length": piece_size,
+            b"name": os.path.basename(self.datapath),
         }
 
         # Handle directory/FIFO vs. single file
         if self._fifo or os.path.isdir(self.datapath):
-            metainfo["files"] = file_list
+            metainfo[b"files"] = file_list
         else:
-            metainfo["length"] = totalhashed
+            metainfo[b"length"] = totalhashed
+        print(metainfo)
 
         hashing_secs = time.time() - hashing_secs
         self.LOG.info("Hashing of %s took %.1f secs (%s/s)" % (
@@ -602,20 +601,20 @@ class Metafile(object):
         info, totalhashed = self._make_info(piece_size, progress, self.walk() if self._fifo else sorted(self.walk()))
 
         # Enforce unique hash per tracker
-        info["x_cross_seed"] = hashlib.md5(tracker_url.encode('utf-8')).hexdigest()
+        info[b"x_cross_seed"] = hashlib.md5(tracker_url.encode('utf-8')).hexdigest()
 
         # Set private flag
         if private:
-            info["private"] = 1
+            info[b"private"] = 1
 
         # Freely chosen root name (default is basename of the data path)
         if root_name:
-            info["name"] = root_name
+            info[b"name"] = root_name
 
         # Torrent metadata
         meta = {
-            "info": info,
-            "announce": tracker_url.strip(),
+            b"info": info,
+            b"announce": tracker_url.strip(),
         }
 
         #XXX meta["encoding"] = "UTF-8"
@@ -672,11 +671,11 @@ class Metafile(object):
 
             # Add optional fields
             if comment:
-                meta["comment"] = comment
+                meta[b"comment"] = comment
             if created_by:
-                meta["created by"] = created_by
+                meta[b"created by"] = created_by
             if not no_date:
-                meta["creation date"] = int(time.time())
+                meta[b"creation date"] = int(time.time())
             if callback:
                 callback(meta)
 
@@ -697,17 +696,17 @@ class Metafile(object):
 
         def check_piece(filename, piece):
             "Callback for new piece"
-            if piece != metainfo["info"]["pieces"][check_piece.piece_index:check_piece.piece_index+20]:
+            if piece != metainfo[b"info"][b"pieces"][check_piece.piece_index:check_piece.piece_index+20]:
                 self.LOG.warn("Piece #%d: Hashes differ in file %r" % (check_piece.piece_index//20, filename))
             check_piece.piece_index += 20
         check_piece.piece_index = 0
 
-        datameta, _ = self._make_info(int(metainfo["info"]["piece length"]), progress,
-            [datapath] if "length" in metainfo["info"] else
-            (os.path.join(*([datapath] + i["path"])) for i in metainfo["info"]["files"]),
+        datameta, _ = self._make_info(int(metainfo[b"info"][b"piece length"]), progress,
+            [datapath] if b"length" in metainfo[b"info"] else
+            (os.path.join(*([datapath] + i[b"path"])) for i in metainfo[b"info"][b"files"]),
             piece_callback=check_piece
         )
-        return datameta["pieces"] == metainfo["info"]["pieces"]
+        return datameta[b"pieces"] == metainfo[b"info"][b"pieces"]
 
 
     def listing(self, masked=True):
@@ -719,12 +718,12 @@ class Metafile(object):
         bad_fields = []
         if six.PY2: #PY3 knows it's data
             metainfo, bad_encodings, bad_fields = sanitize(metainfo, diagnostics=True)
-        announce = metainfo['announce']
-        info = metainfo['info']
+        announce = metainfo[b'announce']
+        info = metainfo[b'info']
         infohash = hashlib.sha1(bencode.bencode(info))
 
         total_size = data_size(metainfo)
-        piece_length = info['piece length']
+        piece_length = info[b'piece length']
         piece_number, last_piece_length = divmod(total_size, piece_length)
 
         # Build result
@@ -737,38 +736,38 @@ class Metafile(object):
             ),
             "META %s (pieces %s %.1f%%)" % (
                 fmt.human_size(os.path.getsize(self.filename)).strip(),
-                fmt.human_size(len(info["pieces"])).strip(),
-                100.0 * len(info["pieces"]) / os.path.getsize(self.filename),
+                fmt.human_size(len(info[b"pieces"])).strip(),
+                100.0 * len(info[b"pieces"]) / os.path.getsize(self.filename),
             ),
             "HASH %s" % (infohash.hexdigest().upper()),
             "URL  %s" % (mask_keys if masked else str)(announce),
-            "PRV  %s" % ("YES (DHT/PEX disabled)" if info.get("private") else "NO (DHT/PEX enabled)"),
-            "TIME %s" % ("N/A" if "creation date" not in metainfo else
-                time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo["creation date"]))
+            "PRV  %s" % ("YES (DHT/PEX disabled)" if info.get(b"private") else "NO (DHT/PEX enabled)"),
+            "TIME %s" % ("N/A" if b"creation date" not in metainfo else
+                time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(metainfo[b"creation date"]))
             ),
         ]
 
-        for label, key in (("BY  ", "created by"), ("REM ", "comment")):
+        for label, key in (("BY  ", b"created by"), ("REM ", b"comment")):
             if key in metainfo:
                 result.append("%s %s" % (label, metainfo.get(key, "N/A")))
 
         result.extend([
             "",
-            "FILE LISTING%s" % ("" if 'length' in info else " [%d file(s)]" % len(info['files']),),
+            "FILE LISTING%s" % ("" if b'length' in info else " [%d file(s)]" % len(info[b'files']),),
         ])
-        if 'length' in info:
+        if b'length' in info:
             # Single file
             result.append("%-69s%9s" % (
-                    fmt.to_unicode(info['name']),
+                    fmt.to_unicode(info[b'name']),
                     fmt.human_size(total_size),
             ))
         else:
             # Directory structure
-            result.append("%s/" % fmt.to_unicode(info['name']))
+            result.append("%s/" % fmt.to_unicode(info[b'name']))
             oldpaths = [None] * 99
-            for entry in info['files']:
+            for entry in info[b'files']:
                 # Remove crap that certain PHP software puts in paths
-                entry_path = [fmt.to_unicode(i) for i in entry["path"] if i]
+                entry_path = [fmt.to_unicode(i) for i in entry[b"path"] if i]
 
                 for idx, item in enumerate(entry_path[:-1]):
                     if item != oldpaths[idx]:
@@ -776,7 +775,7 @@ class Metafile(object):
                         oldpaths[idx] = item
                 result.append("%-69s%9s" % (
                     ' ' * (4*len(entry_path)) + entry_path[-1],
-                    fmt.human_size(entry['length']),
+                    fmt.human_size(entry[b'length']),
                 ))
 
         if bad_encodings:
