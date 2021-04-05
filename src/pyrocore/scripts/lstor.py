@@ -82,7 +82,7 @@ class MetafileLister(ScriptBase):
                 listing = None
 
                 if self.options.raw:
-                    if not self.options.reveal and "info" in data:
+                    if not self.options.reveal and b"info" in data:
                         # Shorten useless binary piece hashes
                         data["info"]["pieces"] = "<%d piece hashes>" % (
                             len(data["info"]["pieces"]) / len(hashlib.sha1().digest()) # bogus pylint: disable=E1101
@@ -98,7 +98,7 @@ class MetafileLister(ScriptBase):
                                 yield field.strip()
 
                     data["__file__"] = filename
-                    if 'info' in data:
+                    if b'info' in data:
                         data["__hash__"] = metafile.info_hash(data)
                         data["__size__"] = metafile.data_size(data)
                     values = []
@@ -122,7 +122,7 @@ class MetafileLister(ScriptBase):
                 self.LOG.warning("Bad metafile %r (%s: %s)" % (filename, type(exc).__name__, exc))
             else:
                 if listing is not None:
-                    print(fmt.to_utf8(listing))
+                    print(listing)
 
 
 def run(): #pragma: no cover

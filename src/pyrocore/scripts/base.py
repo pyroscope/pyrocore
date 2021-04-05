@@ -145,7 +145,7 @@ class ScriptBase(object):
             self.version = pkg_dict.get("Version", "DEV")
 
         where = os.path.commonprefix([__file__, os.path.realpath(sys.argv[0]), sys.prefix])
-        where = re.sub('^' + os.path.expanduser('~') + os.sep, '~' + os.sep, where + os.sep).rstrip(os.sep)
+        where = re.sub(u"'^' + os.path.expanduser('~') + os.sep", u"'~' + os.sep", where + os.sep).rstrip(os.sep)
         self.version_info = '{}{}{} on Python {}'.format(
            self.version, ' from ' if where else '', where, sys.version.split()[0])
 
