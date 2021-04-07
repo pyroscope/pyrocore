@@ -233,7 +233,7 @@ Note that you can do that in `ruTorrent` too, but with too many items, or items 
 the results vary (data is not or only partially moved).
 
 This sequence of commands will stop the selected items, move their data, adapt `rTorrent`'s metadata (session state),
-and finally starts everything again. The order matters and cannot be changed.
+and finally starts everything again, followed by removing the items from the ``tagged`` view. The order matters and cannot be changed.
 Also, lower the global download throttle to a few KiB/s, as a safety net in case you do something wrong
 – otherwise `rTorrent` might start to redownload all those items at your line's top speed.
 
@@ -245,6 +245,7 @@ Also, lower the global download throttle to a few KiB/s, as a safety net in case
     rtcontrol --from-view tagged // --spawn "mv {{item.path}} $HOME/rtorrent/data/tracker"
     rtcontrol --from-view tagged // --exec "directory.set=$HOME/rtorrent/data/tracker" --yes --flush
     rtcontrol --from-view tagged // --start
+    rtcontrol -M tagged --alter=remove //
 
 By changing the first ``rtcontrol`` command that populates the ``tagged`` view,
 you can change this to move data for any criteria you can think of — within the
