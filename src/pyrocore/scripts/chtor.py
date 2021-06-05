@@ -241,7 +241,7 @@ class MetafileChanger(ScriptBaseWithConfig):
                 # Add fast-resume data?
                 if self.options.hashed:
                     datadir = self.options.hashed
-                    if '{}' in datadir:
+                    if '{}' in datadir and not os.path.exists(datadir):
                         datadir = datadir.replace('{}', metainfo["info"]["name"])
                     try:
                         metafile.add_fast_resume(metainfo, datadir)
