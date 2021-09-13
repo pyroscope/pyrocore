@@ -401,7 +401,7 @@ class Metafile(object):
     IGNORE_GLOB = [
         "core", "CVS", ".*", "*~", "*.swp", "*.tmp", "*.bak",
         "[Tt]humbs.db", "[Dd]esktop.ini", "ehthumbs_vista.db",
-        "*.json", "-thumb.*",
+        "*.json", "*-thumb.*",
     ]
 
     # Default min / max piece sizes
