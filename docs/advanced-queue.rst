@@ -354,3 +354,16 @@ connection to rTorrent, and logs some statistical information.
 
 You can change it to run only hourly by adding this to the
 configuration: ``job.connstats.schedule      = hour=*``
+
+**RtorrentExporter**
+
+``pyrocore.daemon.exporter:RtorrentExporter`` exports statistics in
+a format suitable for scraping by Prometheus_. It supports scraping
+metrics related to trackers, system stats, and arbitrary item
+attributes. Be aware that scraping item attributes can introduce high
+levels of cardinality into your Prometheus instance.
+
+Note that stats are updated whenever the scrape is performed, i.e.
+``job.«NAME».schedule`` has no bearing on when the metrics are updated.
+
+.. _Prometheus: https://prometheus.io/

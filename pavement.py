@@ -122,6 +122,7 @@ project = Bunch(
         "templating": ["Tempita>=0.5.1"],
         "pyrotorque": ["APScheduler>=2.0.2,<3"],
         "pyrotorque.httpd": ["waitress>=0.8.2", "WebOb>=1.2.3", "psutil>=0.6.1"],
+        "pyrotorque.exporter": ["prometheus_client>=0.3.1"],
         "FlexGet": ["flexget>=1.0"],
         "http": ['requests'],
         "https": ['requests[security]'],
