@@ -61,6 +61,7 @@ pip_install_opt -U "Tempita>=0.5.1"
 pip_install_opt -U "APScheduler>=2.0.2,<3"
 pip_install_opt -U "waitress>=0.8.2"
 pip_install_opt -U "WebOb>=1.2.3"
+pip_install_opt -U "prompt_toolkit>=1.0.15"
 ##pip_install_opt -U "psutil>=0.6.1"
 
 # pyrobase
