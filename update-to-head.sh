@@ -1,5 +1,5 @@
 #! /bin/bash
-git_projects="pyrobase auvyon"
+git_projects="pyrobase"
 
 # Find most suitable Python
 echo "~~~ On errors, paste EVERYTHING below ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -32,8 +32,7 @@ test -f ./bin/activate && vpy=$PWD/bin/python || vpy=$PYTHON
 cat <<'.' | $vpy
 import sys
 print("Using Python %s" % sys.version)
-assert sys.version_info >= (2, 7), "Use Python 2.7! Read the docs."
-assert sys.version_info < (3,), "Use Python 2.7! Read the docs."
+assert sys.version_info[0:2] in [(2, 7), (3, 5), (3, 6)], "Use Python 2.7 or 3.5! Read the docs."
 .
 
 echo "Updating your installation..."

@@ -23,7 +23,8 @@ import re
 import copy
 import time
 import hashlib
-import urlparse
+
+from six.moves import urllib
 
 from pyrobase import bencode
 from pyrocore.scripts.base import ScriptBase, ScriptBaseWithConfig
@@ -125,8 +126,8 @@ class MetafileChanger(ScriptBaseWithConfig):
         filter_url_prefix = None
         if self.options.reannounce:
             # <scheme>://<netloc>/<path>?<query>
-            filter_url_prefix = urlparse.urlsplit(self.options.reannounce, allow_fragments=False)
-            filter_url_prefix = urlparse.urlunsplit((
+            filter_url_prefix = urllib.parse.urlsplit(self.options.reannounce, allow_fragments=False)
+            filter_url_prefix = urllib.parse.urlunsplit((
                 filter_url_prefix.scheme, filter_url_prefix.netloc, '/', '', '' # bogus pylint: disable=E1103
             ))
             self.LOG.info("Filtering for metafiles with announce URL prefix %r..." % filter_url_prefix)
@@ -138,7 +139,7 @@ class MetafileChanger(ScriptBaseWithConfig):
             self.options.no_cross_seed = True
 
         # Resolve tracker alias, if URL doesn't look like an URL
-        if self.options.reannounce and not urlparse.urlparse(self.options.reannounce).scheme:
+        if self.options.reannounce and not urllib.parse.urlparse(self.options.reannounce).scheme:
             tracker_alias, idx = self.options.reannounce, "0"
             if '.' in tracker_alias:
                 tracker_alias, idx = tracker_alias.split('.', 1)

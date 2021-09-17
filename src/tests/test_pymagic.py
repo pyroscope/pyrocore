@@ -40,7 +40,7 @@ class ImportTest(unittest.TestCase):
     def test_import_fail(self):
         try:
             pymagic.import_name("pyrocore.does_not_exit", "__doc__")
-        except ImportError, exc:
+        except ImportError as exc:
             assert "pyrocore.does_not_exit" in str(exc), str(exc)
         else:
             assert False, "Import MUST fail!"
@@ -54,7 +54,7 @@ class ImportTest(unittest.TestCase):
     def test_import_missing_colon(self):
         try:
             pymagic.import_name("pyrocore")
-        except ValueError, exc:
+        except ValueError as exc:
             assert "pyrocore" in str(exc), str(exc)
         else:
             assert False, "Import MUST fail!"

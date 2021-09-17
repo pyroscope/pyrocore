@@ -46,7 +46,7 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-from __future__ import with_statement
+
 
 import os
 import re
@@ -254,9 +254,9 @@ def dist_docs():
     sh(r'cd %s && find . -type f \! \( -path "*/.svn*" -o -name "*~" \) | sort'
        ' | zip -qr -@ %s' % (html_dir, docs_package,))
 
-    print
-    print "Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,)
-    print docs_package
+    print()
+    print("Upload @ http://pypi.python.org/pypi?:action=pkg_edit&name=%s" % ( options.setup.name,))
+    print(docs_package)
 
 
 def watchdog_pid():
@@ -280,10 +280,10 @@ def autodocs():
         build_dir.rmtree()
 
     with pushd("docs"):
-        print "\n*** Generating API doc ***\n"
+        print("\n*** Generating API doc ***\n")
         sh("sphinx-apidoc -o apidoc -f -T ../src/pyrocore")
         sh("sphinx-apidoc -o apidoc -f -T $(dirname $(python -c 'import tempita; print(tempita.__file__)'))")
-        print "\n*** Generating HTML doc ***\n"
+        print("\n*** Generating HTML doc ***\n")
         sh('command . ../bin/activate && '
            'nohup %s/Makefile SPHINXBUILD="sphinx-autobuild -p %d'
            ' -i \'.*\' -i \'*.log\' -i \'*.png\' -i \'*.txt\'" html >autobuild.log 2>&1 &'
@@ -300,7 +300,7 @@ def autodocs():
                 import webbrowser
                 webbrowser.open_new_tab(url)
             except webbrowser.Error:
-                print("\n*** Open '{}' in your browser...".format(url))
+                print(("\n*** Open '{}' in your browser...".format(url)))
             break
 
 
@@ -384,8 +384,8 @@ def release():
         sys.exit(1)
 
     # Check that source distribution can be built and is complete
-    print
-    print "~~~ TESTING SOURCE BUILD".ljust(78, '~')
+    print()
+    print("~~~ TESTING SOURCE BUILD".ljust(78, '~'))
     sh( "{ command cd dist/ && unzip -q %s-%s.zip && command cd %s-%s/"
         "  && /usr/bin/python setup.py sdist >/dev/null"
         "  && if { unzip -ql ../%s-%s.zip; unzip -ql dist/%s-%s.zip; }"
@@ -395,21 +395,21 @@ def release():
         % tuple([project["name"], version] * 4)
     )
     path("dist/%s-%s" % (project["name"], version)).rmtree()
-    print "~" * 78
+    print("~" * 78)
 
-    print
-    print "~~~ sdist vs. git ".ljust(78, '~')
+    print()
+    print("~~~ sdist vs. git ".ljust(78, '~'))
     subprocess.call(
         "unzip -v dist/pyrocore-*.zip | egrep '^ .+/' | cut -f2- -d/ | sort >./build/ls-sdist.txt"
         " && git ls-files | sort >./build/ls-git.txt"
         " && $(which colordiff || echo diff) -U0 ./build/ls-sdist.txt ./build/ls-git.txt || true", shell=True)
-    print "~" * 78
+    print("~" * 78)
 
-    print
-    print "Created", " ".join([str(i) for i in path("dist").listdir()])
-    print "Use 'paver sdist bdist_wheel' to build the release and"
-    print "    'twine upload dist/*.{zip,whl}' to upload to PyPI"
-    print "Use 'paver dist_docs' to prepare an API documentation upload"
+    print()
+    print("Created", " ".join([str(i) for i in path("dist").listdir()]))
+    print("Use 'paver sdist bdist_wheel' to build the release and")
+    print("    'twine upload dist/*.{zip,whl}' to upload to PyPI")
+    print("Use 'paver dist_docs' to prepare an API documentation upload")
 
 
 #

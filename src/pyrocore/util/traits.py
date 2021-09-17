@@ -36,6 +36,7 @@ KIND_DOCS = set(("chm", "pdf", "cbr", "cbz", "odt", "ods", "doc", "xls", "ppt", 
 KIND_ARCHIVE = set(("rar", "zip", "tgz", "bz2", "iso", "bin"))
 
 # Regex matchers for names
+_i = _k = None
 _VIDEO_EXT = '|'.join(re.escape('.' + _i) for _i in KIND_VIDEO)
 _TV_TRAIL = (
     r"(?:[._ ](?P<release_tags>PREAIR|READNFO))?"
@@ -87,7 +88,7 @@ TV_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
 
 MOVIE_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
     ("Scene tagged movie",
-        r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
+        r"^(?P<title>.+?)[. ][\[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|MULTI|PROPER|LIMITED|RERiP))*"
         r"(?:[._ ](?P<format>480p|576p|720p|1080p|1080i|2160p))?"
         r"(?:[._ ](?P<source>BDRip|BRRip|HDRip|DVDRip|PAL|NTSC))"
@@ -99,7 +100,7 @@ MOVIE_PATTERNS = [(_k, re.compile(_i, re.I)) for _k, _i in (
         r"(?P<extension>" + _VIDEO_EXT + ")?$"
     ),
     ("Blu-ray movie",
-        r"^(?P<title>.+?)[. ][[(]?(?P<year>\d{4})[)\]]?"
+        r"^(?P<title>.+?)[. ][\[(]?(?P<year>\d{4})[)\]]?"
         r"(?:[._ ](?P<release>UNRATED|REPACK|INTERNAL|MULTI|PROPER|LIMITED|RERiP))*"
         r"(?:[._ ](?P<format0>720p|1080p|1080i|2160p))?"
         r"(?:[._ ](?P<source>Blu-ray|BluRay|BD25|BD50))"

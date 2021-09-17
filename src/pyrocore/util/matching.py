@@ -23,6 +23,8 @@ import shlex
 import fnmatch
 import operator
 
+import six
+
 from pyrocore import error, config
 from pyrocore.util import fmt, pymagic
 
@@ -57,7 +59,7 @@ def _time_ym_delta(timestamp, delta, months):
     """
     timestamp = list(time.localtime(timestamp))
     timestamp[int(months)] += delta
-    return time.mktime(timestamp)
+    return time.mktime(tuple(timestamp))
 
 
 def unquote_pre_filter(pre_filter, _regex=re.compile(r'[\\]+')):
@@ -104,7 +106,7 @@ class CompoundFilterAll(CompoundFilterBase):
     """
 
     def __str__(self):
-        return ' '.join(str(i) for i in self)
+        return u' '.join(six.text_type(i) for i in self)
 
     def pre_filter(self):
         """ Return rTorrent condition to speed up data transfer.
@@ -161,11 +163,11 @@ class NegateFilter(Filter):
 
     def __str__(self):
         if isinstance(self._inner, FieldFilter):
-            return "%s=!%s" % tuple(str(self._inner).split('=', 1))
+            return six.text_type("%s=!%s" % tuple(six.text_type(self._inner).split('=', 1)))
         elif isinstance(self._inner, CompoundFilterBase):
-            return "[ NOT [ %s ] ]" % str(self._inner)
+            return u"[ NOT [ %s ] ]" %  six.text_type(self._inner)
         else:
-            return "[ NOT %s ]" % str(self._inner)
+            return u"[ NOT %s ]" %  six.text_type(self._inner)
 
     def pre_filter(self):
         """ Return rTorrent condition to speed up data transfer.
@@ -250,7 +252,7 @@ class FieldFilter(Filter):
         self.validate()
 
     def __str__(self):
-        return fmt.to_utf8("%s=%s" % (self._name, self._condition))
+        return fmt.to_utf8("%s=%s" % (self._name, self._condition)).decode('utf-8')
 
     def validate(self):
         """ Validate filter condition (template method).
@@ -461,8 +463,8 @@ class NumericFilterBase(FieldFilter):
         """ Return True if filter matches item.
         """
         if 0 and getattr(item, self._name):
-            print "%r %r %r %r %r %r" % (self._cmp(float(getattr(item, self._name)), self._value),
-                  self._name, self._condition, item.name, getattr(item, self._name), self._value)
+            print("%r %r %r %r %r %r" % (self._cmp(float(getattr(item, self._name)), self._value),
+                  self._name, self._condition, item.name, getattr(item, self._name), self._value))
         val = getattr(item, self._name) or 0
         if self.not_null and self._value and not val:
             return False
@@ -494,7 +496,7 @@ class FloatFilter(NumericFilterBase):
 
         try:
             self._value = float(self._value)
-        except (ValueError, TypeError), exc:
+        except (ValueError, TypeError) as exc:
             raise FilterError("Bad numerical value %r in %r (%s)" % (self._value, self._condition, exc))
 
 
@@ -537,7 +539,7 @@ class TimeFilter(NumericFilterBase):
             # Literal UNIX timestamp
             try:
                 timestamp = float(self._value)
-            except (ValueError, TypeError), exc:
+            except (ValueError, TypeError) as exc:
                 raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))
         else:
             # Something human readable
@@ -577,8 +579,8 @@ class TimeFilter(NumericFilterBase):
                     dtfmt += "T%H:%M:%S"[:3+3*val.count(':')]
 
                 try:
-                    timestamp = time.mktime(time.strptime(val, dtfmt))
-                except (ValueError), exc:
+                    timestamp = time.mktime(tuple(time.strptime(val, dtfmt)))
+                except (ValueError) as exc:
                     raise FilterError("Bad timestamp value %r in %r (%s)" % (self._value, self._condition, exc))
 
                 if duration:
@@ -655,7 +657,7 @@ class ByteSizeFilter(NumericFilterBase):
         # Get float value
         try:
             self._value = float(self._value)
-        except (ValueError, TypeError), exc:
+        except (ValueError, TypeError) as exc:
             raise FilterError("Bad numerical value %r in %r (%s)" % (self._value, self._condition, exc))
 
         # Scale to bytes
@@ -796,9 +798,11 @@ class ConditionParser(object):
             @type conditions: list or str
         """
         conditions_text = conditions
-        try:
-            conditions = shlex.split(fmt.to_utf8(conditions))
-        except AttributeError:
+        if isinstance(conditions, six.binary_type):
+            conditions = shlex.split(conditions.decode('utf-8'))
+        elif isinstance(conditions, six.text_type):
+            conditions = shlex.split(conditions)
+        else:
             # Not a string, assume parsed tree
             conditions_text = self._tree2str(conditions)
 

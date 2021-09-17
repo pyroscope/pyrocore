@@ -25,6 +25,7 @@ import signal
 import asyncore
 from collections import defaultdict
 
+from six import iteritems
 from pyrobase import logutil
 from pyrobase.parts import Bunch
 
@@ -116,7 +117,7 @@ class RtorrentQueueManager(ScriptBaseWithConfig):
                 else:
                     groups[stem][name][param] = val
 
-        for key, val in groups.iteritems():
+        for key, val in iteritems(groups):
             setattr(self, key.replace("job", "jobs"), Bunch(val))
 
         # Validate httpd config

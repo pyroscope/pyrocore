@@ -29,6 +29,8 @@ import logging
 import operator
 from collections import namedtuple
 
+import six
+
 from pyrobase.parts import Bunch
 from pyrocore import config, error
 from pyrocore.util import os, xmlrpc, load_config, traits, fmt, matching
@@ -39,7 +41,7 @@ class CommaLexer(shlex.shlex):
     """Helper to split argument lists."""
 
     def __init__(self, text):
-        shlex.shlex.__init__(self, fmt.to_utf8(text), None, True)
+        shlex.shlex.__init__(self, text, None, True)
         self.whitespace += ','
         self.whitespace_split = True
         self.commenters = ''
@@ -173,7 +175,7 @@ class RtorrentItem(engine.TorrentProxy):
         try:
             return self._fields[name]
         except KeyError:
-            if isinstance(name, (int, long)):
+            if isinstance(name, six.integer_types):
                 name = "custom_%d" % name
 
             if name == "done":
@@ -767,7 +769,7 @@ class RtorrentEngine(engine.TorrentEngine):
 
         if view is None:
             view = engine.TorrentView(self, "default")
-        elif isinstance(view, basestring):
+        elif isinstance(view, six.string_types):
             view = engine.TorrentView(self, self._resolve_viewname(view))
         else:
             view.viewname = self._resolve_viewname(view.viewname)
