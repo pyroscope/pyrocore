@@ -56,7 +56,7 @@ Adding rTorrent fields not supported by default
         # Add rTorrent attributes not available by default
         def get_tracker_field(obj, name, aggregator=sum):
             "Get an aggregated tracker field."
-            return aggregator(obj._engine._rpc.t.multicall(obj._fields["hash"], 0, "t.%s=" % name)[0])
+            return aggregator([n[0] for n in obj._engine._rpc.t.multicall(obj._fields["hash"], 0, "t.%s=" % name)])
 
         yield engine.OnDemandField(int, "peers_connected", "number of connected peers", matcher=matching.FloatFilter)
         yield engine.DynamicField(int, "downloaders", "number of completed downloads", matcher=matching.FloatFilter,
