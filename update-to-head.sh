@@ -60,7 +60,7 @@ update_venv ./bin/pip
 
 # Get base packages initially, for old or yet incomplete installations
 for project in $git_projects; do
-    test -d $project || { echo "Getting $project..."; git clone "git://github.com/pyroscope/$project.git" $project; }
+    test -d $project || { echo "Getting $project..."; git clone "https://github.com/pyroscope/$project.git" $project; }
 done
 
 # Update source
