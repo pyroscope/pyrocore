@@ -26,6 +26,7 @@ for cmd in $PYTHON git; do
 done
 
 # People never read docs anyway, so let the machine check...
+if [ -v $I_READ_THE_DOCS ]; then #I even read the source and """know what i'm doing""" 
 test -f /proc/1/cgroup -a $(grep -c :/docker /proc/1/cgroup) -gt 0 && in_docker=1 || in_docker=0
 test $(id -u) -ne 0 -o $in_docker -eq 1 || { echo "Do NOT install as root! $rtfm"; exit 1; }
 test -f ./bin/activate && vpy=$PWD/bin/python || vpy=$PYTHON
@@ -35,6 +36,7 @@ print("Using Python %s" % sys.version)
 assert sys.version_info >= (2, 7), "Use Python 2.7! Read the docs."
 assert sys.version_info < (3,), "Use Python 2.7! Read the docs."
 .
+fi
 
 echo "Updating your installation..."
 
